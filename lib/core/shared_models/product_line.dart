@@ -1,0 +1,71 @@
+import 'cart.dart';
+import 'percentage.dart';
+import 'currency.dart';
+import 'money.dart';
+import 'status.dart';
+
+class ProductLine {
+  late int? id;
+  late String name;
+  late String? sku;
+  late int quantity;
+  late Status isFree;
+  late Status onSale;
+  late int? productId;
+  late Money subTotal;
+  late Money unitLoss;
+  late Money unitCost;
+  late String? barcode;
+  late Status hasPrice;
+  late Money unitPrice;
+  late Money grandTotal;
+  late Money unitProfit;
+  late Currency currency;
+  late Status isCancelled;
+  late String? description;
+  late DateTime? createdAt;
+  late DateTime? updatedAt;
+  late Money unitSalePrice;
+  late int originalQuantity;
+  late Money unitRegularPrice;
+  late Money unitSaleDiscount;
+  late Money saleDiscountTotal;
+  late Percentage unitLossPercentage;
+  late Percentage unitProfitPercentage;
+  late List<DetectedChange> detectedChanges;
+  late Percentage unitSaleDiscountPercentage;
+  late Status exceededMaximumAllowedQuantityPerOrder;
+
+  ProductLine.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    sku = json['sku'];
+    name = json['name'];
+    barcode = json['barcode'];
+    quantity = json['quantity'];
+    productId = json['productId'];
+    description = json['description'];
+    isFree = Status.fromJson(json['isFree']);
+    onSale = Status.fromJson(json['onSale']);
+    originalQuantity = json['originalQuantity'];
+    subTotal = Money.fromJson(json['subTotal']);
+    unitLoss = Money.fromJson(json['unitLoss']);
+    unitCost = Money.fromJson(json['unitCost']);
+    hasPrice = Status.fromJson(json['hasPrice']);
+    unitPrice = Money.fromJson(json['unitPrice']);
+    currency = Currency.fromJson(json['currency']);
+    unitProfit = Money.fromJson(json['unitProfit']);
+    grandTotal = Money.fromJson(json['grandTotal']);
+    isCancelled = Status.fromJson(json['isCancelled']);
+    unitSalePrice = Money.fromJson(json['unitSalePrice']);
+    unitSaleDiscount = Money.fromJson(json['unitSaleDiscount']);
+    unitRegularPrice = Money.fromJson(json['unitRegularPrice']);
+    saleDiscountTotal = Money.fromJson(json['saleDiscountTotal']);
+    unitLossPercentage = Percentage.fromJson(json['unitLossPercentage']);
+    unitProfitPercentage = Percentage.fromJson(json['unitProfitPercentage']);
+    createdAt = json['createdAt'] == null ? null : DateTime.parse(json['createdAt']);
+    updatedAt = json['updatedAt'] == null ? null : DateTime.parse(json['updatedAt']);
+    unitSaleDiscountPercentage = Percentage.fromJson(json['unitSaleDiscountPercentage']);
+    exceededMaximumAllowedQuantityPerOrder = Status.fromJson(json['exceededMaximumAllowedQuantityPerOrder']);
+    detectedChanges = (json['detectedChanges'] as List).map((detectedChange) => DetectedChange.fromJson(detectedChange)).toList();
+  }
+}

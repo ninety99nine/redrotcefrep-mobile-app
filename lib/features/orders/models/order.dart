@@ -1,0 +1,116 @@
+import '../../../../core/shared_models/name_description.dart';
+import '../../../../core/shared_models/mobile_number.dart';
+import '../../../../core/shared_models/percentage.dart';
+import '../../../../core/shared_models/currency.dart';
+import '../../../../core/shared_models/status.dart';
+import '../../../../core/shared_models/money.dart';
+import '../../../../core/shared_models/link.dart';
+import '../../../../core/shared_models/user.dart';
+import '../../../../core/shared_models/cart.dart';
+
+class Order {
+  late int id;
+  late Links links;
+  late String summary;
+  late Money amountPaid;
+  late Currency currency;
+  late DateTime createdAt;
+  late int customerUserId;
+  late Money amountPending;
+  late int totalViewsByTeam;
+  late Attributes attributes;
+  late Money amountOutstanding;
+  late String customerLastName;
+  late String customerFirstName;
+  late NameAndDescription status;
+  late Status collectionVerified;
+  late Relationships relationships;
+  late DateTime? lastViewedByTeamAt;
+  late DateTime? firstViewedByTeamAt;
+  late DateTime? collectionVerifiedAt;
+  late Percentage amountPaidPercentage;
+  late NameAndDescription paymentStatus;
+  late MobileNumber customerMobileNumber;
+  late Percentage amountPendingPercentage;
+  late Percentage amountOutstandingPercentage;
+
+  Order.fromJson(Map<String, dynamic> json) {
+
+    id = json['id'];
+    summary = json['summary'];
+    links = Links.fromJson(json['links']);
+    customerUserId = json['customerUserId'];
+    totalViewsByTeam = json['totalViewsByTeam'];
+    customerLastName = json['customerLastName'];
+    customerFirstName = json['customerFirstName'];
+    createdAt = DateTime.parse(json['createdAt']);
+    currency = Currency.fromJson(json['currency']);
+    amountPaid = Money.fromJson(json['amountPaid']);
+    status = NameAndDescription.fromJson(json['status']);
+    attributes = Attributes.fromJson(json['attributes']);
+    amountPending = Money.fromJson(json['amountPending']);
+    amountOutstanding = Money.fromJson(json['amountOutstanding']);
+    collectionVerified = Status.fromJson(json['collectionVerified']);
+    paymentStatus = NameAndDescription.fromJson(json['paymentStatus']);
+    amountPaidPercentage = Percentage.fromJson(json['amountPaidPercentage']);
+    customerMobileNumber = MobileNumber.fromJson(json['customerMobileNumber']);
+    amountPendingPercentage = Percentage.fromJson(json['amountPendingPercentage']);
+    amountOutstandingPercentage = Percentage.fromJson(json['amountOutstandingPercentage']);
+    lastViewedByTeamAt = json['lastViewedByTeamAt'] == null ? null : DateTime.parse(json['lastViewedByTeamAt']);
+    relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
+    firstViewedByTeamAt = json['firstViewedByTeamAt'] == null ? null : DateTime.parse(json['firstViewedByTeamAt']);
+    collectionVerifiedAt = json['collectionVerifiedAt'] == null ? null : DateTime.parse(json['collectionVerifiedAt']);
+  }
+}
+
+class Attributes {
+  late String number;
+  late String customerName;
+  late List<NameAndDescription> followUpStatuses;
+  late DialToShowConfirmationCode dialToShowConfirmationCode;
+
+  Attributes.fromJson(Map<String, dynamic> json) {
+    number = json['number'];
+    customerName = json['customerName'];
+    followUpStatuses = List<NameAndDescription>.from(json['followUpStatuses'].map((followUpStatus) {
+      return NameAndDescription.fromJson(followUpStatus);
+    })).toList();
+    dialToShowConfirmationCode = DialToShowConfirmationCode.fromJson(json['dialToShowConfirmationCode']);
+  }
+}
+
+class DialToShowConfirmationCode {
+  late String code;
+  late String instruction;
+  //  late List<Transaction> transactions;
+
+  DialToShowConfirmationCode.fromJson(Map<String, dynamic> json) {
+    code = json['code'];
+    instruction = json['instruction'];
+    //  transactions = (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
+  }
+}
+
+class Relationships {
+  late Cart? cart;
+  late User? customer;
+  //  late List<Transaction> transactions;
+
+  Relationships.fromJson(Map<String, dynamic> json) {
+    cart = json['cart'] == null ? null : Cart.fromJson(json['cart']);
+    customer = json['customer'] == null ? null : User.fromJson(json['customer']);
+    //  transactions = (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
+  }
+}
+
+class Links {
+  late Link self;
+  late Link showViewers;
+  late Link updateStatus;
+
+  Links.fromJson(Map<String, dynamic> json) {
+    self = Link.fromJson(json['self']);
+    showViewers = Link.fromJson(json['showViewers']);
+    updateStatus = Link.fromJson(json['updateStatus']);
+  }
+}

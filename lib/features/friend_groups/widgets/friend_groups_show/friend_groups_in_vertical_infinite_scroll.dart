@@ -1,0 +1,340 @@
+import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_infinite_scroll.dart';
+import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
+import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../authentication/providers/auth_provider.dart';
+import '../../repositories/friend_group_repository.dart';
+import '../../providers/friend_group_provider.dart';
+import '../../../../core/utils/snackbar.dart';
+import '../../../../core/utils/dialog.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import '../../models/friend_group.dart';
+import 'package:flutter/material.dart';
+import 'dart:convert';
+
+class FriendGroupsInVerticalInfiniteScroll extends StatefulWidget {
+
+  final String filter;
+  final Function(bool) onDeletingFriendGroups;
+  final Function(FriendGroup) onViewFriendGroup;
+  final Function(List<FriendGroup>) onSelectedFriendGroups;
+
+  const FriendGroupsInVerticalInfiniteScroll({
+    super.key,
+    required this.filter,
+    required this.onViewFriendGroup,
+    required this.onSelectedFriendGroups,
+    required this.onDeletingFriendGroups,
+  });
+
+  @override
+  State<FriendGroupsInVerticalInfiniteScroll> createState() => _FriendGroupsInVerticalInfiniteScrollState();
+}
+
+class _FriendGroupsInVerticalInfiniteScrollState extends State<FriendGroupsInVerticalInfiniteScroll> {
+
+  bool isDeleting = false;
+
+  String get filter => widget.filter;
+  Function get onSelectedFriendGroups => widget.onSelectedFriendGroups;
+  Function(FriendGroup) get onViewFriendGroup => widget.onViewFriendGroup;
+  Function(bool) get onDeletingFriendGroups => widget.onDeletingFriendGroups;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
+  FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
+
+  void _startDeleteLoader() => setState(() => isDeleting = true);
+  void _stopDeleteLoader() => setState(() => isDeleting = false);
+
+  /// This allows us to access the state of CustomVerticalInfiniteScroll widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+
+  /// Render each request item as an GroupItem
+  Widget onRenderItem(item, int index, List items, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => GroupItem(
+    customVerticalInfiniteScrollState: _customVerticalInfiniteScrollState,
+    hasSelectedFriendGroups: hasSelectedItems,
+    onViewFriendGroup: onViewFriendGroup,
+    friendGroup: (item as FriendGroup),
+    isSelected: isSelected,
+    isDeleting: isDeleting,
+  );
+  
+  /// Render each request item as an FriendGroup
+  FriendGroup onParseItem(friendGroup) => FriendGroup.fromJson(friendGroup);
+  Future<http.Response> requestFriendGroups(int page, String searchTerm) {
+
+    return friendGroupRepository.showFriendGroups(
+      withCountFriends: true,
+      withCountUsers: false,
+      context: context,
+      filter: filter,
+      page: page
+    );
+  }
+
+  /// Condition to determine whether to add or delete the specified
+  /// friend group from the list of selected friend groups
+  bool toggleSelectionCondition(alreadySelectedItem, currSelectedItem) {
+
+    final FriendGroup alreadySelectedFriendGroup = alreadySelectedItem as FriendGroup;
+    final FriendGroup currSelectedFriendGroup = currSelectedItem as FriendGroup;
+
+    return alreadySelectedFriendGroup.id == currSelectedFriendGroup.id;
+
+  }
+
+  void onSelectedItems(List items) {
+    final friendGroups = List<FriendGroup>.from(items);
+    onSelectedFriendGroups(friendGroups);
+  }
+
+  Widget selectedAllAction(isLoading) {
+
+    /// Delete Icon
+    return GestureDetector(
+      onTap: _requestDeleteFriendGroups,
+      child: const Icon(Icons.delete_rounded, color: Colors.red,)
+    );
+
+  }
+
+  /// Request to delete the selected friend groups
+  void _requestDeleteFriendGroups() async {
+
+    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalInfiniteScrollState.currentState!;
+    final List<FriendGroup> selectedFriendGroups = List<FriendGroup>.from(customInfiniteScrollCurrentState.selectedItems);
+
+    final bool? confirmation = await confirmDelete();
+
+    /// If we can delete
+    if(confirmation == true) {
+
+      _startDeleteLoader();
+
+      /// Notify parent that we are starting the deleting process
+      onDeletingFriendGroups(true);
+
+      friendGroupRepository.deleteFriendGroups(
+        friendGroups: selectedFriendGroups,
+        context: context,
+      ).then((response) async {
+
+        final responseBody = jsonDecode(response.body);
+
+        if(response.statusCode == 200) {
+
+          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+
+          //  Refresh the friend groups
+          customInfiniteScrollCurrentState.startRequest();
+
+        }
+
+        customInfiniteScrollCurrentState.unselectSelectedItems();
+
+      }).catchError((error) {
+
+        SnackbarUtility.showErrorMessage(message: 'Failed to delete groups', context: context);
+
+      }).whenComplete((){
+
+        _stopDeleteLoader();
+
+        /// Notify parent that we are ending the deleting process
+        onDeletingFriendGroups(false);
+
+      });
+
+    }
+
+  }
+
+  /// Confirm delete the selected friend groups
+  Future<bool?> confirmDelete() {
+
+    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalInfiniteScrollState.currentState!;
+    final int totalSelectedItems = customInfiniteScrollCurrentState.totalSelectedItems;
+
+    return DialogUtility.showConfirmDialog(
+      content: 'Are you sure you want to delete $totalSelectedItems ${totalSelectedItems == 1 ? 'group': 'groups'}?',
+      context: context
+    );
+
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return CustomVerticalInfiniteScroll(
+      disabled: isDeleting,
+      debounceSearch: true,
+      showNoMoreContent: false,
+      onParseItem: onParseItem, 
+      onRenderItem: onRenderItem,
+      onSelectedItems: onSelectedItems,
+      selectedAllAction: selectedAllAction,
+      key: _customVerticalInfiniteScrollState,
+      catchErrorMessage: 'Can\'t show groups',
+      toggleSelectionCondition: toggleSelectionCondition,
+      onRequest: (page, searchTerm) => requestFriendGroups(page, searchTerm),
+      headerPadding: const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16)
+    );
+  }
+}
+
+class GroupItem extends StatelessWidget {
+  
+  final bool isSelected;
+  final bool isDeleting;
+  final FriendGroup friendGroup;
+  final bool hasSelectedFriendGroups;
+  final Function(FriendGroup) onViewFriendGroup;
+  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalInfiniteScrollState;
+
+  const GroupItem({
+    super.key, 
+    required this.isSelected,
+    required this.isDeleting,
+    required this.friendGroup,
+    required this.onViewFriendGroup,
+    required this.hasSelectedFriendGroups,
+    required this.customVerticalInfiniteScrollState,
+  });
+
+  int get id => friendGroup.id;
+  String get name => friendGroup.name;
+  int get totalFriends => friendGroup.friendsCount!;
+  String get totalFriendsText => '$totalFriends ${totalFriends == 1 ? 'Friend' : 'Friends'}';
+  CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalInfiniteScrollState.currentState!;
+
+  bool get canPerformActions {
+
+    /// If we are loading data (then stop) 
+    if(customInfiniteScrollCurrentState.isLoading == true) {
+      return false;
+    }
+    
+    /// If we are deleting friend groups (then stop)
+    if(isDeleting) {
+
+      return false;
+      
+    }
+
+    /// Otherwise continue
+    return true;
+    
+  }
+
+  void toggleSelection() {
+    if(canPerformActions == false) return;
+    customInfiniteScrollCurrentState.toggleSelection(friendGroup);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Dismissible(
+            key: ValueKey<int>(id),
+            direction: DismissDirection.startToEnd,
+            confirmDismiss: (DismissDirection direction) {
+              
+              if(canPerformActions) customInfiniteScrollCurrentState.toggleSelection(friendGroup);
+        
+              return Future.delayed(Duration.zero).then((_) => false);
+        
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                color: isSelected ? Colors.green.shade50 : null,
+                border: Border.all(color: isSelected ? Colors.green.shade300 : Colors.transparent),
+              ),
+              child: ListTile(
+                dense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                onLongPress: toggleSelection,
+                onTap: toggleSelection,
+                title: AnimatedPadding(
+                  duration: const Duration(milliseconds: 500),
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+        
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+        
+                          /// Name
+                          CustomTitleSmallText(name),
+                  
+                          /// Spacer
+                          const SizedBox(height: 4),
+        
+                          //  Total Friends
+                          CustomBodyText(totalFriendsText, lightShade: true),
+        
+                        ],
+                      ),
+                
+                      /// Close Icon
+                      if(!isDeleting && isSelected) Positioned(
+                        top: -6,
+                        right: -16,
+                        child: IconButton(
+                          padding: const EdgeInsets.only(left: 24, right: 16),
+                          icon: Icon(Icons.cancel, size: 20, color: Colors.green.shade500,),
+                          onPressed: () {
+                            
+                            if(canPerformActions == false) return;
+        
+                            /// Unselect the selected friend groups
+                            customInfiniteScrollCurrentState.unselectSelectedItems();
+        
+                            //  View this friend group
+                            onViewFriendGroup(friendGroup);
+        
+                          }
+                        ),
+                      ),
+        
+                    ]
+                  )
+                )
+              ),
+            ),
+          ),
+        ),
+
+        /// Spacer
+        SizedBox(width: isSelected ? 8 : 0),
+
+        /// Edit Icon
+        if(!isDeleting) CircleAvatar(
+          radius: 16,
+          backgroundColor: Colors.grey.shade100,
+          child: IconButton(
+            isSelected: true,
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.arrow_forward, size: 16, color: Colors.grey.shade400,),
+            onPressed: () {
+              
+              if(canPerformActions == false) return;
+        
+              /// Unselect the selected friend groups
+              customInfiniteScrollCurrentState.unselectSelectedItems();
+        
+              //  View this friend group
+              onViewFriendGroup(friendGroup);
+        
+            }
+          ),
+        ),
+      ],
+    );
+  }
+}
