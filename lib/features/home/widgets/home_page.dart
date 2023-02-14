@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_popup.dart';
+
 import '../../../features/authentication/providers/auth_provider.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import 'tab_content/communities_page_content.dart';
@@ -81,12 +83,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget get floatingActionButton {
-    return FloatingActionButton(
-      mini: true,
-      onPressed: () => {},
-      child: const Icon(Icons.search)
-    );
+  Widget get searchModalBottomSheet {
+    return const SearchModalBottomSheet();
   }
 
   Widget getNavigationTab(String label, int index) {
@@ -133,7 +131,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: floatingActionButton,
+      floatingActionButton: searchModalBottomSheet,
       drawer: const NavigationDrawer(),
       appBar: appBar,
       body: body,

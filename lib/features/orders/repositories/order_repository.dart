@@ -62,7 +62,7 @@ class OrderRepository {
   }
 
   /// Show viewers of the specified order
-  Future<http.Response> showViewers({ String searchTerm = '', int page = 1, BuildContext? context }) {
+  Future<http.Response> showViewers({ String searchWord = '', int page = 1, BuildContext? context }) {
     
     if(order == null) throw Exception('The order must be set to show viewers');
 
@@ -70,7 +70,7 @@ class OrderRepository {
 
     Map<String, String> queryParams = {};
       
-    if(searchTerm.isNotEmpty) queryParams.addAll({'search': searchTerm}); 
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
     return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
     

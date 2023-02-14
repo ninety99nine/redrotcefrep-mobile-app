@@ -20,7 +20,7 @@ enum RequestType {
 class CustomHorizontalInfiniteScroll extends StatefulWidget {
 
   final bool disabled;
-  final bool enableSearch;
+  final bool showSearchBar;
   final bool showSeparater;
   final bool debounceSearch;
   final String catchErrorMessage;
@@ -38,7 +38,7 @@ class CustomHorizontalInfiniteScroll extends StatefulWidget {
   final Widget? contentAfterSearchBar;
 
   /// Method to implement the Api Request
-  final Future<http.Response> Function(int page, String searchTerm) onRequest;
+  final Future<http.Response> Function(int page, String searchWord) onRequest;
 
   /// Method to implement conversion of the Api Request
   /// data retrieved into the desired Model data output
@@ -78,7 +78,7 @@ class CustomHorizontalInfiniteScroll extends StatefulWidget {
     this.initialPage = 0,
     this.disabled = false,
     required this.onRequest,
-    this.enableSearch = true,
+    this.showSearchBar = true,
     this.showSeparater = true,
     required this.onParseItem,
     required this.onRenderItem,
@@ -108,7 +108,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
   bool hasShownSearchBarBefore = false;
   bool sentFirstRequest = false;
   bool isLoading = false;
-  String searchTerm = '';
+  String searchWord = '';
   bool hasError = false;
   List data = [];
   int? lastPage;
@@ -118,7 +118,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
   bool get disabled => widget.disabled;
   String get noContent => widget.noContent;
   int get initialPage => widget.initialPage;
-  bool get enableSearch => widget.enableSearch;
+  bool get showSearchBar => widget.showSearchBar;
   bool get showSeparater => widget.showSeparater;
   bool get debounceSearch => widget.debounceSearch;
   String get noMoreContent => widget.noMoreContent;
@@ -128,7 +128,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
   void _stopLoader() => setState(() => isLoading = false);
   Function(int)? get onPageChanged => widget.onPageChanged;
   String get catchErrorMessage => widget.catchErrorMessage;
-  bool get isSearching => isLoading && searchTerm.isNotEmpty;
+  bool get isSearching => isLoading && searchWord.isNotEmpty;
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
   Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
@@ -249,7 +249,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
     return apiConflictResolverUtility.addRequest(
       
       /// The request we are making
-      onRequest: () => onRequest(page, searchTerm), 
+      onRequest: () => onRequest(page, searchWord), 
       
       /// The response returned by the last request
       onCompleted: (response) {
@@ -325,7 +325,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
         setHasError(true);
 
         /// Show the Snackbar error message
-        SnackbarUtility.showErrorMessage(message: catchErrorMessage, context: context);
+        SnackbarUtility.showErrorMessage(message: catchErrorMessage);
 
       }
 
@@ -344,10 +344,10 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
      *     have shown the search bar at least once before
      *     
      */
-    final bool hasSearchTerm = searchTerm.isNotEmpty;
-    final bool hasNoSearchTermButHasManyPages = searchTerm.isEmpty && (lastPage == null ? false : lastPage! > 1);
+    final bool hasSearchTerm = searchWord.isNotEmpty;
+    final bool hasNoSearchTermButHasManyPages = searchWord.isEmpty && (lastPage == null ? false : lastPage! > 1);
     
-    if(enableSearch && sentFirstRequest && (hasSearchTerm || hasNoSearchTermButHasManyPages || hasShownSearchBarBefore)) {
+    if(showSearchBar && sentFirstRequest && (hasSearchTerm || hasNoSearchTermButHasManyPages || hasShownSearchBarBefore)) {
       return hasShownSearchBarBefore = true;
     }else{
       return false;
@@ -386,7 +386,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: CustomSearchTextFormField(
-        initialValue: searchTerm,
+        initialValue: searchWord,
         isLoading: isSearching,
         enabled: !disabled,
         onChanged: (value) {
@@ -394,7 +394,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalInfinite
           if(!mounted) return;
 
           /// Update local state
-          setState(() => searchTerm = value);
+          setState(() => searchWord = value);
 
           /// Notify parent
           if(debounceSearch) {

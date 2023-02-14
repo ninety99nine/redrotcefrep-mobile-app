@@ -74,7 +74,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
   
   /// Render each request item as an User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestFriends(int page, String searchTerm) {
+  Future<http.Response> requestFriends(int page, String searchWord) {
 
     Future<http.Response> request;
 
@@ -164,7 +164,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
           //  Refresh the friends
           customInfiniteScrollCurrentState.startRequest();
@@ -175,7 +175,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Failed to remove friends', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Failed to remove friends');
 
       }).whenComplete((){
 
@@ -219,7 +219,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
       loaderMargin: const EdgeInsets.only(top: 40),
       toggleSelectionCondition: toggleSelectionCondition,
       showFirstRequestLoader: hasFriendGroup ? false : true,
-      onRequest: (page, searchTerm) => requestFriends(page, searchTerm),
+      onRequest: (page, searchWord) => requestFriends(page, searchWord),
     );
   }
 }

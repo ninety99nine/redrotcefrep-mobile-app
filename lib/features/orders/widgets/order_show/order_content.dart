@@ -179,7 +179,7 @@ class OrderContentState extends State<OrderContent> {
 
           final order = Order.fromJson(responseBody);
 
-          SnackbarUtility.showSuccessMessage(message: selectedFollowUpStatus!.name, context: context);
+          SnackbarUtility.showSuccessMessage(message: selectedFollowUpStatus!.name);
 
           if(onUpdatedOrder != null) {
 
@@ -239,10 +239,7 @@ class OrderContentState extends State<OrderContent> {
       Future.delayed(Duration.zero).then((value) {
 
         /// We cannot cancel a cancelled order
-        SnackbarUtility.showInfoMessage(
-          message: 'This order is already cancelled',
-          context: context
-        );
+        SnackbarUtility.showInfoMessage(message: 'This order is already cancelled');
 
       });
 
@@ -405,7 +402,7 @@ class OrderContentState extends State<OrderContent> {
   void showViewers () {
 
     if(hasBeenSeen == false) {
-      SnackbarUtility.showInfoMessage(message: '${store.name} team hasn\'t seen this order yet', duration: 4, context: context);
+      SnackbarUtility.showInfoMessage(message: '${store.name} team hasn\'t seen this order yet', duration: 4);
       return;
     }
 

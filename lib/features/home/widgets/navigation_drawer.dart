@@ -42,7 +42,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       if(response.statusCode == 200) {
         
         /// Show the success message
-        SnackbarUtility.showSuccessMessage(context: context, message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
         
       }
 
@@ -68,7 +68,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       DialogUtility.hideLoader(context);
   
       /// Show the fatal error message
-      SnackbarUtility.showErrorMessage(context: context, message: 'Failed to sign out');
+      SnackbarUtility.showErrorMessage(message: 'Failed to sign out');
 
     }).whenComplete(() {
 

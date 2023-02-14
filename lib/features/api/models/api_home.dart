@@ -23,8 +23,12 @@ class Links {
   late String register;
   late String accountExists;
   late String resetPassword;
+  late String showSearchStores;
   late String validateRegister;
+  late String showSearchMenus;
+  late String showSearchFriends;
   late String validateResetPassword;
+  late String showSearchFriendGroups;
   late String showAllTeamMemberPermissions;
   late String verifyMobileVerificationCode;
   late String generateMobileVerificationCode;
@@ -42,8 +46,12 @@ class Links {
     register = json['register'];
     accountExists = json['accountExists'];
     resetPassword = json['resetPassword'];
+    showSearchStores = json['showSearchStores'];
     validateRegister = json['validateRegister'];
+    showSearchFriends = json['showSearchFriends'];
+    showSearchMenus = json['showSearchMenus'];
     validateResetPassword = json['validateResetPassword'];
+    showSearchFriendGroups = json['showSearchFriendGroups'];
     showAllTeamMemberPermissions = json['showAllTeamMemberPermissions'];
     verifyMobileVerificationCode = json['verifyMobileVerificationCode'];
     generateMobileVerificationCode = json['generateMobileVerificationCode'];

@@ -111,18 +111,18 @@ class AuthFormService {
   }
 
   showSnackbarUnknownError(BuildContext context) {
-    SnackbarUtility.showErrorMessage(context: context, message: 'Sorry, something went wrong');
+    SnackbarUtility.showErrorMessage(message: 'Sorry, something went wrong');
   }
 
   showSnackbarValidationError(BuildContext context) {
-    SnackbarUtility.showErrorMessage(context: context, message: 'We found some mistakes');
+    SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
   }
 
   showSnackbarSigninSuccess(http.Response response, BuildContext context) {
     final responseBody = jsonDecode(response.body);
     final message = responseBody['message'];
 
-    SnackbarUtility.showSuccessMessage(context: context, message: message);
+    SnackbarUtility.showSuccessMessage(message: message);
   }
 
   Widget enterMobileNumberToSigninInstruction() {

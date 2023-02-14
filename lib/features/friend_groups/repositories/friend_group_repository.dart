@@ -37,20 +37,21 @@ class FriendGroupRepository {
   }
 
   /// Show friend groups
-  Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, String searchTerm = '', int? page = 1, BuildContext? context }){
+  Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, String searchWord = '', int? page = 1, BuildContext? context }){
 
     final url =  user.links.showFriendGroups!.href;
 
     Map<String, String> queryParams = {};
 
     if(withCountUsers) queryParams.addAll({'withCountUsers': '1'});
+    if(withCountStores) queryParams.addAll({'withCountStores': '1'});
     if(withCountFriends) queryParams.addAll({'withCountFriends': '1'});
 
     /// Filter friend groups by the specified status
     if(filter != null) queryParams.addAll({'filter': filter});
 
     /// Filter by search
-    if(searchTerm.isNotEmpty) queryParams.addAll({'search': searchTerm}); 
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
     return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
   

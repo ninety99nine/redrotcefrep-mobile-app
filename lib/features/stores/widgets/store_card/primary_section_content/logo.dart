@@ -1,7 +1,5 @@
-import '../../../providers/store_provider.dart';
 import '../../../services/store_services.dart';
 import '../../../models/shoppable_store.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class StoreLogo extends StatefulWidget {
@@ -22,7 +20,6 @@ class StoreLogo extends StatefulWidget {
 class _StoreLogoState extends State<StoreLogo> {
 
   ShoppableStore get store => widget.store;
-  StoreProvider get storesProvider => Provider.of<StoreProvider>(context, listen: false);
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +30,7 @@ class _StoreLogoState extends State<StoreLogo> {
      * we just want to navigate to show the store
      */
     return GestureDetector(
-      onTap: () => StoreServices.navigateToStorePage(
-        store, storesProvider, context
-      ),
+      onTap: () => StoreServices.navigateToStorePage(store),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300,),

@@ -56,13 +56,12 @@ class _FollowerInvitationsInVerticalInfiniteScrollState extends State<FollowerIn
 
   /// Render each request item as an ShoppableStore
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
-  Future<http.Response> requestInvitedStores(int page, String searchTerm) {
+  Future<http.Response> requestInvitedStores(int page, String searchWord) {
     
     Future<http.Response> response = storeProvider.storeRepository.showStores(
       /// Return stores were the user is invited to follow
       userAssociation: UserAssociation.invitedToFollow,
-      searchTerm: searchTerm,
-      context: context,
+      searchWord: searchWord,
       page: page
     );
 
@@ -80,7 +79,7 @@ class _FollowerInvitationsInVerticalInfiniteScrollState extends State<FollowerIn
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
       key: _customVerticalInfiniteScrollState,
-      onRequest: (page, searchTerm) => requestInvitedStores(page, searchTerm),
+      onRequest: (page, searchWord) => requestInvitedStores(page, searchWord),
       headerPadding: const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16),
       catchErrorMessage: 'Can\'t show invitations'
     );
@@ -129,15 +128,14 @@ class _InvitationItemState extends State<InvitationItem> {
     
     _startLoader();
 
-    return storeProvider.setStore(store).storeRepository.acceptInvitationToFollow(
-      context: context,
-    ).then((response) {
+    return storeProvider.setStore(store).storeRepository.acceptInvitationToFollow()
+    .then((response) {
 
       final responseBody = jsonDecode(response.body);
 
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
         /// Notify the parent that user responded to the invitation
         onRespondedToInvitation();
@@ -150,7 +148,7 @@ class _InvitationItemState extends State<InvitationItem> {
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Failed to accept invitation', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Failed to accept invitation');
 
       return false;
 
@@ -166,15 +164,14 @@ class _InvitationItemState extends State<InvitationItem> {
     
     _startLoader();
 
-    return storeProvider.setStore(store).storeRepository.declineInvitationToFollow(
-      context: context,
-    ).then((response) {
+    return storeProvider.setStore(store).storeRepository.declineInvitationToFollow()
+    .then((response) {
 
       final responseBody = jsonDecode(response.body);
 
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
         /// Notify the parent that user responded to the invitation
         onRespondedToInvitation();
@@ -187,7 +184,7 @@ class _InvitationItemState extends State<InvitationItem> {
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Failed to decline invitation', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Failed to decline invitation');
 
       return false;
 

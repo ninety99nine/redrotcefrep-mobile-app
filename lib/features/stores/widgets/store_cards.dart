@@ -67,7 +67,8 @@ class _StoreCardsState extends State<StoreCards> {
 
     super.didUpdateWidget(oldWidget);
 
-    /// If the order friend group id has changed
+    /// If the friend group id has changed.
+    /// This happends if we are switching the friend group
     if(friendGroup?.id != oldWidget.friendGroup?.id) {
 
       /// Start a new request (so that we can filter stores by the specified friend group id)
@@ -77,21 +78,23 @@ class _StoreCardsState extends State<StoreCards> {
 
   }
 
-  Widget onRenderItem(store, int index, List stores, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => StoreCard(store: (store as ShoppableStore));
+  Widget onRenderItem(store, int index, List stores, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => StoreCard(
+    store: (store as ShoppableStore),
+    onRefreshStores: onRefreshStores
+  );
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
-  Future<http.Response> requestShowStores(int page, String searchTerm) {
+  Future<http.Response> requestShowStores(int page, String searchWord) {
     return storeProvider.storeRepository.showStores(
       userAssociation: userAssociation,
       withCountTeamMembers: true,
       friendGroup: friendGroup,
       withCountFollowers: true,
       withCountReviews: true,
-      searchTerm: searchTerm,
+      searchWord: searchWord,
       withCountCoupons: true,
       withCountOrders: true,
       withProducts: true,
       withRating: true,
-      context: context,
       page: page
     );
   }
@@ -124,7 +127,7 @@ class _StoreCardsState extends State<StoreCards> {
     }).catchError((error) {
 
       /// Show the error message
-      SnackbarUtility.showErrorMessage(context: context, message: 'Can\'t check invitations');
+      SnackbarUtility.showErrorMessage(message: 'Can\'t check invitations');
 
     });
 
@@ -132,16 +135,12 @@ class _StoreCardsState extends State<StoreCards> {
 
   /// Check the invitations to join teams
   Future<http.Response> requestStoreInvitationsToJoinTeam() {
-    return storeProvider.storeRepository.checkStoreInvitationsToJoinTeam(
-      context: context
-    );
+    return storeProvider.storeRepository.checkStoreInvitationsToJoinTeam();
   }
 
   /// Check the invitations to follow
   Future<http.Response> requestStoreInvitationsToFollow() {
-    return storeProvider.storeRepository.checkStoreInvitationsToFollow(
-      context: context
-    );
+    return storeProvider.storeRepository.checkStoreInvitationsToFollow();
   }
 
   Widget get invitationsBanner {
@@ -173,7 +172,7 @@ class _StoreCardsState extends State<StoreCards> {
 
       /// Modal Popup to show invitations to join team
       return TeamMemberInvitationsModalPopup(
-        onRefresh: onRefresh,
+        onRefreshStores: onRefreshStores,
         trigger: invitationsBanner,
       );
 
@@ -181,7 +180,7 @@ class _StoreCardsState extends State<StoreCards> {
 
       /// Modal Popup to show invitations to follow store
       return FollowerInvitationsModalBottomSheet(
-        onRefresh: onRefresh,
+        onRefreshStores: onRefreshStores,
         trigger: invitationsBanner,
       );
 
@@ -189,7 +188,7 @@ class _StoreCardsState extends State<StoreCards> {
 
   }
 
-  void onRefresh() {
+  void onRefreshStores() {
 
     /// Reset the invitations checker
     setState(() => checkStoreInvitations = null);
@@ -208,10 +207,10 @@ class _StoreCardsState extends State<StoreCards> {
       debounceSearch: true,
       onParseItem: onParseItem,
       onRenderItem: onRenderItem,
+      catchErrorMessage: 'Can\'t show stores',
       key: _customVerticalInfiniteScrollState,
       contentBeforeSearchBar: contentBeforeSearchBar,
-      onRequest: (page, searchTerm) => requestShowStores(page, searchTerm), 
-      catchErrorMessage: 'Can\'t show stores'
+      onRequest: (page, searchWord) => requestShowStores(page, searchWord), 
     );
   }
 

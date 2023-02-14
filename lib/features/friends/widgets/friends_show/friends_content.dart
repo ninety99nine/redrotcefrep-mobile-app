@@ -253,6 +253,8 @@ class _FriendsContentState extends State<FriendsContent> {
   /// Close the Modal Bottom Sheet since we are done
   void onDoneSelectingFriends() {
 
+    requestUpdateLastSelectedFriends();
+
     /// Close the Modal Bottom Sheet
     Navigator.of(context).pop();
 
@@ -263,18 +265,18 @@ class _FriendsContentState extends State<FriendsContent> {
 
     }
 
-    requestUpdateLastSelectedFriends();
-
   }
 
   /// Update the date and time of these selected friends
-  void requestUpdateLastSelectedFriends() {
+  void requestUpdateLastSelectedFriends() async {
 
     if(hasSelectedFriends) {
-      authRepository.updateLastSelectedFriends(
+
+      await authRepository.updateLastSelectedFriends(
         friends: friends,
         context: context,
       );
+
     }
 
   }
@@ -282,10 +284,10 @@ class _FriendsContentState extends State<FriendsContent> {
   /// Close the Modal Bottom Sheet since we are done
   void onDoneSelectingFriendGroups() {
 
+    requestUpdateLastSelectedFriendGroups();
+
     /// Close the Modal Bottom Sheet
     Navigator.of(context).pop();
-
-    requestUpdateLastSelectedFriendGroups();
 
   }
 

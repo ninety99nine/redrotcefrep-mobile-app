@@ -41,7 +41,7 @@ class CustomTextFormField extends StatelessWidget {
       this.borderRadiusAmount = 50.0,
       this.keyboardType = TextInputType.text,
       this.validatorOnEmptyText = 'This field is required',
-      this.contentPadding = const EdgeInsets.symmetric(vertical: 10, horizontal: 20)
+      this.contentPadding = const EdgeInsets.symmetric(vertical: 8, horizontal: 20)
     }
   );
 

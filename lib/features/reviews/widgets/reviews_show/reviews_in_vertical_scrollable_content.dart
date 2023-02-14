@@ -66,14 +66,13 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
 
   /// Render each request item as an Review
   Review onParseItem(review) => Review.fromJson(review);
-  Future<http.Response> requestStoreReviews(int page, String searchTerm) {
+  Future<http.Response> requestStoreReviews(int page, String searchWord) {
 
     final int? userId = reviewer == null ? null : reviewer!.id;
 
     return storeProvider.setStore(store).storeRepository.showReviews(
-      searchTerm: searchTerm,
+      searchWord: searchWord,
       filter: reviewFilter,
-      context: context,
       withUser: true,
       userId: userId,
       page: page
@@ -99,7 +98,7 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
       key: _customVerticalInfiniteScrollState,
       catchErrorMessage: 'Can\'t show invitations',
       contentAfterSearchBar: reviewer == null ? null : reviewerMessageAlert,
-      onRequest: (page, searchTerm) => requestStoreReviews(page, searchTerm),
+      onRequest: (page, searchWord) => requestStoreReviews(page, searchWord),
       headerPadding: const EdgeInsets.only(top: 32, bottom: 0, left: 16, right: 16),
     );
   }

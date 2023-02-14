@@ -91,7 +91,7 @@ class _ContentState extends State<Content> {
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Can\'t show the terms and conditions', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Can\'t show the terms and conditions');
 
     }).whenComplete((){
 
@@ -138,11 +138,11 @@ class _ContentState extends State<Content> {
     final responseBody = jsonDecode(response.body);
     final message = responseBody['message'];
 
-    SnackbarUtility.showSuccessMessage(context: context, message: message);
+    SnackbarUtility.showSuccessMessage(message: message);
   }
 
   void showFailedToAcceptTermsAndConditionsMessage() {
-    SnackbarUtility.showErrorMessage(message: 'Can\'t accept the terms and conditions', context: context);
+    SnackbarUtility.showErrorMessage(message: 'Can\'t accept the terms and conditions');
   }
 
   Widget getContent() {

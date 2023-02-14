@@ -9,6 +9,7 @@ class FriendGroup {
   late String name;
   late bool shared;
   late int? usersCount;
+  late int? storesCount;
   late int? friendsCount;
   late bool canAddFriends;
   late Attributes attributes;
@@ -19,6 +20,7 @@ class FriendGroup {
     name = json['name'];
     shared = json['shared'];
     usersCount = json['usersCount'];
+    storesCount = json['storesCount'];
     friendsCount = json['friendsCount'];
     canAddFriends = json['canAddFriends'];
     links = Links.fromJson(json['links']);

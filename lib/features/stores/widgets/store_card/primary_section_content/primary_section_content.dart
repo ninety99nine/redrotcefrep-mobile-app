@@ -7,12 +7,14 @@ class StorePrimarySectionContent extends StatefulWidget {
 
   final double? logoRadius;
   final ShoppableStore store;
+  final Function? onRefreshStores;
   final bool showProfileRightSide;
 
   const StorePrimarySectionContent({
     Key? key,
     this.logoRadius,
     required this.store, 
+    this.onRefreshStores,
     this.showProfileRightSide = true,
   }) : super(key: key);
 
@@ -24,6 +26,7 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
 
   ShoppableStore get store => widget.store;
   double? get logoRadius => widget.logoRadius;
+  Function? get onRefreshStores => widget.onRefreshStores;
   bool get showProfileRightSide => widget.showProfileRightSide;
 
   @override
@@ -40,7 +43,13 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
         const SizedBox(width: 8,),
       
         //  Store Profile (Name, Description, Adverts, Rating, e.t.c)
-        Expanded(child: StoreProfile(store: store, showProfileRightSide: showProfileRightSide))
+        Expanded(
+          child: StoreProfile(
+            store: store, 
+            onRefreshStores: onRefreshStores,
+            showProfileRightSide: showProfileRightSide
+          )
+        )
 
       ]
     );

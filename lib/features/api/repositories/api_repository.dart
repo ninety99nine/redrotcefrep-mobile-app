@@ -42,7 +42,6 @@ class ApiRepository {
     url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
 
     print('get url $url');
-    print('_bearerToken: $_bearerToken');
 
     return http.get(
       Uri.parse(url),
@@ -53,7 +52,6 @@ class ApiRepository {
       return response;
       
     }).catchError((error) {
-
       ApiService.handleApplicationFailure(error, context);
       throw(error);
       
@@ -101,19 +99,18 @@ class ApiRepository {
     print('put url $url');
     print('put body');
     print(body);
-    print('_bearerToken: $_bearerToken');
 
     return http.put(
       Uri.parse(url),
       headers: _apiHeaders,
       body: jsonEncode(body),
     ).then((response) {
-
+      
       ApiService.handleRequestFailure(response, context);
       return response;
       
     }).catchError((error) {
-
+      
       ApiService.handleApplicationFailure(error, context);
       throw(error);
       

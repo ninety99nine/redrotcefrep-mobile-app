@@ -41,9 +41,8 @@ class _OrderForDetailsState extends State<OrderForDetails> {
 
     isLoading = true;
     
-    await storeProvider.setStore(store!).storeRepository.showShoppingCartOrderForOptions(
-      context: context,
-    ).then((response) async {
+    await storeProvider.setStore(store!).storeRepository.showShoppingCartOrderForOptions()
+    .then((response) async {
 
       final responseBody = jsonDecode(response.body);
 

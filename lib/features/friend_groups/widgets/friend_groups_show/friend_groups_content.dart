@@ -1,28 +1,32 @@
-import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
-import 'package:bonako_demo/features/friend_groups/repositories/friend_group_repository.dart';
-import 'package:provider/provider.dart';
-
 import '../friend_group_create_or_update/friend_group_create_or_update.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../repositories/friend_group_repository.dart';
 import 'friend_groups_in_vertical_infinite_scroll.dart';
 import '../friend_groups_show/friend_group_menus.dart';
+import '../../providers/friend_group_provider.dart';
 import 'friend_groups_page/friend_groups_page.dart';
 import '../../enums/friend_group_enums.dart';
+import 'package:provider/provider.dart';
 import '../../models/friend_group.dart';
 import 'package:flutter/material.dart';
 
 class FriendGroupsContent extends StatefulWidget {
   
+  final Purpose purpose;
   final bool showingFullPage;
   final bool enableBulkSelection;
   final Function(List<FriendGroup>)? onSelectedFriendGroups;
+  final Function(List<FriendGroup>)? onDoneSelectingFriendGroups;
+  
 
   const FriendGroupsContent({
     super.key,
+    required this.purpose,
     this.onSelectedFriendGroups,
     this.showingFullPage = false,
+    this.onDoneSelectingFriendGroups,
     required this.enableBulkSelection,
   });
 
@@ -38,6 +42,8 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   bool disableFloatingActionButton = false;
   FriendGroupContentView friendGroupContentView = FriendGroupContentView.viewingFriendGroups;
 
+  Purpose get purpose => widget.purpose;
+
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
   bool get enableBulkSelection => widget.enableBulkSelection;
@@ -45,6 +51,8 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   bool get hasSelectedGroupsMenu => selectedMenu == Menu.groups;
   bool get isViewingAny => (isViewingGroups || isViewingSharedGroups);
   bool get hasSelectedSharedGroupsMenu => selectedMenu == Menu.sharedGroups;
+  bool get wantsToChooseFriendGroups => purpose == Purpose.chooseFriendGroups;
+  bool get wantsToAddStoreToFriendGroups => purpose == Purpose.addStoreToFriendGroups;
   FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
   bool get isViewingGroup => hasSelectedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroup;
@@ -54,10 +62,10 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
   String get subtitle {
 
-    if(isViewingGroups) {
+    if(isViewingGroups && wantsToAddStoreToFriendGroups) {
+      return 'Select groups to add store';
+    }else if(isViewingGroups && wantsToChooseFriendGroups) {
       return 'Select your group';
-    }else if(isViewingSharedGroups) {
-      return 'Select a shared group';
     }else{
       return 'Add a new group';
     }
@@ -167,10 +175,17 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
   /// Close the Modal Bottom Sheet since we are done
   void onDoneSelectingFriendGroups() {
-    
-    Navigator.of(context).pop();
+
+    if(widget.onDoneSelectingFriendGroups != null) {
+
+      /// Notify parent on selected friend groups
+      widget.onDoneSelectingFriendGroups!(friendGroups);
+
+    }
 
     requestUpdateLastSelectedFriendGroups();
+    
+    Navigator.of(context).pop();
 
   }
 

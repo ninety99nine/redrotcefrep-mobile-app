@@ -17,15 +17,20 @@ class FriendGroupProvider with ChangeNotifier {
   /// Constructor: Set the provided Api Provider
   FriendGroupProvider({ required this.authProvider });
 
-  /// Return the store
-  FriendGroup? get store => _friendGroup;
+  /// Return the friend group
+  FriendGroup? get friendGroup => _friendGroup;
 
   /// Return the Friend Group Repository
   FriendGroupRepository get friendGroupRepository => FriendGroupRepository(friendGroup: _friendGroup, authProvider: authProvider);
 
-  /// Set the specified store
+  /// Set the specified friend group
   FriendGroupProvider setFriendGroup(FriendGroup friendGroup) {
     _friendGroup = friendGroup;
+    return this;
+  }
+  /// Unset the specified friend group
+  FriendGroupProvider unsetFriendGroup() {
+    _friendGroup = null;
     return this;
   }
 }

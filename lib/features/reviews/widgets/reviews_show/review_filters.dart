@@ -49,9 +49,8 @@ class ReviewFiltersState extends State<ReviewFilters> {
   /// to filter the results of reviews returned on each request
   void requestStoreReviewFilters() {
     
-    storeProvider.setStore(store).storeRepository.showReviewFilters(
-      context: context
-    ).then((http.Response response) {
+    storeProvider.setStore(store).storeRepository.showReviewFilters()
+    .then((http.Response response) {
 
       if(!mounted) return;
 

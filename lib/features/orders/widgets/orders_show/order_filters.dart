@@ -51,9 +51,8 @@ class OrderFiltersState extends State<OrderFilters> {
   /// to filter the results of orders returned on each request
   void requestStoreOrderFilters() {
     
-    storeProvider.setStore(store).storeRepository.showOrderFilters(
-      context: context
-    ).then((http.Response response) {
+    storeProvider.setStore(store).storeRepository.showOrderFilters()
+    .then((http.Response response) {
 
       if(!mounted) return;
 

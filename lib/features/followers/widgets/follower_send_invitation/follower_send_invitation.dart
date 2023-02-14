@@ -39,14 +39,13 @@ class _FollowerSendInvitationState extends State<FollowerSendInvitation> {
 
     return storeProvider.setStore(store).storeRepository.inviteFollowers(
       mobileNumbers: mobileNumbers,
-      context: context,
     ).then((response) async {
 
       final responseBody = jsonDecode(response.body);
 
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4, context: context);
+        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4);
 
         followersInvitations = FollowersInvitations.fromJson(responseBody['invitations']);
 
@@ -58,7 +57,7 @@ class _FollowerSendInvitationState extends State<FollowerSendInvitation> {
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Failed to invite friends', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Failed to invite friends');
 
     });
 

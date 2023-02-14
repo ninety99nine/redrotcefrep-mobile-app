@@ -41,9 +41,9 @@ class _OrderViewersState extends State<OrderViewers> {
     store: store,
   );
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestShowViewers(int page, String searchTerm) {
+  Future<http.Response> requestShowViewers(int page, String searchWord) {
     return orderProvider.setOrder(order).orderRepository.showViewers(
-      searchTerm: searchTerm,
+      searchWord: searchWord,
       context: context,
       page: page
     );
@@ -84,7 +84,7 @@ class _OrderViewersState extends State<OrderViewers> {
       catchErrorMessage: 'Can\'t show viewers',
       contentAfterSearchBar: contentAfterSearchBar,
       contentBeforeSearchBar: contentBeforeSearchBar,
-      onRequest: (page, searchTerm) => requestShowViewers(page, searchTerm), 
+      onRequest: (page, searchWord) => requestShowViewers(page, searchWord), 
       headerPadding: const EdgeInsets.only(top: 24, bottom: 0, left: 16, right: 16),
     );
   }

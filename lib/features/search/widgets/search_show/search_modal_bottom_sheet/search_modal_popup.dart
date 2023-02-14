@@ -1,26 +1,18 @@
-
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-
-import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
+import '../../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import 'package:flutter/material.dart';
-import '../menu_content.dart';
+import '../search_content.dart';
 
-class MenuModalBottomSheet extends StatefulWidget {
+class SearchModalBottomSheet extends StatefulWidget {
 
-  final ShoppableStore store;
-
-  const MenuModalBottomSheet({
-    super.key,
-    required this.store
+  const SearchModalBottomSheet({
+    super.key
   });
 
   @override
-  State<MenuModalBottomSheet> createState() => _MenuModalBottomSheetState();
+  State<SearchModalBottomSheet> createState() => _SearchModalBottomSheetState();
 }
 
-class _MenuModalBottomSheetState extends State<MenuModalBottomSheet> {
-
-  ShoppableStore get store => widget.store;
+class _SearchModalBottomSheetState extends State<SearchModalBottomSheet> {
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -28,14 +20,11 @@ class _MenuModalBottomSheetState extends State<MenuModalBottomSheet> {
   final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
 
   Widget get trigger {
-
-    return IconButton(
-      onPressed: openBottomModalSheet, 
-      padding: const EdgeInsets.all(4.0),
-      constraints: const BoxConstraints(),
-      icon: Icon(Icons.more_vert_rounded, size: 16, color: Colors.grey.shade400,)
+    return FloatingActionButton(
+      mini: true,
+      onPressed: openBottomModalSheet,
+      child: const Icon(Icons.search)
     );
-
   }
 
   /// Open the bottom modal sheet to show the new order placed
@@ -52,7 +41,7 @@ class _MenuModalBottomSheetState extends State<MenuModalBottomSheet> {
       /// Trigger to open the bottom modal sheet
       trigger: trigger,
       /// Content of the bottom modal sheet
-      content: MenuContent(store: store),
+      content: const SearchContent(),
     );
   }
 }

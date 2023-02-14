@@ -84,12 +84,11 @@ class TeamMembersInVerticalInfiniteScrollState extends State<TeamMembersInVertic
 
   /// Render each request item as an User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestStoreTeamMembers(int page, String searchTerm) {
+  Future<http.Response> requestStoreTeamMembers(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showTeamMembers(
       /// Filter by the team member filter specified (teamMemberFilter)
       filter: teamMemberFilter,
-      searchTerm: searchTerm,
-      context: context,
+      searchWord: searchWord,
       page: page
     );
   }
@@ -138,14 +137,13 @@ class TeamMembersInVerticalInfiniteScrollState extends State<TeamMembersInVertic
 
       storeProvider.setStore(store).storeRepository.removeTeamMembers(
         teamMembers: teamMembers,
-        context: context,
       ).then((response) async {
 
         final responseBody = jsonDecode(response.body);
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
           //  Refresh the team members
           customInfiniteScrollCurrentState.startRequest();
@@ -159,7 +157,7 @@ class TeamMembersInVerticalInfiniteScrollState extends State<TeamMembersInVertic
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Failed to remove team members', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Failed to remove team members');
 
       }).whenComplete((){
 
@@ -198,7 +196,7 @@ class TeamMembersInVerticalInfiniteScrollState extends State<TeamMembersInVertic
       key: _customVerticalInfiniteScrollState,
       catchErrorMessage: 'Can\'t show team members',
       toggleSelectionCondition: toggleSelectionCondition,
-      onRequest: (page, searchTerm) => requestStoreTeamMembers(page, searchTerm),
+      onRequest: (page, searchWord) => requestStoreTeamMembers(page, searchWord),
       headerPadding: EdgeInsets.only(top: canManageTeamMembers ? 40 : 16, bottom: 0, left: 16, right: 16),
     );
   }

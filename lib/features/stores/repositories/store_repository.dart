@@ -34,7 +34,7 @@ class StoreRepository {
   /// e.g where the user is a follower, customer, or team member.
   /// If the association is not provided, the default behaviour is
   /// to return stores where the authenticated user is a team member
-  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withProducts = false, bool withCountFollowers = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchTerm = '', int? page = 1, BuildContext? context }) {
+  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withProducts = false, bool withCountFollowers = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
 
     String url = homeApiLinks.stores;
 
@@ -50,9 +50,9 @@ class StoreRepository {
     if(friendGroup != null) queryParams.addAll({'friend_group_id': friendGroup.id.toString()});
 
     /// Filter by search
-    if(searchTerm.isNotEmpty) queryParams.addAll({'search': searchTerm}); 
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }
 
@@ -61,18 +61,18 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the order filters of the specified store
-  Future<http.Response> showOrderFilters({ BuildContext? context }) {
+  Future<http.Response> showOrderFilters() {
 
     if(store == null) throw Exception('The store must be set to show the order filters');
 
     String url = store!.links.showOrderFilters.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Get the orders of the specified store
-  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, String searchTerm = '', int page = 1, BuildContext? context }) {
+  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show orders');
 
@@ -95,9 +95,9 @@ class StoreRepository {
     if(filter != null) queryParams.addAll({'filter': filter});
 
     /// Filter by search
-    if(searchTerm.isNotEmpty) queryParams.addAll({'search': searchTerm});
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
     
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }
 
@@ -106,12 +106,12 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the coupons of the specified store
-  Future<http.Response> showCoupons({ BuildContext? context, int? page = 1 }) {
+  Future<http.Response> showCoupons({ int? page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show coupons');
 
     String url = store!.links.showCoupons.href;
-    return apiRepository.get(url: url, page: page, context: context);
+    return apiRepository.get(url: url, page: page);
     
   }
 
@@ -120,18 +120,18 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the follower filters of the specified store
-  Future<http.Response> showFollowerFilters({ BuildContext? context }) {
+  Future<http.Response> showFollowerFilters() {
 
     if(store == null) throw Exception('The store must be set to show follower filters');
 
     String url = store!.links.showFollowerFilters.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Get the followers of the specified store
-  Future<http.Response> showFollowers({ String? filter, String searchTerm = '', int page = 1, BuildContext? context }) {
+  Future<http.Response> showFollowers({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show followers');
 
@@ -143,35 +143,35 @@ class StoreRepository {
     if(filter != null) queryParams.addAll({'filter': filter});
 
     /// Filter by search
-    if(searchTerm.isNotEmpty) queryParams.addAll({'search': searchTerm}); 
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }
 
   /// Get the following status on the specified store
-  Future<http.Response> showFollowing({ BuildContext? context }) {
+  Future<http.Response> showFollowing() {
 
     if(store == null) throw Exception('The store must be set to show following status');
 
     String url = store!.links.showFollowing.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> updateFollowing({ BuildContext? context }) {
+  Future<http.Response> updateFollowing() {
 
     if(store == null) throw Exception('The store must be set to update following status');
 
     String url = store!.links.updateFollowing.href;
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> inviteFollowers({ required List<String> mobileNumbers, BuildContext? context }) {
+  Future<http.Response> inviteFollowers({ required List<String> mobileNumbers }) {
 
     if(store == null) throw Exception('The store must be set to invite followers');
 
@@ -182,56 +182,56 @@ class StoreRepository {
       'mobile_numbers': mobileNumbers.map((mobileNumber) => MobileNumberUtility.addMobileNumberExtension(mobileNumber)).toList()
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Check the user invitations on the specified store
-  Future<http.Response> checkStoreInvitationsToFollow({ BuildContext? context }) {
+  Future<http.Response> checkStoreInvitationsToFollow() {
 
     String url = homeApiLinks.storesCheckInvitationsToFollow;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptInvitationToFollow({ BuildContext? context }) {
+  Future<http.Response> acceptInvitationToFollow() {
 
     if(store == null) throw Exception('The store must be set to accept invitation to follow');
 
     String url = store!.links.acceptInvitationToFollow.href;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineInvitationToFollow({ BuildContext? context }) {
+  Future<http.Response> declineInvitationToFollow() {
 
     if(store == null) throw Exception('The store must be set to decline invitation to follow');
 
     String url = store!.links.declineInvitationToFollow.href;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptAllInvitationsToFollow({ BuildContext? context }) {
+  Future<http.Response> acceptAllInvitationsToFollow() {
 
     String url = homeApiLinks.storesAcceptAllInvitationsToFollow;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineAllInvitationsToFollow({ BuildContext? context }) {
+  Future<http.Response> declineAllInvitationsToFollow() {
 
     String url = homeApiLinks.storesDeclineAllInvitationsToFollow;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
@@ -240,18 +240,18 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the follower filters of the specified store
-  Future<http.Response> showTeamMemberFilters({ BuildContext? context }) {
+  Future<http.Response> showTeamMemberFilters() {
 
     if(store == null) throw Exception('The store must be set to show team member filters');
 
     String url = store!.links.showTeamMemberFilters.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Get the team members of the specified store
-  Future<http.Response> showTeamMembers({ String? filter, String searchTerm = '', int page = 1, BuildContext? context }) {
+  Future<http.Response> showTeamMembers({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show team members');
 
@@ -263,23 +263,23 @@ class StoreRepository {
     if(filter != null) queryParams.addAll({'filter': filter});
 
     /// Filter by search
-    if(searchTerm.isNotEmpty) queryParams.addAll({'search': searchTerm}); 
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }
 
   /// Show the store team permissions
-  Future<http.Response> showAllTeamMemberPermissions({ BuildContext? context }) {
+  Future<http.Response> showAllTeamMemberPermissions() {
     
     String url = homeApiLinks.showAllTeamMemberPermissions;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> inviteTeamMembers({ required List<String> mobileNumbers, List<Permission> permissions = const [], BuildContext? context }) {
+  Future<http.Response> inviteTeamMembers({ required List<String> mobileNumbers, List<Permission> permissions = const [] }) {
 
     if(store == null) throw Exception('The store must be set to invite team members');
 
@@ -292,12 +292,12 @@ class StoreRepository {
       'permissions': permissions.map((permission) => permission.name.toLowerCase()).toList(),
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> updateTeamMemberPermissions({ required User teamMember, List<Permission> permissions = const [], BuildContext? context }) {
+  Future<http.Response> updateTeamMemberPermissions({ required User teamMember, List<Permission> permissions = const [] }) {
 
     if(store == null) throw Exception('The store must be set to update the team member permissions');
 
@@ -308,12 +308,12 @@ class StoreRepository {
       'permissions': permissions.map((permission) => permission.name.toLowerCase()).toList(),
     };
 
-    return apiRepository.put(url: url, body: body, context: context);
+    return apiRepository.put(url: url, body: body);
     
   }
 
   /// Remove team members on the specified store
-  Future<http.Response> removeTeamMembers({ required List<User> teamMembers, BuildContext? context }) {
+  Future<http.Response> removeTeamMembers({ required List<User> teamMembers }) {
 
     if(store == null) throw Exception('The store must be set to remove the team members');
 
@@ -333,56 +333,56 @@ class StoreRepository {
       'mobile_numbers': mobileNumbers,
     };
 
-    return apiRepository.delete(url: url, body: body, context: context);
+    return apiRepository.delete(url: url, body: body);
     
   }
 
   /// Check the user invitations on the specified store
-  Future<http.Response> checkStoreInvitationsToJoinTeam({ BuildContext? context }) {
+  Future<http.Response> checkStoreInvitationsToJoinTeam() {
 
     String url = homeApiLinks.storesCheckInvitationsToJoinTeam;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptInvitationToJoinTeam({ BuildContext? context }) {
+  Future<http.Response> acceptInvitationToJoinTeam() {
 
     if(store == null) throw Exception('The store must be set to accept invitation to join team');
 
     String url = store!.links.acceptInvitationToJoinTeam.href;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineInvitationToJoinTeam({ BuildContext? context }) {
+  Future<http.Response> declineInvitationToJoinTeam() {
 
     if(store == null) throw Exception('The store must be set to decline invitation to join team');
 
     String url = store!.links.declineInvitationToJoinTeam.href;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptAllInvitationsToJoinTeam({ BuildContext? context }) {
+  Future<http.Response> acceptAllInvitationsToJoinTeam() {
 
     String url = homeApiLinks.storesAcceptAllInvitationsToJoinTeam;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineAllInvitationsToJoinTeam({ BuildContext? context }) {
+  Future<http.Response> declineAllInvitationsToJoinTeam() {
 
     String url = homeApiLinks.storesDeclineAllInvitationsToJoinTeam;
 
-    return apiRepository.post(url: url, context: context);
+    return apiRepository.post(url: url);
     
   }
 
@@ -391,18 +391,18 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the review filters of the specified store
-  Future<http.Response> showReviewFilters({ BuildContext? context }) {
+  Future<http.Response> showReviewFilters() {
 
     if(store == null) throw Exception('The store must be set to show the review filters');
 
     String url = store!.links.showReviewFilters.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Get the reviews of the specified store
-  Future<http.Response> showReviews({ required String? filter, int? userId, bool withUser = false, String searchTerm = '', int page = 1, BuildContext? context }) {
+  Future<http.Response> showReviews({ required String? filter, int? userId, bool withUser = false, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show reviews');
 
@@ -419,24 +419,24 @@ class StoreRepository {
     if(filter != null) queryParams.addAll({'filter': filter});
     
     /// Filter by search
-    if(searchTerm.isNotEmpty) queryParams.addAll({'search': searchTerm}); 
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }
 
   /// Get the review rating options of the specified store
-  Future<http.Response> showReviewRatingOptions({ BuildContext? context }) {
+  Future<http.Response> showReviewRatingOptions() {
 
     if(store == null) throw Exception('The store must be set to show review rating options');
 
     String url = store!.links.showReviewRatingOptions.href;
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Create a review on the specified store
-  Future<http.Response> createReview({ BuildContext? context, required String subject, String? comment, required int rating }) {
+  Future<http.Response> createReview({ required String subject, String? comment, required int rating }) {
 
     if(store == null) throw Exception('The store must be set to create a review');
 
@@ -449,7 +449,45 @@ class StoreRepository {
 
     if(comment != null && comment.isNotEmpty) body.addAll({ 'comment': comment });
     
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+  ///////////////////////////////////
+  ///   FRIEND GROUPS            ///
+  //////////////////////////////////
+
+  /// Add store to friend groups
+  Future<http.Response> addStoreToFriendGroups({ required List<FriendGroup> friendGroups }) {
+
+    if(store == null) throw Exception('The store must be set to add to friend groups');
+
+    String url = store!.links.addToFriendGroups.href;
+
+    List<int> friendGroupIds = friendGroups.map((friendGroup) {
+        return friendGroup.id;
+    }).toList();
+    
+    Map body = {
+      'friend_group_ids': friendGroupIds,
+    };
+
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+  /// Remove store from friend group
+  Future<http.Response> removeStoreFromFriendGroups({ required FriendGroup friendGroup }) {
+
+    if(store == null) throw Exception('The store must be set to remove from friend group');
+
+    String url = store!.links.removeFromFriendGroups.href;
+    
+    Map body = {
+      'friend_group_id': friendGroup.id,
+    };
+
+    return apiRepository.delete(url: url, body: body);
     
   }
 
@@ -458,18 +496,18 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Inspect the shopping cart
-  Future<http.Response> showShoppingCartOrderForOptions({ BuildContext? context }) {
+  Future<http.Response> showShoppingCartOrderForOptions() {
 
     if(store == null) throw Exception('The store must be set to show the shopping cart order for options');
 
     String url = store!.links.showShoppingCartOrderForOptions.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Inspect the shopping cart
-  Future<http.Response> inspectShoppingCart({ BuildContext? context, List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
+  Future<http.Response> inspectShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
 
     if(store == null) throw Exception('The store must be set to inspect the shopping cart');
 
@@ -485,12 +523,12 @@ class StoreRepository {
       }).toList(),
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Convert the shopping cart into an order
-  Future<http.Response> convertShoppingCart({ BuildContext? context, List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
+  Future<http.Response> convertShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
 
     if(store == null) throw Exception('The store must be set to convert the shopping cart');
 
@@ -506,7 +544,7 @@ class StoreRepository {
       }).toList(),
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 }

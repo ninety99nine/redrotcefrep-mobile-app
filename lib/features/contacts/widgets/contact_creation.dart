@@ -50,12 +50,12 @@ class _FollowersModalBottomSheetState extends State<ContactCreation> {
       /// Insert a new contact
       await newContact.insert().then((value) {
 
-        SnackbarUtility.showSuccessMessage(message: 'Contact created successfully', context: context);
+        SnackbarUtility.showSuccessMessage(message: 'Contact created successfully');
         widget.onCreated(newContact);
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Can\'t create contact', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Can\'t create contact');
         
       });
 
@@ -63,7 +63,7 @@ class _FollowersModalBottomSheetState extends State<ContactCreation> {
 
     }else{
 
-      SnackbarUtility.showErrorMessage(message: 'We found some mistakes', context: context);
+      SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
 

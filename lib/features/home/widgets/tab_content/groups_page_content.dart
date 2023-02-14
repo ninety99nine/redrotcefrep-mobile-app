@@ -1,18 +1,17 @@
-import 'dart:convert';
 
-import 'package:bonako_demo/core/shared_widgets/buttons/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
-import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
-import 'package:bonako_demo/features/friend_groups/repositories/friend_group_repository.dart';
-import 'package:bonako_demo/features/friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
-import 'package:provider/provider.dart';
-
+import '../../../friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
+import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
+import '../../../friend_groups/repositories/friend_group_repository.dart';
+import '../../../friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../friend_groups/enums/friend_group_enums.dart';
 import '../../../../features/stores/enums/store_enums.dart';
+import '../../../friend_groups/models/friend_group.dart';
 import '../../../stores/widgets/store_cards.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class GroupsPageContent extends StatefulWidget {
   const GroupsPageContent({super.key});
@@ -26,9 +25,9 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
   bool isLoading = false;
   FriendGroup? friendGroup;
   
+  late FriendGroupProvider friendGroupProvider;
   bool get hasFriendGroup => friendGroup != null;
   FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
-  FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
 
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
@@ -36,7 +35,43 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
   @override
   void initState() {
     super.initState();
+    setFriendGroupProvider();
     _requestShowLastSelectedFriendGroup();
+  }
+
+  @override
+  void dispose() {
+    /**
+     *  We need to unset the friend group so that when we navigate to a different home tab
+     *  e.g "Following", we do not have a reference of this friend group on the menus of 
+     *  each store card on the "Following" home tab. Since the friend group was set here,
+     *  it makes sense to clean up by unsetting before leaving the groups page content
+     *  so that the friendGroupRepository is restored to the way it was before.
+     */
+    friendGroupProvider.unsetFriendGroup();
+    super.dispose();
+  }
+
+  void setFriendGroupProvider() {
+
+    /**
+     * Note that we are deliberately setting the FriendGroupProvider this way instead of using a getter 
+     * as we normally do. This is because we need to use the friendGroupProvider from the dispose() 
+     * method to unsetFriendGroup(). This causes an error when the friendGroupProvider is declared 
+     * as a getter method. To prevent this we must declare this on the initState() method so that 
+     * the friendGroupProvider can then be used at the dispose() method without any errors. The 
+     * Flutter error is as follows:
+     * 
+     * "Looking up a deactivated widget's ancestor is unsafe: At this point the state of the widget's 
+     * element tree is no longer stable. To safely refer to a widget's ancestor in its dispose() 
+     * method, save a reference to the ancestor by calling dependOnInheritedWidgetOfExactType() 
+     * in the widget's didChangeDependencies() method."
+     * 
+     * Reference of related issue: 
+     * 
+     * https://stackoverflow.com/questions/69282208/looking-up-a-deactivated-widgets-ancestor-is-unsafe-navigator-ofcontext-push#:~:text=To%20safely%20refer%20to%20a,Navigator.
+     */
+    friendGroupProvider = Provider.of<FriendGroupProvider>(context, listen: false);
   }
 
   void _requestShowLastSelectedFriendGroup() async {
@@ -52,6 +87,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
       if(response.statusCode == 200) {
 
         friendGroup = FriendGroup.fromJson(responseBody);
+        friendGroupProvider.setFriendGroup(friendGroup!);
 
       }
 
@@ -64,7 +100,11 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
   /// Called when the friend group is selected 
   void onSelectedFriendGroups(List<FriendGroup> friendGroups) {
     if(friendGroups.isNotEmpty) {
-      setState(() => friendGroup = friendGroups.first);
+      setState(() {
+        final FriendGroup friendGroup = friendGroups.first;
+        friendGroupProvider.setFriendGroup(friendGroup);
+        this.friendGroup = friendGroup;
+      });
     }
   }
 
@@ -144,6 +184,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
               /// Friend Groups Modal Bottom Sheet (Used to change the Friend Group)
               FriendGroupsModalBottomSheet(
                 enableBulkSelection: false,
+                purpose: Purpose.chooseFriendGroups,
                 onSelectedFriendGroups: onSelectedFriendGroups,
               )
 

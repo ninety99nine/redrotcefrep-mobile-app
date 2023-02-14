@@ -1,13 +1,12 @@
 import '../../../../core/shared_models/permission.dart';
 import '../widgets/store_page/store_page.dart';
-import '../providers/store_provider.dart';
 import '../models/shoppable_store.dart';
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class StoreServices {
 
   /// Navigate to the show store page
-  static void navigateToStorePage(ShoppableStore store, StoreProvider storesProvider, BuildContext context) async {
+  static void navigateToStorePage(ShoppableStore store) async {
 
     /// Get the store 
     final ShoppingCartCurrentView shoppingCartCurrentView = store.shoppingCartCurrentView!;
@@ -16,10 +15,9 @@ class StoreServices {
     store.changeShoppingCartCurrentView(ShoppingCartCurrentView.storePage, canNotifyListeners: true);
     
     /// Navigate to the page 
-    await Navigator.pushNamed(
-      context,
-      arguments: store,
+    await Get.toNamed(
       StorePage.routeName,
+      arguments: store,
     );
 
     /// Revert back to the previous current view that was in use

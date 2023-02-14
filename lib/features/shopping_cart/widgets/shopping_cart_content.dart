@@ -209,7 +209,6 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
         onRequest: () => storeProvider.setStore(store!).storeRepository.inspectShoppingCart(
           products: store!.selectedProducts,
           cartCouponCodes: [],
-          context: context,
         ),
         
         /// The response returned by the last request
@@ -263,7 +262,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
         if(mounted) {
 
-          SnackbarUtility.showErrorMessage(message: 'Can\'t get shopping cart', context: context);
+          SnackbarUtility.showErrorMessage(message: 'Can\'t get shopping cart');
 
         }
 
@@ -280,7 +279,6 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
     await storeProvider.setStore(store!).storeRepository.convertShoppingCart(
       products: store!.selectedProducts,
       cartCouponCodes: [],
-      context: context,
     ).then((response) async {
 
       if(!mounted) return;
@@ -299,7 +297,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
         });
         
-        SnackbarUtility.showSuccessMessage(message: 'Your order has been sent.\nOpen orders to stay up to date', duration: 6, context: context);
+        SnackbarUtility.showSuccessMessage(message: 'Your order has been sent.\nOpen orders to stay up to date', duration: 6);
 
       }
 
@@ -307,7 +305,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
       if(!mounted) return;
 
-      SnackbarUtility.showErrorMessage(message: 'Can\'t show placed order', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Can\'t show placed order');
       
     }).whenComplete(() {
 

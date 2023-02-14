@@ -49,9 +49,8 @@ class TeamMemberFiltersState extends State<TeamMemberFilters> {
   /// to filter the results of team members returned on each request
   void requestStoreTeamMemberFilters() {
     
-    storeProvider.setStore(store).storeRepository.showTeamMemberFilters(
-      context: context
-    ).then((http.Response response) {
+    storeProvider.setStore(store).storeRepository.showTeamMemberFilters()
+    .then((http.Response response) {
 
       if(!mounted) return;
 

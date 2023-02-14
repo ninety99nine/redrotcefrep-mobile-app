@@ -86,16 +86,18 @@ class Links {
   late Link removeTeamMembers;
   late Link showOrderFilters;
   late Link showReviewFilters;
+  late Link addToFriendGroups;
   late Link inspectShoppingCart;
   late Link convertShoppingCart;
   late Link showFollowerFilters;
   late Link showTeamMemberFilters;
+  late Link removeFromFriendGroups;
   late Link showReviewRatingOptions;
   late Link acceptInvitationToFollow;
   late Link declineInvitationToFollow;
   late Link acceptInvitationToJoinTeam;
   late Link declineInvitationToJoinTeam;
-  late Link showShoppingCartOrderForOptions;
+  late Link showShoppingCartOrderForOptions;  
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
@@ -109,6 +111,7 @@ class Links {
     inviteFollowers = Link.fromJson(json['inviteFollowers']);
     updateFollowing = Link.fromJson(json['updateFollowing']);
     showOrderFilters = Link.fromJson(json['showOrderFilters']);
+    addToFriendGroups = Link.fromJson(json['addToFriendGroups']);
     inviteTeamMembers = Link.fromJson(json['inviteTeamMembers']);
     removeTeamMembers = Link.fromJson(json['removeTeamMembers']);
     showReviewFilters = Link.fromJson(json['showReviewFilters']);
@@ -116,6 +119,7 @@ class Links {
     convertShoppingCart = Link.fromJson(json['convertShoppingCart']);
     showFollowerFilters = Link.fromJson(json['showFollowerFilters']);
     showTeamMemberFilters = Link.fromJson(json['showTeamMemberFilters']);
+    removeFromFriendGroups = Link.fromJson(json['removeFromFriendGroups']);
     showReviewRatingOptions = Link.fromJson(json['showReviewRatingOptions']);
     acceptInvitationToFollow = Link.fromJson(json['acceptInvitationToFollow']);
     declineInvitationToFollow = Link.fromJson(json['declineInvitationToFollow']);

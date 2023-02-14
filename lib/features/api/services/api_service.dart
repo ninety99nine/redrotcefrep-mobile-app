@@ -1,11 +1,10 @@
 import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/api_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '/core/utils/snackbar.dart';
 import 'dart:convert';
-
-import '../providers/api_provider.dart';
 
 class ApiService {
 
@@ -83,18 +82,19 @@ class ApiService {
         );
 
         /// Show the unauthorized message
-        SnackbarUtility.showInfoMessage(context: context, message: responseBody['message']);
+        SnackbarUtility.showInfoMessage(message: responseBody['message']);
 
       }else {
 
         /// If the response body contains a message
         if(responseBody.containsKey('message')) {
 
+
           /// If the context is not provided then stop any further code execution
           if(context == null) return;
 
           /// Show the error message
-          SnackbarUtility.showErrorMessage(context: context, message: responseBody['message']);
+          SnackbarUtility.showErrorMessage(message: responseBody['message']);
 
         }else{
 

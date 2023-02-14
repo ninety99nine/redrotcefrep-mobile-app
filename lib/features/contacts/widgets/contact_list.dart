@@ -35,7 +35,7 @@ class ContactList extends StatefulWidget {
 class _ContactListState extends State<ContactList> {
 
   bool isLoading = false;
-  String searchTerm = '';
+  String searchWord = '';
   bool selectedAll = false;
   List<Contact> contacts = [];
   List<Contact> selectedContacts = [];
@@ -51,13 +51,13 @@ class _ContactListState extends State<ContactList> {
     return contacts.where((contact) {
 
       /// Check if the search term matches the display name
-      final bool matchesDisplayName = contact.displayName.toLowerCase().contains(RegExp(searchTerm.toLowerCase()));
+      final bool matchesDisplayName = contact.displayName.toLowerCase().contains(RegExp(searchWord.toLowerCase()));
       
       /// Check if the search term matches one of the mobile numbers
       final bool matchesMobileNumber = contact.phones.where((phone) {
-        final searchTermMobileNumber  = MobileNumberUtility.simplify(searchTerm);
-        if(searchTermMobileNumber.isNotEmpty) {
-          return MobileNumberUtility.simplify(phone.number).contains(RegExp(searchTermMobileNumber));
+        final searchWordMobileNumber  = MobileNumberUtility.simplify(searchWord);
+        if(searchWordMobileNumber.isNotEmpty) {
+          return MobileNumberUtility.simplify(phone.number).contains(RegExp(searchWordMobileNumber));
         }else{
           return false;
         }
@@ -65,7 +65,7 @@ class _ContactListState extends State<ContactList> {
       
       /// Check if the search term matches one of the address
       final bool matchesAddress = contact.addresses.where((address) {
-          return address.address.toLowerCase().contains(searchTerm.toLowerCase());
+          return address.address.toLowerCase().contains(searchWord.toLowerCase());
       }).isNotEmpty;
 
       return matchesDisplayName || matchesMobileNumber || matchesAddress;
@@ -271,9 +271,9 @@ class _ContactListState extends State<ContactList> {
       padding: const EdgeInsets.only(left: 20, right: 20),
       margin: const EdgeInsets.only(top: 36),
       child: CustomSearchTextFormField(
-        initialValue: searchTerm,
+        initialValue: searchWord,
         isLoading: isLoading,
-        onChanged: (value) => setState(() => searchTerm = value),
+        onChanged: (value) => setState(() => searchWord = value),
       ),
     );
   }

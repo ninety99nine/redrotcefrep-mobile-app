@@ -11,6 +11,7 @@ import 'features/stores/widgets/store_page/store_page.dart';
 import 'features/authentication/widgets/signin_page.dart';
 import 'features/authentication/widgets/signup_page.dart';
 import 'features/introduction/widgets/landing_page.dart';
+import 'features/search/providers/search_provider.dart';
 import 'features/orders/providers/order_provider.dart';
 import 'features/stores/providers/store_provider.dart';
 import 'features/api/providers/api_provider.dart';
@@ -18,6 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
+import 'package:get/get.dart';
 
 //  This is the first method that flutter runs on this file
 void main() {
@@ -68,6 +70,16 @@ class MyApp extends StatelessWidget {
         ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 
+         *  ChangeNotifierProvider because the SearchProvider requires the
+         *  ApiProvider as a dependency. When the ApiProvider changes,
+         *  then the SearchProvider will also rebuild.
+         */
+        ChangeNotifierProxyProvider<ApiProvider, SearchProvider>(
+          create: (_) => SearchProvider(apiProvider: ApiProvider()),
+          update: (ctx, apiProvider, previousSearchProvider) => SearchProvider(apiProvider: apiProvider)
+        ),
+        /**
+         *  Note: We have to use the ChangeNotifierProxyProvider instead of 
          *  ChangeNotifierProvider because the StoreProvider requires the
          *  ApiProvider as a dependency. When the ApiProvider changes,
          *  then the StoreProvider will also rebuild.
@@ -107,7 +119,17 @@ class MyApp extends StatelessWidget {
 //          update: (ctx, authProvider, previousAddressProvider) => AddressProvider(authProvider: authProvider)
 //        ),
       ],
-      child: MaterialApp(
+      /**
+       *  Using GetMaterialApp instead of MaterialApp because we can use the 
+       *  GetX snackbars, modals, http, utils and e.t.c which are easier and
+       *  more flexible than those offered by MaterialApp e.g MaterialApp
+       *  Snackbar require context to be provided to show a Snackbar
+       *  while GetX Snackbar does not require the content to be
+       *  provided
+       * 
+       *  Check out the GetX Package: https://pub.dev/packages/get
+       */
+      child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme(),
         //  home: const AppHome(),

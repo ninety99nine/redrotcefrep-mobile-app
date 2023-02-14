@@ -14,11 +14,11 @@ import 'dart:convert';
 class FollowerInvitationsModalBottomSheet extends StatefulWidget {
   
   final Widget trigger;
-  final Function()? onRefresh;
+  final Function()? onRefreshStores;
 
   const FollowerInvitationsModalBottomSheet({
     super.key,
-    this.onRefresh,
+    this.onRefreshStores,
     required this.trigger,
   });
 
@@ -31,10 +31,10 @@ class _FollowerInvitationsModalBottomSheetState extends State<FollowerInvitation
   bool respondedToAnyInvitation = false;
 
   Widget get trigger => widget.trigger;
-  Function()? get onRefresh => widget.onRefresh;
+  Function()? get onRefreshStores => widget.onRefreshStores;
 
   void onClose() {
-    if(respondedToAnyInvitation && onRefresh != null) onRefresh!();
+    if(respondedToAnyInvitation && onRefreshStores != null) onRefreshStores!();
   }
 
   void onRespondedToInvitation() => respondedToAnyInvitation = true;
@@ -143,7 +143,7 @@ class _ModalContentState extends State<ModalContent> {
           width: 100,
           color: Colors.red,
           prefixIcon: Icons.check_circle,
-          isAcceptingAll ? '' : 'Accept All',
+          isAcceptingAll ? '' : 'Decline All',
           isLoading: isLoading && isDecliningAll,
           onPressed: requestDeclineAllInvitationsToFollow,
         ),
@@ -167,15 +167,14 @@ class _ModalContentState extends State<ModalContent> {
 
       _startLoader();
 
-      storeProvider.storeRepository.acceptAllInvitationsToFollow(
-        context: context,
-      ).then((response) {
+      storeProvider.storeRepository.acceptAllInvitationsToFollow()
+      .then((response) {
 
         final responseBody = jsonDecode(response.body);
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
           /// Notify the parent that user responded to the invitations
           onRespondedToInvitation();
@@ -187,7 +186,7 @@ class _ModalContentState extends State<ModalContent> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Failed to accept invitations', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Failed to accept invitations');
 
       }).whenComplete((){
 
@@ -212,15 +211,14 @@ class _ModalContentState extends State<ModalContent> {
 
       _startLoader();
 
-      storeProvider.storeRepository.declineAllInvitationsToFollow(
-        context: context,
-      ).then((response) {
+      storeProvider.storeRepository.declineAllInvitationsToFollow()
+      .then((response) {
 
         final responseBody = jsonDecode(response.body);
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
           /// Notify the parent that user responded to the invitations
           onRespondedToInvitation();
@@ -232,7 +230,7 @@ class _ModalContentState extends State<ModalContent> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Failed to decline invitations', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Failed to decline invitations');
 
       }).whenComplete((){
 

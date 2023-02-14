@@ -68,9 +68,8 @@ class _ReviewCreateState extends State<ReviewCreate> {
     
     _startLoader();
     
-    await storeProvider.setStore(store).storeRepository.showReviewRatingOptions(
-      context: context,
-    ).then((response) async {
+    await storeProvider.setStore(store).storeRepository.showReviewRatingOptions()
+    .then((response) async {
 
       if(!mounted) return;
 
@@ -85,7 +84,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
       }else{
 
-        SnackbarUtility.showSuccessMessage(message: 'Can\'t get review options', context: context);
+        SnackbarUtility.showSuccessMessage(message: 'Can\'t get review options');
       
       }
 
@@ -93,7 +92,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
       if(!mounted) return;
 
-      SnackbarUtility.showSuccessMessage(message: 'Can\'t show review options', context: context);
+      SnackbarUtility.showSuccessMessage(message: 'Can\'t show review options');
     
     }).whenComplete(() {
 
@@ -126,7 +125,6 @@ class _ReviewCreateState extends State<ReviewCreate> {
       onLoading(true);
 
       storeProvider.setStore(store).storeRepository.createReview(
-        context: context,
         subject: subject!,
         comment: comment,
         rating: rating!,
@@ -136,7 +134,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
         if(response.statusCode == 201) {
 
-          SnackbarUtility.showSuccessMessage(message: 'Thank you for your honestly', context: context);
+          SnackbarUtility.showSuccessMessage(message: 'Thank you for your honestly');
 
           onCreatedReview();
 
@@ -148,7 +146,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Can\'t create review', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Can\'t create review');
 
       }).whenComplete((){
 
@@ -161,7 +159,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
     }else{
 
-      SnackbarUtility.showErrorMessage(context: context, message: 'We found some mistakes');
+      SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
 

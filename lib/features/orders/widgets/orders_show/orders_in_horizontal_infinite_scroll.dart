@@ -115,7 +115,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
-  Future<http.Response> requestStoreOrders(int page, String searchTerm) {
+  Future<http.Response> requestStoreOrders(int page, String searchWord) {
     
     int? orderId;
     int? customerUserId;
@@ -153,9 +153,8 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
       customerUserId: customerUserId,
       //  exceptOrderId: orderId,
       startAtOrderId: orderId,
-      searchTerm: searchTerm,
+      searchWord: searchWord,
       withCustomer: false,
-      context: context,
       page: page
     );
   }
@@ -215,7 +214,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
   /// Show multiple order items (the initial order item along side other orders)
   Widget get multipleOrdersWidget {
     return CustomHorizontalInfiniteScroll(
-      enableSearch: false,
+      showSearchBar: false,
       debounceSearch: false,
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
@@ -225,7 +224,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
       key: _customHorizontalInfiniteScrollState,
       headerPadding: const EdgeInsets.only(top: 0),
       loaderMargin: const EdgeInsets.symmetric(vertical: 32),
-      onRequest: (page, searchTerm) => requestStoreOrders(page, searchTerm),
+      onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
     );
   }
 

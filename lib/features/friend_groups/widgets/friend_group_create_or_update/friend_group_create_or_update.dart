@@ -113,7 +113,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
           if(onCreatedFriendGroup != null) onCreatedFriendGroup!();
 
@@ -125,7 +125,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Can\'t update group', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Can\'t update group');
 
       }).whenComplete((){
 
@@ -138,7 +138,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
     }else{
 
-      SnackbarUtility.showErrorMessage(context: context, message: 'We found some mistakes');
+      SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
 
@@ -169,7 +169,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
           if(onUpdatedFriendGroup != null) onUpdatedFriendGroup!();
 
@@ -182,7 +182,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Can\'t update group', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Can\'t update group');
 
       }).whenComplete((){
 
@@ -195,7 +195,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
     }else{
 
-      SnackbarUtility.showErrorMessage(context: context, message: 'We found some mistakes');
+      SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
 

@@ -113,7 +113,7 @@ class _FriendSendInvitationState extends State<CustomMultipleMobileNumberForm> {
 
     }else{
 
-      SnackbarUtility.showErrorMessage(message: 'We found some mistakes', context: context);
+      SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
 

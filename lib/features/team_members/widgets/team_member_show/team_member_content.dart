@@ -137,14 +137,13 @@ class _PermissionsState extends State<Permissions> {
       storeProvider.setStore(store).storeRepository.updateTeamMemberPermissions(
         permissions: selectedPermissions,
         teamMember: teamMember,
-        context: context,
       ).then((response) async {
 
         final responseBody = jsonDecode(response.body);
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
           
         }else if(response.statusCode == 422) {
 
@@ -154,7 +153,7 @@ class _PermissionsState extends State<Permissions> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Failed to update permissions', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Failed to update permissions');
 
       }).whenComplete((){
 
@@ -165,7 +164,7 @@ class _PermissionsState extends State<Permissions> {
 
     }else{
 
-      SnackbarUtility.showErrorMessage(message: 'Select permissions for your team member', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Select permissions for your team member');
 
     }
   }
@@ -182,14 +181,13 @@ class _PermissionsState extends State<Permissions> {
 
       storeProvider.setStore(store).storeRepository.removeTeamMembers(
         teamMembers: [teamMember],
-        context: context,
       ).then((response) async {
 
         final responseBody = jsonDecode(response.body);
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
           
           //  Notify the parent on team member being removed
           onRemovedTeamMember();

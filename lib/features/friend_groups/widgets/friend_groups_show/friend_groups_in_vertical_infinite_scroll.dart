@@ -63,10 +63,11 @@ class _FriendGroupsInVerticalInfiniteScrollState extends State<FriendGroupsInVer
   
   /// Render each request item as an FriendGroup
   FriendGroup onParseItem(friendGroup) => FriendGroup.fromJson(friendGroup);
-  Future<http.Response> requestFriendGroups(int page, String searchTerm) {
+  Future<http.Response> requestFriendGroups(int page, String searchWord) {
 
     return friendGroupRepository.showFriendGroups(
       withCountFriends: true,
+      withCountStores: true,
       withCountUsers: false,
       context: context,
       filter: filter,
@@ -125,7 +126,7 @@ class _FriendGroupsInVerticalInfiniteScrollState extends State<FriendGroupsInVer
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message'], context: context);
+          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
           //  Refresh the friend groups
           customInfiniteScrollCurrentState.startRequest();
@@ -136,7 +137,7 @@ class _FriendGroupsInVerticalInfiniteScrollState extends State<FriendGroupsInVer
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Failed to delete groups', context: context);
+        SnackbarUtility.showErrorMessage(message: 'Failed to delete groups');
 
       }).whenComplete((){
 
@@ -177,7 +178,7 @@ class _FriendGroupsInVerticalInfiniteScrollState extends State<FriendGroupsInVer
       key: _customVerticalInfiniteScrollState,
       catchErrorMessage: 'Can\'t show groups',
       toggleSelectionCondition: toggleSelectionCondition,
-      onRequest: (page, searchTerm) => requestFriendGroups(page, searchTerm),
+      onRequest: (page, searchWord) => requestFriendGroups(page, searchWord),
       headerPadding: const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16)
     );
   }
@@ -206,6 +207,8 @@ class GroupItem extends StatelessWidget {
   String get name => friendGroup.name;
   int get totalFriends => friendGroup.friendsCount!;
   String get totalFriendsText => '$totalFriends ${totalFriends == 1 ? 'Friend' : 'Friends'}';
+  int get totalStores => friendGroup.storesCount!;
+  String get totalStoresText => '$totalStores ${totalStores == 1 ? 'Store' : 'Stores'}';
   CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalInfiniteScrollState.currentState!;
 
   bool get canPerformActions {
@@ -274,9 +277,20 @@ class GroupItem extends StatelessWidget {
                   
                           /// Spacer
                           const SizedBox(height: 4),
-        
-                          //  Total Friends
-                          CustomBodyText(totalFriendsText, lightShade: true),
+
+                          Row(
+                            children: [
+
+                              //  Total Friends
+                              CustomBodyText(totalFriendsText, lightShade: true),
+                  
+                              /// Spacer
+                              const SizedBox(width: 8),
+
+                              //  Total Stores
+                              CustomBodyText(totalStoresText, lightShade: true),
+                            ],
+                          )    
         
                         ],
                       ),

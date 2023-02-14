@@ -56,7 +56,11 @@ class StorePageContent extends StatelessWidget {
             const SizedBox(height: 16,),
     
             /// Store Logo, Profile, Adverts, Rating, e.t.c
-            StorePrimarySectionContent(store: store, logoRadius: logoRadius, showProfileRightSide: false),
+            StorePrimarySectionContent(
+              store: store, 
+              logoRadius: logoRadius, 
+              showProfileRightSide: false
+            ),
     
             /// Spacer
             const SizedBox(height: 16,),

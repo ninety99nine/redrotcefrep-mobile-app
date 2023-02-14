@@ -49,9 +49,8 @@ class FollowerFiltersState extends State<FollowerFilters> {
   /// to filter the results of followers returned on each request
   void requestStoreFollowerFilters() {
     
-    storeProvider.setStore(store).storeRepository.showFollowerFilters(
-      context: context
-    ).then((http.Response response) {
+    storeProvider.setStore(store).storeRepository.showFollowerFilters()
+    .then((http.Response response) {
 
       if(!mounted) return;
 

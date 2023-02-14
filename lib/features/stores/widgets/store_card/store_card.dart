@@ -8,7 +8,13 @@ import 'package:flutter/material.dart';
 class StoreCard extends StatefulWidget {
 
   final ShoppableStore store;
-  const StoreCard({Key? key, required this.store}) : super(key: key);
+  final Function onRefreshStores;
+  
+  const StoreCard({
+    Key? key, 
+    required this.store,
+    required this.onRefreshStores,
+  }) : super(key: key);
 
   @override
   State<StoreCard> createState() => _StoreCardState();
@@ -53,14 +59,21 @@ class _StoreCardState extends State<StoreCard> {
      */
     return ListenableProvider.value(
       value: store,
-      child: const Content(),
+      child: Content(
+        onRefreshStores: widget.onRefreshStores
+      ),
     );
   }
 }
 
 class Content extends StatelessWidget {
 
-  const Content({super.key});
+  final Function onRefreshStores;
+
+  const Content({
+    super.key,
+    required this.onRefreshStores,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +98,10 @@ class Content extends StatelessWidget {
         children: [
     
           //  Store Logo, Profile, Adverts, Rating, e.t.c
-          StorePrimarySectionContent(store: store),
+          StorePrimarySectionContent(
+            store: store,
+            onRefreshStores: onRefreshStores
+          ),
           
           //  Spacer
           if(hasProducts) const SizedBox(height: 20),

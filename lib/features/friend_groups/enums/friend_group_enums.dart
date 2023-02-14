@@ -8,3 +8,8 @@ enum FriendGroupContentView {
   creatingFriendGroup,
   viewingFriendGroup,
 }
+
+enum Purpose {
+  chooseFriendGroups,
+  addStoreToFriendGroups,
+}

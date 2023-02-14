@@ -56,9 +56,8 @@ class _TeamPermissionstate extends State<TeamPermissions> {
 
     _startLoader();
 
-    storeProvider.storeRepository.showAllTeamMemberPermissions(
-      context: context,
-    ).then((response) async {
+    storeProvider.storeRepository.showAllTeamMemberPermissions()
+    .then((response) async {
 
       final responseBody = jsonDecode(response.body);
 
@@ -76,7 +75,7 @@ class _TeamPermissionstate extends State<TeamPermissions> {
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Failed to show team permissions', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Failed to show team permissions');
 
     }).whenComplete((){
 

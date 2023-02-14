@@ -43,14 +43,13 @@ class _TeamMemberSendInvitationState extends State<TeamMemberSendInvitation> {
     return storeProvider.setStore(store).storeRepository.inviteTeamMembers(
       permissions: selectedPermissions,
       mobileNumbers: mobileNumbers,
-      context: context,
     ).then((response) async {
 
       final responseBody = jsonDecode(response.body);
 
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4, context: context);
+        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4);
 
         teamMembersInvitations = TeamMembersInvitations.fromJson(responseBody['invitations']);
 
@@ -62,7 +61,7 @@ class _TeamMemberSendInvitationState extends State<TeamMemberSendInvitation> {
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Failed to invite friends', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Failed to invite friends');
 
     });
 
@@ -70,7 +69,7 @@ class _TeamMemberSendInvitationState extends State<TeamMemberSendInvitation> {
 
   /// Validate permissions before making a request
   bool onValidate() {
-    if(selectedPermissions.isEmpty) SnackbarUtility.showErrorMessage(message: 'Select permissions for your team', context: context);
+    if(selectedPermissions.isEmpty) SnackbarUtility.showErrorMessage(message: 'Select permissions for your team');
     return selectedPermissions.isNotEmpty;
   }
 

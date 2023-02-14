@@ -112,7 +112,7 @@ class OrdersInVerticalInfiniteScrollState extends State<OrdersInVerticalInfinite
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
-  Future<http.Response> requestStoreOrders(int page, String searchTerm) {
+  Future<http.Response> requestStoreOrders(int page, String searchWord) {
     
     int? orderId;
     int? customerUserId;
@@ -143,9 +143,8 @@ class OrdersInVerticalInfiniteScrollState extends State<OrdersInVerticalInfinite
       filter: isViewingOrder ? null : orderFilter,
       customerUserId: customerUserId,
       exceptOrderId: orderId,
-      searchTerm: searchTerm,
+      searchWord: searchWord,
       withCustomer: false,
-      context: context,
       page: page
     ).then((response) {
 
@@ -238,7 +237,7 @@ class OrdersInVerticalInfiniteScrollState extends State<OrdersInVerticalInfinite
       showFirstRequestLoader: isViewingOrders,
       contentBeforeSearchBar: contentBeforeSearchBar,
       loaderMargin: const EdgeInsets.symmetric(vertical: 32),
-      onRequest: (page, searchTerm) => requestStoreOrders(page, searchTerm),
+      onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
       headerPadding: order == null ? const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16) : const EdgeInsets.all(0),
     );
   }

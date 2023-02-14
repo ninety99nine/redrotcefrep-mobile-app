@@ -261,7 +261,7 @@ class AuthRepository {
     }).toList();
     
     Map body = {
-      'user_ids': userIds,
+      'friend_user_ids': userIds,
     };
 
     return apiRepository.put(url: url, body: body, context: context);

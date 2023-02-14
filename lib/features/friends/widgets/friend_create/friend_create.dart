@@ -39,7 +39,7 @@ class _FriendCreateState extends State<FriendCreate> {
 
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4, context: context);
+        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4);
 
         onCreatedFriends();
 
@@ -49,7 +49,7 @@ class _FriendCreateState extends State<FriendCreate> {
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Failed to add friends', context: context);
+      SnackbarUtility.showErrorMessage(message: 'Failed to add friends');
 
     });
 

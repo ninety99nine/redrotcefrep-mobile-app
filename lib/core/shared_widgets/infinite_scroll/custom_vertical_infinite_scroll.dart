@@ -19,7 +19,8 @@ enum RequestType {
 class CustomVerticalInfiniteScroll extends StatefulWidget {
 
   final bool disabled;
-  final bool enableSearch;
+  final String? searchWord;
+  final bool showSearchBar;
   final bool showSeparater;
   final bool debounceSearch;
   final String catchErrorMessage;
@@ -34,7 +35,7 @@ class CustomVerticalInfiniteScroll extends StatefulWidget {
   final Widget? contentAfterSearchBar;
 
   /// Method to implement the Api Request
-  final Future<http.Response> Function(int page, String searchTerm) onRequest;
+  final Future<http.Response> Function(int page, String searchWord) onRequest;
 
   /// Method to implement conversion of the Api Request
   /// data retrieved into the desired Model data output
@@ -80,6 +81,12 @@ class CustomVerticalInfiniteScroll extends StatefulWidget {
   /// Notify the parent widget on the loading status
   final Function(bool)? onLoading;
 
+  /// Notify the parent widget on the loading status after first request
+  final Function(bool)? onLoadingAfterFirstRequest;
+
+  /// Notify the parent widget on the loading status
+  final Function(bool)? onSearching;
+
   /// Show the no more content text when we don't have
   /// anymore content to load while scrolling down
   final bool showNoMoreContent;
@@ -88,11 +95,13 @@ class CustomVerticalInfiniteScroll extends StatefulWidget {
     Key? key,
     this.margin,
     this.onLoading,
+    this.searchWord,
+    this.onSearching,
     this.onSelectedItems,
     this.disabled = false,
     this.selectedAllAction,
     required this.onRequest,
-    this.enableSearch = true,
+    this.showSearchBar = true,
     this.showSeparater = true,
     required this.onParseItem,
     required this.onRenderItem,
@@ -101,6 +110,7 @@ class CustomVerticalInfiniteScroll extends StatefulWidget {
     this.debounceSearch = false,
     this.showNoMoreContent = true,
     this.toggleSelectionCondition,
+    this.onLoadingAfterFirstRequest,
     required this.catchErrorMessage,
     this.showFirstRequestLoader = true,
     this.noContent = 'No results found',
@@ -124,7 +134,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
   bool hasShownSearchBarBefore = false;
   bool sentFirstRequest = false;
   bool isLoading = false;
-  String searchTerm = '';
+  String searchWord = '';
   bool hasError = false;
   List data = [];
   int? lastPage;
@@ -134,18 +144,18 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
   int get totalItems => data.length;
   bool get disabled => widget.disabled;
   String get noContent => widget.noContent;
-  bool get enableSearch => widget.enableSearch;
+  bool get showSearchBar => widget.showSearchBar;
   bool get showSeparater => widget.showSeparater;
   bool get debounceSearch => widget.debounceSearch;
   String get noMoreContent => widget.noMoreContent;
   Function(bool)? get onLoading => widget.onLoading;
   EdgeInsets get loaderMargin => widget.loaderMargin;
   Function(Map) get onParseItem => widget.onParseItem;
+  Function(bool)? get onSearching => widget.onSearching;
   bool get showNoMoreContent => widget.showNoMoreContent;
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
   String get catchErrorMessage => widget.catchErrorMessage;
-  bool get isSearching => isLoading && searchTerm.isNotEmpty;
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
   Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
@@ -153,6 +163,8 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
   bool get loadedLastPage => lastPage == null ? false : page > lastPage!;
   bool get isContinuingRequest => requestType == RequestType.continueRequest;
   Future<http.Response> Function(int, String) get onRequest => widget.onRequest;
+  bool get isSearching => isStartingRequest && isLoading && searchWord.isNotEmpty;
+  Function(bool)? get onLoadingAfterFirstRequest => widget.onLoadingAfterFirstRequest;
   Widget Function(dynamic item, int index, List<dynamic> items, bool isSelected, List<dynamic> selectedItems, bool hasSelectedItems, int totalSelectedItems) get onRenderItem => widget.onRenderItem;
 
   /// Multiple select item properties
@@ -178,6 +190,9 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
   void initState() {
     
     super.initState();
+
+    /// Set the local state searchWord using the widget searchWord (if provided)
+    if(widget.searchWord != null) searchWord = widget.searchWord!; 
 
     /// Load initial content (page 1)
     startRequest();
@@ -210,6 +225,24 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
       }
 
     });
+
+  }
+  
+  @override
+  void didUpdateWidget(covariant CustomVerticalInfiniteScroll oldWidget) {
+
+    super.didUpdateWidget(oldWidget);
+
+    /// If the search word changed
+    if(widget.searchWord != oldWidget.searchWord && oldWidget.searchWord != null) {
+
+      /// Set the search word
+      searchWord = widget.searchWord!;
+          
+      /// Start search
+      onSearch(searchWord);
+
+    }
 
   }
 
@@ -255,7 +288,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
     return apiConflictResolverUtility.addRequest(
       
       /// The request we are making
-      onRequest: () => onRequest(page, searchTerm), 
+      onRequest: () => onRequest(page, searchWord), 
       
       /// The response returned by the last request
       onCompleted: (response) {
@@ -328,12 +361,22 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
       onStartLoader: () {
         if(mounted) _startLoader();
         if(onLoading != null) onLoading!(true);
+        if(onLoadingAfterFirstRequest != null && sentFirstRequest) onLoadingAfterFirstRequest!(true);
+
+        /// Note that the onSearching() must be declared after the 
+        /// _startLoader() because it depends on the isLoading property
+        if(onSearching != null && isSearching) onSearching!(true);
       },
       
       /// What to do when the request completes
       onStopLoader: () {
         if(mounted) _stopLoader();
         if(onLoading != null) onLoading!(false);
+        if(onLoadingAfterFirstRequest != null && sentFirstRequest) onLoadingAfterFirstRequest!(false);
+
+        /// Note that the onSearching() must be declared after the 
+        /// _startLoader() because it depends on the isLoading property
+        if(onSearching != null && !isSearching) onSearching!(false);
       },
 
     /// On Error
@@ -345,12 +388,22 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
         setHasError(true);
 
         /// Show the Snackbar error message
-        SnackbarUtility.showErrorMessage(message: catchErrorMessage, context: context);
+        SnackbarUtility.showErrorMessage(message: catchErrorMessage);
 
       }
 
     });
 
+  }
+
+  void onSearch(String searchWord) {
+    if(debounceSearch) {
+      debouncerUtility.run(() {
+        startRequest();
+      });
+    }else{
+      startRequest();
+    }
   }
 
   /// Determine if we have selected all items by setting the 
@@ -514,10 +567,10 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
      *     have shown the search bar at least once before
      *     
      */
-    final bool hasSearchTerm = searchTerm.isNotEmpty;
-    final bool hasNoSearchTermButHasManyPages = searchTerm.isEmpty && (lastPage == null ? false : lastPage! > 1);
+    final bool hasSearchTerm = searchWord.isNotEmpty;
+    final bool hasNoSearchTermButHasManyPages = searchWord.isEmpty && (lastPage == null ? false : lastPage! > 1);
     
-    if(enableSearch && sentFirstRequest && (hasSearchTerm || hasNoSearchTermButHasManyPages || hasShownSearchBarBefore)) {
+    if(showSearchBar && sentFirstRequest && (hasSearchTerm || hasNoSearchTermButHasManyPages || hasShownSearchBarBefore)) {
       return hasShownSearchBarBefore = true;
     }else{
       return false;
@@ -538,24 +591,19 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalInfiniteScro
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: CustomSearchTextFormField(
-        initialValue: searchTerm,
+        initialValue: searchWord,
         isLoading: isSearching,
         enabled: !disabled,
-        onChanged: (value) {
+        onChanged: (searchWord) {
         
           if(!mounted) return;
 
           /// Update local state
-          setState(() => searchTerm = value);
+          setState(() => this.searchWord = searchWord);
+          
+          /// Start search
+          onSearch(this.searchWord);
 
-          /// Notify parent
-          if(debounceSearch) {
-            debouncerUtility.run((){
-              startRequest();
-            });
-          }else{
-            startRequest();
-          }
         }
       ),
     );

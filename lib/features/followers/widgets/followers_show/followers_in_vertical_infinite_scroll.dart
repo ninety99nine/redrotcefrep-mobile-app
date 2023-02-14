@@ -43,12 +43,11 @@ class _FollowersInVerticalInfiniteScrollState extends State<FollowersInVerticalI
   
   /// Render each request item as an User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestStoreFollowers(int page, String searchTerm) {
+  Future<http.Response> requestStoreFollowers(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showFollowers(
       /// Filter by the follower filter specified (followerFilter)
       filter: followerFilter,
-      searchTerm: searchTerm,
-      context: context,
+      searchWord: searchWord,
       page: page
     );
   }
@@ -74,7 +73,7 @@ class _FollowersInVerticalInfiniteScrollState extends State<FollowersInVerticalI
       onRenderItem: onRenderItem,
       key: _customVerticalInfiniteScrollState,
       catchErrorMessage: 'Can\'t show followers',
-      onRequest: (page, searchTerm) => requestStoreFollowers(page, searchTerm),
+      onRequest: (page, searchWord) => requestStoreFollowers(page, searchWord),
       headerPadding: const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16),
     );
   }

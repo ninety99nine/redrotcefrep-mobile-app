@@ -26,7 +26,6 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
 
   ShoppableStore get store => widget.store;
   bool get hasDescription => store.description != null;
-  StoreProvider get storesProvider => Provider.of<StoreProvider>(context, listen: false);
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +35,7 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
     
         /// Clickable Store name and description
         GestureDetector(
-          onTap: () => StoreServices.navigateToStorePage(
-            store, storesProvider, context
-          ),
+          onTap: () => StoreServices.navigateToStorePage(store),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
