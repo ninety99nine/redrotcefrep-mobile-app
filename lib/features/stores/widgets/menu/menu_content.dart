@@ -1,22 +1,19 @@
-import 'dart:convert';
-
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:bonako_demo/features/friend_groups/enums/friend_group_enums.dart';
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
-import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
-import 'package:bonako_demo/features/friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/stores/widgets/store_card/primary_section_content/logo.dart';
-import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-
+import '../../../friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
+import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import '../../../stores/widgets/store_cards/store_card/primary_section_content/logo.dart';
 import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../friend_groups/enums/friend_group_enums.dart';
+import '../../../friend_groups/models/friend_group.dart';
+import '../../../stores/providers/store_provider.dart';
+import '../../../../core/utils/snackbar.dart';
+import '../../../../core/utils/dialog.dart';
 import '../../models/shoppable_store.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'dart:convert';
 
 class MenuContent extends StatefulWidget {
 

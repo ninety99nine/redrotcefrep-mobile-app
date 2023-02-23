@@ -95,7 +95,7 @@ class ExistingUserItem extends StatelessWidget {
             ],
           ),
           TeamMemberInvitationStatus(
-            acceptedInvitation: existingUser.acceptedInvitation
+            teamMemberStatus: existingUser.teamMemberStatus
           )
         ],
       ),
@@ -127,7 +127,7 @@ class NonExistingUserItem extends StatelessWidget {
             ],
           ),
           TeamMemberInvitationStatus(
-            acceptedInvitation: nonExistingUser.acceptedInvitation
+            teamMemberStatus: nonExistingUser.teamMemberStatus
           )
         ],
       ),

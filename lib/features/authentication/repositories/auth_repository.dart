@@ -256,12 +256,12 @@ class AuthRepository {
 
     final url = user!.links.updateLastSelectedFriends!.href;
 
-    List<int> userIds = friends.map((friend) {
+    List<int> friendUserIds = friends.map((friend) {
         return friend.id;
     }).toList();
     
     Map body = {
-      'friend_user_ids': userIds,
+      'friend_user_ids': friendUserIds,
     };
 
     return apiRepository.put(url: url, body: body, context: context);

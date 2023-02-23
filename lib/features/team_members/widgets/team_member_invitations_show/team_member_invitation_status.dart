@@ -3,53 +3,30 @@ import 'package:flutter/material.dart';
 
 class TeamMemberInvitationStatus extends StatelessWidget {
   
-  final String acceptedInvitation;
   final String dotPlacement;
+  final String teamMemberStatus;
 
   const TeamMemberInvitationStatus({
     super.key,
     this.dotPlacement = 'right',
-    required this.acceptedInvitation,
+    required this.teamMemberStatus,
   });
 
-  String get invitationStatus {
+  Color get statusColor {
 
-    final String acceptedInvitation = this.acceptedInvitation.toLowerCase();
+    final String teamMemberStatus = this.teamMemberStatus.toLowerCase();
 
-    /// If this is a user accepted the invitation
-    if(acceptedInvitation == 'yes') {
-      
-      return 'Joined team';
-
-    /// If this is a user declined the invitation
-    }else if(acceptedInvitation == 'no') {
-      
-      return 'Left team';
-
-    /// If this is a user hasn't yet accepted or declined
-    }else {
-      
-      return 'Waiting response';
-
-    }
-
-  }
-
-  Color get invitationColor {
-
-    final String acceptedInvitation = this.acceptedInvitation.toLowerCase();
-
-    /// If this is a user accepted the invitation
-    if(acceptedInvitation == 'yes') {
+    /// If this is a user joined
+    if(teamMemberStatus == 'joined') {
       
       return Colors.green;
 
-    /// If this is a user declined the invitation
-    }else if(acceptedInvitation == 'no') {
+    /// If this is a user left
+    }else if(teamMemberStatus == 'left') {
       
       return Colors.red;
 
-    /// If this is a user hasn't yet accepted or declined
+    /// If this is a user is invited
     }else {
       
       return Colors.orange;
@@ -63,7 +40,7 @@ class TeamMemberInvitationStatus extends StatelessWidget {
       width: 8,
       height: 8,
       decoration: BoxDecoration(
-        color: invitationColor,
+        color: statusColor,
         borderRadius: BorderRadius.circular(4)
       ),
     );
@@ -78,7 +55,7 @@ class TeamMemberInvitationStatus extends StatelessWidget {
           dotWidget,
           const SizedBox(width: 8,),
         ],
-        CustomBodyText(invitationStatus),
+        CustomBodyText(teamMemberStatus),
         if(dotPlacement == 'right') ...[
           const SizedBox(width: 8,),
           dotWidget,

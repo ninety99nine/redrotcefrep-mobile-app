@@ -1,11 +1,12 @@
-import 'package:bonako_demo/features/order_for/widgets/order_for_details.dart';
-
 import '../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../features/products/widgets/product_cards.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
+import '../../order_for/widgets/order_for_details.dart';
+import '../../friend_groups/models/friend_group.dart';
 import '../../stores/providers/store_provider.dart';
+import '../../products/widgets/product_cards.dart';
 import '../../stores/models/shoppable_store.dart';
 import '../../../core/shared_models/cart.dart';
+import '../../../core/shared_models/user.dart';
 import '../../../core/utils/debouncer.dart';
 import 'package:collection/collection.dart';
 import '../../../core/utils/snackbar.dart';
@@ -34,9 +35,12 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
   bool hasInitialized = false;
   List lastSelectedProductItems = [];
   bool get hasStore => store != null;
+  String? get orderFor => store?.orderFor;
   bool get isLoading => store?.isLoading ?? true;
-  bool get hasSelectedProducts => store?.hasSelectedProducts ?? false;
+  List<User> get friends => store == null ? [] : store!.friends;
   bool get canShowCallToAction => hasStore && hasSelectedProducts;
+  bool get hasSelectedProducts => store?.hasSelectedProducts ?? false;
+  List<FriendGroup> get friendGroups => store == null ? [] : store!.friendGroups;
   bool get doesNotHaveShoppingCart => (store?.hasShoppingCart ?? false) == false;
   final DebouncerUtility debouncerUtility = DebouncerUtility(milliseconds: 1000);
   ShoppingCartCurrentView get shoppingCartCurrentView => widget.shoppingCartCurrentView;
@@ -278,7 +282,10 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
     
     await storeProvider.setStore(store!).storeRepository.convertShoppingCart(
       products: store!.selectedProducts,
+      friendGroups: friendGroups,
       cartCouponCodes: [],
+      orderFor: orderFor!,
+      friends: friends,
     ).then((response) async {
 
       if(!mounted) return;
@@ -349,11 +356,11 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
           duration: const Duration(milliseconds: 500),
           child: canShowCallToAction ? CustomElevatedButton(
             width: 100,
+            'Place Order',
             isLoading: isSubmitting,
             alignment: Alignment.center,
             disabled:  doesNotHaveShoppingCart || isLoading,
             onPressed: isSubmitting ? null : _requestConvertShoppingCart,
-            'Place Order',
           ) : null,
         ),
 

@@ -42,6 +42,7 @@ class ApiRepository {
     url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
 
     print('get url $url');
+    print('_bearerToken: $_bearerToken');
 
     return http.get(
       Uri.parse(url),
@@ -59,12 +60,12 @@ class ApiRepository {
   }
 
   /// Make POST Request
-  Future<http.Response> post({ required String url, Map<String, String>? queryParams, body = const {}, BuildContext? context }) async {
+  Future<http.Response> post({ required String url, body = const {}, Map<String, String>? queryParams, int? page, BuildContext? context }) async {
     
     await Future.delayed(const Duration(seconds: 0));
 
     //  Set the query params on the request url
-    url = setQueryParamsOnUrl(url: url, queryParams: queryParams);
+    url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
     
     print('post url $url');
     print('post body');

@@ -1,6 +1,10 @@
+import 'package:bonako_demo/features/stores/enums/store_enums.dart';
+import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/user/widgets/user_profile/user_orders_in_horizontal_list_view_infinite_scroll.dart';
+
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../authentication/repositories/auth_repository.dart';
-import '../../../profile/widgets/user_profile/user_profile_avatar.dart';
+import '../../../user/widgets/user_profile/user_profile_avatar.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:provider/provider.dart';
@@ -24,54 +28,85 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               
-              //  User Profile
-              UserProfile(user: user),
-
-              //  Re-order
+              /// Profile
+              Padding(
+                padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
+                child: UserProfile(user: user)
+              ),
+          
+              /// Spacer
+              const SizedBox(height: 24),
+        
+              /// Orders
+              UserOrdersInHorizontalListViewInfiniteScroll(
+                user: user
+              ),
+          
+              /// Spacer
+              const SizedBox(height: 16),
+        
+              const StoresInHorizontalListViewInfiniteScroll(
+                userAssociation: UserAssociation.customer,
+              ),
+          
+              /// Spacer
+              const SizedBox(height: 16),
+        
+              const StoresInHorizontalListViewInfiniteScroll(
+                userAssociation: UserAssociation.recentVisiter,
+              ),
+              /// Spacer
+              const SizedBox(height: 100),
+        
+              /*
+              /// Spacer
+              const SizedBox(height: 60),
+        
+              /// Re-order
               const CustomTitleMediumText('2 communities'),
-        
-              //  Re-order
+          
+              /// Re-order
               const CustomTitleMediumText('joined @'),
-        
-              //  Re-order
+          
+              /// Re-order
               const CustomTitleMediumText('my stores'),
-        
-              //  Spacer
+          
+              /// Spacer
               const SizedBox(height: 24),
-        
-              //  My Orders
+          
+              /// My Orders
               const CustomTitleMediumText('Home & Work Address (Add / Edit)'),
-        
-              //  Spacer
+          
+              /// Spacer
               const SizedBox(height: 24),
-        
-              //  My Orders
+          
+              /// My Orders
               const CustomTitleMediumText('My Orders'),
-        
-              //  Spacer
+          
+              /// Spacer
               const SizedBox(height: 24),
-        
-              //  Re-order
+          
+              /// Re-order
               const CustomTitleMediumText('Re-order'),
-        
-              //  Spacer
+          
+              /// Spacer
               const SizedBox(height: 24),
-        
-              //  Recent Visits
+          
+              /// Recent Visits
               const CustomTitleMediumText('Recent Visits'),
-        
-              //  Spacer
+          
+              /// Spacer
               const SizedBox(height: 24),
-        
-              //  Re-order
+          
+              /// Re-order
               const CustomTitleMediumText('Following: Local Business I Support'),
-
+              */
+              
             ],
           ),
         ),

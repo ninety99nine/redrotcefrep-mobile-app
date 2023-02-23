@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../features/stores/enums/store_enums.dart';
-import '../../../stores/widgets/store_cards.dart';
+import '../../../stores/widgets/store_cards/store_cards.dart';
 import 'package:flutter/material.dart';
 
 class FollowingPageContent extends StatefulWidget {

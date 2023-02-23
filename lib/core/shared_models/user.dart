@@ -1,8 +1,6 @@
-import 'package:bonako_demo/core/shared_models/user_association_as_friend_group_member.dart';
-
+import 'user_association_as_friend_group_member.dart';
 import 'user_association_as_order_viewer.dart';
-import 'user_association_as_team_member.dart';
-import 'user_association_as_follower.dart';
+import 'user_and_store_association.dart';
 import 'mobile_number.dart';
 import 'link.dart';
 
@@ -35,16 +33,14 @@ class User {
 class Attributes {
   late String name;
   late bool requiresPassword;
-  late UserAssociationAsFollower? userAssociationAsFollower;
-  late UserAssociationAsTeamMember? userAssociationAsTeamMember;
+  late UserAndStoreAssociation? userAndStoreAssociation;
   late UserAssociationAsOrderViewer? userAssociationAsOrderViewer;
   late UserAssociationAsFriendGroupMember? userAssociationAsFriendGroupMember;
 
   Attributes.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     requiresPassword = json['requiresPassword'];
-    userAssociationAsFollower = json['userAssociationAsFollower'] == null ? null : UserAssociationAsFollower.fromJson(json['userAssociationAsFollower']);
-    userAssociationAsTeamMember = json['userAssociationAsTeamMember'] == null ? null : UserAssociationAsTeamMember.fromJson(json['userAssociationAsTeamMember']);
+    userAndStoreAssociation = json['userAndStoreAssociation'] == null ? null : UserAndStoreAssociation.fromJson(json['userAndStoreAssociation']);
     userAssociationAsOrderViewer = json['userAssociationAsOrderViewer'] == null ? null : UserAssociationAsOrderViewer.fromJson(json['userAssociationAsOrderViewer']);
     userAssociationAsFriendGroupMember = json['userAssociationAsFriendGroupMember'] == null ? null : UserAssociationAsFriendGroupMember.fromJson(json['userAssociationAsFriendGroupMember']);
   }
@@ -52,6 +48,7 @@ class Attributes {
 
 class Links {
   late Link self;
+  late Link? showOrders;
   late Link? showFriends;
   late Link? createFriends;
   late Link? removeFriends;
@@ -74,6 +71,7 @@ class Links {
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
+    showOrders = json['showOrders'] == null ? null : Link.fromJson(json['showOrders']);
     showFriends = json['showFriends'] == null ? null : Link.fromJson(json['showFriends']);
     createFriends = json['createFriends'] == null ? null : Link.fromJson(json['createFriends']);
     removeFriends = json['removeFriends'] == null ? null : Link.fromJson(json['removeFriends']);

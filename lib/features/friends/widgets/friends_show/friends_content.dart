@@ -4,7 +4,7 @@ import 'package:bonako_demo/features/friend_groups/providers/friend_group_provid
 import 'package:bonako_demo/features/friend_groups/repositories/friend_group_repository.dart';
 import 'package:provider/provider.dart';
 
-import '../../../friend_groups/widgets/friend_groups_show/friend_groups_in_vertical_infinite_scroll.dart';
+import '../../../friend_groups/widgets/friend_groups_show/friend_groups_in_vertical_list_view_infinite_scroll.dart';
 import '../../../friend_groups/widgets/friend_group_create_or_update/friend_group_create_or_update.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
@@ -25,6 +25,7 @@ class FriendsContent extends StatefulWidget {
   final Function(List<User>)? onSelectedFriends;
   final Function(List<User>)? onDoneSelectingFriends;
   final Function(List<FriendGroup>)? onSelectedFriendGroups;
+  final Function(List<FriendGroup>)? onDoneSelectingFriendGroups;
 
   const FriendsContent({
     super.key,
@@ -33,6 +34,7 @@ class FriendsContent extends StatefulWidget {
     this.onDoneSelectingFriends,
     this.onSelectedFriendGroups,
     this.showingFullPage = false,
+    this.onDoneSelectingFriendGroups,
   });
 
   @override
@@ -105,7 +107,7 @@ class _FriendsContentState extends State<FriendsContent> {
       if(isViewingFriends) {
 
         /// Show friends view
-        return FriendsInVerticalInfiniteScroll(
+        return FriendsInVerticalListViewInfiniteScroll(
           onSelectedFriends: onSelectedFriends,
           onRemovingFriends: onDisableFloatingActionButton,
         );
@@ -130,7 +132,7 @@ class _FriendsContentState extends State<FriendsContent> {
         final filter = selectedMenu == Menu.groups ? 'Created' : 'Shared';
 
         /// Show friend groups view
-        return FriendGroupsInVerticalInfiniteScroll(
+        return FriendGroupsInVerticalListViewInfiniteScroll(
           filter: filter,
           key: ValueKey(filter),
           onViewFriendGroup: onViewFriendGroup,
@@ -283,6 +285,13 @@ class _FriendsContentState extends State<FriendsContent> {
 
   /// Close the Modal Bottom Sheet since we are done
   void onDoneSelectingFriendGroups() {
+
+    if(widget.onDoneSelectingFriendGroups != null) {
+
+      /// Notify parent on selected friend groups
+      widget.onDoneSelectingFriendGroups!(friendGroups);
+
+    }
 
     requestUpdateLastSelectedFriendGroups();
 

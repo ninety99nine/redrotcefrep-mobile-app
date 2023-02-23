@@ -1,5 +1,5 @@
-import '../../../../../core/shared_widgets/infinite_scroll/custom_horizontal_infinite_scroll.dart';
-import '../../../profile/widgets/customer_profile/customer_profile_avatar.dart';
+import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
+import '../../../user/widgets/customer_profile/customer_profile_avatar.dart';
 import '../../../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
@@ -41,10 +41,10 @@ class OrdersInHorizontalInfiniteScroll extends StatefulWidget {
 
 class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfiniteScroll> {
 
-  /// This allows us to access the state of CustomHorizontalInfiniteScrollState widget using a Global key. 
+  /// This allows us to access the state of CustomHorizontalPageViewInfiniteScrollState widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomHorizontalInfiniteScrollState> _customHorizontalInfiniteScrollState = GlobalKey<CustomHorizontalInfiniteScrollState>();
+  final GlobalKey<CustomHorizontalPageViewInfiniteScrollState> _customHorizontalPageViewInfiniteScrollState = GlobalKey<CustomHorizontalPageViewInfiniteScrollState>();
 
   bool canShowTogglePreviewMode = true;
   PreviewOrderMode? previewOrderMode;
@@ -102,7 +102,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
   /// Render each request item as an OrderItem
   Widget onRenderItem(order, int index, List orders) => OrderItem(
-    customHorizontalInfiniteScrollState: _customHorizontalInfiniteScrollState,
+    customHorizontalPageViewInfiniteScrollState: _customHorizontalPageViewInfiniteScrollState,
     onRequestedOrderRelationships: onRequestedOrderRelationships,
     onUpdatedPreviewSingleOrder: onUpdatedPreviewSingleOrder,
     onUpdatedOnMultipleOrders: onUpdatedOnMultipleOrders,
@@ -213,7 +213,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
   /// Show multiple order items (the initial order item along side other orders)
   Widget get multipleOrdersWidget {
-    return CustomHorizontalInfiniteScroll(
+    return CustomHorizontalPageViewInfiniteScroll(
       showSearchBar: false,
       debounceSearch: false,
       onParseItem: onParseItem, 
@@ -221,9 +221,8 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
       showFirstRequestLoader: true,
       onPageChanged: onPageChanged,
       catchErrorMessage: 'Can\'t show orders',
-      key: _customHorizontalInfiniteScrollState,
       headerPadding: const EdgeInsets.only(top: 0),
-      loaderMargin: const EdgeInsets.symmetric(vertical: 32),
+      key: _customHorizontalPageViewInfiniteScrollState,
       onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
     );
   }
@@ -295,7 +294,7 @@ class OrderItem extends StatefulWidget {
   final Function(Order)? onUpdatedOnMultipleOrders;
   final Function(Order) onUpdatedPreviewSingleOrder;
   final void Function(Order) onRequestedOrderRelationships;
-  final GlobalKey<CustomHorizontalInfiniteScrollState>? customHorizontalInfiniteScrollState;
+  final GlobalKey<CustomHorizontalPageViewInfiniteScrollState>? customHorizontalPageViewInfiniteScrollState;
 
   const OrderItem({
     super.key,
@@ -305,7 +304,7 @@ class OrderItem extends StatefulWidget {
     required this.triggerCancel,
     required this.previewOrderMode,
     this.onUpdatedOnMultipleOrders,
-    this.customHorizontalInfiniteScrollState,
+    this.customHorizontalPageViewInfiniteScrollState,
     required this.onUpdatedPreviewSingleOrder,
     required this.onRequestedOrderRelationships,
   });
@@ -324,12 +323,12 @@ class _OrderItemState extends State<OrderItem> {
   Function(Order)? get onUpdatedOnMultipleOrders => widget.onUpdatedOnMultipleOrders;
   Function(Order) get onUpdatedPreviewSingleOrder => widget.onUpdatedPreviewSingleOrder;
   void Function(Order) get onRequestedOrderRelationships => widget.onRequestedOrderRelationships;
-  GlobalKey<CustomHorizontalInfiniteScrollState>? get customHorizontalInfiniteScrollState => widget.customHorizontalInfiniteScrollState;
+  GlobalKey<CustomHorizontalPageViewInfiniteScrollState>? get customHorizontalPageViewInfiniteScrollState => widget.customHorizontalPageViewInfiniteScrollState;
 
   /// Update the order on the list of multiple orders
   void updateOrderOnItemList(Order order) {
     if(previewOrderMode == PreviewOrderMode.multipleOrders) {
-      customHorizontalInfiniteScrollState!.currentState!.updateItemAt(index!, order);
+      customHorizontalPageViewInfiniteScrollState!.currentState!.updateItemAt(index!, order);
     }
   }
 

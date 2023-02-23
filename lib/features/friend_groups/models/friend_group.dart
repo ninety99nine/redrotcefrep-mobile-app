@@ -49,12 +49,14 @@ class Links {
   late Link self;
   late Link updateFriendGroup;
   late Link deleteFriendGroup;
+  late Link showFriendGroupOrders;
   late Link showFriendGroupMembers;
   late Link removeFriendGroupMembers;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     updateFriendGroup = Link.fromJson(json['updateFriendGroup']);
+    showFriendGroupOrders = Link.fromJson(json['showFriendGroupOrders']);
     showFriendGroupMembers = Link.fromJson(json['showFriendGroupMembers']);
     removeFriendGroupMembers = Link.fromJson(json['removeFriendGroupMembers']);
   }

@@ -199,4 +199,19 @@ class FriendGroupRepository {
     
   }
   
+  /// Get the orders of the specified friend group
+  Future<http.Response> showFriendGroupOrders({ String searchWord = '', int page = 1 }) {
+
+    if(friendGroup == null) throw Exception('A friend group is required to show orders');
+
+    String url = friendGroup!.links.showFriendGroupOrders.href;
+
+    Map<String, String> queryParams = {};
+
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
+    
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
 }

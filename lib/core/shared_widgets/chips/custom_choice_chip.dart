@@ -34,7 +34,7 @@ class CustomChoiceChip extends StatelessWidget {
           color: Colors.grey.shade300,
         ),
       ),
-      disabledColor: disabledColor,
+      disabledColor: Colors.grey.shade200,
       onSelected: onSelected,
       selected: selected,
     );

@@ -1,10 +1,10 @@
-import '../../../profile/widgets/team_member_profile/team_member_profile_avatar.dart';
+import '../../../user/widgets/team_member_profile/team_member_profile_avatar.dart';
 import '../team_member_invitations_show/team_member_invitations_content.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../team_member_send_invitation/team_member_send_invitation.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'team_members_in_vertical_infinite_scroll.dart';
+import 'team_members_in_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../team_member_show/team_member_content.dart';
 import '../../../stores/services/store_services.dart';
@@ -96,7 +96,7 @@ class _TeamMembersContentState extends State<TeamMembersContent> {
     if(isViewingTeamMembers) {
 
       /// Show team members view
-      return TeamMembersInVerticalInfiniteScroll(
+      return TeamMembersInVerticalListViewInfiniteScroll(
         store: store,
         teamMemberFilter: teamMemberFilter,
         onViewTeamMember: onViewTeamMember,

@@ -3,7 +3,7 @@ import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../repositories/friend_group_repository.dart';
-import 'friend_groups_in_vertical_infinite_scroll.dart';
+import 'friend_groups_in_vertical_list_view_infinite_scroll.dart';
 import '../friend_groups_show/friend_group_menus.dart';
 import '../../providers/friend_group_provider.dart';
 import 'friend_groups_page/friend_groups_page.dart';
@@ -82,7 +82,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
       final filter = selectedMenu == Menu.groups ? 'Created' : 'Shared';
 
       /// Show friend groups view
-      return FriendGroupsInVerticalInfiniteScroll(
+      return FriendGroupsInVerticalListViewInfiniteScroll(
         filter: filter,
         key: ValueKey(filter),
         onViewFriendGroup: onViewFriendGroup,

@@ -27,8 +27,8 @@ class StoreServices {
 
   /// Get the team members permissions on the specified store
   static List<Permission> teamMemberPermissions(ShoppableStore store) {
-    if(store.attributes.userAssociationAsTeamMember == null) return [];
-    return store.attributes.userAssociationAsTeamMember!.permissions;
+    if(store.attributes.userAndStoreAssociation == null) return [];
+    return store.attributes.userAndStoreAssociation!.teamMemberPermissions;
   }
 
   /// Check if the user has the permission to manage 

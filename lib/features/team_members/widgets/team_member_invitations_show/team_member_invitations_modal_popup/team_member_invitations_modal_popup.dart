@@ -2,7 +2,7 @@ import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_moda
 import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../team_member_invitations_in_vertical_infinite_scroll.dart';
+import '../team_member_invitations_in_vertical_list_view_infinite_scroll.dart';
 import '../../../../stores/providers/store_provider.dart';
 import '../../../../../core/utils/dialog.dart';
 import '../../../../../core/utils/snackbar.dart';
@@ -81,7 +81,7 @@ class _ModalContentState extends State<ModalContent> {
   Widget get content {
 
     /// Show invitations view
-    return TeamMemberInvitationsInVerticalInfiniteScroll(
+    return TeamMemberInvitationsInVerticalListViewInfiniteScroll(
       onRequest: onRequest,
       isAcceptingAll: isAcceptingAll,
       isDecliningAll: isDecliningAll,

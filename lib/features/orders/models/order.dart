@@ -7,11 +7,13 @@ import '../../../../core/shared_models/money.dart';
 import '../../../../core/shared_models/link.dart';
 import '../../../../core/shared_models/user.dart';
 import '../../../../core/shared_models/cart.dart';
+import '../../stores/models/shoppable_store.dart';
 
 class Order {
   late int id;
   late Links links;
   late String summary;
+  late String orderFor;
   late Money amountPaid;
   late Currency currency;
   late DateTime createdAt;
@@ -19,8 +21,10 @@ class Order {
   late Money amountPending;
   late int totalViewsByTeam;
   late Attributes attributes;
+  late int orderForTotalUsers;
   late Money amountOutstanding;
   late String customerLastName;
+  late int orderForTotalFriends;
   late String customerFirstName;
   late NameAndDescription status;
   late Status collectionVerified;
@@ -38,6 +42,7 @@ class Order {
 
     id = json['id'];
     summary = json['summary'];
+    orderFor = json['orderFor'];
     links = Links.fromJson(json['links']);
     customerUserId = json['customerUserId'];
     totalViewsByTeam = json['totalViewsByTeam'];
@@ -46,6 +51,8 @@ class Order {
     createdAt = DateTime.parse(json['createdAt']);
     currency = Currency.fromJson(json['currency']);
     amountPaid = Money.fromJson(json['amountPaid']);
+    orderForTotalUsers = json['orderForTotalUsers'];
+    orderForTotalFriends = json['orderForTotalFriends'];
     status = NameAndDescription.fromJson(json['status']);
     attributes = Attributes.fromJson(json['attributes']);
     amountPending = Money.fromJson(json['amountPending']);
@@ -94,11 +101,13 @@ class DialToShowConfirmationCode {
 class Relationships {
   late Cart? cart;
   late User? customer;
+  late ShoppableStore? store;
   //  late List<Transaction> transactions;
 
   Relationships.fromJson(Map<String, dynamic> json) {
     cart = json['cart'] == null ? null : Cart.fromJson(json['cart']);
     customer = json['customer'] == null ? null : User.fromJson(json['customer']);
+    store = json['store'] == null ? null : ShoppableStore.fromJson(json['store']);
     //  transactions = (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
   }
 }

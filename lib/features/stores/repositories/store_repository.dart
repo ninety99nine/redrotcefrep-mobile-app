@@ -321,8 +321,8 @@ class StoreRepository {
 
     List<String> mobileNumbers = teamMembers.map((selectedTeamMember) {
 
-      if(selectedTeamMember.attributes.userAssociationAsTeamMember!.mobileNumber != null) {
-        return selectedTeamMember.attributes.userAssociationAsTeamMember!.mobileNumber!.withExtension;
+      if(selectedTeamMember.attributes.userAndStoreAssociation!.mobileNumber != null) {
+        return selectedTeamMember.attributes.userAndStoreAssociation!.mobileNumber!.withExtension;
       }else{
         return selectedTeamMember.mobileNumber!.withExtension;
       }
@@ -495,7 +495,7 @@ class StoreRepository {
   ///   SHOPPING CART            ///
   //////////////////////////////////
 
-  /// Inspect the shopping cart
+  /// Show the shopping cart order for options
   Future<http.Response> showShoppingCartOrderForOptions() {
 
     if(store == null) throw Exception('The store must be set to show the shopping cart order for options');
@@ -503,6 +503,61 @@ class StoreRepository {
     String url = store!.links.showShoppingCartOrderForOptions.href;
 
     return apiRepository.get(url: url);
+    
+  }
+
+  /// Show the shopping cart order for total users (customer & friends)
+  Future<http.Response> countShoppingCartOrderForUsers({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups }) {
+
+    if(store == null) throw Exception('The store must be set to show the shopping cart order for total friends');
+
+    String url = store!.links.countShoppingCartOrderForUsers.href;
+
+    List<int> friendUserIds = friends.map((friend) {
+        return friend.id;
+    }).toList();
+
+    List<int> friendGroupIds = friendGroups.map((friendGroup) {
+        return friendGroup.id;
+    }).toList();
+    
+    Map body = {
+      'order_for': orderFor,
+      'friend_user_ids': friendUserIds,
+      'friend_group_ids': friendGroupIds,
+    };
+
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+  /// Show the shopping cart order for users (customer & friends)
+  Future<http.Response> showShoppingCartOrderForUsers({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups, String searchWord = '', int page = 1 }) {
+
+    if(store == null) throw Exception('The store must be set to show the shopping cart order for friends');
+
+    String url = store!.links.showShoppingCartOrderForUsers.href;
+
+    List<int> friendUserIds = friends.map((friend) {
+        return friend.id;
+    }).toList();
+
+    List<int> friendGroupIds = friendGroups.map((friendGroup) {
+        return friendGroup.id;
+    }).toList();
+    
+    Map body = {
+      'order_for': orderFor,
+      'friend_user_ids': friendUserIds,
+      'friend_group_ids': friendGroupIds,
+    };
+
+    Map<String, String> queryParams = {};
+    
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
+
+    return apiRepository.post(url: url, body: body, page: page, queryParams: queryParams);
     
   }
 
@@ -528,23 +583,37 @@ class StoreRepository {
   }
 
   /// Convert the shopping cart into an order
-  Future<http.Response> convertShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
+  Future<http.Response> convertShoppingCart({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups, List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
 
     if(store == null) throw Exception('The store must be set to convert the shopping cart');
 
     String url = store!.links.convertShoppingCart.href;
-    
-    Map body = {
-      'cart_coupon_codes': cartCouponCodes,
-      'cart_products': products.map((product) {
+
+    List<int> friendUserIds = friends.map((friend) {
+        return friend.id;
+    }).toList();
+
+    List<int> friendGroupIds = friendGroups.map((friendGroup) {
+        return friendGroup.id;
+    }).toList();
+
+    List<Map> cartProducts = products.map((product) {
         return {
           'id': product.id,
           'quantity': product.quantity,
         };
-      }).toList(),
+    }).toList();
+    
+    Map body = {
+      'order_for': orderFor,
+      'cart_products': cartProducts,
+      'friend_user_ids': friendUserIds,
+      'friend_group_ids': friendGroupIds,
+      'cart_coupon_codes': cartCouponCodes,
     };
 
     return apiRepository.post(url: url, body: body);
     
   }
+
 }

@@ -10,6 +10,7 @@ enum UserAssociation {
   friendGroupMember,
 
   customer,
+  recentVisiter,
 }
 
 enum UserAcceptedInvitationStatus {

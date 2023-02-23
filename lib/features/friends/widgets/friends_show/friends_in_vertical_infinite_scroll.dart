@@ -1,4 +1,4 @@
-import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_infinite_scroll.dart';
+import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_models/user_association_as_friend_group_member.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
@@ -15,7 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-class FriendsInVerticalInfiniteScroll extends StatefulWidget {
+class FriendsInVerticalListViewInfiniteScroll extends StatefulWidget {
 
   final bool canSelect;
   final bool canShowRemoveIcon;
@@ -24,7 +24,7 @@ class FriendsInVerticalInfiniteScroll extends StatefulWidget {
   final Function(bool)? onRemovingFriends;
   final Function(List<User>)? onSelectedFriends;
 
-  const FriendsInVerticalInfiniteScroll({
+  const FriendsInVerticalListViewInfiniteScroll({
     super.key,
     this.friendGroup,
     this.canSelect = true,
@@ -35,10 +35,10 @@ class FriendsInVerticalInfiniteScroll extends StatefulWidget {
   });
 
   @override
-  State<FriendsInVerticalInfiniteScroll> createState() => _FriendsInVerticalInfiniteScrollState();
+  State<FriendsInVerticalListViewInfiniteScroll> createState() => _FriendsInVerticalListViewInfiniteScrollState();
 }
 
-class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfiniteScroll> {
+class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerticalListViewInfiniteScroll> {
 
   bool isRemoving = false;
 
@@ -56,14 +56,14 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
   void _startRemoveLoader() => setState(() => isRemoving = true);
   void _stopRemoveLoader() => setState(() => isRemoving = false);
 
-  /// This allows us to access the state of CustomVerticalInfiniteScroll widget using a Global key. 
+  /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
   /// Render each request item as an FriendItem
   Widget onRenderItem(user, int index, List users, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => FriendItem(
-    customVerticalInfiniteScrollState: _customVerticalInfiniteScrollState,
+    customVerticalListViewInfiniteScrollState: _customVerticalListViewInfiniteScrollState,
     canShowRemoveIcon: canShowRemoveIcon,
     hasSelectedItems: hasSelectedItems,
     isSelected: isSelected,
@@ -131,7 +131,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
   /// Request to remove the selected friends
   void _requestRemoveFriends() async {
 
-    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalInfiniteScrollState.currentState!;
+    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final List<User> selectedFriends = List<User>.from(customInfiniteScrollCurrentState.selectedItems);
 
     final bool? confirmation = await confirmRemove();
@@ -193,7 +193,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
   /// Confirm remove the selected friends
   Future<bool?> confirmRemove() {
 
-    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalInfiniteScrollState.currentState!;
+    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final int totalSelectedItems = customInfiniteScrollCurrentState.totalSelectedItems;
 
     return DialogUtility.showConfirmDialog(
@@ -205,7 +205,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
   
   @override
   Widget build(BuildContext context) {
-    return CustomVerticalInfiniteScroll(
+    return CustomVerticalListViewInfiniteScroll(
       disabled: isRemoving,
       debounceSearch: true,
       onParseItem: onParseItem, 
@@ -214,7 +214,7 @@ class _FriendsInVerticalInfiniteScrollState extends State<FriendsInVerticalInfin
       headerPadding: headerPadding,
       onSelectedItems: onSelectedItems,
       selectedAllAction: selectedAllAction,
-      key: _customVerticalInfiniteScrollState,
+      key: _customVerticalListViewInfiniteScrollState,
       catchErrorMessage: 'Can\'t show friends',
       loaderMargin: const EdgeInsets.only(top: 40),
       toggleSelectionCondition: toggleSelectionCondition,
@@ -232,7 +232,7 @@ class FriendItem extends StatelessWidget {
   final bool isRemoving;
   final bool hasSelectedItems;
   final bool canShowRemoveIcon;
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalInfiniteScrollState;
+  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState;
 
   const FriendItem({
     super.key, 
@@ -242,7 +242,7 @@ class FriendItem extends StatelessWidget {
     required this.isRemoving,
     required this.hasSelectedItems,
     required this.canShowRemoveIcon,
-    required this.customVerticalInfiniteScrollState,
+    required this.customVerticalListViewInfiniteScrollState,
   });
 
   int get id => user.id;
@@ -251,7 +251,7 @@ class FriendItem extends StatelessWidget {
   MobileNumber get mobileNumber => user.mobileNumber!; 
   String? get role => userAssociationAsFriendGroupMember?.role;
   bool get isCreator => hasRole ? role!.toLowerCase() == 'creator' : false;
-  CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalInfiniteScrollState.currentState!;
+  CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
   UserAssociationAsFriendGroupMember? get userAssociationAsFriendGroupMember => user.attributes.userAssociationAsFriendGroupMember;
 
   bool get canPerformActions {

@@ -1,7 +1,6 @@
-import '../../../../core/shared_models/user_association_as_team_member.dart';
-import '../../../../core/shared_models/user_association_as_follower.dart';
-import '../../subscriptions/models/subscription.dart';
+import '../../../../core/shared_models/user_and_store_association.dart';
 import '../../../../core/shared_models/shortcode.dart';
+import '../../subscriptions/models/subscription.dart';
 import '../../../../core/shared_models/link.dart';
 import '../../products/models/product.dart';
 
@@ -51,12 +50,10 @@ class Store {
 }
 
 class Attributes {
-  late UserAssociationAsFollower? userAssociationAsFollower;
-  late UserAssociationAsTeamMember? userAssociationAsTeamMember;
+  late UserAndStoreAssociation? userAndStoreAssociation;
 
   Attributes.fromJson(Map<String, dynamic> json) {
-    userAssociationAsFollower = json['userAssociationAsFollower'] == null ? null : UserAssociationAsFollower.fromJson(json['userAssociationAsFollower']);
-    userAssociationAsTeamMember = json['userAssociationAsTeamMember'] == null ? null : UserAssociationAsTeamMember.fromJson(json['userAssociationAsTeamMember']);
+    userAndStoreAssociation = json['userAndStoreAssociation'] == null ? null : UserAndStoreAssociation.fromJson(json['userAndStoreAssociation']);
   }
 }
 
@@ -92,11 +89,13 @@ class Links {
   late Link showFollowerFilters;
   late Link showTeamMemberFilters;
   late Link removeFromFriendGroups;
+  late Link showShoppingCartOrderForUsers;
   late Link showReviewRatingOptions;
   late Link acceptInvitationToFollow;
   late Link declineInvitationToFollow;
   late Link acceptInvitationToJoinTeam;
   late Link declineInvitationToJoinTeam;
+  late Link countShoppingCartOrderForUsers;  
   late Link showShoppingCartOrderForOptions;  
 
   Links.fromJson(Map<String, dynamic> json) {
@@ -125,6 +124,8 @@ class Links {
     declineInvitationToFollow = Link.fromJson(json['declineInvitationToFollow']);
     acceptInvitationToJoinTeam = Link.fromJson(json['acceptInvitationToJoinTeam']);
     declineInvitationToJoinTeam = Link.fromJson(json['declineInvitationToJoinTeam']);
+    showShoppingCartOrderForUsers = Link.fromJson(json['showShoppingCartOrderForUsers']);
+    countShoppingCartOrderForUsers = Link.fromJson(json['countShoppingCartOrderForUsers']);
     showShoppingCartOrderForOptions = Link.fromJson(json['showShoppingCartOrderForOptions']);
   }
 

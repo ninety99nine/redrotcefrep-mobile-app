@@ -14,7 +14,6 @@ class Cart {
   late Money deliveryFee;
   late int totalProducts;
   late Currency currency;
-  late Status isAbandoned;
   late int? instantCartId;
   late Status hasDeliveryFee;
   late Money saleDiscountTotal;
@@ -41,7 +40,6 @@ class Cart {
     currency = Currency.fromJson(json['currency']);
     grandTotal = Money.fromJson(json['grandTotal']);
     deliveryFee = Money.fromJson(json['deliveryFee']);
-    isAbandoned = Status.fromJson(json['isAbandoned']);
     totalCancelledCoupons = json['totalCancelledCoupons'];
     totalProductQuantities = json['totalProductQuantities'];
     totalCancelledProducts = json['totalCancelledProducts'];

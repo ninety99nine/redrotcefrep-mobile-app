@@ -1,4 +1,6 @@
 
+import 'package:bonako_demo/features/friend_groups/widgets/friend_groups_show/friend_group_orders_show/friend_group_orders_in_horizontal_list_view_infinite_scroll.dart';
+
 import '../../../friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
@@ -8,7 +10,7 @@ import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../friend_groups/enums/friend_group_enums.dart';
 import '../../../../features/stores/enums/store_enums.dart';
 import '../../../friend_groups/models/friend_group.dart';
-import '../../../stores/widgets/store_cards.dart';
+import '../../../stores/widgets/store_cards/store_cards.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -132,7 +134,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
         /// Instruction
         const CustomBodyText(
           'Get something 👌 for your group',
-          padding: EdgeInsets.only(top: 16, bottom: 8, left: 8, right: 9)
+          padding: EdgeInsets.only(top: 32, bottom: 8)
         ),
 
         /// Spacer
@@ -144,52 +146,71 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
         /// Spacer
         const SizedBox(height: 8,),
 
+        /// Group Card
+        orderCards,
+
+        /// Spacer
+        const SizedBox(height: 8,),
+
       ],
     );
   }
 
   Widget get groupCard {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0)
-      ),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  
-                  /// Name
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 500),
-                    child: AnimatedSwitcher(
-                      switchInCurve: Curves.easeIn,
-                      switchOutCurve: Curves.easeOut,
-                      duration: const Duration(milliseconds: 500),
-                      child: CustomTitleSmallText(
-                        key: ValueKey(friendGroup!.name),
-                        friendGroup!.name, margin: const EdgeInsets.only(bottom: 5)
-                      )
-                    ),
-                  ),
-
-                ],
-              ),
-
-              /// Friend Groups Modal Bottom Sheet (Used to change the Friend Group)
-              FriendGroupsModalBottomSheet(
-                enableBulkSelection: false,
-                purpose: Purpose.chooseFriendGroups,
-                onSelectedFriendGroups: onSelectedFriendGroups,
-              )
-
-            ]
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0)
         ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    
+                    /// Name
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 500),
+                      child: AnimatedSwitcher(
+                        switchInCurve: Curves.easeIn,
+                        switchOutCurve: Curves.easeOut,
+                        duration: const Duration(milliseconds: 500),
+                        child: CustomTitleSmallText(
+                          key: ValueKey(friendGroup!.name),
+                          friendGroup!.name, margin: const EdgeInsets.only(bottom: 5)
+                        )
+                      ),
+                    ),
+
+                  ],
+                ),
+
+                /// Friend Groups Modal Bottom Sheet (Used to change the Friend Group)
+                FriendGroupsModalBottomSheet(
+                  enableBulkSelection: false,
+                  purpose: Purpose.chooseFriendGroups,
+                  onSelectedFriendGroups: onSelectedFriendGroups,
+                )
+
+              ]
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget get orderCards {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 500),
+      child: FriendGroupOrdersInHorizontalListViewInfiniteScroll(
+        key: ValueKey(friendGroup!.name),
+        friendGroup: friendGroup!,
       ),
     );
   }

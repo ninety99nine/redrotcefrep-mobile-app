@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomBottomModalSheet extends StatefulWidget {
 
   final bool disabled;
-  final Widget? trigger;
+  final Widget trigger;
   final Widget content;
   final double heightFactor;
   final Function()? onClose;
@@ -11,7 +11,7 @@ class CustomBottomModalSheet extends StatefulWidget {
   const CustomBottomModalSheet({ 
     super.key,
     this.onClose,
-    this.trigger,
+    required this.trigger,
     this.disabled = false,
     required this.content,
     this.heightFactor = 0.7

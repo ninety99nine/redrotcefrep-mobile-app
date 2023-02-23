@@ -1,5 +1,5 @@
 import '../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
-import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_infinite_scroll.dart';
+import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../rating/widgets/rating_show_using_stars.dart';
@@ -33,10 +33,10 @@ class ReviewsInVerticalScrollableContent extends StatefulWidget {
 
 class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableContent> {
 
-  /// This allows us to access the state of CustomVerticalInfiniteScroll widget using a Global key. 
+  /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
   User? get reviewer => widget.reviewer;
   ShoppableStore get store => widget.store;
@@ -52,7 +52,7 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
     if(reviewFilter != oldWidget.reviewFilter) {
 
       /// Start a new request (so that we can filter reviews by the specified review subject)
-      _customVerticalInfiniteScrollState.currentState!.startRequest();
+      _customVerticalListViewInfiniteScrollState.currentState!.startRequest();
 
     }
   }
@@ -91,11 +91,11 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
   
   @override
   Widget build(BuildContext context) {
-    return CustomVerticalInfiniteScroll(
+    return CustomVerticalListViewInfiniteScroll(
       debounceSearch: true,
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
-      key: _customVerticalInfiniteScrollState,
+      key: _customVerticalListViewInfiniteScrollState,
       catchErrorMessage: 'Can\'t show invitations',
       contentAfterSearchBar: reviewer == null ? null : reviewerMessageAlert,
       onRequest: (page, searchWord) => requestStoreReviews(page, searchWord),

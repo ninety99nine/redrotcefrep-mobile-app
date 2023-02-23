@@ -60,7 +60,7 @@ class DialogUtility {
       context: context, 
       builder: (context) {
         /// The layout builder is required so that we can support widgets
-        /// that use the ListView widget e.g our CustomVerticalInfiniteScroll().
+        /// that use the ListView widget e.g our CustomVerticalListViewInfiniteScroll().
         /// The constraints are required so that we can set the height
         /// using the SizedBox() as see below.
         /// Reference: https://stackoverflow.com/questions/73233497/rendershrinkwrappingviewport-does-not-support-returning-intrinsic-dimensions
@@ -68,7 +68,7 @@ class DialogUtility {
           builder: (context, constraints) {
             return AlertDialog(
               content: SizedBox(
-                /// On scrollable content such as using CustomVerticalInfiniteScroll(),
+                /// On scrollable content such as using CustomVerticalListViewInfiniteScroll(),
                 /// set the width and height dynamically based on the given
                 /// constraints
                 height: constraints.maxHeight * 0.6,

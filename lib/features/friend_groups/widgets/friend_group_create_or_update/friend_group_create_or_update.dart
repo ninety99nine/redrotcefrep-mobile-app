@@ -390,7 +390,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
                   ),
           
                   /// Friends In Vertical Infinite Scroll
-                  if(isEditting && !hasFriends) FriendsInVerticalInfiniteScroll(
+                  if(isEditting && !hasFriends) FriendsInVerticalListViewInfiniteScroll(
                     canShowRemoveIcon: true,
                     friendGroup: friendGroup,
                     canSelect: canAddFriends,

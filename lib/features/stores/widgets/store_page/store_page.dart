@@ -1,4 +1,6 @@
-import '../store_card/primary_section_content/primary_section_content.dart';
+import 'package:bonako_demo/features/stores/widgets/follow_button/follow_button.dart';
+
+import '../store_cards/store_card/primary_section_content/primary_section_content.dart';
 import '../../../shopping_cart/widgets/shopping_cart_content.dart';
 import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
@@ -61,6 +63,9 @@ class StorePageContent extends StatelessWidget {
               logoRadius: logoRadius, 
               showProfileRightSide: false
             ),
+
+            /// Follow / Unfollow Button
+            FollowButton(store: store, alignment: Alignment.centerRight,),
     
             /// Spacer
             const SizedBox(height: 16,),

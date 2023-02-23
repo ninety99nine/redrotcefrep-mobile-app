@@ -1,3 +1,6 @@
+import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
+
 import '../../../../core/shared_models/product_line.dart';
 import '../../../core/shared_models/cart.dart';
 import '../../products/models/product.dart';
@@ -22,6 +25,10 @@ class ShoppableStore extends Store with ChangeNotifier {
   bool get hasShoppingCart => shoppingCart != null;
   bool get hasSelectedProducts => selectedProducts.isNotEmpty;
 
+  String orderFor = 'Me';
+  List<User> friends = [];
+  List<FriendGroup> friendGroups = [];
+
   /// The current view is the current view of the shopping cart
   /// that is consuming this ShoppableStore. We use this to
   /// determine whether to execute actions such as running 
@@ -42,10 +49,21 @@ class ShoppableStore extends Store with ChangeNotifier {
 
   /// Start loader
   resetShoppingCart({ canNotifyListeners = true }) {
+    friends = [];
+    orderFor = 'Me';
     isLoading = false;
+    friendGroups = [];
     shoppingCart = null;
     selectedProducts = [];
     productLinesNotFound = [];
+
+    for (var i = 0; i < relationships.products.length; i++) {
+      
+      /// Reset the selected quantity on each product
+      relationships.products[i].quantity = 1;
+
+    }
+
     if(canNotifyListeners) notifyListeners();
   }
 

@@ -1,7 +1,7 @@
 import '../../../features/introduction/widgets/landing_page.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../authentication/repositories/auth_repository.dart';
-import '../../profile/widgets/user_profile/user_profile_avatar.dart';
+import '../../user/widgets/user_profile/user_profile_avatar.dart';
 import '../../authentication/providers/auth_provider.dart';
 import '../../../core/shared_models/user.dart';
 import '../../../core/utils/snackbar.dart';

@@ -14,44 +14,34 @@ class OrderStatus extends StatelessWidget {
     this.dotPlacement = 'left',
   });
 
-  Color get invitationColor {
-
-    /// Get the current order status
-    final status = this.status.toLowerCase();
+  String get dotSymbol {
 
     /// If this order is completed
-    if(status == 'completed') {
+    if(status.toLowerCase() == 'completed') {
       
-      return Colors.green;
+      return '🟢';
 
     /// If this order is cancelled
-    }else if(status == 'cancelled') {
+    }else if(status.toLowerCase() == 'cancelled') {
       
-      return Colors.red;
+      return '🔴';
 
     /// If this order is waiting
-    }else if(status == 'waiting') {
+    }else if(status.toLowerCase() == 'waiting') {
       
-      return Colors.orange;
+      return '🟠';
 
     /// If any other status
     }else {
       
-      return Colors.blue;
+      return '🔵';
 
     }
 
   }
 
   Widget get dotWidget {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: invitationColor,
-        borderRadius: BorderRadius.circular(4)
-      ),
-    );
+    return Text(dotSymbol, style: const TextStyle(fontSize: 10, height: 1),);
   }
 
   @override

@@ -1,10 +1,10 @@
-import '../../../profile/widgets/customer_profile/customer_profile_avatar.dart';
+import '../../../user/widgets/customer_profile/customer_profile_avatar.dart';
 import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
-import 'orders_in_vertical_infinite_scroll.dart';
+import 'orders_in_vertical_list_view_infinite_scroll.dart';
 import '../order_create/order_create.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,7 @@ class _OrdersContentState extends State<OrdersContent> {
     if(isViewingOrders || isViewingOrder) {
 
       /// Show orders view
-      return OrdersInVerticalInfiniteScroll(
+      return OrdersInVerticalListViewInfiniteScroll(
         store: store,
         order: order,
         onViewOrder: onViewOrder,

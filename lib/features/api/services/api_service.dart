@@ -1,9 +1,10 @@
 import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/utils/snackbar.dart';
 import '../providers/api_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import '/core/utils/snackbar.dart';
+import 'package:get/get.dart';
 import 'dart:convert';
 
 class ApiService {
@@ -62,7 +63,7 @@ class ApiService {
 
   /// Handle the request failure
   static void handleRequestFailure(http.Response response, BuildContext? context) {
-  
+
     /// Get the response body
     final responseBody = jsonDecode(response.body);
 
@@ -72,12 +73,8 @@ class ApiService {
       /// Check if this is a 401 Unauthorized Request
       if(response.statusCode == 401) {
 
-        /// If the context is not provided then stop any further code execution
-        if(context == null) return;
-
-        /// Navigate to the landing page      
-        Navigator.pushReplacementNamed(
-          context,
+        /// Navigate to the page 
+        Get.toNamed(
           LandingPage.routeName
         );
 
@@ -88,10 +85,6 @@ class ApiService {
 
         /// If the response body contains a message
         if(responseBody.containsKey('message')) {
-
-
-          /// If the context is not provided then stop any further code execution
-          if(context == null) return;
 
           /// Show the error message
           SnackbarUtility.showErrorMessage(message: responseBody['message']);

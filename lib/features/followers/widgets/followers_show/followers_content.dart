@@ -3,9 +3,9 @@ import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../follower_invitations_show/follower_invitations_content.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../follower_send_invitation/follower_send_invitation.dart';
+import 'followers_in_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
-import 'followers_in_vertical_infinite_scroll.dart';
 import '../../models/followers_invitations.dart';
 import 'followers_page/followers_page.dart';
 import '../../enums/follower_enums.dart';
@@ -67,7 +67,7 @@ class _FollowersContentState extends State<FollowersContent> {
     if(isViewingFollowers) {
 
       /// Show followers view
-      return FollowersInVerticalInfiniteScroll(
+      return FollowersInVerticalListViewInfiniteScroll(
         store: store,
         followerFilter: followerFilter
       );

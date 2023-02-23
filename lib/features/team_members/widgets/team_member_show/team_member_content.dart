@@ -104,25 +104,25 @@ class _PermissionsState extends State<Permissions> {
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get canManageTeamMembers => StoreServices.hasPermissionsToManageTeamMembers(store);
   String get permissionsError => serverErrors.containsKey('permissions') ? serverErrors['permissions'] : '';
-  List<Permission> get teamMemberPermissions => teamMember.attributes.userAssociationAsTeamMember!.permissions;
-  bool get teamMemberIsCreator => teamMember.attributes.userAssociationAsTeamMember!.role.toLowerCase() == 'creator';
+  List<Permission> get teamMemberPermissions => teamMember.attributes.userAndStoreAssociation!.teamMemberPermissions;
+  bool get teamMemberIsCreator => teamMember.attributes.userAndStoreAssociation!.teamMemberRole!.toLowerCase() == 'creator';
   
   String get removeTeamMemberFirstName {
 
-    if(teamMember.attributes.userAssociationAsTeamMember!.mobileNumber == null) {
+    if(teamMember.attributes.userAndStoreAssociation!.mobileNumber == null) {
       return teamMember.firstName;
     }else{
-      return teamMember.attributes.userAssociationAsTeamMember!.mobileNumber!.withoutExtension;
+      return teamMember.attributes.userAndStoreAssociation!.mobileNumber!.withoutExtension;
     }
 
   }
 
   String get removeTeamMemberName {
 
-    if(teamMember.attributes.userAssociationAsTeamMember!.mobileNumber == null) {
+    if(teamMember.attributes.userAndStoreAssociation!.mobileNumber == null) {
       return teamMember.attributes.name;
     }else{
-      return teamMember.attributes.userAssociationAsTeamMember!.mobileNumber!.withoutExtension;
+      return teamMember.attributes.userAndStoreAssociation!.mobileNumber!.withoutExtension;
     }
 
   }

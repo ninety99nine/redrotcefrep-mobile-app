@@ -31,12 +31,12 @@ class ExistingUsers {
 
 class ExistingUser {
   late String name;
-  late String acceptedInvitation;
+  late String followerStatus;
   late MobileNumber mobileNumber;
 
   ExistingUser.fromJson(Map<String, dynamic> json) {
     name = json['name'];
-    acceptedInvitation = json['acceptedInvitation'];
+    followerStatus = json['followerStatus'];
     mobileNumber = MobileNumber.fromJson(json['mobileNumber']);
   }
 }
@@ -52,11 +52,11 @@ class NonExistingUsers {
 }
 
 class NonExistingUser {
-  late String acceptedInvitation;
+  late String followerStatus;
   late MobileNumber mobileNumber;
 
   NonExistingUser.fromJson(Map<String, dynamic> json) {
-    acceptedInvitation = json['acceptedInvitation'];
+    followerStatus = json['followerStatus'];
     mobileNumber = MobileNumber.fromJson(json['mobileNumber']);
   }
 }
