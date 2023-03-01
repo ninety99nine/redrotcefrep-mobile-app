@@ -8,21 +8,12 @@ class StoreServices {
   /// Navigate to the show store page
   static void navigateToStorePage(ShoppableStore store) async {
 
-    /// Get the store 
-    final ShoppingCartCurrentView shoppingCartCurrentView = store.shoppingCartCurrentView!;
-    
-    /// The current view is the current view of the shopping cart
-    store.changeShoppingCartCurrentView(ShoppingCartCurrentView.storePage, canNotifyListeners: true);
-    
     /// Navigate to the page 
     await Get.toNamed(
       StorePage.routeName,
-      arguments: store,
+      arguments: store
     );
 
-    /// Revert back to the previous current view that was in use
-    store.changeShoppingCartCurrentView(shoppingCartCurrentView, canNotifyListeners: true);
-    
   }
 
   /// Get the team members permissions on the specified store

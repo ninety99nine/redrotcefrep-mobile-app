@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 class StoreSecondarySectionContent extends StatelessWidget {
 
   final ShoppableStore store;
-  final Function? onRefreshStores;
   final bool canShowSubscribeCallToAction;
+  final ShoppingCartCurrentView shoppingCartCurrentView;
 
   const StoreSecondarySectionContent({
     Key? key,
     required this.store,
-    this.onRefreshStores,
+    required this.shoppingCartCurrentView,
     this.canShowSubscribeCallToAction = true
   }) : super(key: key);
 
@@ -28,16 +28,13 @@ class StoreSecondarySectionContent extends StatelessWidget {
         if(!isOpen && hasJoinedStoreTeam && canShowSubscribeCallToAction) ...[
 
           /// Subscribe Modal Bottom Sheet
-          SubscribeToStoreModalBottomSheet(
-            store: store,
-            onRefreshStores: onRefreshStores
-          )
+          SubscribeToStoreModalBottomSheet(store: store)
 
         ],
 
         /// Shopping Cart
-        if(isOpen) const ShoppingCartContent(
-          shoppingCartCurrentView: ShoppingCartCurrentView.storeCard
+        if(isOpen) ShoppingCartContent(
+          shoppingCartCurrentView: shoppingCartCurrentView
         ),
 
       ],

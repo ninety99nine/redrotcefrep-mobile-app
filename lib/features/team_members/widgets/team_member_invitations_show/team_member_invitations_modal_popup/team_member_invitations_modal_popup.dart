@@ -14,11 +14,9 @@ import 'dart:convert';
 class TeamMemberInvitationsModalPopup extends StatefulWidget {
   
   final Widget trigger;
-  final Function()? onRefreshStores;
 
   const TeamMemberInvitationsModalPopup({
     super.key,
-    this.onRefreshStores,
     required this.trigger,
   });
 
@@ -31,10 +29,10 @@ class _TeamMemberInvitationsModalPopupState extends State<TeamMemberInvitationsM
   bool respondedToAnyInvitation = false;
 
   Widget get trigger => widget.trigger;
-  Function()? get onRefreshStores => widget.onRefreshStores;
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   void onClose() {
-    if(respondedToAnyInvitation && onRefreshStores != null) onRefreshStores!();
+    if(respondedToAnyInvitation && storeProvider.refreshStores != null) storeProvider.refreshStores!();
   }
 
   void onRespondedToInvitation() => respondedToAnyInvitation = true;

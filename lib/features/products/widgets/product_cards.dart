@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+
 import '../../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
 import '../../../../../core/shared_widgets/buttons/show_more_or_less_button.dart';
 import '../../stores/models/shoppable_store.dart';
@@ -29,17 +31,17 @@ class _ProductCardsState extends State<ProductCards> {
   bool showAllProducts = false;
   List<int> selectedProductIds = [];
 
-  ShoppingCartCurrentView get shoppingCartCurrentView => widget.shoppingCartCurrentView;
   bool get doesntHaveSelectedProducts => !hasSelectedProducts;
   List<Product> get products => store == null ? [] : store!.relationships.products;
   bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
+  ShoppingCartCurrentView get shoppingCartCurrentView => widget.shoppingCartCurrentView;
   bool get hasMoreProductsThanMinimumProductsToShow => products.length > ProductCards.minimumProducts;
-  bool get isViewingFromStoreCard => store?.shoppingCartCurrentView == ShoppingCartCurrentView.storeCard;
-  bool get isViewingFromStorePage => store?.shoppingCartCurrentView == ShoppingCartCurrentView.storePage;
+  bool get isShowingStorePage => Provider.of<StoreProvider>(context, listen: true).isShowingStorePage;
   List<Product> get selectedProducts => products.where((product) => selectedProductIds.contains(product.id) ).toList();
   List<Product> get filteredProducts => showAllProducts ? products : products.take(ProductCards.minimumProducts).toList();
-  bool get canShowMoreOrLessButton => isViewingFromStoreCard && doesntHaveSelectedProducts && hasMoreProductsThanMinimumProductsToShow;
-
+  bool get isShoppingOnStorePage => (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
+  bool get isShoppingOnStoreCard => (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
+  bool get canShowMoreOrLessButton => isShoppingOnStoreCard && doesntHaveSelectedProducts && hasMoreProductsThanMinimumProductsToShow;
   @override
   void initState() {
     super.initState();
@@ -73,8 +75,8 @@ class _ProductCardsState extends State<ProductCards> {
      *  2) autoToggleShowAllProducts(): Automatically show all products if 
      *     we selected one of the products while other products where 
      *     hidden. This will allow the hidden products to be displayed
-     */    
-    if(shoppingCartCurrentView == store!.shoppingCartCurrentView!) {
+     */
+    if(isShoppingOnStoreCard || isShoppingOnStorePage) {
 
       setState(() {
         setSelectedProductIds();
@@ -90,7 +92,7 @@ class _ProductCardsState extends State<ProductCards> {
   }
 
   void autoToggleShowAllProducts() {
-    showAllProducts = hasSelectedProducts || isViewingFromStorePage;
+    showAllProducts = hasSelectedProducts || isShoppingOnStorePage;
   }
   
   void toggleShowAllProducts() => setState(() {   

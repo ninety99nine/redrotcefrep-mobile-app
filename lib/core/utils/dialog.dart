@@ -205,6 +205,7 @@ class DialogUtility {
       /// Get the confirmation code required to delete the resource
       void confirmDelete(StateSetter setState) {
 
+        confirmDeleteRequested = true;
         setState(() => isLoading = true);
 
         apiRepository.post(url: confirmDeleteUrl).then((response) {
@@ -213,14 +214,17 @@ class DialogUtility {
 
             setState(() {
 
-              confirmDeleteRequested = true;
-
               final responseBody = jsonDecode(response.body);
               code = responseBody['code'].toString();
               message = responseBody['message'];
 
             });
           
+          }else{
+
+            /// Close e.g When the resource does not exist
+            Navigator.of(context).pop(false);
+
           }
 
         }).whenComplete(() {

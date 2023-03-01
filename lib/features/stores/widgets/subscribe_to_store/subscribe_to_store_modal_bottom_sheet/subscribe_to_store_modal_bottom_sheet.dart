@@ -7,15 +7,15 @@ import 'package:flutter/material.dart';
 class SubscribeToStoreModalBottomSheet extends StatefulWidget {
 
   final Widget? trigger;
+  final Function()? onDial;
   final ShoppableStore store;
-  final Function? onRefreshStores;
   final Alignment subscribeButtonAlignment;
 
   const SubscribeToStoreModalBottomSheet({
     super.key,
+    this.onDial,
     this.trigger,
     required this.store,
-    this.onRefreshStores,
     this.subscribeButtonAlignment = Alignment.centerRight
   });
 
@@ -31,8 +31,8 @@ class _SubscribeToStoreModalBottomSheetState extends State<SubscribeToStoreModal
   final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
 
   Widget? get _trigger => widget.trigger;
+  Function()? get onDial => widget.onDial;
   ShoppableStore get store => widget.store;
-  Function? get onRefreshStores => widget.onRefreshStores;
   Alignment get subscribeButtonAlignment => widget.subscribeButtonAlignment;
 
   Widget get trigger {
@@ -65,7 +65,7 @@ class _SubscribeToStoreModalBottomSheetState extends State<SubscribeToStoreModal
       /// Content of the bottom modal sheet
       content: SubscribeToStoreContent(
         store: store,
-        onRefreshStores: onRefreshStores
+        onDial: onDial
       ),
     );
   }

@@ -59,6 +59,11 @@ class StoreCardsState extends State<StoreCards> {
   void initState() {
     super.initState();
     requestStoreInvitations();
+
+    /// Set the refresh method on the store provider so that we can easily refresh the
+    /// stores from anyway in the application. This way we don't have to keep passing
+    /// the refreshStores() method on multiple nested child widgets.
+    storeProvider.refreshStores = refreshStores;
   }
 
   @override
@@ -88,8 +93,7 @@ class StoreCardsState extends State<StoreCards> {
   }
 
   Widget onRenderItem(store, int index, List stores, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => StoreCard(
-    store: (store as ShoppableStore),
-    onRefreshStores: onRefreshStores
+    store: (store as ShoppableStore)
   );
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
   Future<http.Response> requestShowStores(int page, String searchWord) {
@@ -184,7 +188,6 @@ class StoreCardsState extends State<StoreCards> {
 
       /// Modal Popup to show invitations to join team
       return TeamMemberInvitationsModalPopup(
-        onRefreshStores: onRefreshStores,
         trigger: invitationsBanner,
       );
 
@@ -192,7 +195,6 @@ class StoreCardsState extends State<StoreCards> {
 
       /// Modal Popup to show invitations to follow store
       return FollowerInvitationsModalBottomSheet(
-        onRefreshStores: onRefreshStores,
         trigger: invitationsBanner,
       );
 
@@ -200,7 +202,7 @@ class StoreCardsState extends State<StoreCards> {
 
   }
 
-  void onRefreshStores() {
+  void refreshStores() {
 
     /// Reset the invitations checker
     setState(() => checkStoreInvitations = null);

@@ -30,7 +30,6 @@ class OrderForDetails extends StatefulWidget {
 
 class _OrderForDetailsState extends State<OrderForDetails> {
   
-  int totalPeople = 1;
   ShoppableStore? store;
   bool isLoading = false;
   bool isLoadingTotalPeople = false;
@@ -43,15 +42,16 @@ class _OrderForDetailsState extends State<OrderForDetails> {
   
   String? get orderFor => store?.orderFor;
   bool get isOrderingForMe => orderFor == 'Me';
+  int get totalPeople => store?.totalPeople ?? 1;
+  List<User> get friends => store?.friends ?? [];
   int get totalFriendGroups => friendGroups.length;
   bool get hasSelectedFriends => friends.isNotEmpty;
+  bool get hasShoppingCart => store?.hasShoppingCart ?? false;
   bool get hasSelectedFriendGroups => friendGroups.isNotEmpty;
-  List<User> get friends => store == null ? [] : store!.friends;
   bool get isOrderingForFriendsOnly => orderFor == 'Friends Only';
   bool get isOrderingForMeAndFriends => orderFor == 'Me & Friends';
-  bool get hasShoppingCart => store == null ? false : store!.hasShoppingCart;
-  List<FriendGroup> get friendGroups => store == null ? [] : store!.friendGroups;
-  bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
+  List<FriendGroup> get friendGroups => store?.friendGroups ?? [];
+  bool get hasSelectedProducts => store?.hasSelectedProducts ?? false;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get canCountShoppingCartOrderForUsersFromClientSide {
@@ -114,7 +114,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
     if(hasStore && hasSelectedProducts && !isLoading && orderForOptions.isEmpty) _requestStoreShoppingCartOrderForOptions();
 
     /// Reset the total people to "1" if the orderFor has been set to "Me" 
-    if(orderFor == 'Me') totalPeople = 1;
+    if(orderFor == 'Me') store!.setTotalPeople(1, canNotifyListeners: false);
 
   }
 
@@ -168,7 +168,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
           final responseBody = jsonDecode(response.body);
 
           /// Set the total people
-          setState(() => totalPeople = responseBody['total']);
+          setState(() => store!.setTotalPeople(responseBody['total']));
 
         }
 
@@ -217,11 +217,11 @@ class _OrderForDetailsState extends State<OrderForDetails> {
 
             totalFriends = totalFriends + totalFriendsFromGroups;
 
-            totalPeople = isOrderingForMeAndFriends ? totalFriends + 1 : totalFriends;
+            store!.setTotalPeople(isOrderingForMeAndFriends ? totalFriends + 1 : totalFriends);
 
           }else{
             
-            totalPeople = 1;
+            store!.setTotalPeople(1);
 
           }
 

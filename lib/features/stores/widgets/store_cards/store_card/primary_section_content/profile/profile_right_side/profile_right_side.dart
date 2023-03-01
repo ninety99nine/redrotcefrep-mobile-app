@@ -9,12 +9,10 @@ import 'package:flutter/material.dart';
 class StoreProfileRightSide extends StatefulWidget {
   
   final ShoppableStore store;
-  final Function? onRefreshStores;
 
   const StoreProfileRightSide({
     super.key,
-    required this.store, 
-    this.onRefreshStores,
+    required this.store,
   });
 
   @override
@@ -27,7 +25,6 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
   bool get hasRating => store.rating != null;
   bool get isOpen => StoreServices.isOpen(store);
   bool get hasAdverts => store.adverts.isNotEmpty;
-  Function? get onRefreshStores => widget.onRefreshStores;
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +35,7 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
       children: [
 
         /// Menu Modal Bottom Sheet
-        StoreMenuModalBottomSheet(
-          store: store, 
-          onRefreshStores: onRefreshStores
-        ),
+        StoreMenuModalBottomSheet(store: store),
 
         if(isOpen) ...[
 
@@ -60,9 +54,7 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
           /// Spacer
           const SizedBox(height: 4.0,),
 
-          AddStoreToGroupButton(
-            store: store,
-          )
+          AddStoreToGroupButton(store: store)
 
         ]
 

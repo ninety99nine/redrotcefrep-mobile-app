@@ -15,13 +15,13 @@ import 'dart:convert';
 
 class SubscribeToStoreContent extends StatefulWidget {
 
+  final Function()? onDial;
   final ShoppableStore store;
-  final Function? onRefreshStores;
 
   const SubscribeToStoreContent({
     super.key,
+    this.onDial,
     required this.store,
-    this.onRefreshStores,
   });
 
   @override
@@ -34,8 +34,8 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
   bool isFakeLoading = false;
   Shortcode? paymentShortcode;
 
+  Function()? get onDial => widget.onDial;
   ShoppableStore get store => widget.store;
-  Function? get onRefreshStores => widget.onRefreshStores;
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
   bool get hasPaymentShortcode => paymentShortcode != null;
@@ -57,6 +57,9 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
     requestCreateFakeSubscription();
 
     return;
+
+    /// Notify parent that we are dialing
+    if(onDial != null) onDial!();
 
     /**
      *  We need to launch the dialer instead of using the
@@ -107,9 +110,19 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
 
       if(response.statusCode == 200) {
 
+        /**
+         *  Close the modal bottom sheet
+         * 
+         *  This must be placed before the SnackbarUtility.showSuccessMessage()
+         *  since placing it after will hide the Snackbar message instead of
+         *  the modal bottom sheet
+         */
         Get.back();
 
-        if(onRefreshStores != null) onRefreshStores!();
+        /// Notify parent that we are dialing
+        if(onDial != null) onDial!();
+
+        if(storeProvider.refreshStores != null) storeProvider.refreshStores!();
         
         SnackbarUtility.showSuccessMessage(message: 'You subscribed successfully');
         

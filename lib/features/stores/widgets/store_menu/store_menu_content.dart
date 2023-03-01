@@ -1,16 +1,15 @@
-import 'package:bonako_demo/features/stores/services/store_services.dart';
-import 'package:bonako_demo/features/stores/widgets/subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
-
-import '../store_cards/store_card/primary_section_content/logo.dart';
+import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../add_store_to_group/add_to_group_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
+import '../store_cards/store_card/primary_section_content/logo.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../friend_groups/models/friend_group.dart';
-import '../../providers/store_provider.dart';
+import '../add_store_to_group/add_to_group_button.dart';
 import '../../../../core/utils/snackbar.dart';
+import '../../providers/store_provider.dart';
 import '../../../../core/utils/dialog.dart';
+import '../../services/store_services.dart';
 import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +19,10 @@ import 'dart:convert';
 class StoreMenuContent extends StatefulWidget {
 
   final ShoppableStore store;
-  final Function? onRefreshStores;
 
   const StoreMenuContent({
     super.key,
     required this.store,
-    this.onRefreshStores,
   });
 
   @override
@@ -40,11 +37,11 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
 
   ShoppableStore get store => widget.store;
   bool get isOpen => StoreServices.isOpen(store);
-  Function? get onRefreshStores => widget.onRefreshStores;
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
 
+  bool get isShowingStorePage => storeProvider.isShowingStorePage;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
 
@@ -132,7 +129,8 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
             /// Return the modal bottom sheet to subscribe with this list item as the trigger
             return SubscribeToStoreModalBottomSheet(
               store: store,
-              trigger: listItem
+              trigger: listItem,
+              onDial: () => Get.back()
             );
           
           }else{
@@ -232,7 +230,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
         SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
         /// Refresh the stores
-        if(onRefreshStores != null) onRefreshStores!();
+        if(storeProvider.refreshStores != null) storeProvider.refreshStores!();
 
       }
 
@@ -261,8 +259,11 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
        */
       Get.back();
 
+      /// Navigate out of the store page
+      if(isShowingStorePage) Get.back();
+
       /// Refresh the stores
-      if(onRefreshStores != null) onRefreshStores!();
+      if(storeProvider.refreshStores != null) storeProvider.refreshStores!();
 
     }
 

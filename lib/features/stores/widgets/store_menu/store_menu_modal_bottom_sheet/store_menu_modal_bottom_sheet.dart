@@ -7,14 +7,12 @@ import '../store_menu_content.dart';
 class StoreMenuModalBottomSheet extends StatefulWidget {
 
   final ShoppableStore store;
-  final Function? onRefreshStores;
   final Widget Function(void Function())? trigger;
 
   const StoreMenuModalBottomSheet({
     super.key,
     this.trigger,
     required this.store,
-    this.onRefreshStores,
   });
 
   @override
@@ -24,7 +22,6 @@ class StoreMenuModalBottomSheet extends StatefulWidget {
 class _StoreMenuModalBottomSheetState extends State<StoreMenuModalBottomSheet> {
 
   ShoppableStore get store => widget.store;
-  Function? get onRefreshStores => widget.onRefreshStores;
   Widget Function(void Function())? get trigger => widget.trigger;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
@@ -58,10 +55,7 @@ class _StoreMenuModalBottomSheetState extends State<StoreMenuModalBottomSheet> {
       /// Trigger to open the bottom modal sheet
       trigger: _trigger,
       /// Content of the bottom modal sheet
-      content: StoreMenuContent(
-        store: store, 
-        onRefreshStores: onRefreshStores
-      ),
+      content: StoreMenuContent(store: store),
     );
   }
 }

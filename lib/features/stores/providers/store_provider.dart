@@ -12,13 +12,18 @@ import 'package:flutter/material.dart';
 class StoreProvider with ChangeNotifier {
   
   ShoppableStore? _store;
+  Function()? refreshStores;
   final ApiProvider apiProvider;
+  bool _isShowingStorePage = false;
 
   /// Constructor: Set the provided Api Provider
   StoreProvider({ required this.apiProvider });
 
   /// Return the store
   ShoppableStore? get store => _store;
+
+  /// Return the showing store page status
+  bool get isShowingStorePage => _isShowingStorePage;
 
   /// Return the Store Repository
   StoreRepository get storeRepository => StoreRepository(store: store, apiProvider: apiProvider);
@@ -27,5 +32,11 @@ class StoreProvider with ChangeNotifier {
   StoreProvider setStore(ShoppableStore store) {
     _store = store;
     return this;
+  }
+
+  /// Set the showing store page status
+  void updateShowingStorePageStatus(bool status) {
+    _isShowingStorePage = status;
+    notifyListeners();
   }
 }

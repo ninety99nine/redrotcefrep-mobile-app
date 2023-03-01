@@ -46,6 +46,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
   ShoppingCartCurrentView get shoppingCartCurrentView => widget.shoppingCartCurrentView;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   final ApiConflictResolverUtility apiConflictResolverUtility = ApiConflictResolverUtility();
+  bool get isShowingStorePage => Provider.of<StoreProvider>(context, listen: true).isShowingStorePage;
 
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
@@ -59,7 +60,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
     /**
      *  If the Shoppable Store Model does not have any selected products, but the current state of the 
-     *  lastSelectedProductItems is not empty, then we must reset its value  by also making it empty. 
+     *  lastSelectedProductItems is not empty, then we must reset its value by also making it empty. 
      *  Lets assume that the app loads the first time and this ShoppingCartContent widget is rendered. In 
      *  this state the hasSelectedProducts = false and lastSelectedProductItems is empty. When we 
      *  select any product then the hasSelectedProducts = true and the Shoppable Store Model 
@@ -70,7 +71,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
      *  lastSelectedProductItems to match the state of the 
      *  selectedProducts. 
      * 
-     *  If the same product is removed, the selected products are emptied and  the Shoppable Store 
+     *  If the same product is removed, the selected products are emptied and the Shoppable Store 
      *  Model shoppingCart is removed and the notify listeners will be called leading to this 
      *  didChangeDependencies() method to be called with the emptied selected products. The 
      *  lastSelectedProductItems still holds the old state, but the _requestInspectShoppingCart() 
@@ -148,7 +149,10 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
      *  _requestInspectShoppingCart() might not be desired. In our case, the
      *  justification is to minimize the number of Api Requests being made.
      */
-    if( hasInitialized && shoppingCartCurrentView == store!.shoppingCartCurrentView! && hasSelectedProducts && _productsHaveChanged() ) {
+    final isShoppingOnStorePage = (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
+    final isShoppingOnStoreCard = (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
+
+    if( hasInitialized && (isShoppingOnStoreCard || isShoppingOnStorePage) && hasSelectedProducts && _productsHaveChanged() ) {
 
       /// Request the shopping cart
       _requestInspectShoppingCart();

@@ -25,31 +25,17 @@ class ShoppableStore extends Store with ChangeNotifier {
   bool get hasShoppingCart => shoppingCart != null;
   bool get hasSelectedProducts => selectedProducts.isNotEmpty;
 
+  int totalPeople = 1;
   String orderFor = 'Me';
   List<User> friends = [];
   List<FriendGroup> friendGroups = [];
-
-  /// The current view is the current view of the shopping cart
-  /// that is consuming this ShoppableStore. We use this to
-  /// determine whether to execute actions such as running 
-  /// Rest API calls and updating the shopping cart UI 
-  /// depending on whether that shopping cart view
-  /// is on display or not. This saves us from
-  /// making unnecessary Rest API calls and
-  /// unnecessary UI updates
-  ShoppingCartCurrentView? shoppingCartCurrentView;
   
   ShoppableStore.fromJson(super.json) : super.fromJson();
-
-  /// Change the shopping cart current view
-  changeShoppingCartCurrentView(ShoppingCartCurrentView shoppingCartCurrentView, { canNotifyListeners = true }) {
-    this.shoppingCartCurrentView = shoppingCartCurrentView;
-    if(canNotifyListeners) notifyListeners();
-  }
 
   /// Start loader
   resetShoppingCart({ canNotifyListeners = true }) {
     friends = [];
+    totalPeople = 1;
     orderFor = 'Me';
     isLoading = false;
     friendGroups = [];
@@ -76,6 +62,12 @@ class ShoppableStore extends Store with ChangeNotifier {
   /// Stop loader
   stopLoader({ canNotifyListeners = true }) {
     isLoading = false;
+    if(canNotifyListeners) notifyListeners();
+  }
+
+  /// Set the shopping cart
+  setTotalPeople(int totalPeople, { canNotifyListeners = true }) {
+    this.totalPeople = totalPeople;
     if(canNotifyListeners) notifyListeners();
   }
 

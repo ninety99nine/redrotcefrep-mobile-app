@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
 
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
@@ -11,12 +12,10 @@ import 'package:flutter/material.dart';
 class StoreCard extends StatefulWidget {
 
   final ShoppableStore store;
-  final Function onRefreshStores;
   
   const StoreCard({
     Key? key, 
     required this.store,
-    required this.onRefreshStores,
   }) : super(key: key);
 
   @override
@@ -37,15 +36,6 @@ class _StoreCardState extends State<StoreCard> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    
-    /// Set the StoreCard as the current view of the Shoppable Store Modal
-    store!.shoppingCartCurrentView = ShoppingCartCurrentView.storeCard;
-
-  }
-
-  @override
   Widget build(BuildContext context) {
     /**
      * Notice the ListenableProvider.value() passes the store
@@ -62,20 +52,15 @@ class _StoreCardState extends State<StoreCard> {
      */
     return ListenableProvider.value(
       value: store,
-      child: Content(
-        onRefreshStores: widget.onRefreshStores
-      ),
+      child: const Content(),
     );
   }
 }
 
 class Content extends StatelessWidget {
 
-  final Function onRefreshStores;
-
   const Content({
     super.key,
-    required this.onRefreshStores,
   });
 
   @override
@@ -91,6 +76,9 @@ class Content extends StatelessWidget {
      *  a descendant widget of this widget.
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
+
+    print('Build Store Card #${store.id}');
+
     bool hasProducts = store.relationships.products.isNotEmpty;
     bool isOpen = StoreServices.isOpen(store);
 
@@ -102,17 +90,15 @@ class Content extends StatelessWidget {
         children: [
     
           //  Store Logo, Profile, Adverts, Rating, e.t.c
-          StorePrimarySectionContent(
-            store: store,
-            onRefreshStores: onRefreshStores
-          ),
+          StorePrimarySectionContent(store: store),
           
           //  Spacer
           if(isOpen && hasProducts) const SizedBox(height: 20),
     
           //  Store Products, Shopping Cart, Subscribe e.t.c
           StoreSecondarySectionContent(
-            store: store
+            store: store,
+            shoppingCartCurrentView: ShoppingCartCurrentView.storeCard
           ),
           
         ],

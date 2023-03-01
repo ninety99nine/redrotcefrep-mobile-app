@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import '../store_menu/store_menu_modal_bottom_sheet/store_menu_modal_bottom_sheet.dart';
 import '../store_cards/store_card/primary_section_content/primary_section_content.dart';
@@ -22,6 +24,73 @@ class StorePage extends StatefulWidget {
 }
 
 class _StorePageState extends State<StorePage> {
+
+  StoreProvider? storeProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    /**
+     *  Set the storeProvider from this initState() method so that we can run method on dispose()
+     *  without encoutering the following flutter error:
+     * 
+     *  To safely refer to a widget's ancestor in its dispose() method, save a reference to the
+     *  ancestor by calling dependOnInheritedWidgetOfExactType() in the widget's
+     *  didChangeDependencies() method.
+     * 
+     *  This error occurs if the storeProvider is referenced after its declared as a getter
+     *  method, just like the following:
+     * 
+     *  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+     */
+    storeProvider = Provider.of<StoreProvider>(context, listen: false);
+
+    /**
+     *  The Future.delayed() function is used to prevent the following flutter error:
+     * 
+     *  This _InheritedProviderScope<StoreProvider?> widget cannot be marked as needing 
+     *  to build because the framework is already in the process of building widgets. 
+     *  A widget can be marked as needing to be built during the build phase only if 
+     *  one of its ancestors is currently building. This exception is allowed 
+     *  because the framework builds parent widgets before children, which 
+     *  means a dirty descendant will always be built. Otherwise, the 
+     *  framework might not visit this widget during this build phase
+     * 
+     *  This is because updateShowingStorePageStatus() executes the
+     *  notifyListeners() method which causes the widgets to
+     *  rebuild. We should wait for the initState to first
+     *  complete before we can execute this method.  
+     */
+    Future.delayed(Duration.zero).then((value) {
+
+      /// Indicate that we are showing the store page
+      storeProvider!.updateShowingStorePageStatus(true);
+
+    });
+
+  }
+
+  @override
+  void dispose() {
+
+    super.dispose();
+
+    /**
+     *  The Future.delayed() function is used to prevent the following flutter error:
+     * 
+     *  This _InheritedProviderScope<StoreProvider?> widget cannot be marked as needing to 
+     *  build because the framework is locked. The widget on which setState() or 
+     *  markNeedsBuild() was called was: _InheritedProviderScope<StoreProvider?>
+     */
+    Future.delayed(Duration.zero).then((value) {
+
+      /// Indicate that we are not showing the store page
+      storeProvider!.updateShowingStorePageStatus(false);
+
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
