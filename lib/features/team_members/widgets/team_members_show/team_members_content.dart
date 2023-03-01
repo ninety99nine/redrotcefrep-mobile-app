@@ -1,7 +1,7 @@
 import '../../../user/widgets/team_member_profile/team_member_profile_avatar.dart';
 import '../team_member_invitations_show/team_member_invitations_content.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../team_member_send_invitation/team_member_send_invitation.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'team_members_in_vertical_list_view_infinite_scroll.dart';
@@ -259,7 +259,7 @@ class _TeamMembersContentState extends State<TeamMembersContent> {
                       if(teamMember == null) ...[
                 
                         /// Title
-                        CustomTitleLargeText(title, padding: const EdgeInsets.only(bottom: 8),),
+                        CustomTitleMediumText(title, padding: const EdgeInsets.only(bottom: 8),),
                         
                         /// Subtitle
                         AnimatedSwitcher(

@@ -6,12 +6,12 @@ import '../../../friend_groups/models/friend_group.dart';
 import '../../models/check_store_invitations.dart';
 import '../../../../../core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';
-import 'package:http/http.dart' as http;
 import '../../models/shoppable_store.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'store_card/store_card.dart';
 import '../../enums/store_enums.dart';
+import 'store_card/store_card.dart';
 import 'dart:convert';
 
 class StoreCards extends StatefulWidget {
@@ -28,10 +28,10 @@ class StoreCards extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StoreCards> createState() => _StoreCardsState();
+  State<StoreCards> createState() => StoreCardsState();
 }
 
-class _StoreCardsState extends State<StoreCards> {
+class StoreCardsState extends State<StoreCards> {
 
   CheckStoreInvitations? checkStoreInvitations;
   FriendGroup? get friendGroup => widget.friendGroup;
@@ -71,6 +71,16 @@ class _StoreCardsState extends State<StoreCards> {
     if(friendGroup?.id != oldWidget.friendGroup?.id) {
 
       /// Start a new request (so that we can filter stores by the specified friend group id)
+      startRequest();
+
+    }
+
+  }
+
+  void startRequest() {
+
+    if(_customVerticalListViewInfiniteScrollState.currentState != null) {
+
       _customVerticalListViewInfiniteScrollState.currentState!.startRequest();
 
     }
@@ -84,8 +94,11 @@ class _StoreCardsState extends State<StoreCards> {
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
   Future<http.Response> requestShowStores(int page, String searchWord) {
     return storeProvider.storeRepository.showStores(
+      withCountActiveSubscriptions: true,
+      withAuthActiveSubscription: true,
       userAssociation: userAssociation,
       withCountTeamMembers: true,
+      withVisitShortcode: true,
       friendGroup: friendGroup,
       withCountFollowers: true,
       withCountReviews: true,

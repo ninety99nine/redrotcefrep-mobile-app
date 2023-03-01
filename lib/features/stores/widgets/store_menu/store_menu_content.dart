@@ -1,12 +1,14 @@
-import '../../../friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:bonako_demo/features/stores/widgets/subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
+
+import '../store_cards/store_card/primary_section_content/logo.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../stores/widgets/store_cards/store_card/primary_section_content/logo.dart';
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../add_store_to_group/add_to_group_button.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../../friend_groups/enums/friend_group_enums.dart';
 import '../../../friend_groups/models/friend_group.dart';
-import '../../../stores/providers/store_provider.dart';
+import '../../providers/store_provider.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../../../core/utils/dialog.dart';
 import '../../models/shoppable_store.dart';
@@ -15,31 +17,33 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 
-class MenuContent extends StatefulWidget {
+class StoreMenuContent extends StatefulWidget {
 
   final ShoppableStore store;
   final Function? onRefreshStores;
 
-  const MenuContent({
+  const StoreMenuContent({
     super.key,
     required this.store,
     this.onRefreshStores,
   });
 
   @override
-  State<MenuContent> createState() => _MenuContentState();
+  State<StoreMenuContent> createState() => _StoreMenuContentState();
 }
 
-class _MenuContentState extends State<MenuContent> {
+class _StoreMenuContentState extends State<StoreMenuContent> {
   
   bool isLoading = false;
 
   List<Map> menus = [];
 
   ShoppableStore get store => widget.store;
+  bool get isOpen => StoreServices.isOpen(store);
   Function? get onRefreshStores => widget.onRefreshStores;
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
+  bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
 
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
@@ -57,6 +61,20 @@ class _MenuContentState extends State<MenuContent> {
       menus.add({
         'icon': Icons.group_remove_outlined,
         'name': 'Remove From Group',
+      });
+    }
+    
+    if(!isOpen && hasJoinedStoreTeam) {
+      menus.add({
+        'icon': Icons.sensor_door_outlined,
+        'name': 'Subscribe',
+      });
+    }
+    
+    if(StoreServices.isAssociatedAsCreator(store)) {
+      menus.add({
+        'icon': Icons.delete_outline_rounded,
+        'name': 'Delete Store',
       });
     }
   }
@@ -79,13 +97,13 @@ class _MenuContentState extends State<MenuContent> {
             children: [
               
               /// Icon
-              Icon(icon, size: 24,),
+              Icon(icon, size: 24, color: name == 'Delete Store' ? Colors.red: null),
 
               /// Spacer
               const SizedBox(width: 8,),
 
               /// Name
-              CustomBodyText(name),
+              CustomBodyText(name, color: name == 'Delete Store' ? Colors.red: null),
 
             ],
           );
@@ -103,11 +121,18 @@ class _MenuContentState extends State<MenuContent> {
           if(name == 'Add To Group') {
             
             /// Return the modal bottom sheet to select groups with this list item as the trigger
-            return FriendGroupsModalBottomSheet(
+            return AddStoreToGroupButton(
+              store: store,
               trigger: listItem,
-              enableBulkSelection: true,
-              purpose: Purpose.addStoreToFriendGroups,
-              onDoneSelectingFriendGroups: requestAddStoreToFriendGroups,
+              canShowLoader: false
+            );
+          
+          }else if(name == 'Subscribe') {
+            
+            /// Return the modal bottom sheet to subscribe with this list item as the trigger
+            return SubscribeToStoreModalBottomSheet(
+              store: store,
+              trigger: listItem
             );
           
           }else{
@@ -124,23 +149,15 @@ class _MenuContentState extends State<MenuContent> {
   }
 
   bool canTap(String name) {
-    return ['Remove From Group'].contains(name);
+    return ['Delete Store', 'Remove From Group'].contains(name);
   }
 
   void onTap(String name) async {
-    if(name == 'Remove From Group') {
-      bool? confirmation = await confirmRemoveFromGroup();
-      if(confirmation == true) requestRemoveStoreFromFriendGroups(); 
+    if(name == 'Delete Store') {
+      confirmDeleteStore();
+    }else if(name == 'Remove From Group') {
+      confirmRemoveFromGroup();
     }
-  }
-
-  /// Confirm remove the store from group
-  Future<bool?> confirmRemoveFromGroup() {
-    return DialogUtility.showConfirmDialog(
-      content: 'Are you sure you want to remove ${store.name} from this group?',
-      context: context
-    );
-
   }
 
   void requestAddStoreToFriendGroups(List<FriendGroup> friendGroups) {
@@ -175,6 +192,18 @@ class _MenuContentState extends State<MenuContent> {
     }).whenComplete((){
 
       _stopLoader();
+
+    });
+  }
+
+  /// Confirm remove the store from group
+  confirmRemoveFromGroup() {
+    return DialogUtility.showConfirmDialog(
+      content: 'Are you sure you want to remove ${store.name} from this group?',
+      context: context
+    ).then((confirmation) {
+
+      if(confirmation == true) requestRemoveStoreFromFriendGroups();
 
     });
   }
@@ -218,6 +247,35 @@ class _MenuContentState extends State<MenuContent> {
     });
   }
 
+  /// Confirm remove the store from group
+  void confirmDeleteStore() {
+
+    void onDeleted() {
+
+      /**
+       *  Close the modal bottom sheet
+       * 
+       *  This must be placed before the SnackbarUtility.showSuccessMessage()
+       *  since placing it after will hide the Snackbar message instead of
+       *  the modal bottom sheet
+       */
+      Get.back();
+
+      /// Refresh the stores
+      if(onRefreshStores != null) onRefreshStores!();
+
+    }
+
+    DialogUtility.showConfirmDeleteApiResourceDialog(
+      confirmDeleteUrl: store.links.confirmDeleteStore.href,
+      deleteUrl: store.links.deleteStore.href,
+      resourceName: store.name,
+      onDeleted: onDeleted,
+      context: context
+    );
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -254,7 +312,7 @@ class _MenuContentState extends State<MenuContent> {
                           children: [
               
                             /// Title
-                            CustomTitleLargeText(store.name, padding: const EdgeInsets.only(bottom: 4),),
+                            CustomTitleMediumText(store.name, overflow: TextOverflow.ellipsis, margin: const EdgeInsets.only(top: 4, bottom: 4),),
                             
                             /// Subtitle
                             const Align(

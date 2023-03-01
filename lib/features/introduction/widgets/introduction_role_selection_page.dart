@@ -1,5 +1,5 @@
-import '../../../core/shared_widgets/buttons/proceed_text_button.dart';
 import '../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../core/shared_widgets/buttons/proceed_text_button.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import './../enums/introduction_enums.dart';

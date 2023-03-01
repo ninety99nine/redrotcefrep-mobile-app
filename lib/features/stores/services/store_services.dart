@@ -63,4 +63,32 @@ class StoreServices {
     return permissions.map((p) => p.grant).contains(grant);
   }
 
+  /// Check if the user has joined the team on the specified store
+  static bool hasJoinedStoreTeam(ShoppableStore store) {
+    return store.attributes.userAndStoreAssociation?.teamMemberStatus.toLowerCase() == 'joined';
+  }
+
+  /// Check if the user is associated as a creator on the specified store
+  static bool isAssociatedAsCreator(ShoppableStore store) {
+    return store.attributes.userAndStoreAssociation?.teamMemberRole?.toLowerCase() == 'creator';
+  }
+
+  /// Check if the specified store is open for business
+  static bool isOpen(ShoppableStore store) {
+    bool hasActiveSubscriptions = store.activeSubscriptionsCount! > 0;
+    bool hasJoinedStoreTeam = StoreServices.hasJoinedStoreTeam(store);
+    bool hasAuthActiveSubscription = store.relationships.authActiveSubscription != null;
+    
+    return (hasJoinedStoreTeam && hasAuthActiveSubscription) || hasActiveSubscriptions;
+  }
+
+  /// Check if the specified store is closed for business but the user is not a team member
+  static bool isClosedButNotTeamMember(ShoppableStore store) {
+
+    bool isClosed = isOpen(store) == false;
+    bool hasJoinedStoreTeam = StoreServices.hasJoinedStoreTeam(store);
+    
+    return isClosed && hasJoinedStoreTeam == false;
+  }
+
 }

@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../../core/shared_models/permission.dart';
@@ -350,7 +350,7 @@ class _PermissionsState extends State<Permissions> {
             children: [
               
               /// Title
-              const CustomTitleLargeText('Remove', margin: EdgeInsets.only(bottom: 4),),
+              const CustomTitleMediumText('Remove', margin: EdgeInsets.only(bottom: 4),),
 
               /// Divider
               const Divider(),

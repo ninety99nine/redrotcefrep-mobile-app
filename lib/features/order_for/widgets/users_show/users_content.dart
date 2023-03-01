@@ -1,10 +1,10 @@
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'users_in_vertical_list_view_infinite_scroll.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../../../core/shared_models/user.dart';
-import 'users_in_vertical_list_view_infinite_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'users_page/users_page.dart';
@@ -79,7 +79,7 @@ class _UsersContentState extends State<UsersContent> {
                     children: const [
                 
                       /// Title
-                      CustomTitleLargeText('Ordering For', padding: EdgeInsets.only(bottom: 8),),
+                      CustomTitleMediumText('Ordering For', padding: EdgeInsets.only(bottom: 8),),
                       
                       /// Subtitle
                       CustomBodyText('See who your are ordering for'),

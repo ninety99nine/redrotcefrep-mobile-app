@@ -6,7 +6,7 @@ import '../store_cards/store_card/primary_section_content/logo.dart';
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../follow_button/follow_button.dart';
+import '../follow_store/follow_store_button.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
@@ -106,17 +106,20 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
   }
 
   Widget get noContentWidget {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.access_time_outlined, size: 24, color: Colors.grey.shade300,),
-        const SizedBox(width: 8,),
-        const CustomBodyText(
-          'No stores',
-          lightShade: true
-        ),
-      ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Icon(Icons.access_time_outlined, size: 24, color: Colors.grey.shade300,),
+          const SizedBox(width: 8,),
+          const CustomBodyText(
+            'No stores yet', 
+            lightShade: true
+          ),
+        ],
+      ),
     );
   }
   
@@ -124,7 +127,8 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
   Widget build(BuildContext context) {
 
     return CustomHorizontalListViewInfiniteScroll(
-      height: 190,
+      height: 194,
+      showSearchBar: false,
       debounceSearch: true,
       showNoMoreContent: false,
       onParseItem: onParseItem, 
@@ -207,7 +211,7 @@ class _StoreItemState extends State<StoreItem> {
             const SizedBox(height: 4,),
 
             /// Follow / Unfollow Button
-            FollowButton(store: store)
+            FollowStoreButton(store: store)
 
           ],
         ),

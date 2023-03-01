@@ -84,17 +84,20 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   }
 
   Widget get noContentWidget {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.access_time_outlined, size: 24, color: Colors.grey.shade300,),
-        const SizedBox(width: 8,),
-        const CustomBodyText(
-          'No orders placed', 
-          lightShade: true
-        ),
-      ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Icon(Icons.access_time_outlined, size: 24, color: Colors.grey.shade300,),
+          const SizedBox(width: 8,),
+          const CustomBodyText(
+            'No orders placed', 
+            lightShade: true
+          ),
+        ],
+      ),
     );
   }
   
@@ -103,6 +106,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
 
     return CustomHorizontalListViewInfiniteScroll(
       height: 170,
+      showSearchBar: false,
       debounceSearch: true,
       showNoMoreContent: false,
       onParseItem: onParseItem, 

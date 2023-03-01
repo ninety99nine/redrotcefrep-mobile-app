@@ -1,5 +1,5 @@
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -157,7 +157,7 @@ class _TeamPermissionstate extends State<TeamPermissions> {
         children: [
 
           /// Title
-          const CustomTitleLargeText('Permissions', margin: EdgeInsets.only(left: 16, bottom: 4),),
+          const CustomTitleMediumText('Permissions', margin: EdgeInsets.only(left: 16, bottom: 4),),
 
           /// Subtitle
           CustomBodyText(subtitle, margin: const EdgeInsets.only(left: 16),),

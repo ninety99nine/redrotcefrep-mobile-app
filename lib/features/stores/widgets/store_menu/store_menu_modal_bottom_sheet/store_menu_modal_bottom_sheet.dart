@@ -1,40 +1,45 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
+import '../../../../../core/shared_widgets/buttons/custom_text_button.dart';
 import '../../../models/shoppable_store.dart';
 import 'package:flutter/material.dart';
-import '../menu_content.dart';
+import '../store_menu_content.dart';
 
-class MenuModalBottomSheet extends StatefulWidget {
+class StoreMenuModalBottomSheet extends StatefulWidget {
 
   final ShoppableStore store;
   final Function? onRefreshStores;
+  final Widget Function(void Function())? trigger;
 
-  const MenuModalBottomSheet({
+  const StoreMenuModalBottomSheet({
     super.key,
+    this.trigger,
     required this.store,
     this.onRefreshStores,
   });
 
   @override
-  State<MenuModalBottomSheet> createState() => _MenuModalBottomSheetState();
+  State<StoreMenuModalBottomSheet> createState() => _StoreMenuModalBottomSheetState();
 }
 
-class _MenuModalBottomSheetState extends State<MenuModalBottomSheet> {
+class _StoreMenuModalBottomSheetState extends State<StoreMenuModalBottomSheet> {
 
   ShoppableStore get store => widget.store;
   Function? get onRefreshStores => widget.onRefreshStores;
+  Widget Function(void Function())? get trigger => widget.trigger;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
 
-  Widget get trigger {
+  Widget get _trigger {
 
-    return IconButton(
+    return CustomTextButton(
+      '',
+      prefixIconSize: 20,
+      color: Colors.grey.shade400,
       onPressed: openBottomModalSheet, 
-      padding: const EdgeInsets.all(4.0),
-      constraints: const BoxConstraints(),
-      icon: Icon(Icons.more_vert_rounded, size: 16, color: Colors.grey.shade400,)
+      prefixIcon: Icons.more_vert_rounded
     );
 
   }
@@ -51,9 +56,9 @@ class _MenuModalBottomSheetState extends State<MenuModalBottomSheet> {
     return CustomBottomModalSheet(
       key: _customBottomModalSheetState,
       /// Trigger to open the bottom modal sheet
-      trigger: trigger,
+      trigger: _trigger,
       /// Content of the bottom modal sheet
-      content: MenuContent(
+      content: StoreMenuContent(
         store: store, 
         onRefreshStores: onRefreshStores
       ),

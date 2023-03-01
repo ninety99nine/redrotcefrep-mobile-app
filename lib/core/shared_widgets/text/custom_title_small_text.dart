@@ -7,6 +7,7 @@ class CustomTitleSmallText extends StatelessWidget {
   final TextStyle? style;
   final EdgeInsets? margin;
   final EdgeInsets? padding;
+  final TextOverflow? overflow;
 
   const CustomTitleSmallText(this.text, {
     super.key,
@@ -14,6 +15,7 @@ class CustomTitleSmallText extends StatelessWidget {
     this.style,
     this.margin,
     this.padding,
+    this.overflow,
   });
 
   @override
@@ -23,6 +25,7 @@ class CustomTitleSmallText extends StatelessWidget {
       padding: padding,
       child: Text(
         text,
+        overflow: overflow,
         style: Theme.of(context).textTheme.titleSmall!.copyWith(
           color: color,
         ).merge(style)

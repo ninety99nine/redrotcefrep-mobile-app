@@ -47,7 +47,7 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
           child: StoreProfile(
             store: store, 
             onRefreshStores: onRefreshStores,
-            showProfileRightSide: showProfileRightSide
+            showProfileRightSide: showProfileRightSide,
           )
         )
 

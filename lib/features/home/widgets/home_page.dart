@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late final TabController _tabController;
   String get firstName => user.firstName;
   User get user => authProvider.user!;
-  int _selectedIndex = 1;
+  int _selectedIndex = 3;
 
   @override
   void initState() {

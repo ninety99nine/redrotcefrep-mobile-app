@@ -1,6 +1,5 @@
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
-
 import '../../../../../core/shared_models/permission.dart';
+import '../../friend_groups/models/friend_group.dart';
 import '../../../../../core/utils/mobile_number.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../api/repositories/api_repository.dart';
@@ -9,7 +8,6 @@ import '../../api/providers/api_provider.dart';
 import '../../products/models/product.dart';
 import 'package:http/http.dart' as http;
 import '../models/shoppable_store.dart';
-import 'package:flutter/material.dart';
 import '../enums/store_enums.dart';
 
 class StoreRepository {
@@ -30,13 +28,28 @@ class StoreRepository {
   /// Get the Api Home links required to perform requests to using the routes
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
+  /// Create a store
+  Future<http.Response> createStore({ required String name, required String callToAction, required bool acceptedGoldenRules }) {
+
+    String url = homeApiLinks.createStores;
+    
+    Map body = {
+      'name': name,
+      'call_to_action': callToAction,
+      'accepted_golden_rules': acceptedGoldenRules
+    };
+    
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
   /// Get the stores of the authenticated user by association 
   /// e.g where the user is a follower, customer, or team member.
   /// If the association is not provided, the default behaviour is
   /// to return stores where the authenticated user is a team member
-  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withProducts = false, bool withCountFollowers = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
+  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountActiveSubscriptions = false, withAuthActiveSubscription = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
 
-    String url = homeApiLinks.stores;
+    String url = homeApiLinks.showStores;
 
     Map<String, String> queryParams = {};
     if(withRating) queryParams.addAll({'withRating': '1'});
@@ -45,8 +58,11 @@ class StoreRepository {
     if(withCountCoupons) queryParams.addAll({'withCountCoupons': '1'});
     if(withCountReviews) queryParams.addAll({'withCountReviews': '1'});
     if(withCountFollowers) queryParams.addAll({'withCountFollowers': '1'});
+    if(withVisitShortcode) queryParams.addAll({'withVisitShortcode': '1'});
     if(withCountTeamMembers) queryParams.addAll({'withCountTeamMembers': '1'});
     if(userAssociation != null) queryParams.addAll({'type': userAssociation.name});
+    if(withAuthActiveSubscription) queryParams.addAll({'withAuthActiveSubscription': '1'});
+    if(withCountActiveSubscriptions) queryParams.addAll({'withCountActiveSubscriptions': '1'});
     if(friendGroup != null) queryParams.addAll({'friend_group_id': friendGroup.id.toString()});
 
     /// Filter by search
@@ -54,6 +70,53 @@ class StoreRepository {
 
     return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
+  }
+
+  /// Delete the specified store
+  Future<http.Response> deleteStore() {
+
+    if(store == null) throw Exception('The store must be set to delete');
+
+    String url = store!.links.deleteStore.href;
+
+    return apiRepository.delete(url: url);
+
+  }
+
+  ///////////////////////////////////
+  ///   SHORTCODES               ///
+  //////////////////////////////////
+
+  /// Generate a payment shortcode for the specified store
+  Future<http.Response> generatePaymentShortcode() {
+
+    if(store == null) throw Exception('The store must be set to generate a payment shortcode');
+
+    String url = store!.links.generatePaymentShortcode.href;
+
+    return apiRepository.post(url: url);
+
+  }
+
+  ///////////////////////////////////
+  ///   SUBSCRIPTIONS            ///
+  //////////////////////////////////
+
+  /// Create a subscription on the specified store
+  Future<http.Response> createFakeSubscription() {
+
+    if(store == null) throw Exception('The store must be set to create a subscription');
+
+    String url = store!.links.createFakeSubscriptions.href;
+
+    Map body = {
+      'test_subscription': 1,
+      'payment_method_id': 1,
+      'subscription_plan_id': 1,
+    };
+
+    return apiRepository.post(url: url, body: body);
+
   }
 
   ///////////////////////////////////

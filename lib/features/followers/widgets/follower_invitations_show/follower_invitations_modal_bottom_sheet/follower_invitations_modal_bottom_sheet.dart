@@ -1,8 +1,8 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../../core/shared_widgets/text/custom_title_large_text.dart';
-import '../../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../follower_invitations_in_vertical_list_view_infinite_scroll.dart';
+import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../stores/providers/store_provider.dart';
 import '../../../../../core/utils/snackbar.dart';
 import '../../../../../core/utils/dialog.dart';
@@ -270,7 +270,7 @@ class _ModalContentState extends State<ModalContent> {
                     children: const [
                 
                       /// Title
-                      CustomTitleLargeText('Invitations', padding: EdgeInsets.only(bottom: 8),),
+                      CustomTitleMediumText('Invitations', padding: EdgeInsets.only(bottom: 8),),
                       
                       /// Subtitle
                       CustomBodyText('Invitations to follow stores'),

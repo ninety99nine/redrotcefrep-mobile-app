@@ -13,7 +13,7 @@ class StoreProfile extends StatefulWidget {
     Key? key,
     required this.store, 
     this.onRefreshStores,
-    this.showProfileRightSide = true,
+    this.showProfileRightSide = true
   }) : super(key: key);
 
   @override
@@ -34,7 +34,9 @@ class _StoreProfileState extends State<StoreProfile> {
       children: [
         
         //  Store Profile Left Side (Name, Description, e.t.c)
-        Expanded(child: StoreProfileLeftSide(store: store)),
+        Expanded(child: StoreProfileLeftSide(
+          store: store,
+        )),
           
         //  Spacer
         if(showProfileRightSide) const SizedBox(width: 8,),

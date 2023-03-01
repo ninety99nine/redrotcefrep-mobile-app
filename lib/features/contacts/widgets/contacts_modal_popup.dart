@@ -1,6 +1,6 @@
 import '../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../features/contacts/widgets/contact_avatar.dart';
 import '../../../features/contacts/widgets/contact_list.dart';
@@ -236,7 +236,7 @@ List<Contact> contacts = [];
             children: <Widget>[
               
               /// Title
-              const CustomTitleLargeText('Contacts', padding: EdgeInsets.only(top:20, left: 32, bottom: 8),),
+              const CustomTitleMediumText('Contacts', padding: EdgeInsets.only(top:20, left: 32, bottom: 8),),
               
               /// Subtitle
               CustomBodyText(subtitle, padding: const EdgeInsets.only(left: 32, bottom: 24),),
@@ -267,7 +267,7 @@ List<Contact> contacts = [];
   
           /// Floating Button (show if provided)
           if(showFloatingButton) Positioned(
-            top: 68,
+            top: 64,
             right: 10,
             child: floatingActionButton
           )

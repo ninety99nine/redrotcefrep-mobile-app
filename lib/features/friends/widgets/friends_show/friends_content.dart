@@ -1,18 +1,17 @@
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/authentication/repositories/auth_repository.dart';
-import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
-import 'package:bonako_demo/features/friend_groups/repositories/friend_group_repository.dart';
-import 'package:provider/provider.dart';
-
 import '../../../friend_groups/widgets/friend_groups_show/friend_groups_in_vertical_list_view_infinite_scroll.dart';
 import '../../../friend_groups/widgets/friend_group_create_or_update/friend_group_create_or_update.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
+import '../../../friend_groups/repositories/friend_group_repository.dart';
+import '../../../friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../authentication/repositories/auth_repository.dart';
+import '../../../authentication/providers/auth_provider.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import 'friends_in_vertical_infinite_scroll.dart';
 import '../../../../core/shared_models/user.dart';
 import '../friend_create/friend_create.dart';
+import 'package:provider/provider.dart';
 import 'friends_page/friends_page.dart';
 import '../../enums/friend_enums.dart';
 import 'package:flutter/material.dart';
@@ -418,7 +417,7 @@ class _FriendsContentState extends State<FriendsContent> {
                     children: [
                 
                       /// Title
-                      CustomTitleLargeText(title, padding: const EdgeInsets.only(bottom: 8),),
+                      CustomTitleMediumText(title, padding: const EdgeInsets.only(bottom: 8),),
                       
                       /// Subtitle
                       AnimatedSwitcher(

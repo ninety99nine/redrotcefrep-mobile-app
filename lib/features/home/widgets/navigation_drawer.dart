@@ -119,9 +119,11 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             
-            UserProfile(user: user),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: UserProfile(user: user),
+            ),
 
-            menuItem('Profile', icon: Icons.person, onTap: (){}),
             menuItem('Communities', icon: Icons.people, onTap: (){}),
             menuItem('Sign Out', icon: Icons.logout, onTap: _requestLogout),
 

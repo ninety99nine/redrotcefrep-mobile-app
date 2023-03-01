@@ -1,5 +1,5 @@
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../follower_invitations_show/follower_invitations_content.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../follower_send_invitation/follower_send_invitation.dart';
@@ -186,7 +186,7 @@ class _FollowersContentState extends State<FollowersContent> {
                     children: [
                 
                       /// Title
-                      const CustomTitleLargeText('Followers', padding: EdgeInsets.only(bottom: 8),),
+                      const CustomTitleMediumText('Followers', padding: EdgeInsets.only(bottom: 8),),
                       
                       /// Subtitle
                       AnimatedSwitcher(
@@ -261,7 +261,7 @@ class _FollowersContentState extends State<FollowersContent> {
           AnimatedPositioned(
             right: 10,
             duration: const Duration(milliseconds: 500),
-            top: (isViewingFollowers ? 116 : 60) + topPadding,
+            top: (isViewingFollowers ? 112 : 60) + topPadding,
             child: floatingActionButton,
           )
         ],

@@ -24,6 +24,7 @@ class Store {
   late String offlineMessage;
   late Attributes attributes;
   late Relationships relationships;
+  late int? activeSubscriptionsCount;
 
   Store.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -40,9 +41,10 @@ class Store {
     followersCount = json['followersCount'];
     offlineMessage = json['offlineMessage'];
     teamMembersCount = json['teamMembersCount'];
+    adverts = List<String>.from(json['adverts']);
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
-    adverts = List<String>.from(json['adverts']);
+    activeSubscriptionsCount = json['activeSubscriptionsCount'];
     attributes = Attributes.fromJson(json['attributes'].runtimeType == List ? {} : json['attributes']);
     relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
   }
@@ -59,18 +61,20 @@ class Attributes {
 
 class Relationships {
   late List<Product> products;
-  late Shortcode? activeVisitShortcode;
+  late Shortcode? visitShortcode;
   late Subscription? authActiveSubscription;
 
   Relationships.fromJson(Map<String, dynamic> json) {
+    visitShortcode = json['visitShortcode'] == null ? null : Shortcode.fromJson(json['visitShortcode']);
     products = json['products'] == null ? [] : (json['products'] as List).map((product) => Product.fromJson(product)).toList();
-    activeVisitShortcode = json['activeVisitShortcode'] == null ? null : Shortcode.fromJson(json['activeVisitShortcode']);
+    authActiveSubscription = json['authActiveSubscription'] == null ? null : Subscription.fromJson(json['authActiveSubscription']);
   }
 }
 
 class Links {
   late Link self;
   late Link showOrders;
+  late Link deleteStore;
   late Link showReviews;
   late Link showCoupons;
   late Link createReviews;
@@ -79,28 +83,32 @@ class Links {
   late Link showTeamMembers;
   late Link updateFollowing;
   late Link inviteFollowers;
+  late Link showOrderFilters;
   late Link inviteTeamMembers;
   late Link removeTeamMembers;
-  late Link showOrderFilters;
   late Link showReviewFilters;
   late Link addToFriendGroups;
+  late Link confirmDeleteStore;
   late Link inspectShoppingCart;
   late Link convertShoppingCart;
   late Link showFollowerFilters;
   late Link showTeamMemberFilters;
   late Link removeFromFriendGroups;
-  late Link showShoppingCartOrderForUsers;
   late Link showReviewRatingOptions;
+  late Link createFakeSubscriptions;
+  late Link generatePaymentShortcode;
   late Link acceptInvitationToFollow;
   late Link declineInvitationToFollow;
   late Link acceptInvitationToJoinTeam;
   late Link declineInvitationToJoinTeam;
+  late Link showShoppingCartOrderForUsers;
   late Link countShoppingCartOrderForUsers;  
   late Link showShoppingCartOrderForOptions;  
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     showOrders = Link.fromJson(json['showOrders']);
+    deleteStore = Link.fromJson(json['deleteStore']);
     showReviews = Link.fromJson(json['showReviews']);
     showCoupons = Link.fromJson(json['showCoupons']);
     createReviews = Link.fromJson(json['createReviews']);
@@ -114,12 +122,15 @@ class Links {
     inviteTeamMembers = Link.fromJson(json['inviteTeamMembers']);
     removeTeamMembers = Link.fromJson(json['removeTeamMembers']);
     showReviewFilters = Link.fromJson(json['showReviewFilters']);
+    confirmDeleteStore = Link.fromJson(json['confirmDeleteStore']);
     inspectShoppingCart = Link.fromJson(json['inspectShoppingCart']);
     convertShoppingCart = Link.fromJson(json['convertShoppingCart']);
     showFollowerFilters = Link.fromJson(json['showFollowerFilters']);
     showTeamMemberFilters = Link.fromJson(json['showTeamMemberFilters']);
     removeFromFriendGroups = Link.fromJson(json['removeFromFriendGroups']);
     showReviewRatingOptions = Link.fromJson(json['showReviewRatingOptions']);
+    createFakeSubscriptions = Link.fromJson(json['createFakeSubscriptions']);
+    generatePaymentShortcode = Link.fromJson(json['generatePaymentShortcode']);
     acceptInvitationToFollow = Link.fromJson(json['acceptInvitationToFollow']);
     declineInvitationToFollow = Link.fromJson(json['declineInvitationToFollow']);
     acceptInvitationToJoinTeam = Link.fromJson(json['acceptInvitationToJoinTeam']);

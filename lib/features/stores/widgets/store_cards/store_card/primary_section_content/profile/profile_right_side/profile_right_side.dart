@@ -1,5 +1,7 @@
-import '../../../../../menu/menu_modal_bottom_sheet/menu_modal_bottom_sheet.dart';
+import '../../../../../store_menu/store_menu_modal_bottom_sheet/store_menu_modal_bottom_sheet.dart';
 import '../../../../../../../rating/widgets/rating_show_using_stars.dart';
+import '../../../../../add_store_to_group/add_to_group_button.dart';
+import '../../../../../../services/store_services.dart';
 import '../../../../../../models/shoppable_store.dart';
 import 'adverts/advert_avatar_popup.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,7 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
 
   ShoppableStore get store => widget.store;
   bool get hasRating => store.rating != null;
+  bool get isOpen => StoreServices.isOpen(store);
   bool get hasAdverts => store.adverts.isNotEmpty;
   Function? get onRefreshStores => widget.onRefreshStores;
 
@@ -35,24 +38,35 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
       children: [
 
         /// Menu Modal Bottom Sheet
-        MenuModalBottomSheet(
+        StoreMenuModalBottomSheet(
           store: store, 
           onRefreshStores: onRefreshStores
         ),
 
-        /// Spacer
-        const SizedBox(height: 4,),
+        if(isOpen) ...[
 
-        //  Store Adverts
-        if(hasAdverts) StoreAdvertAvatarPopup(store: store),
-      
-        //  Spacer
-        if(hasRating) const SizedBox(height: 8.0,),
+          /// Spacer
+          const SizedBox(height: 4.0,),
 
-        //  Store Rating
-        if(hasRating) RatingShowUsingStars(rating: store.rating!),
+          /// Store Adverts
+          if(hasAdverts) StoreAdvertAvatarPopup(store: store),
+        
+          /// Spacer
+          if(hasRating) const SizedBox(height: 8.0,),
 
-      ],
+          /// Store Rating
+          if(hasRating) RatingShowUsingStars(rating: store.rating!),
+        
+          /// Spacer
+          const SizedBox(height: 4.0,),
+
+          AddStoreToGroupButton(
+            store: store,
+          )
+
+        ]
+
+      ]
     );
   }
 }

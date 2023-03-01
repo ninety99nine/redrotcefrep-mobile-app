@@ -546,7 +546,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalListView
                   if(sentFirstRequest && isLoading) {
             
                     /// Loader (Shows up when more content is loading)
-                    return const CustomCircularProgressIndicator(size: 20);
+                    return const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(left: 16),);
                       
                   }else if(showNoMoreContent && sentFirstRequest) {
 

@@ -1,28 +1,28 @@
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../core/shared_models/user_and_store_association.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
+import '../../../../core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
-class FollowButton extends StatefulWidget {
+class FollowStoreButton extends StatefulWidget {
   
   final Alignment alignment;
   final ShoppableStore store;
 
-  const FollowButton({
+  const FollowStoreButton({
     super.key,
     required this.store,
     this.alignment = Alignment.center
   });
 
   @override
-  State<FollowButton> createState() => _FollowButtonState();
+  State<FollowStoreButton> createState() => _FollowButtonState();
 }
 
-class _FollowButtonState extends State<FollowButton> {
+class _FollowButtonState extends State<FollowStoreButton> {
 
   bool isLoading = false;
 

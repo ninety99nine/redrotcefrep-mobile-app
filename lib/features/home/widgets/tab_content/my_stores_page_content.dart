@@ -1,6 +1,7 @@
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../../../features/stores/enums/store_enums.dart';
+import '../../../stores/widgets/create_store/create_store_card.dart';
 import '../../../stores/widgets/store_cards/store_cards.dart';
+import '../../../../features/stores/enums/store_enums.dart';
 import 'package:flutter/material.dart';
 
 class MyStoresPageContent extends StatefulWidget {
@@ -28,6 +29,9 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
    *  @override
    *  bool wantKeepAlive = true;
   */
+
+  final GlobalKey<StoreCardsState> storeCardsState = GlobalKey<StoreCardsState>();
+
   Widget get header {
     return const CustomBodyText(
       'Check out your stores',
@@ -35,11 +39,41 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
     );
   }
 
+  Widget get contentBeforeSearchBar {
+    return Column(
+      children: [
+
+        /// Header
+        //  header,
+
+        /// Spacer
+        const SizedBox(height: 8,),
+
+        /// Add Store
+        CreateStoreCard(
+          onCreatedStore: startRequest
+        )
+
+      ],
+    );
+  }
+
+  void startRequest() {
+
+    if(storeCardsState.currentState != null) {
+
+      storeCardsState.currentState!.startRequest();
+
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return StoreCards(
-      contentBeforeSearchBar: header,
+      key: storeCardsState,
       userAssociation: UserAssociation.teamMember,
+      contentBeforeSearchBar: contentBeforeSearchBar,
     );
   }
 }

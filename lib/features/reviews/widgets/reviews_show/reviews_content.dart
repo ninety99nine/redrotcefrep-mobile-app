@@ -1,18 +1,18 @@
-import '../../../user/widgets/reviewer_profile/reviewer_profile_avatar.dart';
 import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
+import '../../../user/widgets/reviewer_profile/reviewer_profile_avatar.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../../stores/models/shoppable_store.dart';
-import '../../models/review.dart';
 import 'reviews_in_vertical_scrollable_content.dart';
+import '../review_create/review_create.dart';
 import 'package:provider/provider.dart';
 import 'reviews_page/reviews_page.dart';
 import 'package:flutter/material.dart';
 import '../../enums/review_enums.dart';
+import '../../models/review.dart';
 import 'review_filters.dart';
-import '../review_create/review_create.dart';
 
 class ReviewsContent extends StatefulWidget {
   
@@ -186,7 +186,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
                       if(review == null) ...[
                 
                         /// Title
-                        const CustomTitleLargeText('Reviews', padding: EdgeInsets.only(bottom: 12),),
+                        const CustomTitleMediumText('Reviews', padding: EdgeInsets.only(bottom: 8),),
                         
                         /// Subtitle
                         AnimatedSwitcher(
@@ -267,7 +267,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
           AnimatedPositioned(
             right: 10,
             duration: const Duration(milliseconds: 500),
-            top: (isViewingReviews ? 120 : (isViewingReview ? 52 : 64)) + topPadding,
+            top: (isViewingReviews ? 112 : (isViewingReview ? 52 : 64)) + topPadding,
             child: floatingActionButton
           )
         ],

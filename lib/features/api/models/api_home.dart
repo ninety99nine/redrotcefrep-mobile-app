@@ -19,13 +19,14 @@ class ApiHome {
 class Links {
   late String login;
   late String logout;
-  late String stores;
   late String register;
+  late String showStores;
+  late String createStores;
   late String accountExists;
   late String resetPassword;
+  late String showSearchMenus;
   late String showSearchStores;
   late String validateRegister;
-  late String showSearchMenus;
   late String showSearchFriends;
   late String validateResetPassword;
   late String showSearchFriendGroups;
@@ -42,14 +43,15 @@ class Links {
   Links.fromJson(Map<String, dynamic> json) {
     login = json['login'];
     logout = json['logout'];
-    stores = json['stores'];
     register = json['register'];
+    showStores = json['showStores'];
+    createStores = json['createStores'];
     accountExists = json['accountExists'];
     resetPassword = json['resetPassword'];
+    showSearchMenus = json['showSearchMenus'];
     showSearchStores = json['showSearchStores'];
     validateRegister = json['validateRegister'];
     showSearchFriends = json['showSearchFriends'];
-    showSearchMenus = json['showSearchMenus'];
     validateResetPassword = json['validateResetPassword'];
     showSearchFriendGroups = json['showSearchFriendGroups'];
     showAllTeamMemberPermissions = json['showAllTeamMemberPermissions'];

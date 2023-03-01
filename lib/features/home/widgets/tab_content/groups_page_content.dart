@@ -88,8 +88,12 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
 
       if(response.statusCode == 200) {
 
-        friendGroup = FriendGroup.fromJson(responseBody);
-        friendGroupProvider.setFriendGroup(friendGroup!);
+        if(responseBody != null) {
+
+          friendGroup = FriendGroup.fromJson(responseBody);
+          friendGroupProvider.setFriendGroup(friendGroup!);
+
+        }
 
       }
 

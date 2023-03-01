@@ -7,6 +7,7 @@ class Subscription {
   late DateTime startAt;
   late DateTime createdAt;
   late DateTime updatedAt;
+  late Attributes attributes;
   late int subscriptionPlanId;
 
   Subscription.fromJson(Map<String, dynamic> json) {
@@ -19,5 +20,14 @@ class Subscription {
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
     subscriptionPlanId = json['subscriptionPlanId'];
+    attributes = Attributes.fromJson(json['attributes']);
+  }
+}
+
+class Attributes {
+  late bool hasExpired;
+
+  Attributes.fromJson(Map<String, dynamic> json) {
+    hasExpired = json['hasExpired'];
   }
 }

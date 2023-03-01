@@ -22,10 +22,8 @@ class RequestFailedPage extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Align(
-        alignment: Alignment.center,
-        child: SizedBox(
-          width: 350,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -78,7 +76,6 @@ class RequestFailedPage extends StatelessWidget {
             ],
           )
         ),
-          ),
       )
    );
 

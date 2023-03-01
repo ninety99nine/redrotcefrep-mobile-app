@@ -208,6 +208,7 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
     return CustomVerticalListViewInfiniteScroll(
       disabled: isRemoving,
       debounceSearch: true,
+      showNoContent: false,
       onParseItem: onParseItem, 
       showNoMoreContent: false,
       onRenderItem: onRenderItem,

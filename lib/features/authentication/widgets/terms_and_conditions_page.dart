@@ -22,16 +22,14 @@ class TermsAndConditionsPage extends StatelessWidget {
 
     return const Scaffold(
       body: SafeArea(
-        child: Align(
-          alignment: Alignment.center,
-          child: SizedBox(
-            width: 350,
-            child: Content()
-          )
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: Content()
         )
       ),
     );
   }
+
 }
 
 class Content extends StatefulWidget {

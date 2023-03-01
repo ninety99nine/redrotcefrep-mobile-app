@@ -1,9 +1,9 @@
 import '../friend_group_create_or_update/friend_group_create_or_update.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../core/shared_widgets/text/custom_title_large_text.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../repositories/friend_group_repository.dart';
 import 'friend_groups_in_vertical_list_view_infinite_scroll.dart';
+import '../../repositories/friend_group_repository.dart';
 import '../friend_groups_show/friend_group_menus.dart';
 import '../../providers/friend_group_provider.dart';
 import 'friend_groups_page/friend_groups_page.dart';
@@ -49,7 +49,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   bool get enableBulkSelection => widget.enableBulkSelection;
   bool get hasSelectedFriendGroups => friendGroups.isNotEmpty;
   bool get hasSelectedGroupsMenu => selectedMenu == Menu.groups;
-  bool get isViewingAny => (isViewingGroups || isViewingSharedGroups);
+  bool get isViewingAnyGroups => isViewingGroups || isViewingSharedGroups;
   bool get hasSelectedSharedGroupsMenu => selectedMenu == Menu.sharedGroups;
   bool get wantsToChooseFriendGroups => purpose == Purpose.chooseFriendGroups;
   bool get wantsToAddStoreToFriendGroups => purpose == Purpose.addStoreToFriendGroups;
@@ -57,15 +57,28 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
   bool get isViewingGroup => hasSelectedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroup;
   bool get isViewingGroups => hasSelectedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroups;
-  bool get isViewingSharedGroup => hasSelectedSharedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroup;
   bool get isViewingSharedGroups => hasSelectedSharedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroups;
+
+  String get title {
+
+    if(isViewingAnyGroups && wantsToAddStoreToFriendGroups) {
+      return 'Add To Groups';
+    }else if(isViewingGroup && wantsToAddStoreToFriendGroups) {
+      return friendGroup!.name;
+    }else{
+      return 'Groups';
+    }
+
+  }
 
   String get subtitle {
 
-    if(isViewingGroups && wantsToAddStoreToFriendGroups) {
+    if(isViewingAnyGroups && wantsToAddStoreToFriendGroups) {
       return 'Select groups to add store';
-    }else if(isViewingGroups && wantsToChooseFriendGroups) {
+    }else if(isViewingAnyGroups && wantsToChooseFriendGroups) {
       return 'Select your group';
+    }else if(isViewingGroup) {
+      return 'Make changes to your group';
     }else{
       return 'Add a new group';
     }
@@ -76,7 +89,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   Widget get content {
 
     /// If we want to view the friend groups content
-    if(isViewingGroups || isViewingSharedGroups) {
+    if(isViewingAnyGroups) {
 
       /// Set the filter for the groups that we want to show
       final filter = selectedMenu == Menu.groups ? 'Created' : 'Shared';
@@ -91,7 +104,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
       );
 
     /// If we want to view the friend group content
-    }else if(isViewingGroup || isViewingSharedGroup) {
+    }else if(isViewingGroup) {
 
       /// Show friend groups view
       return FriendGroupCreateOrUpdate(
@@ -120,7 +133,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
     Color color = Colors.grey;
     IconData? prefixIcon = Icons.keyboard_double_arrow_left;
 
-    if(isViewingGroups || isViewingSharedGroups) {
+    if(isViewingAnyGroups) {
 
       prefixIcon = Icons.add;
       color = Colors.green;
@@ -130,7 +143,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
         text = 'Done';
         prefixIcon = null;
 
-      }else if(isViewingGroups || isViewingSharedGroups) {
+      }else {
         text = 'Add Group';
       }
 
@@ -159,7 +172,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
       onDoneSelectingFriendGroups();
 
     /// If we are viewing the friend groups content
-    }else if(isViewingGroups || isViewingSharedGroups) {
+    }else if(isViewingAnyGroups) {
 
       /// Change to the friend group create view
       changeGroupContentView(FriendGroupContentView.creatingFriendGroup);
@@ -285,7 +298,14 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
                     children: [
                 
                       /// Title
-                      const CustomTitleLargeText('Groups', padding: EdgeInsets.only(bottom: 8),),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        child: CustomTitleMediumText(
+                          title, 
+                          overflow: TextOverflow.ellipsis, 
+                          padding: const EdgeInsets.only(bottom: 8),
+                        ),
+                      ),
                       
                       /// Subtitle
                       AnimatedSwitcher(
@@ -300,7 +320,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
                       ),
                   
                       //  Filter
-                      if(isViewingAny) FriendGroupMenus(
+                      if(isViewingAnyGroups) FriendGroupMenus(
                         selectedMenu: selectedMenu,
                         onSelectedMenu: onSelectedMenu,
                       ),
@@ -355,7 +375,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
           /// Floating Button (show if provided)
           AnimatedPositioned(
             right: 10,
-            top: (isViewingAny ? 116 : 60) + topPadding,
+            top: (isViewingAnyGroups ? 112 : 60) + topPadding,
             duration: const Duration(milliseconds: 500),
             child: floatingActionButton,
           )

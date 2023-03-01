@@ -1,6 +1,9 @@
-import 'secondary_section_content/secondary_section_content.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
+
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
+import 'secondary_section_content/secondary_section_content.dart';
 import 'primary_section_content/primary_section_content.dart';
+import '../../../../subscriptions/models/subscription.dart';
 import '../../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -89,6 +92,7 @@ class Content extends StatelessWidget {
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
     bool hasProducts = store.relationships.products.isNotEmpty;
+    bool isOpen = StoreServices.isOpen(store);
 
     return CustomCard(
       key: ValueKey<int>(store.id),
@@ -104,10 +108,12 @@ class Content extends StatelessWidget {
           ),
           
           //  Spacer
-          if(hasProducts) const SizedBox(height: 20),
+          if(isOpen && hasProducts) const SizedBox(height: 20),
     
-          //  Store Products, Shopping Cart, e.t.c
-          StoreSecondarySectionContent(store: store),
+          //  Store Products, Shopping Cart, Subscribe e.t.c
+          StoreSecondarySectionContent(
+            store: store
+          ),
           
         ],
       ),

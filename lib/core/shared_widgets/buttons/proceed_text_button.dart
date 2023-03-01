@@ -37,7 +37,7 @@ class ProceedTextButton extends StatelessWidget {
               )
             ),
           ),
-          onPressed: disabled ? null : () {
+          onPressed: disabled || onPressed == null ? null : () {
             if( onPressed != null ) {
               onPressed!();
             }

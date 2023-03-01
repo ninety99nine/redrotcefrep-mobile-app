@@ -37,7 +37,7 @@ class FriendGroupRepository {
   }
 
   /// Show friend groups
-  Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, String searchWord = '', int? page = 1, BuildContext? context }){
+  Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, bool withCountOrders = false, String searchWord = '', int? page = 1, BuildContext? context }){
 
     final url =  user.links.showFriendGroups!.href;
 
@@ -45,6 +45,7 @@ class FriendGroupRepository {
 
     if(withCountUsers) queryParams.addAll({'withCountUsers': '1'});
     if(withCountStores) queryParams.addAll({'withCountStores': '1'});
+    if(withCountOrders) queryParams.addAll({'withCountOrders': '1'});
     if(withCountFriends) queryParams.addAll({'withCountFriends': '1'});
 
     /// Filter friend groups by the specified status

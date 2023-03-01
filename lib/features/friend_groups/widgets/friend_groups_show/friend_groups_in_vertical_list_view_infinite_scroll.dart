@@ -68,6 +68,7 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
     return friendGroupRepository.showFriendGroups(
       withCountFriends: true,
       withCountStores: true,
+      withCountOrders: true,
       withCountUsers: false,
       context: context,
       filter: filter,
@@ -170,8 +171,8 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
     return CustomVerticalListViewInfiniteScroll(
       disabled: isDeleting,
       debounceSearch: true,
-      showNoMoreContent: false,
       onParseItem: onParseItem, 
+      showNoMoreContent: false,
       onRenderItem: onRenderItem,
       onSelectedItems: onSelectedItems,
       selectedAllAction: selectedAllAction,
@@ -209,6 +210,8 @@ class GroupItem extends StatelessWidget {
   String get totalFriendsText => '$totalFriends ${totalFriends == 1 ? 'Friend' : 'Friends'}';
   int get totalStores => friendGroup.storesCount!;
   String get totalStoresText => '$totalStores ${totalStores == 1 ? 'Store' : 'Stores'}';
+  int get totalOrders => friendGroup.ordersCount!;
+  String get totalOrdersText => '$totalOrders ${totalOrders == 1 ? 'Order' : 'Orders'}';
   CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
 
   bool get canPerformActions {
@@ -289,6 +292,13 @@ class GroupItem extends StatelessWidget {
 
                               //  Total Stores
                               CustomBodyText(totalStoresText, lightShade: true),
+                  
+                              /// Spacer
+                              const SizedBox(width: 8),
+
+                              //  Total Orders
+                              CustomBodyText(totalOrdersText, lightShade: true),
+                              
                             ],
                           )    
         
@@ -309,9 +319,6 @@ class GroupItem extends StatelessWidget {
                             /// Unselect the selected friend groups
                             customInfiniteScrollCurrentState.unselectSelectedItems();
         
-                            //  View this friend group
-                            onViewFriendGroup(friendGroup);
-        
                           }
                         ),
                       ),
@@ -327,7 +334,7 @@ class GroupItem extends StatelessWidget {
         /// Spacer
         SizedBox(width: isSelected ? 8 : 0),
 
-        /// Edit Icon
+        /// Forward Icon
         if(!isDeleting) CircleAvatar(
           radius: 16,
           backgroundColor: Colors.grey.shade100,

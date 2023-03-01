@@ -89,6 +89,8 @@ class ApiService {
           /// Show the error message
           SnackbarUtility.showErrorMessage(message: responseBody['message']);
 
+          print(responseBody['error']);
+
         }else{
 
           /// Throw an exception since we don't have the Api Error Message to show

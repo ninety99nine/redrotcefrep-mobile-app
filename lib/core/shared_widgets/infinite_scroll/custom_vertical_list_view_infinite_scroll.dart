@@ -4,9 +4,8 @@ import '../../../core/utils/api_conflict_resolver.dart';
 import '../message_alerts/custom_message_alert.dart';
 import '../checkboxes/custom_checkbox.dart';
 import '../../../core/utils/debouncer.dart';
-import '../../../core/utils/snackbar.dart';
-import '../text/custom_body_text.dart';
 import 'package:http/http.dart' as http;
+import '../text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -51,8 +50,16 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   /// Mesage to show when there is no content to show
   final String noContent;
 
+  /// Show the no content text when we don't have
+  /// initial content
+  final bool showNoContent;
+
   /// Mesage to show when there is no more content to show
   final String noMoreContent;
+
+  /// Show the no more content text when we don't have
+  /// anymore content to load while scrolling down
+  final bool showNoMoreContent;
 
   /// The margin of the loader that is show when the
   /// showFirstRequestLoader has been set to false
@@ -87,10 +94,6 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   /// Notify the parent widget on the loading status
   final Function(bool)? onSearching;
 
-  /// Show the no more content text when we don't have
-  /// anymore content to load while scrolling down
-  final bool showNoMoreContent;
-
   const CustomVerticalListViewInfiniteScroll({
     Key? key,
     this.margin,
@@ -101,6 +104,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
     this.disabled = false,
     this.selectedAllAction,
     required this.onRequest,
+    this.showNoContent = true,
     this.showSearchBar = true,
     this.showSeparater = true,
     required this.onParseItem,
@@ -144,6 +148,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   int get totalItems => data.length;
   bool get disabled => widget.disabled;
   String get noContent => widget.noContent;
+  bool get showNoContent => widget.showNoContent;
   bool get showSearchBar => widget.showSearchBar;
   bool get showSeparater => widget.showSeparater;
   bool get debounceSearch => widget.debounceSearch;
@@ -654,7 +659,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
                   multiSelectActions,
       
                   /// No content (Show after sending first request)
-                  if(sentFirstRequest) AnimatedOpacity(
+                  if(sentFirstRequest && showNoContent) AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
                     opacity: isLoading ? 0.3 : 1,
                     child: data.isEmpty ? noContentWidget : null,

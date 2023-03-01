@@ -68,6 +68,7 @@ class ApiRepository {
     url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
     
     print('post url $url');
+    print('_bearerToken: $_bearerToken');
     print('post body');
     print(body);
 

@@ -1,3 +1,13 @@
+import 'dart:convert';
+
+import 'package:bonako_demo/core/shared_widgets/buttons/custom_elevated_button.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_fields/custom_text_form_field.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:bonako_demo/features/api/repositories/api_repository.dart';
+import 'package:provider/provider.dart';
+
 import '../shared_widgets/Loader/custom_circular_progress_indicator_with_text.dart';
 import '../shared_widgets/text/custom_title_small_text.dart';
 import '../shared_widgets/buttons/custom_text_button.dart';
@@ -169,6 +179,213 @@ class DialogUtility {
     );
 
   }
+
+
+
+
+
+
+
+
+  /// Show a dialog that allows us to confirm the delete of an Api Resource action
+  static Future<bool?> showConfirmDeleteApiResourceDialog({ String? resourceName, required String confirmDeleteUrl, required String deleteUrl, required void Function() onDeleted, required BuildContext context }) {
+
+    Widget confirmContent() {
+
+      String code = '';
+      String message = '';
+      bool isLoading = false;
+      bool isDeleting = false;
+      String userProvidedCode = '';
+      bool confirmDeleteRequested = false;
+
+      ApiProvider apiProvider = Provider.of<ApiProvider>(context, listen: false);
+      ApiRepository apiRepository = apiProvider.apiRepository;
+
+      /// Get the confirmation code required to delete the resource
+      void confirmDelete(StateSetter setState) {
+
+        setState(() => isLoading = true);
+
+        apiRepository.post(url: confirmDeleteUrl).then((response) {
+
+          if( response.statusCode == 200) {
+
+            setState(() {
+
+              confirmDeleteRequested = true;
+
+              final responseBody = jsonDecode(response.body);
+              code = responseBody['code'].toString();
+              message = responseBody['message'];
+
+            });
+          
+          }
+
+        }).whenComplete(() {
+
+          setState(() => isLoading = false);
+
+        });
+
+      }
+
+      /// Delete the resource
+      void delete(StateSetter setState) {
+
+        setState(() => isDeleting = true);
+
+        Map body = {
+          'code': code
+        };
+
+        apiRepository.delete(url: deleteUrl, body: body).then((response) {
+
+          if(response.statusCode == 200) {
+
+            final responseBody = jsonDecode(response.body);
+            message = responseBody['message'];
+
+            /// Notify parent on deleted
+            onDeleted();
+
+            Navigator.of(context).pop(true);
+
+            SnackbarUtility.showSuccessMessage(message: message);
+
+          }else {
+
+            Navigator.of(context).pop(false);
+
+            SnackbarUtility.showSuccessMessage(message: 'Failed to delete');
+
+          }
+
+        }).whenComplete(() {
+
+          setState(() => isDeleting = true);
+
+        });
+
+      }
+
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+      
+          /// Run this method immediately
+          if(confirmDeleteRequested == false) confirmDelete(setState);
+
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+
+              Column(
+                /**
+                 *  The mainAxisSize: MainAxisSize.min will
+                 *  Auto size AlertDialog to fit content
+                 * 
+                 *  Reference: https://stackoverflow.com/questions/54669630/flutter-auto-size-alertdialog-to-fit-list-content
+                 */
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CustomTitleSmallText('Confirm Delete'),
+                  const Divider(height: 24,),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 500),
+                      child: AnimatedSwitcher(
+                        switchInCurve: Curves.easeIn,
+                        switchOutCurve: Curves.easeOut,
+                        duration: const Duration(milliseconds: 500),
+                        child: isLoading || isDeleting ? const CustomCircularProgressIndicator() : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                    
+                            /// Delete Confirmation Message
+                            if(resourceName != null) CustomTitleSmallText(resourceName, overflow: TextOverflow.ellipsis,),
+                    
+                            /// Divider
+                            if(resourceName != null) const SizedBox(height: 8,),
+                    
+                            /// Delete Confirmation Message
+                            CustomBodyText(message),
+                    
+                            /// Divider
+                            const Divider(height: 24,),
+                    
+                            /// Text Form Field To Confirm Delete Resource
+                            CustomTextFormField(
+                              hintText: code,
+                              onChanged: (value) {
+                                setState(() => userProvidedCode = value);
+                              },
+                            ),
+                    
+                            /// Divider
+                            const SizedBox(height: 24,),
+                    
+                            CustomElevatedButton(
+                              'Delete',
+                              isError: true,
+                              isLoading: isDeleting,
+                              onPressed: () => delete(setState),
+                              disabled: userProvidedCode.isEmpty || code.isEmpty || userProvidedCode != code,
+                            )
+                    
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+
+              /// Cancel Icon
+              Positioned(
+                top: -24,
+                right: -16,
+                child: GestureDetector(
+                  /// This padding is to increase the surface area for the gesture detector
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
+                  ),
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+              ),
+
+            ],
+          );
+
+        },
+      );
+    }
+
+    return showDialog<bool>(
+      context: context, 
+      builder: (context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+          actionsPadding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
+          contentPadding: const EdgeInsets.all(24.0),
+          content: confirmContent()
+        );
+      }
+    );
+
+  }
+
+
+
+
+
+
+
+
 
   /// Show a dialog that allows us to confirm an action
   static Future<bool?> showConfirmDialog({ required content, String title = 'Confirm', required BuildContext context }) {

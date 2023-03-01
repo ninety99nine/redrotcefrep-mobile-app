@@ -49,13 +49,12 @@ class CustomTextButton extends StatelessWidget {
          * 
          *  Reference: https://stackoverflow.com/questions/66291836/flutter-textbutton-remove-padding-and-inner-padding
          */
-        
         style: TextButton.styleFrom(
           padding: padding,
           minimumSize: const Size(0, 0),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        onPressed: disabled ? null : () {
+        onPressed: disabled || onPressed == null ? null : () {
           if( onPressed != null ) {
             onPressed!();
           }

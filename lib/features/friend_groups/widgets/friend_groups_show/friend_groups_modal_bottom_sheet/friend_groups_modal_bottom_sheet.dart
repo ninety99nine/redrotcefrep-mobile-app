@@ -1,7 +1,6 @@
-import 'package:bonako_demo/features/friend_groups/enums/friend_group_enums.dart';
-
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../core/shared_widgets/buttons/custom_text_button.dart';
+import '../../../../friend_groups/enums/friend_group_enums.dart';
 import '../../../../friend_groups/models/friend_group.dart';
 import 'package:flutter/material.dart';
 import '../friend_groups_content.dart';
@@ -13,7 +12,6 @@ class FriendGroupsModalBottomSheet extends StatefulWidget {
   final bool enableBulkSelection;
   final Function(List<FriendGroup>)? onSelectedFriendGroups;
   final Function(List<FriendGroup>)? onDoneSelectingFriendGroups;
-
 
   const FriendGroupsModalBottomSheet({
     super.key,
