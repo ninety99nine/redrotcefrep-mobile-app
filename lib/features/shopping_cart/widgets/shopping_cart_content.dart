@@ -3,7 +3,7 @@ import '../../../core/utils/api_conflict_resolver.dart';
 import '../../order_for/widgets/order_for_details.dart';
 import '../../friend_groups/models/friend_group.dart';
 import '../../stores/providers/store_provider.dart';
-import '../../products/widgets/product_cards.dart';
+import '../../products/widgets/shoppable_product_cards/shoppable_product_card/shoppable_product_cards.dart';
 import '../../stores/models/shoppable_store.dart';
 import '../../../core/shared_models/cart.dart';
 import '../../../core/shared_models/user.dart';
@@ -270,7 +270,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
         if(mounted) {
 
-          SnackbarUtility.showErrorMessage(message: 'Can\'t get shopping cart');
+          SnackbarUtility.showErrorMessage(message: 'Can\'t show shopping cart');
 
         }
 
@@ -345,7 +345,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
       children: [
 
         /// Products 
-        ProductCards(
+        ShoppableProductCards(
           shoppingCartCurrentView: shoppingCartCurrentView
         ),
 

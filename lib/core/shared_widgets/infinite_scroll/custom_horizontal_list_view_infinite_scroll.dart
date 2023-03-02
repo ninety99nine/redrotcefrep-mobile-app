@@ -2,7 +2,6 @@ import '../text_form_fields/custom_search_text_form_field.dart';
 import '../Loader/custom_circular_progress_indicator.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
 import '../message_alerts/custom_message_alert.dart';
-import '../checkboxes/custom_checkbox.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/snackbar.dart';
 import '../text/custom_body_text.dart';

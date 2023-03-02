@@ -1,10 +1,7 @@
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
-
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 
 class UserRepository {
 

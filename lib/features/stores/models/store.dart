@@ -78,6 +78,7 @@ class Links {
   late Link showReviews;
   late Link showCoupons;
   late Link createReviews;
+  late Link createProducts;
   late Link showFollowers;
   late Link showFollowing;
   late Link showTeamMembers;
@@ -114,6 +115,7 @@ class Links {
     createReviews = Link.fromJson(json['createReviews']);
     showFollowers = Link.fromJson(json['showFollowers']);
     showFollowing = Link.fromJson(json['showFollowing']);
+    createProducts = Link.fromJson(json['createProducts']);
     showTeamMembers = Link.fromJson(json['showTeamMembers']);
     inviteFollowers = Link.fromJson(json['inviteFollowers']);
     updateFollowing = Link.fromJson(json['updateFollowing']);

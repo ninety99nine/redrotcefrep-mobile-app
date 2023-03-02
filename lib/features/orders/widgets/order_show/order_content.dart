@@ -7,7 +7,7 @@ import '../../../../../core/shared_widgets/buttons/custom_text_button.dart';
 import '../../../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../../../core/shared_models/name_description.dart';
+import '../../../../core/shared_models/name_and_description.dart';
 import '../../../cart/widgets/cart/cart_details.dart';
 import '../../../stores/services/store_services.dart';
 import '../../../stores/models/shoppable_store.dart';

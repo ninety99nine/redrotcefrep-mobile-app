@@ -118,17 +118,6 @@ class StorePageContent extends StatelessWidget {
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
   bool get isClosedButNotTeamMember => StoreServices.isClosedButNotTeamMember(store);
 
-  Widget _trigger(void Function()? openBottomModalSheet) {
-
-    return IconButton(
-      onPressed: openBottomModalSheet,
-      padding: const EdgeInsets.all(4.0),
-      constraints: const BoxConstraints(),
-      icon: const Icon(Icons.more_vert_rounded, size: 24, color: Colors.grey,)
-    );
-
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -149,7 +138,6 @@ class StorePageContent extends StatelessWidget {
                 /// Menu Modal Bottom Sheet
                 StoreMenuModalBottomSheet(
                   store: store,
-                  trigger: _trigger,
                 ),
 
               ],

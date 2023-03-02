@@ -199,7 +199,7 @@ class _FriendsContentState extends State<FriendsContent> {
 
   }
 
-  /// Action to be called when the floacting action button is pressed
+  /// Action to be called when the floating action button is pressed
   void floatingActionButtonOnPressed() {
 
     /// If we should disable the floating action button, then do nothing

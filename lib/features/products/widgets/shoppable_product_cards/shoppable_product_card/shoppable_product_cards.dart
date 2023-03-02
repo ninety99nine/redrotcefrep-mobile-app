@@ -1,31 +1,28 @@
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-
-import '../../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
-import '../../../../../core/shared_widgets/buttons/show_more_or_less_button.dart';
-import '../../stores/models/shoppable_store.dart';
+import '../../../../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
+import '../../../../../../../core/shared_widgets/buttons/show_more_or_less_button.dart';
+import '../../../../../../../core/constants/constants.dart' as constants;
+import '../../../../stores/providers/store_provider.dart';
+import '../../../../stores/models/shoppable_store.dart';
 import 'package:collection/collection.dart';
-import 'product_card/product_card.dart';
+import 'shoppable_product_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../models/product.dart';
+import '../../../models/product.dart';
 
-class ProductCards extends StatefulWidget {
-
-  //  This is the minimum number of products to show by default 
-  static const int minimumProducts = 2;
+class ShoppableProductCards extends StatefulWidget {
 
   final ShoppingCartCurrentView shoppingCartCurrentView;
 
-  const ProductCards({
+  const ShoppableProductCards({
     super.key,
     required this.shoppingCartCurrentView,
   });
 
   @override
-  State<ProductCards> createState() => _ProductCardsState();
+  State<ShoppableProductCards> createState() => _ShoppableProductCardsState();
 }
 
-class _ProductCardsState extends State<ProductCards> {
+class _ShoppableProductCardsState extends State<ShoppableProductCards> {
   
   ShoppableStore? store;
   bool showAllProducts = false;
@@ -35,13 +32,13 @@ class _ProductCardsState extends State<ProductCards> {
   List<Product> get products => store == null ? [] : store!.relationships.products;
   bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
   ShoppingCartCurrentView get shoppingCartCurrentView => widget.shoppingCartCurrentView;
-  bool get hasMoreProductsThanMinimumProductsToShow => products.length > ProductCards.minimumProducts;
   bool get isShowingStorePage => Provider.of<StoreProvider>(context, listen: true).isShowingStorePage;
+  bool get hasMoreProductsThanMinimumProductsToShow => products.length > constants.minimumProductsPerStoreOnPreview;
   List<Product> get selectedProducts => products.where((product) => selectedProductIds.contains(product.id) ).toList();
-  List<Product> get filteredProducts => showAllProducts ? products : products.take(ProductCards.minimumProducts).toList();
   bool get isShoppingOnStorePage => (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
   bool get isShoppingOnStoreCard => (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
   bool get canShowMoreOrLessButton => isShoppingOnStoreCard && doesntHaveSelectedProducts && hasMoreProductsThanMinimumProductsToShow;
+  List<Product> get filteredProducts => showAllProducts ? products : products.take(constants.minimumProductsPerStoreOnPreview).toList();
   @override
   void initState() {
     super.initState();
@@ -68,8 +65,8 @@ class _ProductCardsState extends State<ProductCards> {
      *  happens we can execute the following updates:
      * 
      *  1) setSelectedProductIds(): Update the list of selected product ids, 
-     *     so that the changes can be picked up by each ProductCard widget 
-     *     to update on whether that ProductCard is selected or not, and 
+     *     so that the changes can be picked up by each ShoppableProductCard widget 
+     *     to update on whether that ShoppableProductCard is selected or not, and 
      *     therefore update the UI accordingly
      * 
      *  2) autoToggleShowAllProducts(): Automatically show all products if 
@@ -125,7 +122,7 @@ class _ProductCardsState extends State<ProductCards> {
         //  Product Cards
         ...filteredProducts.mapIndexed((index, product) {
           
-          return ProductCard(
+          return ShoppableProductCard(
             product: product,
             showAllProducts: showAllProducts,
             selected: selectedProductIds.contains(product.id),

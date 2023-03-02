@@ -1,7 +1,6 @@
 import 'currency.dart';
 import 'permission.dart';
 import 'mobile_number.dart';
-import 'name_description.dart';
 
 class UserAndStoreAssociation {
   late int id;

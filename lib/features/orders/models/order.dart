@@ -1,4 +1,4 @@
-import '../../../../core/shared_models/name_description.dart';
+import '../../../core/shared_models/name_and_description.dart';
 import '../../../../core/shared_models/mobile_number.dart';
 import '../../../../core/shared_models/percentage.dart';
 import '../../../../core/shared_models/currency.dart';

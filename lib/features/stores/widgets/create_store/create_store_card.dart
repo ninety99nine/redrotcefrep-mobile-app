@@ -1,5 +1,4 @@
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../../../core/shared_widgets/cards/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'create_store_form.dart';
 
@@ -41,47 +40,45 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
       children: [
 
         /// Add Icon
-        if(!showStoreForm) SizedBox(
+        SizedBox(
           width: double.infinity,
-          child: IconButton(onPressed: toggleVisibility, icon: const Icon(Icons.add_circle_outlined), color: Colors.grey.shade400,)
+          child: IconButton(onPressed: toggleVisibility, icon: Icon(showStoreForm ? Icons.remove_circle_rounded : Icons.add_circle_outlined), color: Colors.grey.shade400,)
         ),
         
         /// Add Store Form Card
         AnimatedSize(
-          clipBehavior: Clip.antiAlias,
+          clipBehavior: Clip.none,
           duration: const Duration(milliseconds: 500),
-          child: SizedBox(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             height: showStoreForm ? null : 0,
-            child: CustomCard(
-              child: Column(
-                children: [
+            child: Column(
+              children: [
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
 
-                      /// Instruction
-                      Container(
-                        margin: const EdgeInsets.all(8),
-                        alignment: Alignment.centerLeft,
-                        child: const CustomBodyText('Create your store', lightShade: true,)
-                      ),
+                    /// Instruction
+                    Container(
+                      margin: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                      alignment: Alignment.centerLeft,
+                      child: const CustomBodyText('Create your store', lightShade: true,)
+                    ),
+                  ],
+                ),
 
-                      /// Remove Icon
-                      IconButton(onPressed: toggleVisibility, icon: Icon(Icons.remove_circle_outlined, color: Colors.grey.shade400)),
+                /// Spacer
+                const SizedBox(height: 8,),
 
-                    ],
-                  ),
+                CreateStoreForm(
+                  onCreatedStore: _onCreatedStore
+                ),
 
-                  /// Spacer
-                  const SizedBox(height: 8,),
+                /// Spacer
+                const SizedBox(height: 16,),
 
-                  CreateStoreForm(
-                    onCreatedStore: _onCreatedStore
-                  ),
-
-                ],
-              )
+              ],
             ),
           ),
         ),

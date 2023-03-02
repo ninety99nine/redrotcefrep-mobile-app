@@ -7,11 +7,9 @@ import '../store_menu_content.dart';
 class StoreMenuModalBottomSheet extends StatefulWidget {
 
   final ShoppableStore store;
-  final Widget Function(void Function())? trigger;
 
   const StoreMenuModalBottomSheet({
     super.key,
-    this.trigger,
     required this.store,
   });
 
@@ -22,7 +20,6 @@ class StoreMenuModalBottomSheet extends StatefulWidget {
 class _StoreMenuModalBottomSheetState extends State<StoreMenuModalBottomSheet> {
 
   ShoppableStore get store => widget.store;
-  Widget Function(void Function())? get trigger => widget.trigger;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 

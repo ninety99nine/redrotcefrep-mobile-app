@@ -14,7 +14,6 @@ class ProductLine {
   late int? productId;
   late Money subTotal;
   late Money unitLoss;
-  late Money unitCost;
   late String? barcode;
   late Status hasPrice;
   late Money unitPrice;
@@ -26,6 +25,7 @@ class ProductLine {
   late DateTime? createdAt;
   late DateTime? updatedAt;
   late Money unitSalePrice;
+  late Money unitCostPrice;
   late int originalQuantity;
   late Money unitRegularPrice;
   late Money unitSaleDiscount;
@@ -49,13 +49,13 @@ class ProductLine {
     originalQuantity = json['originalQuantity'];
     subTotal = Money.fromJson(json['subTotal']);
     unitLoss = Money.fromJson(json['unitLoss']);
-    unitCost = Money.fromJson(json['unitCost']);
     hasPrice = Status.fromJson(json['hasPrice']);
     unitPrice = Money.fromJson(json['unitPrice']);
     currency = Currency.fromJson(json['currency']);
     unitProfit = Money.fromJson(json['unitProfit']);
     grandTotal = Money.fromJson(json['grandTotal']);
     isCancelled = Status.fromJson(json['isCancelled']);
+    unitCostPrice = Money.fromJson(json['unitCostPrice']);
     unitSalePrice = Money.fromJson(json['unitSalePrice']);
     unitSaleDiscount = Money.fromJson(json['unitSaleDiscount']);
     unitRegularPrice = Money.fromJson(json['unitRegularPrice']);

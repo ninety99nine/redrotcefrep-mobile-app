@@ -51,7 +51,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
   
   bool get hasFriends => friends.isNotEmpty;
   bool get isCreating => friendGroup == null;
-  bool get isEditting => friendGroup != null;
+  bool get isEditing => friendGroup != null;
   FriendGroup? get friendGroup => widget.friendGroup;
   Function(bool) get onSubmitting => widget.onSubmitting;
   Function? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
@@ -78,7 +78,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
     super.initState();
 
     /// If we are editting a friend group
-    if(isEditting) {
+    if(isEditing) {
 
       /// Get property values from the friend group
       name = friendGroup!.name;
@@ -371,14 +371,14 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
                         width: 120,
                         isLoading: isSubmitting,
                         alignment: Alignment.center,
-                        isEditting ? 'Save Changes' : 'Create Group',
-                        onPressed: isEditting ? _requestUpdateFriendGroup : _requestCreateFriendGroup,
+                        isEditing ? 'Save Changes' : 'Create Group',
+                        onPressed: isEditing ? _requestUpdateFriendGroup : _requestCreateFriendGroup,
                       )
                       
                     ],
                   ),
 
-                  if(isEditting && hasFriends) const CustomMessageAlert(
+                  if(isEditing && hasFriends) const CustomMessageAlert(
                     'Save your new friends to this group',
                     margin: EdgeInsets.only(top: 16, bottom: 16)
                   ),
@@ -390,7 +390,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
                   ),
           
                   /// Friends In Vertical Infinite Scroll
-                  if(isEditting && !hasFriends) FriendsInVerticalListViewInfiniteScroll(
+                  if(isEditing && !hasFriends) FriendsInVerticalListViewInfiniteScroll(
                     canShowRemoveIcon: true,
                     friendGroup: friendGroup,
                     canSelect: canAddFriends,

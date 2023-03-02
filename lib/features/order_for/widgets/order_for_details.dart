@@ -1,5 +1,3 @@
-import 'package:get/get_state_manager/get_state_manager.dart';
-
 import '../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends_modal_bottom_sheet.dart';
 import '../../order_for/widgets/users_show/users_modal_bottom_sheet/users_modal_bottom_sheet.dart';
 import '../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
@@ -412,7 +410,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
 
     /// Capture the store that was passed on ListenableProvider.value()
     /// of the StoreCard. This store is accessible if the StoreCard is
-    /// an ancestor of this ProductCards. We can use this shoppable 
+    /// an ancestor of this ShoppableProductCards. We can use this shoppable 
     /// store instance for shopping purposes e.g selecting this
     /// product so that we can place an order.
     store = Provider.of<ShoppableStore>(context, listen: true);

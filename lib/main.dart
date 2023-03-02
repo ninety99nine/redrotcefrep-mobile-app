@@ -8,13 +8,15 @@ import 'features/introduction/widgets/introduction_slides_page.dart';
 import 'features/authentication/widgets/reset_password_page.dart';
 import 'features/authentication/providers/auth_provider.dart';
 import 'features/stores/widgets/store_page/store_page.dart';
-import 'features/authentication/widgets/signin_page.dart';
+import 'features/products/providers/product_provider.dart';
 import 'features/authentication/widgets/signup_page.dart';
+import 'features/authentication/widgets/signin_page.dart';
 import 'features/introduction/widgets/landing_page.dart';
 import 'features/search/providers/search_provider.dart';
 import 'features/orders/providers/order_provider.dart';
 import 'features/stores/providers/store_provider.dart';
 import 'features/user/providers/user_provider.dart';
+import 'features/home/providers/home_provider.dart';
 import 'features/api/providers/api_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +59,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (_) => HomeProvider()
+        ),
+        ChangeNotifierProvider(
           create: (_) => ApiProvider()
         ),
         /**
@@ -98,6 +103,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<ApiProvider, StoreProvider>(
           create: (_) => StoreProvider(apiProvider: ApiProvider()),
           update: (ctx, apiProvider, previousStoreProvider) => StoreProvider(apiProvider: apiProvider)
+        ),
+        /**
+         *  Note: We have to use the ChangeNotifierProxyProvider instead of 
+         *  ChangeNotifierProvider because the ProductProvider requires the
+         *  ApiProvider as a dependency. When the ApiProvider changes,
+         *  then the ProductProvider will also rebuild.
+         */
+        ChangeNotifierProxyProvider<ApiProvider, ProductProvider>(
+          create: (_) => ProductProvider(apiProvider: ApiProvider()),
+          update: (ctx, apiProvider, previousProductProvider) => ProductProvider(apiProvider: apiProvider)
         ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 

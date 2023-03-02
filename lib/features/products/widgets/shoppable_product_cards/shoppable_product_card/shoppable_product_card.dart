@@ -1,19 +1,19 @@
-import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../../stores/models/shoppable_store.dart';
+import '../../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
+import '../../../../../../core/shared_widgets/text/custom_title_small_text.dart';
+import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../../models/product.dart';
+import '../../../models/product.dart';
 
-class ProductCard extends StatefulWidget {
+class ShoppableProductCard extends StatefulWidget {
 
   final bool selected;
   final Product product;
   final EdgeInsets margin;
   final bool showAllProducts;
 
-  const ProductCard({
+  const ShoppableProductCard({
     Key? key,
     this.selected = false,
     required this.product,
@@ -22,10 +22,10 @@ class ProductCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ProductCard> createState() => _ProductCardState();
+  State<ShoppableProductCard> createState() => _ShoppableProductCardState();
 }
 
-class _ProductCardState extends State<ProductCard> {
+class _ShoppableProductCardState extends State<ShoppableProductCard> {
 
   bool get selected => widget.selected;
   Product get product => widget.product;
@@ -33,7 +33,7 @@ class _ProductCardState extends State<ProductCard> {
     
   /// Capture the store that was passed on ListenableProvider.value()
   /// of the StoreCard. This store is accessible if the StoreCard is
-  /// an ancestor of this ProductCard. We can use this shoppable 
+  /// an ancestor of this ShoppableProductCard. We can use this shoppable 
   /// store instance for shopping purposes e.g selecting this
   /// product so that we can place an order.
   ShoppableStore get store => Provider.of<ShoppableStore>(context, listen: false);
@@ -224,7 +224,7 @@ class _ProductCardState extends State<ProductCard> {
               onTap: onTap,
               child: Ink(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

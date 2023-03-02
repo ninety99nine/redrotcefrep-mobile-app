@@ -100,7 +100,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
 
   }
 
-  /// Action to be called when the floacting action button is pressed 
+  /// Action to be called when the floating action button is pressed 
   void floatingActionButtonOnPressed() {
 
     /// If we should disable the floating action button, then do nothing

@@ -23,7 +23,7 @@ class _CartDetailsState extends State<CartDetails> {
 
     /// Capture the store that was passed on ListenableProvider.value()
     /// of the StoreCard. This store is accessible if the StoreCard is
-    /// an ancestor of this ProductCards. We can use this shoppable 
+    /// an ancestor of this ShoppableProductCards. We can use this shoppable 
     /// store instance for shopping purposes e.g selecting this
     /// product so that we can place an order.
     store = Provider.of<ShoppableStore>(context, listen: true);

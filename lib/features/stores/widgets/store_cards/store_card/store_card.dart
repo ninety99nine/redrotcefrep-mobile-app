@@ -1,10 +1,8 @@
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
-
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
 import 'secondary_section_content/secondary_section_content.dart';
 import 'primary_section_content/primary_section_content.dart';
-import '../../../../subscriptions/models/subscription.dart';
 import '../../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -72,13 +70,16 @@ class Content extends StatelessWidget {
      *  Set listen to "true'" to catch changes at this level of the
      *  widget tree. For now i have disabled listening as this
      *  level because i can listen to the store changes from
-     *  directly on the ProductCards widget level, which is
+     *  directly on the ShoppableProductCards widget level, which is
      *  a descendant widget of this widget.
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
+    HomeProvider homeProvider = Provider.of<HomeProvider>(context, listen: false);
 
     print('Build Store Card #${store.id}');
 
+    bool hasSelectedFollowing = homeProvider.hasSelectedFollowing;
+    bool hasSelectedMyStores = homeProvider.hasSelectedMyStores;
     bool hasProducts = store.relationships.products.isNotEmpty;
     bool isOpen = StoreServices.isOpen(store);
 
@@ -93,7 +94,7 @@ class Content extends StatelessWidget {
           StorePrimarySectionContent(store: store),
           
           //  Spacer
-          if(isOpen && hasProducts) const SizedBox(height: 20),
+          if(isOpen && (hasSelectedMyStores || (hasSelectedFollowing && hasProducts))) const SizedBox(height: 8),
     
           //  Store Products, Shopping Cart, Subscribe e.t.c
           StoreSecondarySectionContent(

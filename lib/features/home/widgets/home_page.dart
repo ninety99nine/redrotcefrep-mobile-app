@@ -1,7 +1,7 @@
-import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_popup.dart';
-
+import '../../../features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_popup.dart';
 import '../../../features/authentication/providers/auth_provider.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
+import '../../../features/home/providers/home_provider.dart';
 import 'tab_content/communities_page_content.dart';
 import '../../../../core/shared_models/user.dart';
 import 'tab_content/following_page_content.dart';
@@ -21,18 +21,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
-  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   late final TabController _tabController;
   String get firstName => user.firstName;
   User get user => authProvider.user!;
-  int _selectedIndex = 3;
+
+  int get selectedHomeTabIndex => homeProvider.selectedHomeTabIndex;
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
   @override
   void initState() {
     
     super.initState();
     
-    _tabController = TabController(initialIndex: _selectedIndex, length: 5, vsync: this);
+    _tabController = TabController(initialIndex: selectedHomeTabIndex, length: 5, vsync: this);
     
     /**
      *  This _tabController is used to check if we have navigated to the next or previous tab
@@ -44,8 +46,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
        *  Set the selected index to match the current tab controller 
        *  index so that the selected tab can match the tab content
        */
-      if(_selectedIndex != _tabController.index) {
-        setState(() => _selectedIndex = _tabController.index);
+      if(selectedHomeTabIndex != _tabController.index) {
+        setState(() => homeProvider.setSelectedTabIndex(_tabController.index));
       }
 
     });
@@ -90,14 +92,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget getNavigationTab(String label, int index) {
     return CustomChoiceChip(
       label: label,
-      selected: _selectedIndex == index,
+      selected: selectedHomeTabIndex == index,
       onSelected: (_) => changeNavigationTab(index),
     );
   }
 
   void changeNavigationTab(int index) {
     setState(() {
-      _selectedIndex = index;
+      homeProvider.setSelectedTabIndex(index);
       _tabController.index = index;
     });
   }

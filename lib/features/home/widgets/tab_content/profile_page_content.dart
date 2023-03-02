@@ -1,8 +1,6 @@
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/user/widgets/user_profile/user_orders_in_horizontal_list_view_infinite_scroll.dart';
-
-import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../authentication/repositories/auth_repository.dart';
 import '../../../user/widgets/user_profile/user_profile_avatar.dart';
 import '../../../authentication/providers/auth_provider.dart';

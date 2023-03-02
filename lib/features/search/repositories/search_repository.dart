@@ -1,11 +1,7 @@
-import 'package:bonako_demo/features/search/enums/search_enums.dart';
-
-import '../../friend_groups/models/friend_group.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/models/api_home.dart' as api_home;
 import '../../api/providers/api_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 
 class SearchRepository {
 
