@@ -1,10 +1,11 @@
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 import 'create_store_form.dart';
 
 class CreateStoreCard extends StatefulWidget {
 
-  final Function? onCreatedStore;
+  final Function(ShoppableStore)? onCreatedStore;
 
   const CreateStoreCard({
     super.key,
@@ -19,15 +20,15 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
 
   bool showStoreForm = false;
 
-  Function? get onCreatedStore => widget.onCreatedStore;
+  Function(ShoppableStore)? get onCreatedStore => widget.onCreatedStore;
 
-  void _onCreatedStore() {
+  void _onCreatedStore(ShoppableStore createdStore) {
     
     /// Hide the store creation form
     toggleVisibility();
 
     /// Notify parent widget on store creation
-    if(onCreatedStore != null) onCreatedStore!();
+    if(onCreatedStore != null) onCreatedStore!(createdStore);
 
   }
 
@@ -72,7 +73,7 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
                 const SizedBox(height: 8,),
 
                 CreateStoreForm(
-                  onCreatedStore: _onCreatedStore
+                  onCreatedStore: (createdStore) => _onCreatedStore(createdStore)
                 ),
 
                 /// Spacer

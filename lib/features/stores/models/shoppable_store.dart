@@ -140,4 +140,16 @@ class ShoppableStore extends Store with ChangeNotifier {
 
   }
 
+  /// Add a product to the store product relationship
+  void addProductRelationship(Product product, { canNotifyListeners = true }) {
+    relationships.products.add(product);
+    if(canNotifyListeners) notifyListeners();
+  }
+
+  /// Remove a product from the store product relationship
+  void removeProductRelationship(Product product, { canNotifyListeners = true }) {
+    relationships.products.removeWhere((currProduct) => currProduct.id == product.id);
+    if(canNotifyListeners) notifyListeners();
+  }
+
 }

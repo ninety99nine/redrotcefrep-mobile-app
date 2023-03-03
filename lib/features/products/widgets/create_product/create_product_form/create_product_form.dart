@@ -20,7 +20,7 @@ class CreateProductForm extends StatefulWidget {
   final ShoppableStore store;
   final Function(bool) onDeleting;
   final Function(bool) onSubmitting;
-  final Function()? onDeletedProduct;
+  final Function(Product)? onDeletedProduct;
   final Function(Product)? onUpdatedProduct;
   final Function(Product)? onCreatedProduct;
 
@@ -53,7 +53,7 @@ class CreateProductFormState extends State<CreateProductForm> {
   ShoppableStore get store => widget.store;
   Function(bool) get onDeleting => widget.onDeleting;
   Function(bool) get onSubmitting => widget.onSubmitting;
-  Function()? get onDeletedProduct => widget.onDeletedProduct;
+  Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
   Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
   StoreRepository get storeRepository => storeProvider.storeRepository;
@@ -125,6 +125,8 @@ class CreateProductFormState extends State<CreateProductForm> {
   }
 
   requestCreateProduct() {
+
+    if(isDeleting || isSubmitting) return;
 
     _resetServerErrors();
 
@@ -198,6 +200,8 @@ class CreateProductFormState extends State<CreateProductForm> {
   }
 
   requestUpdateProduct() {
+
+    if(isDeleting || isSubmitting) return;
 
     _resetServerErrors();
 
@@ -273,6 +277,8 @@ class CreateProductFormState extends State<CreateProductForm> {
 
   void _requestDeleteProduct() async {
 
+    if(isDeleting || isSubmitting) return;
+
     final bool? confirmation = await confirmDelete();
 
     /// If we can delete
@@ -290,7 +296,7 @@ class CreateProductFormState extends State<CreateProductForm> {
         if(response.statusCode == 200) {
 
           /// Notify parent that the product has been deleted
-          if(onDeletedProduct != null) onDeletedProduct!();
+          if(onDeletedProduct != null) onDeletedProduct!(product!);
 
           SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
@@ -363,14 +369,14 @@ class CreateProductFormState extends State<CreateProductForm> {
               ),
               
               /// Spacer
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               /// Name
               CustomTextFormField(
                 errorText: serverErrors.containsKey('name') ? serverErrors['name'] : null,
+                enabled: !isSubmitting && !isDeleting,
                 hintText: 'Standard Ticket',
                 borderRadiusAmount: 16,
-                enabled: !isSubmitting,
                 initialValue: productForm['name'],
                 labelText: 'Name',
                 onChanged: (value) {
@@ -382,7 +388,20 @@ class CreateProductFormState extends State<CreateProductForm> {
               ),
               
               /// Spacer
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+
+              /// Show Description Checkbox
+              CustomCheckbox(
+                value: productForm['showDescription'],
+                disabled: isSubmitting,
+                text: 'Show description',
+                onChanged: (value) {
+                  setState(() => productForm['showDescription'] = value ?? false); 
+                }
+              ),
+              
+              /// Spacer
+              const SizedBox(height: 8),
 
               /// Description
               CustomTextFormField(
@@ -390,8 +409,8 @@ class CreateProductFormState extends State<CreateProductForm> {
                 contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                 hintText: '1 day show with popular artists',
                 initialValue: productForm['description'],
+                enabled: !isSubmitting && !isDeleting,
                 labelText: 'Description',
-                enabled: !isSubmitting,
                 borderRadiusAmount: 16,
                 minLines: 1,
                 onChanged: (value) {
@@ -424,10 +443,10 @@ class CreateProductFormState extends State<CreateProductForm> {
               /// Unit Regular Price
               CustomTextFormField(
                 errorText: serverErrors.containsKey('unitRegularPrice') ? serverErrors['unitRegularPrice'] : null,
+                enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
                 initialValue: productForm['unitRegularPrice'],
                 labelText: 'Regular Price',
                 borderRadiusAmount: 16,
-                enabled: !isSubmitting,
                 hintText: '100.00',
                 onChanged: (value) {
                   setState(() => productForm['unitRegularPrice'] = value); 
@@ -443,10 +462,10 @@ class CreateProductFormState extends State<CreateProductForm> {
               /// Unit Sale Price
               CustomTextFormField(
                 errorText: serverErrors.containsKey('unitSalePrice') ? serverErrors['unitSalePrice'] : null,
+                enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
                 initialValue: productForm['unitSalePrice'],
                 labelText: 'Sale Price',
                 borderRadiusAmount: 16,
-                enabled: !isSubmitting,
                 hintText: '50.00',
                 onChanged: (value) {
                   setState(() => productForm['unitSalePrice'] = value); 
@@ -462,9 +481,9 @@ class CreateProductFormState extends State<CreateProductForm> {
               /// Unit Cost Price
               CustomTextFormField(
                 errorText: serverErrors.containsKey('unitCostPrice') ? serverErrors['unitCostPrice'] : null,
+                enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
                 initialValue: productForm['unitCostPrice'],
                 labelText: 'Cost Price',
-                enabled: !isSubmitting,
                 borderRadiusAmount: 16,
                 hintText: '25.00',
                 onChanged: (value) {
@@ -512,7 +531,7 @@ class CreateProductFormState extends State<CreateProductForm> {
                   errorText: serverErrors.containsKey('maximumAllowedQuantityPerOrder') ? serverErrors['maximumAllowedQuantityPerOrder'] : null,
                   initialValue: productForm['maximumAllowedQuantityPerOrder'],
                   labelText: 'Maximum Quantities Per Order',
-                  enabled: !isSubmitting,
+                  enabled: !isSubmitting && !isDeleting,
                   borderRadiusAmount: 16,
                   hintText: '10',
                   onChanged: (value) {
@@ -561,8 +580,8 @@ class CreateProductFormState extends State<CreateProductForm> {
                 CustomTextFormField(
                   errorText: serverErrors.containsKey('stockQuantity') ? serverErrors['stockQuantity'] : null,
                   initialValue: productForm['stockQuantity'],
+                  enabled: !isSubmitting && !isDeleting,
                   labelText: 'Stock Quantity',
-                  enabled: !isSubmitting,
                   borderRadiusAmount: 16,
                   hintText: '10',
                   onChanged: (value) {
@@ -581,9 +600,9 @@ class CreateProductFormState extends State<CreateProductForm> {
               /// SKU
               CustomTextFormField(
                 errorText: serverErrors.containsKey('sku') ? serverErrors['sku'] : null,
+                enabled: !isSubmitting && !isDeleting,
                 initialValue: productForm['sku'],
                 labelText: 'SKU',
-                enabled: !isSubmitting,
                 borderRadiusAmount: 16,
                 hintText: 'std-ticket',
                 onChanged: (value) {
@@ -603,9 +622,9 @@ class CreateProductFormState extends State<CreateProductForm> {
               /// Barcode
               CustomTextFormField(
                 errorText: serverErrors.containsKey('barcode') ? serverErrors['barcode'] : null,
+                enabled: !isSubmitting && !isDeleting,
                 initialValue: productForm['barcode'],
                 labelText: 'Barcode',
-                enabled: !isSubmitting,
                 borderRadiusAmount: 16,
                 hintText: '123456789',
                 onChanged: (value) {
@@ -626,7 +645,7 @@ class CreateProductFormState extends State<CreateProductForm> {
                 'Delete',
                 width: 120,
                 isError: true,
-                isLoading: isSubmitting,
+                isLoading: isDeleting,
                 alignment: Alignment.center,
                 onPressed: _requestDeleteProduct
               ),

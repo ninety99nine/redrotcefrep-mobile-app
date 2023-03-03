@@ -1,3 +1,4 @@
+import '../services/home_service.dart';
 import 'package:flutter/material.dart';
 
 /// The HomeProvider is strictly responsible for maintaining the state 
@@ -7,7 +8,7 @@ class HomeProvider with ChangeNotifier {
   
   /// The selected tab index of the home tabs e.g
   /// Index 0 = Profile, Index 1 = Following, Index 2 = Groups, e.t.c
-  int _selectedHomeTabIndex = 3;
+  int _selectedHomeTabIndex = 0;
 
   /// Get the selected tab index
   int get selectedHomeTabIndex => _selectedHomeTabIndex;
@@ -15,6 +16,7 @@ class HomeProvider with ChangeNotifier {
   /// Set the selected tab index
   void setSelectedTabIndex(int selectedHomeTabIndex) {
     _selectedHomeTabIndex = selectedHomeTabIndex;
+    HomeService.saveSelectedHomeTabIndexOnDeviceStorage(selectedHomeTabIndex);
   }
 
   /// Check if we have selected the profile tab

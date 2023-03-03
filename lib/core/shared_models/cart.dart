@@ -51,7 +51,7 @@ class Cart {
     allowFreeDelivery = Status.fromJson(json['allowFreeDelivery']);
     couponDiscountTotal = Money.fromJson(json['couponDiscountTotal']);
     detectedChanges = json['detectedChanges'] == null ? [] : (json['detectedChanges'] as List).map((detectedChange) {
-      return DetectedChange.fromJson(json['detectedChange']);
+      return DetectedChange.fromJson(detectedChange);
     }).toList();
     totalCancelledProductQuantities = json['totalCancelledProductQuantities'];
     totalUncancelledProductQuantities = json['totalUncancelledProductQuantities'];

@@ -9,7 +9,7 @@ class EditProductCard extends StatefulWidget {
   final Product product;
   final EdgeInsets margin;
   final ShoppableStore store;
-  final Function()? onDeletedProduct;
+  final Function(Product)? onDeletedProduct;
   final Function(Product)? onUpdatedProduct;
 
   const EditProductCard({
@@ -29,7 +29,7 @@ class _EditProductCardState extends State<EditProductCard> {
 
   Product get product => widget.product;
   ShoppableStore get store => widget.store;
-  Function()? get onDeletedProduct => widget.onDeletedProduct;
+  Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
 
   @override
@@ -82,7 +82,7 @@ class _EditProductCardState extends State<EditProductCard> {
           Positioned(
             top: 6,
             right: 8,
-            child: Icon(Icons.edit, size: 20, color: Colors.grey.shade400,)
+            child: Icon(Icons.mode_edit_outlined, size: 20, color: Colors.grey.shade400,)
           ),
     
         ],

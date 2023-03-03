@@ -1,71 +1,55 @@
 import 'package:bonako_demo/features/products/widgets/create_product/create_product_form/create_product_form.dart';
+import 'package:bonako_demo/features/stores/widgets/update_store/update_store_form.dart';
 import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
-import '../../../stores/providers/store_provider.dart';
-import '../../../stores/models/shoppable_store.dart';
+import '../../providers/store_provider.dart';
+import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CreateProductContent extends StatefulWidget {
+class UpdateStoreContent extends StatefulWidget {
   
-  final Product? product;
   final ShoppableStore store;
   final bool showingFullPage;
-  final Function(Product)? onDeletedProduct;
-  final Function(Product)? onUpdatedProduct;
-  final Function(Product)? onCreatedProduct;
+  final Function(ShoppableStore)? onUpdatedStore;
 
-  const CreateProductContent({
+  const UpdateStoreContent({
     super.key,
     required this.store,
-    required this.product,
-    this.onDeletedProduct,
-    this.onUpdatedProduct,
-    this.onCreatedProduct,
+    this.onUpdatedStore,
     this.showingFullPage = false
   });
 
   @override
-  State<CreateProductContent> createState() => _CreateProductContentState();
+  State<UpdateStoreContent> createState() => _UpdateStoreContentState();
 }
 
-class _CreateProductContentState extends State<CreateProductContent> {
+class _UpdateStoreContentState extends State<UpdateStoreContent> {
 
-  bool isDeleting = false;
   bool isSubmitting = false;
-  bool get isCreating => product == null;
-  Product? get product => widget.product;
   bool disableFloatingActionButton = false;
   ShoppableStore get store => widget.store;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
-  String get title => isCreating ? 'Add Product' : 'Edit Product';
-  Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
-  Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
-  Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
-  String get subtitle => isCreating ? 'What are you selling?' : 'Want to make changes?';
+  Function(ShoppableStore)? get onUpdatedStore => widget.onUpdatedStore;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
-  /// This allows us to access the state of CreateProductForm widget using a Global key. 
+  /// This allows us to access the state of UpdateStoreForm widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CreateProductFormState> _createProductFormState = GlobalKey<CreateProductFormState>();
+  final GlobalKey<UpdateStoreFormState> _updateStoreFormState = GlobalKey<UpdateStoreFormState>();
 
   /// Content to show based on the specified view
   Widget get content {
     
-    return CreateProductForm(
+    return UpdateStoreForm(
       store: store,
-      product: product,
-      onDeleting: onDeleting,
       onSubmitting: onSubmitting,
-      key: _createProductFormState,
-      onDeletedProduct: _onDeletedProduct,
-      onCreatedProduct: _onCreatedProduct,
-      onUpdatedProduct: _onUpdatedProduct,
+      key: _updateStoreFormState,
+      onUpdatedStore: _onUpdatedStore
     );
 
   }
@@ -77,38 +61,13 @@ class _CreateProductContentState extends State<CreateProductContent> {
     });
   }
 
-  void onDeleting(status) {
-    setState(() {
-      isDeleting = status;
-      disableFloatingActionButton = status;
-    });
-  }
-
-  void _onCreatedProduct(Product product){
+  void _onUpdatedStore(ShoppableStore store){
     
     /// Close the bottom modal sheet
     Get.back();
 
-    if(onCreatedProduct != null) onCreatedProduct!(product);
+    if(onUpdatedStore != null) onUpdatedStore!(store);
 
-  }
-
-  void _onUpdatedProduct(Product product){
-    
-    /// Close the bottom modal sheet
-    Get.back();
-
-    if(onUpdatedProduct != null) onUpdatedProduct!(product);
-
-  }
-
-  void _onDeletedProduct(Product product){
-    
-    /// Close the bottom modal sheet
-    Get.back();
-
-    if(onDeletedProduct != null) onDeletedProduct!(product);
-    
   }
 
   /// Floating action button widget
@@ -116,11 +75,10 @@ class _CreateProductContentState extends State<CreateProductContent> {
 
     return CustomElevatedButton(
       width: 120,
+      'Save Changes',
+      color: Colors.green,
       isLoading: isSubmitting,
-      isCreating ? 'Create' : 'Save Changes',
       onPressed: floatingActionButtonOnPressed,
-      prefixIcon: isCreating ? Icons.add : null,
-      color: isDeleting ? Colors.grey : Colors.green,
     );
 
   }
@@ -131,19 +89,8 @@ class _CreateProductContentState extends State<CreateProductContent> {
     /// If we should disable the floating action button, then do nothing
     if(disableFloatingActionButton) return;
 
-    /// If we are viewing the reviews content
-    if(isCreating) {
-
-      if(_createProductFormState.currentState != null) {
-        _createProductFormState.currentState!.requestCreateProduct();
-      }
-    
-    }else{
-
-      if(_createProductFormState.currentState != null) {
-        _createProductFormState.currentState!.requestUpdateProduct();
-      }
-      
+    if(_updateStoreFormState.currentState != null) {
+      _updateStoreFormState.currentState!.requestUpdateStore();
     }
 
   }
@@ -167,15 +114,15 @@ class _CreateProductContentState extends State<CreateProductContent> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: const [
             
                     /// Title
-                    CustomTitleMediumText(title, padding: const EdgeInsets.only(bottom: 8),),
+                    CustomTitleMediumText('Edit Store', padding: const EdgeInsets.only(bottom: 8),),
                     
                     /// Subtitle
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: CustomBodyText(subtitle),
+                      child: CustomBodyText('Want to make changes?'),
                     ),
                     
                   ],

@@ -75,6 +75,7 @@ class Links {
   late Link self;
   late Link showOrders;
   late Link deleteStore;
+  late Link updateStore;
   late Link showReviews;
   late Link showCoupons;
   late Link createReviews;
@@ -109,6 +110,7 @@ class Links {
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     showOrders = Link.fromJson(json['showOrders']);
+    updateStore = Link.fromJson(json['updateStore']);
     deleteStore = Link.fromJson(json['deleteStore']);
     showReviews = Link.fromJson(json['showReviews']);
     showCoupons = Link.fromJson(json['showCoupons']);

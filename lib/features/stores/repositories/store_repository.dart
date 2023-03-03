@@ -72,6 +72,25 @@ class StoreRepository {
     
   }
 
+  /// Update the specified store
+  Future<http.Response> updateStore({ required String name, required String? description, required bool online, required String? offlineMessage}) {
+
+    if(store == null) throw Exception('The store must be set to update');
+
+    String url = store!.links.updateStore.href;
+    
+    Map body = {
+      'name': name,
+      'online': online
+    };
+
+    if(description != null && description.isNotEmpty) body['description'] = description; 
+    if(offlineMessage != null && offlineMessage.isNotEmpty) body['offline_message'] = offlineMessage; 
+
+    return apiRepository.put(url: url, body: body);
+
+  }
+
   /// Delete the specified store
   Future<http.Response> deleteStore() {
 

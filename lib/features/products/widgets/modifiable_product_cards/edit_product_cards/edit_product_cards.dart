@@ -85,15 +85,15 @@ class _EditProductCardsState extends State<EditProductCards> {
   });
 
   void onUpdatedProduct(Product updatedProduct, int index) {
-    setState(() => products[index] = updatedProduct);
+    setState(() => store!.relationships.products[index] = updatedProduct);
   }
 
   void onCreatedProduct(Product createdProduct) {
-    setState(() => products.add(createdProduct));
+    store!.addProductRelationship(createdProduct);
   }
 
-  void onDeletedProduct(int index) {
-    setState(() => products.removeAt(index));
+  void onDeletedProduct(Product deletedProduct) {
+    store!.removeProductRelationship(deletedProduct);
   }
 
   Widget content() {
@@ -108,7 +108,7 @@ class _EditProductCardsState extends State<EditProductCards> {
           return EditProductCard(
             store: store!,
             product: product,
-            onDeletedProduct: () => onDeletedProduct(index),
+            onDeletedProduct: onDeletedProduct,
             onUpdatedProduct: (updatedProduct) => onUpdatedProduct(updatedProduct, index),
             margin: EdgeInsets.only(bottom: (index == filteredProducts.length - 1) ? 0 : 5)
           );

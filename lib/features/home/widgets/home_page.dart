@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/home/services/home_service.dart';
+
 import '../../../features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_popup.dart';
 import '../../../features/authentication/providers/auth_provider.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
@@ -21,9 +23,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
-  late final TabController _tabController;
-  String get firstName => user.firstName;
+  int totalTabs = 5;
   User get user => authProvider.user!;
+  String get firstName => user.firstName;
+  late final TabController _tabController;
+  bool isGettingSelectedHomeTabIndexFromDeviceStorage = true;
 
   int get selectedHomeTabIndex => homeProvider.selectedHomeTabIndex;
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
@@ -34,7 +38,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     
     super.initState();
     
-    _tabController = TabController(initialIndex: selectedHomeTabIndex, length: 5, vsync: this);
+    _tabController = TabController(initialIndex: selectedHomeTabIndex, length: totalTabs, vsync: this);
     
     /**
      *  This _tabController is used to check if we have navigated to the next or previous tab
@@ -52,49 +56,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     });
 
+    Future.delayed(Duration.zero).then((value) async {
+      await HomeService.getSelectedHomeTabIndexFromDeviceStorage().then((selectedHomeTabIndex) {
+
+        isGettingSelectedHomeTabIndexFromDeviceStorage = false;
+        changeNavigationTab(selectedHomeTabIndex);
+
+      });
+    });
+
   }
 
   @override
   void dispose() {
     super.dispose();
     _tabController.dispose();
-  }
-
-  PreferredSizeWidget get appBar {
-    return AppBar(
-      foregroundColor: Colors.black,
-      backgroundColor: Colors.white,
-      title:
-        ClipRRect(
-          clipBehavior: Clip.antiAlias,
-          borderRadius: BorderRadius.circular(24),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Wrap(
-              spacing: 8,
-              children: [
-                getNavigationTab(firstName, 0),
-                getNavigationTab('Following', 1),    
-                getNavigationTab('Groups', 2),        
-                getNavigationTab('My stores', 3),    
-                getNavigationTab('Communities', 4),    
-              ],
-            ),
-          ),
-        )
-    );
-  }
-
-  Widget get searchModalBottomSheet {
-    return const SearchModalBottomSheet();
-  }
-
-  Widget getNavigationTab(String label, int index) {
-    return CustomChoiceChip(
-      label: label,
-      selected: selectedHomeTabIndex == index,
-      onSelected: (_) => changeNavigationTab(index),
-    );
   }
 
   void changeNavigationTab(int index) {
@@ -104,9 +80,46 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
   }
 
+  PreferredSizeWidget get appBar {
+    return AppBar(
+      foregroundColor: Colors.black,
+      backgroundColor: Colors.white,
+      titleSpacing: 0,
+      title:
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: AnimatedSwitcher(
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              duration: const Duration(milliseconds: 500),
+              child: Wrap(
+                key: ValueKey(isGettingSelectedHomeTabIndexFromDeviceStorage),
+                spacing: 8,
+                /// Don't show any tabs until we are done getting the
+                /// selected home tab index form device storage.
+                children: isGettingSelectedHomeTabIndexFromDeviceStorage ? [] : [
+                  getNavigationTab(firstName, 0),
+                  getNavigationTab('Following', 1),    
+                  getNavigationTab('Groups', 2),        
+                  getNavigationTab('My stores', 3),    
+                  getNavigationTab('Communities', 4),    
+                ],
+              ),
+            ),
+          ),
+        )
+    );
+  }
+
   Widget get body {
     return SafeArea(
-      child: TabBarView(
+      child: isGettingSelectedHomeTabIndexFromDeviceStorage 
+      /// Create a place holder container widget until we are done
+      /// getting the selected home tab index form device storage.
+      ? Container()
+      : TabBarView(
         controller: _tabController,
         children: const [
 
@@ -128,6 +141,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ],
       )
     );
+  }
+
+  Widget getNavigationTab(String label, int index) {
+    return CustomChoiceChip(
+      label: label,
+      selected: selectedHomeTabIndex == index,
+      onSelected: (_) => changeNavigationTab(index),
+    );
+  }
+
+  Widget get searchModalBottomSheet {
+    return const SearchModalBottomSheet();
   }
 
   @override

@@ -114,9 +114,11 @@ class StorePageContent extends StatelessWidget {
   double get logoRadius => isOpen && hasDescription  ? 36 : 24;
   bool get hasDescription => store.description != null;
 
+  bool get isOnline => store.online;
   bool get isOpen => StoreServices.isOpen(store);
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
   bool get isClosedButNotTeamMember => StoreServices.isClosedButNotTeamMember(store);
+  bool get hasAuthActiveSubscription => store.relationships.authActiveSubscription != null;
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +155,7 @@ class StorePageContent extends StatelessWidget {
               showProfileRightSide: false,
             ),
 
-            if(!isOpen && hasJoinedStoreTeam) ...[
+        if(!isOpen && hasJoinedStoreTeam && !hasAuthActiveSubscription) ...[
 
               /// Spacer
               const SizedBox(height: 20,),
@@ -198,7 +200,7 @@ class StorePageContent extends StatelessWidget {
             
             ],
 
-            if(isOpen) ... [
+            if(isOnline) ... [
     
               /// Spacer
               const SizedBox(height: 16,),

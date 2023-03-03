@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+
 import '../../../../core/shared_widgets/text_form_fields/custom_text_form_field.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
@@ -10,7 +12,7 @@ import 'dart:convert';
 
 class CreateStoreForm extends StatefulWidget {
 
-  final Function? onCreatedStore;
+  final Function(ShoppableStore)? onCreatedStore;
 
   const CreateStoreForm({
     super.key,
@@ -30,7 +32,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
   bool acceptedGoldenRules = false;
   final _formKey = GlobalKey<FormState>();
 
-  Function? get onCreatedStore => widget.onCreatedStore;
+  Function(ShoppableStore)? get onCreatedStore => widget.onCreatedStore;
   StoreRepository get storeRepository => friendGroupProvider.storeRepository;
   StoreProvider get friendGroupProvider => Provider.of<StoreProvider>(context, listen: false);
   String? get nameErrorText => serverErrors.containsKey('name') ? serverErrors['name'] : null;
@@ -58,7 +60,9 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
 
             _resetForm();
 
-            if(onCreatedStore != null) onCreatedStore!();
+            ShoppableStore createdStore = ShoppableStore.fromJson(responseBody);
+
+            if(onCreatedStore != null) onCreatedStore!(createdStore);
 
             SnackbarUtility.showSuccessMessage(message: 'Store created');
 
@@ -70,7 +74,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
 
         }).catchError((error) {
 
-          SnackbarUtility.showErrorMessage(message: 'Can\'t update group');
+          SnackbarUtility.showErrorMessage(message: 'Can\'t create store');
 
         }).whenComplete((){
 
@@ -96,7 +100,11 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
 
       Future.delayed(const Duration(milliseconds: 100)).then((value) {
 
-        _formKey.currentState!.reset();
+        if(_formKey.currentState != null) {
+          
+          _formKey.currentState!.reset();
+
+        }
       
       });
     });

@@ -39,7 +39,7 @@ class StoreCardsState extends State<StoreCards> {
   Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   
-  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
   
   bool get showInvitationsBanner => scrolledToTop && checkStoreInvitations != null && checkStoreInvitations!.hasInvitations;
   
@@ -64,6 +64,12 @@ class StoreCardsState extends State<StoreCards> {
     /// stores from anyway in the application. This way we don't have to keep passing
     /// the refreshStores() method on multiple nested child widgets.
     storeProvider.refreshStores = refreshStores;
+
+    /// Set the update store method on the store provider so that we can easily update any
+    /// store from anyway in the application. This way we don't have to keep passing
+    /// the refreshStores() method on multiple nested child widgets.
+    storeProvider.updateStore = updateStore;
+
   }
 
   @override
@@ -84,9 +90,9 @@ class StoreCardsState extends State<StoreCards> {
 
   void startRequest() {
 
-    if(_customVerticalListViewInfiniteScrollState.currentState != null) {
+    if(customVerticalListViewInfiniteScrollState.currentState != null) {
 
-      _customVerticalListViewInfiniteScrollState.currentState!.startRequest();
+      customVerticalListViewInfiniteScrollState.currentState!.startRequest();
 
     }
 
@@ -211,7 +217,42 @@ class StoreCardsState extends State<StoreCards> {
     requestStoreInvitations();
 
     /// Refresh the store cards
-    _customVerticalListViewInfiniteScrollState.currentState!.startRequest();
+    customVerticalListViewInfiniteScrollState.currentState!.startRequest();
+
+  }
+
+  void updateStore(ShoppableStore updatedStore) {
+
+    final List stores = customVerticalListViewInfiniteScrollState.currentState!.data;
+
+    for (var i = 0; i < stores.length; i++) {
+
+      if(stores[i].id == updatedStore.id) {
+
+        final currentStore = customVerticalListViewInfiniteScrollState.currentState!.data[i];
+
+        /// Set the current store properties on the updated store so that we don't have to load
+        /// this information from the server side. This helps us improve performance by pulling
+        /// the information that we already have and that we don't have to request from the
+        /// server side.
+        updatedStore.activeSubscriptionsCount = currentStore.activeSubscriptionsCount;
+        updatedStore.teamMembersCount = currentStore.teamMembersCount;
+        updatedStore.followersCount = currentStore.followersCount;
+        updatedStore.relationships = currentStore.relationships;
+        updatedStore.couponsCount = currentStore.couponsCount;
+        updatedStore.reviewsCount = currentStore.reviewsCount;
+        updatedStore.ordersCount = currentStore.ordersCount;
+        updatedStore.attributes = currentStore.attributes;
+
+        setState(() {
+          /// Update the matching store
+          customVerticalListViewInfiniteScrollState.currentState!.data[i] = updatedStore;
+          customVerticalListViewInfiniteScrollState.currentState!.forceRenderListView++;
+        });
+
+      }
+      
+    }
 
   }
 
@@ -223,7 +264,7 @@ class StoreCardsState extends State<StoreCards> {
       onRenderItem: onRenderItem,
       catchErrorMessage: 'Can\'t show stores',
       contentBeforeSearchBar: contentBeforeSearchBar,
-      key: _customVerticalListViewInfiniteScrollState,
+      key: customVerticalListViewInfiniteScrollState,
       onRequest: (page, searchWord) => requestShowStores(page, searchWord), 
       headerPadding: friendGroup == null ? const EdgeInsets.only(top: 8, bottom: 0, left: 16, right: 16) : EdgeInsets.zero,
     );
@@ -233,11 +274,11 @@ class StoreCardsState extends State<StoreCards> {
 
     return true;
 
-    print(_customVerticalListViewInfiniteScrollState.currentState);
+    print(customVerticalListViewInfiniteScrollState.currentState);
 
-    if(_customVerticalListViewInfiniteScrollState.currentState == null ) return false;
+    if(customVerticalListViewInfiniteScrollState.currentState == null ) return false;
 
-    ScrollController controller = _customVerticalListViewInfiniteScrollState.currentState!.controller;
+    ScrollController controller = customVerticalListViewInfiniteScrollState.currentState!.controller;
     
     /// If we have scrolled half-way through, then check if we can start loading more content
     return controller.offset > 100;

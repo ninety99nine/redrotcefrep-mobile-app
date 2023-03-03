@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/widgets/update_store/update_store_modal_bottom_sheet/update_store_modal_bottom_sheet.dart';
+
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -70,6 +72,13 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
     
     if(StoreServices.isAssociatedAsCreator(store)) {
       menus.add({
+        'icon': Icons.mode_edit_outlined,
+        'name': 'Edit Store',
+      });
+    }
+    
+    if(StoreServices.isAssociatedAsCreator(store)) {
+      menus.add({
         'icon': Icons.delete_outline_rounded,
         'name': 'Delete Store',
       });
@@ -131,6 +140,15 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
               store: store,
               trigger: listItem,
               onDial: () => Get.back()
+            );
+          
+          }else if(name == 'Edit Store') {
+            
+            /// Return the modal bottom sheet to edit the store with this list item as the trigger
+            return UpdateStoreModalBottomSheet(
+              store: store,
+              trigger: listItem,
+              onUpdatedStore: (_) => Get.back()
             );
           
           }else{

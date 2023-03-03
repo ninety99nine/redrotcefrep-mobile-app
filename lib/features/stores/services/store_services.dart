@@ -66,11 +66,12 @@ class StoreServices {
 
   /// Check if the specified store is open for business
   static bool isOpen(ShoppableStore store) {
+    bool isOnline = store.online;
     bool hasActiveSubscriptions = store.activeSubscriptionsCount! > 0;
     bool hasJoinedStoreTeam = StoreServices.hasJoinedStoreTeam(store);
     bool hasAuthActiveSubscription = store.relationships.authActiveSubscription != null;
     
-    return (hasJoinedStoreTeam && hasAuthActiveSubscription) || hasActiveSubscriptions;
+    return isOnline && (hasActiveSubscriptions || (hasJoinedStoreTeam && hasAuthActiveSubscription));
   }
 
   /// Check if the specified store is closed for business but the user is not a team member

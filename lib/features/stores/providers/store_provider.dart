@@ -15,6 +15,7 @@ class StoreProvider with ChangeNotifier {
   Function()? refreshStores;
   final ApiProvider apiProvider;
   bool _isShowingStorePage = false;
+  Function(ShoppableStore)? updateStore;
 
   /// Constructor: Set the provided Api Provider
   StoreProvider({ required this.apiProvider });

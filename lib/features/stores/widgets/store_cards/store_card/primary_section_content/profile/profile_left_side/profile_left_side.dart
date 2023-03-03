@@ -24,11 +24,25 @@ class StoreProfileLeftSide extends StatefulWidget {
 
 class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
 
+  bool get isOnline => store.online;
   ShoppableStore get store => widget.store;
   bool get isOpen => StoreServices.isOpen(store);
   bool get hasDescription => store.description != null;
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
   bool get isClosedButNotTeamMember => StoreServices.isClosedButNotTeamMember(store);
+  bool get hasAuthActiveSubscription => store.relationships.authActiveSubscription != null;
+  String get offlineMessage => store.offlineMessage.isNotEmpty ? store.offlineMessage : 'We are closed';
+
+  Widget get offlineMessageWidget {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.info_outline_rounded, color: Colors.grey.shade400, size: 16,),
+        const SizedBox(width: 4,),
+        Expanded(child: CustomBodyText(offlineMessage, lightShade: true)),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,8 +136,14 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
 
         if(!isOpen && hasJoinedStoreTeam) ...[
 
-          /// Subscribe Instruction
-          const CustomBodyText('Subscribe to continue selling', margin: EdgeInsets.symmetric(vertical: 4), lightShade: true),
+          /// Spacer
+          const SizedBox(height: 4),
+
+          /// (If Requires Subscription) Subscribe Instruction
+          if(!hasAuthActiveSubscription) const CustomBodyText('Subscribe to continue selling', margin: EdgeInsets.symmetric(vertical: 4), lightShade: true),
+          
+          /// (If Does Not Require Subscription But Offline) Custom Store Offline Message (If provided) / We Are Closed
+          if(hasAuthActiveSubscription && !isOnline) offlineMessageWidget
 
         ],
         
@@ -131,23 +151,11 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
         if(!isOpen && !hasJoinedStoreTeam) ...[
 
           /// Spacer
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+          /// Custom Store Offline Message (If provided) / We Are Closed
+          offlineMessageWidget
 
-              /// Icon
-              Icon(Icons.info_outline_rounded, color: Colors.grey.shade400, size: 16,),
-
-              /// Spacer
-              const SizedBox(width: 4),
-
-              /// We Are Closed
-              const CustomBodyText('We are closed', lightShade: true)
-
-            ],
-          )
         ]
         
       ],

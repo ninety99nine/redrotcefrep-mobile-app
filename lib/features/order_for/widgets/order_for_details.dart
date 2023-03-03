@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/order_for/services/order_for_service.dart';
+
 import '../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends_modal_bottom_sheet.dart';
 import '../../order_for/widgets/users_show/users_modal_bottom_sheet/users_modal_bottom_sheet.dart';
 import '../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
@@ -109,32 +111,50 @@ class _OrderForDetailsState extends State<OrderForDetails> {
     store = Provider.of<ShoppableStore>(context, listen: false);
 
     /// Get the order for options if not already requested
-    if(hasStore && hasSelectedProducts && !isLoading && orderForOptions.isEmpty) _requestStoreShoppingCartOrderForOptions();
+    if(hasStore && hasSelectedProducts && !isLoading && orderForOptions.isEmpty) _getStoreShoppingCartOrderForOptions();
 
     /// Reset the total people to "1" if the orderFor has been set to "Me" 
     if(orderFor == 'Me') store!.setTotalPeople(1, canNotifyListeners: false);
 
   }
 
-  void _requestStoreShoppingCartOrderForOptions() async {
+  void _getStoreShoppingCartOrderForOptions() {
 
     _startLoader();
-    
-    await storeProvider.setStore(store!).storeRepository.showShoppingCartOrderForOptions()
-    .then((response) async {
 
-      final responseBody = jsonDecode(response.body);
+    /// Get the order for options stored on the device storage (client side)
+    OrderForService.getOrderForOptionsFromDeviceStorage().then((savedOrderForOptions) {
 
-      if(response.statusCode == 200) {
+      if(savedOrderForOptions.isEmpty) {
+
+        /// Request the order for options (server side)
+        storeProvider.setStore(store!).storeRepository.showShoppingCartOrderForOptions()
+          .then((response) async {
+
+          final responseBody = jsonDecode(response.body);
+
+          if(response.statusCode == 200) {
+
+            /// Set the order for options
+            setState(() => orderForOptions = List.from(responseBody));
+
+            /// Save the order for options on the device storage (client side)
+            OrderForService.saveOrderForOptionsOnDeviceStorage(orderForOptions);
+
+          }
+
+        }).whenComplete(() {
+          
+          _stopLoader();
+
+        });
+
+      }else{
 
         /// Set the order for options
-        setState(() => orderForOptions = List.from(responseBody));
+        setState(() => orderForOptions = savedOrderForOptions);
 
       }
-
-    }).whenComplete(() {
-      
-      _stopLoader();
 
     });
 

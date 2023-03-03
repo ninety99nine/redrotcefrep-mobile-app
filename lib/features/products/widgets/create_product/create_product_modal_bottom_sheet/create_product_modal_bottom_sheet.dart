@@ -10,7 +10,7 @@ class CreateProductModalBottomSheet extends StatefulWidget {
 
   final Product? product;
   final ShoppableStore store;
-  final Function()? onDeletedProduct;
+  final Function(Product)? onDeletedProduct;
   final Function(Product)? onUpdatedProduct;
   final Function(Product)? onCreatedProduct;
   final Widget Function(void Function())? trigger;
@@ -33,7 +33,7 @@ class CreateProductModalBottomSheetState extends State<CreateProductModalBottomS
 
   Product? get product => widget.product;
   ShoppableStore get store => widget.store;
-  Function()? get onDeletedProduct => widget.onDeletedProduct;
+  Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
   Widget Function(void Function())? get trigger => widget.trigger;
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
   Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
