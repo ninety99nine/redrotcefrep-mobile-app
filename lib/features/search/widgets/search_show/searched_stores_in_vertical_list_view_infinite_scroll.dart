@@ -1,4 +1,3 @@
-
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/widgets/store_cards/store_card/primary_section_content/logo.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';

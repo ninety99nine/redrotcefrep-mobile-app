@@ -22,6 +22,8 @@ class ShoppableStore extends Store with ChangeNotifier {
   bool isLoading = false;
   List<Product> selectedProducts = [];
   List<ProductLine> productLinesNotFound = [];
+  bool teamMemberWantsToViewAsCustomer = false;
+
   bool get hasShoppingCart => shoppingCart != null;
   bool get hasSelectedProducts => selectedProducts.isNotEmpty;
 
@@ -51,6 +53,13 @@ class ShoppableStore extends Store with ChangeNotifier {
     }
 
     if(canNotifyListeners) notifyListeners();
+  }
+
+  updateTeamMemberWantsToViewAsCustomer(bool status) {
+    teamMemberWantsToViewAsCustomer = status;
+    print('teamMemberWantsToViewAsCustomer');
+    print(teamMemberWantsToViewAsCustomer);
+    notifyListeners();
   }
 
   /// Start loader

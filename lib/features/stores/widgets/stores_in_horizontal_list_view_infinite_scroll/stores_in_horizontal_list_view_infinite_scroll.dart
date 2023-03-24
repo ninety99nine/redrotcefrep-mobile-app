@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/services/store_services.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_models/user_and_store_association.dart';
@@ -183,37 +185,45 @@ class _StoreItemState extends State<StoreItem> {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       width: MediaQuery.of(context).size.width * 0.5,
-      child: CustomCard(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+      child: GestureDetector(
+        onTap: () {
+          
+          /// Navigate to the store page 
+          StoreServices.navigateToStorePage(store);
 
-            /// Store Logo
-            StoreLogo(store: store),
-
-            /// Spacer
-            const SizedBox(height: 8,),
-                    
-            /// Store Name
-            CustomBodyText(store.name),
-
-            /// Spacer
-            const SizedBox(height: 4,),
-                    
-            /// Total Orders Requested
-            if(isAssociatedAsCustomer) CustomBodyText(totalOrdersRequestedText, lightShade: true,),
-                    
-            /// Last Seen
-            if(isAssociatedAsRecentVisiter) CustomBodyText(timeago.format(userAndStoreAssociation.lastSeenAt!), lightShade: true,),
-
-            /// Spacer
-            const SizedBox(height: 4,),
-
-            /// Follow / Unfollow Button
-            FollowStoreButton(store: store)
-
-          ],
+        },
+        child: CustomCard(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+      
+              /// Store Logo
+              StoreLogo(store: store),
+      
+              /// Spacer
+              const SizedBox(height: 8,),
+                      
+              /// Store Name
+              CustomBodyText(store.name),
+      
+              /// Spacer
+              const SizedBox(height: 4,),
+                      
+              /// Total Orders Requested
+              if(isAssociatedAsCustomer) CustomBodyText(totalOrdersRequestedText, lightShade: true,),
+                      
+              /// Last Seen
+              if(isAssociatedAsRecentVisiter) CustomBodyText(timeago.format(userAndStoreAssociation.lastSeenAt!), lightShade: true,),
+      
+              /// Spacer
+              const SizedBox(height: 4,),
+      
+              /// Follow / Unfollow Button
+              FollowStoreButton(store: store)
+      
+            ],
+          ),
         ),
       ),
     );

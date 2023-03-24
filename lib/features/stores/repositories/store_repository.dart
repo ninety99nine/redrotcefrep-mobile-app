@@ -47,7 +47,7 @@ class StoreRepository {
   /// e.g where the user is a follower, customer, or team member.
   /// If the association is not provided, the default behaviour is
   /// to return stores where the authenticated user is a team member
-  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountActiveSubscriptions = false, withAuthActiveSubscription = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
+  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
 
     String url = homeApiLinks.showStores;
 
@@ -61,14 +61,29 @@ class StoreRepository {
     if(withVisitShortcode) queryParams.addAll({'withVisitShortcode': '1'});
     if(withCountTeamMembers) queryParams.addAll({'withCountTeamMembers': '1'});
     if(userAssociation != null) queryParams.addAll({'type': userAssociation.name});
-    if(withAuthActiveSubscription) queryParams.addAll({'withAuthActiveSubscription': '1'});
-    if(withCountActiveSubscriptions) queryParams.addAll({'withCountActiveSubscriptions': '1'});
     if(friendGroup != null) queryParams.addAll({'friend_group_id': friendGroup.id.toString()});
 
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
     return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
+
+  /// Get the specified store
+  Future<http.Response> showStore({ required String storeUrl, bool withProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false }) {
+
+    Map<String, String> queryParams = {};
+    if(withRating) queryParams.addAll({'withRating': '1'});
+    if(withProducts) queryParams.addAll({'withProducts': '1'});
+    if(withCountOrders) queryParams.addAll({'withCountOrders': '1'});
+    if(withCountCoupons) queryParams.addAll({'withCountCoupons': '1'});
+    if(withCountReviews) queryParams.addAll({'withCountReviews': '1'});
+    if(withCountFollowers) queryParams.addAll({'withCountFollowers': '1'});
+    if(withVisitShortcode) queryParams.addAll({'withVisitShortcode': '1'});
+    if(withCountTeamMembers) queryParams.addAll({'withCountTeamMembers': '1'});
+
+    return apiRepository.get(url: storeUrl, queryParams: queryParams);
     
   }
 

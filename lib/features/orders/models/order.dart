@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+
 import '../../../core/shared_models/name_and_description.dart';
 import '../../../../core/shared_models/mobile_number.dart';
 import '../../../../core/shared_models/percentage.dart';
@@ -74,7 +76,8 @@ class Attributes {
   late String number;
   late String customerName;
   late List<NameAndDescription> followUpStatuses;
-  late DialToShowConfirmationCode dialToShowConfirmationCode;
+  late UserAndOrderAssociation? userAndOrderAssociation;
+  late DialToShowCollectionCode dialToShowCollectionCode;
 
   Attributes.fromJson(Map<String, dynamic> json) {
     number = json['number'];
@@ -82,19 +85,18 @@ class Attributes {
     followUpStatuses = List<NameAndDescription>.from(json['followUpStatuses'].map((followUpStatus) {
       return NameAndDescription.fromJson(followUpStatus);
     })).toList();
-    dialToShowConfirmationCode = DialToShowConfirmationCode.fromJson(json['dialToShowConfirmationCode']);
+    dialToShowCollectionCode = DialToShowCollectionCode.fromJson(json['dialToShowCollectionCode']);
+    userAndOrderAssociation = json['userAndOrderAssociation'] == null ? null : UserAndOrderAssociation.fromJson(json['userAndOrderAssociation']);
   }
 }
 
-class DialToShowConfirmationCode {
+class DialToShowCollectionCode {
   late String code;
   late String instruction;
-  //  late List<Transaction> transactions;
 
-  DialToShowConfirmationCode.fromJson(Map<String, dynamic> json) {
+  DialToShowCollectionCode.fromJson(Map<String, dynamic> json) {
     code = json['code'];
     instruction = json['instruction'];
-    //  transactions = (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
   }
 }
 
@@ -116,10 +118,14 @@ class Links {
   late Link self;
   late Link showViewers;
   late Link updateStatus;
+  late Link revokeCollectionCode;
+  late Link generateCollectionCode;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     showViewers = Link.fromJson(json['showViewers']);
     updateStatus = Link.fromJson(json['updateStatus']);
+    revokeCollectionCode = Link.fromJson(json['revokeCollectionCode']);
+    generateCollectionCode = Link.fromJson(json['generateCollectionCode']);
   }
 }

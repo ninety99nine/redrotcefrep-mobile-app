@@ -64,23 +64,18 @@ class StoreServices {
     return store.attributes.userAndStoreAssociation?.teamMemberRole?.toLowerCase() == 'creator';
   }
 
-  /// Check if the specified store is open for business
-  static bool isOpen(ShoppableStore store) {
-    bool isOnline = store.online;
-    bool hasActiveSubscriptions = store.activeSubscriptionsCount! > 0;
-    bool hasJoinedStoreTeam = StoreServices.hasJoinedStoreTeam(store);
-    bool hasAuthActiveSubscription = store.relationships.authActiveSubscription != null;
-    
-    return isOnline && (hasActiveSubscriptions || (hasJoinedStoreTeam && hasAuthActiveSubscription));
+  /// Check if the user has access to the specified store as a shopper
+  /// This means that the specified store is open to this user so that
+  /// the user can shop
+  static bool canAccessAsShopper(ShoppableStore store) {
+    return store.attributes.shopperAccess!.status;
   }
 
-  /// Check if the specified store is closed for business but the user is not a team member
-  static bool isClosedButNotTeamMember(ShoppableStore store) {
-
-    bool isClosed = isOpen(store) == false;
-    bool hasJoinedStoreTeam = StoreServices.hasJoinedStoreTeam(store);
-    
-    return isClosed && hasJoinedStoreTeam == false;
+  /// Check if the user has access to the specified store as a team member
+  /// This means that the user has an active subscription to access this
+  /// specified store
+  static bool canAccessAsTeamMember(ShoppableStore store) {
+    return store.attributes.teamMemberAccess!.status;
   }
 
 }

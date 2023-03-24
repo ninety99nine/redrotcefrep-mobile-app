@@ -217,7 +217,10 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
           /// Divider
           const Divider(height: 16,),
     
-        ]
+        ],
+
+        /// Spacer
+        if(!hasOrders) const SizedBox(height: 16,),
     
       ],
     );
@@ -231,13 +234,14 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
       debounceSearch: true,
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
-      key: _customVerticalListViewInfiniteScrollState,
+      showNoContent: isViewingOrders,
       catchErrorMessage: 'Can\'t show orders',
       showFirstRequestLoader: isViewingOrders,
       contentBeforeSearchBar: contentBeforeSearchBar,
+      key: _customVerticalListViewInfiniteScrollState,
       loaderMargin: const EdgeInsets.symmetric(vertical: 32),
       onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
-      headerPadding: order == null ? const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16) : const EdgeInsets.all(0),
+      headerPadding: order == null ? const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16) : const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
     );
   }
 }

@@ -575,7 +575,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
       child: CustomBodyText(
         noContent, 
         textAlign: TextAlign.center, 
-        margin: const EdgeInsets.only(top: 20),
+        margin: const EdgeInsets.only(top: 20, bottom: 100),
       ),
     );
   }

@@ -3,7 +3,10 @@ import 'package:bonako_demo/features/search/widgets/search_show/searched_friends
 import 'package:bonako_demo/features/search/widgets/search_show/searched_stores_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_fields/custom_search_text_form_field.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:bonako_demo/features/stores/widgets/store_page/store_page.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../enums/search_enums.dart';
 import 'search_page/search_page.dart';
 import 'search_menus.dart';
@@ -110,6 +113,12 @@ class _SearchContentState extends State<SearchContent> {
   /// Called after selecting a store
   void onSelectedStore(ShoppableStore store) {
     
+    /// Close the modal bottom sheet
+    Get.back();
+
+    /// Navigate to the store page 
+    StoreServices.navigateToStorePage(store);
+  
   }
 
   /// Called when the primary content view has been changed,

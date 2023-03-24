@@ -14,12 +14,14 @@ import '../../models/order.dart';
 import 'order_filters.dart';
 
 class OrdersContent extends StatefulWidget {
-  
+
+  final Order? order;
   final ShoppableStore store;
   final bool showingFullPage;
 
   const OrdersContent({
     super.key,
+    this.order,
     required this.store,
     this.showingFullPage = false
   });
@@ -55,6 +57,19 @@ class _OrdersContentState extends State<OrdersContent> {
     
     /// Set the "_orderFiltersState" so that we can access the OrderFilters widget state
     _orderFiltersState = GlobalKey<OrderFiltersState>();
+
+    /**
+     *  If an order has been specified, then we need to show that
+     *  order. In this case we should prepare the view to show
+     *  this specified order instead of showing a list of
+     *  store orders
+     */
+    if(widget.order != null) {
+
+      order = widget.order;
+      orderContentView = OrderContentView.viewingOrder;
+
+    }
 
   }
 

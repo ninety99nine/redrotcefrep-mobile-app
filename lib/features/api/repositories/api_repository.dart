@@ -26,10 +26,23 @@ class ApiRepository {
     //  Add the page as a query param (if provided)
     if(page != null) queryParams.addAll({ 'page': page.toString() });
 
-    //  Set the query params on the request url (if any)
-    url = queryParams.isEmpty ? url : '$url?${queryParams.map((key, value) => MapEntry(key, '$key=$value')).values.join('&')}';
+    if(queryParams.isNotEmpty) {
+      
+      final String queryParamsAsStrings = queryParams.map((key, value) => MapEntry(key, '$key=$value')).values.join('&');
 
-    return url;
+      /// Determine whether to append the "?" symbol or not
+      url = url.contains('?') ? '$url&' : '$url?';
+      
+      /// Append the query params as strings onto the url
+      url = '$url$queryParamsAsStrings';
+
+      return url;
+
+    }else{
+      
+      return url;
+
+    }
 
   }
 

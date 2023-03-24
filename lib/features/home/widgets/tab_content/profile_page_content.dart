@@ -19,7 +19,6 @@ class ProfilePageContent extends StatefulWidget {
 class _ProfilePageContentState extends State<ProfilePageContent> {
 
   User get user => authProvider.user!;
-  AuthRepository get authRepository => authProvider.authRepository;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
   @override
@@ -40,7 +39,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
               /// Spacer
               const SizedBox(height: 24),
         
-              /// Orders
+              /// User Orders
               UserOrdersInHorizontalListViewInfiniteScroll(
                 user: user
               ),

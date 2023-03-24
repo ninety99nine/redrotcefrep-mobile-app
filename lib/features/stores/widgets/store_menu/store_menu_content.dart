@@ -38,10 +38,10 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
   List<Map> menus = [];
 
   ShoppableStore get store => widget.store;
-  bool get isOpen => StoreServices.isOpen(store);
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
+  bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
 
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
@@ -63,7 +63,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       });
     }
     
-    if(!isOpen && hasJoinedStoreTeam) {
+    if(hasJoinedStoreTeam && !canAccessAsTeamMember) {
       menus.add({
         'icon': Icons.sensor_door_outlined,
         'name': 'Subscribe',

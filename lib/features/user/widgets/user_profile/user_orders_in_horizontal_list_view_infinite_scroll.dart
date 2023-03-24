@@ -1,6 +1,10 @@
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/stores/models/store.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/logo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -20,9 +24,11 @@ import 'dart:convert';
 class UserOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
   
   final User user;
+  final ShoppableStore? store;
 
   const UserOrdersInHorizontalListViewInfiniteScroll({
     Key? key,
+    this.store,
     required this.user,
   }) : super(key: key);
 
@@ -34,11 +40,14 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
 
   bool hasOrders = false;
   User get user => widget.user;
+  ShoppableStore? get store => widget.store;
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   /// Render each request item as an OrderItem
   Widget onRenderItem(order, int index, List orders) => OrderItem(
     order: (order as Order),
+    store: store,
     index: index,
     user: user,
   );
@@ -47,10 +56,29 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   Order onParseItem(order) => Order.fromJson(order);
   Future<http.Response> requestUserOrders(int page, String searchWord) {
 
-    return userProvider.setUser(user).userRepository.showOrders(
-      searchWord: searchWord,
-      page: page
-    ).then((response) {
+    Future<http.Response> request;
+    
+    if(store == null) {
+
+      /// Get the orders of the users from any store
+      request = userProvider.setUser(user).userRepository.showOrders(
+        searchWord: searchWord,
+        page: page
+      );
+
+    }else{
+
+      /// Get the orders of the users from this specified store
+      request = storeProvider.setStore(store!).storeRepository.showOrders(
+        customerUserId: user.id,
+        searchWord: searchWord,
+        withCustomer: false,
+        page: page
+      );
+
+    }
+
+    return request.then((response) {
 
       if( response.statusCode == 200 ) {
 
@@ -129,9 +157,11 @@ class OrderItem extends StatefulWidget {
   final User user;
   final int index;
   final Order order;
+  final ShoppableStore? store;
 
   const OrderItem({
     super.key,
+    this.store,
     required this.user,
     required this.index,
     required this.order,
@@ -146,81 +176,93 @@ class _OrderItemState extends State<OrderItem> {
   int get index => widget.index;
   Order get order => widget.order;
   bool get hasBeenSeen => totalViewsByTeam > 0;
-  ShoppableStore get store => order.relationships.store!;
   int get totalViewsByTeam => widget.order.totalViewsByTeam;
+  ShoppableStore get store => widget.store ?? order.relationships.store!;
 
   @override
   Widget build(BuildContext context) {
 
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      width: MediaQuery.of(context).size.width * 0.8,
-      child: CustomCard(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                    
-                /// Order Number
-                CustomTitleMediumText('#${widget.order.attributes.number}'),
-
-                /// Created At
-                CustomBodyText(timeago.format(widget.order.createdAt, locale: 'en_short')),
-
-              ],
-            ),
-
-            /// Spacer
-            const SizedBox(height:  4,),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                /// Status
-                OrderStatus(
-                  lightShade: true,
-                  status: widget.order.status.name,
+    return OrdersModalBottomSheet(
+      store: store,
+      order: order,
+      trigger: Container(
+        margin: const EdgeInsets.only(right: 8),
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: CustomCard(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+    
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                      
+                  /// Order Number
+                  CustomTitleMediumText('#${widget.order.attributes.number}'),
+    
+                  /// Created At
+                  CustomBodyText(timeago.format(widget.order.createdAt, locale: 'en_short')),
+    
+                ],
+              ),
+    
+              /// Spacer
+              const SizedBox(height:  4,),
+    
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+    
+                  /// Status
+                  OrderStatus(
+                    lightShade: true,
+                    status: widget.order.status.name,
+                  ),
+    
+                  /// Seen Icon
+                  if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
+    
+                ],
+              ),
+    
+              /// Spacer
+              const SizedBox(height: 8,),
+    
+              /// Summary
+              CustomBodyText(widget.order.summary, maxLines: 2, overflow: TextOverflow.ellipsis),
+    
+              /// Spacer
+              const Spacer(),
+    
+              GestureDetector(
+                onTap: () {
+                  
+                  /// Navigate to the store page 
+                  StoreServices.navigateToStorePage(store);
+    
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                        
+                    //  Store Logo
+                    StoreLogo(store: store, radius: 16,),
+              
+                    /// Spacer
+                    const SizedBox(width: 8,),
+              
+                    /// Store Name
+                    CustomBodyText(store.name),
+              
+                  ],
                 ),
-
-                /// Seen Icon
-                if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
-
-              ],
-            ),
-
-            /// Spacer
-            const SizedBox(height: 8,),
-
-            /// Summary
-            CustomBodyText(widget.order.summary, maxLines: 2, overflow: TextOverflow.ellipsis),
-
-            /// Spacer
-            const Spacer(),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-          
-                //  Store Logo
-                StoreLogo(store: store, radius: 16,),
-
-                /// Spacer
-                const SizedBox(width: 8,),
-
-                /// Store Name
-                CustomBodyText(store.name),
-
-              ],
-            )
-
-          ],
+              )
+    
+            ],
+          ),
         ),
       ),
     );

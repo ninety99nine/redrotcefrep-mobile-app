@@ -104,8 +104,6 @@ class StoreCardsState extends State<StoreCards> {
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
   Future<http.Response> requestShowStores(int page, String searchWord) {
     return storeProvider.storeRepository.showStores(
-      withCountActiveSubscriptions: true,
-      withAuthActiveSubscription: true,
       userAssociation: userAssociation,
       withCountTeamMembers: true,
       withVisitShortcode: true,

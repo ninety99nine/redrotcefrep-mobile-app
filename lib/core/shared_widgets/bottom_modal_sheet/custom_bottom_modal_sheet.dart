@@ -7,6 +7,7 @@ class CustomBottomModalSheet extends StatefulWidget {
   final Widget content;
   final double heightFactor;
   final Function()? onClose;
+  final BorderRadiusGeometry? borderRadius;
 
   const CustomBottomModalSheet({ 
     super.key,
@@ -14,7 +15,8 @@ class CustomBottomModalSheet extends StatefulWidget {
     required this.trigger,
     this.disabled = false,
     required this.content,
-    this.heightFactor = 0.7
+    this.heightFactor = 0.7,
+    this.borderRadius
   });
 
   @override
@@ -34,7 +36,7 @@ class CustomBottomModalSheetState extends State<CustomBottomModalSheet> {
       isScrollControlled: true,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0)
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(20.0)
       ),
       builder: ( BuildContext context ) {
 

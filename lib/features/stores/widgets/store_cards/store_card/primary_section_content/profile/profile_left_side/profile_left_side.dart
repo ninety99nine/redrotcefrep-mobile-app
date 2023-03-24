@@ -24,25 +24,11 @@ class StoreProfileLeftSide extends StatefulWidget {
 
 class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
 
-  bool get isOnline => store.online;
   ShoppableStore get store => widget.store;
-  bool get isOpen => StoreServices.isOpen(store);
   bool get hasDescription => store.description != null;
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
-  bool get isClosedButNotTeamMember => StoreServices.isClosedButNotTeamMember(store);
-  bool get hasAuthActiveSubscription => store.relationships.authActiveSubscription != null;
-  String get offlineMessage => store.offlineMessage.isNotEmpty ? store.offlineMessage : 'We are closed';
-
-  Widget get offlineMessageWidget {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(Icons.info_outline_rounded, color: Colors.grey.shade400, size: 16,),
-        const SizedBox(width: 4,),
-        Expanded(child: CustomBodyText(offlineMessage, lightShade: true)),
-      ],
-    );
-  }
+  bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
+  bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +46,7 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
               /// Store name
               StoreName(store: store),
                     
-              if(hasDescription && isOpen || isClosedButNotTeamMember) ... [
+              if(canAccessAsShopper && hasDescription) ... [
                 
                 /// Spacer
                 const SizedBox(height: 8),
@@ -75,7 +61,7 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
         ),
     
         /// Followers & Team Members
-        if(isOpen || isClosedButNotTeamMember) ...[
+        if(canAccessAsShopper) ...[
     
           /// Spacer
           const SizedBox(height: 8,),
@@ -97,7 +83,7 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
         ],
         
         /// Coupons, Orders & Reviews
-        if(isOpen || isClosedButNotTeamMember) ...[
+        if(canAccessAsShopper) ...[
           
           /// Spacer
           const SizedBox(height: 8),
@@ -121,8 +107,9 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
             ]
           )
         ],
-
-        if(isOpen) Column(
+        
+        /// Shortcode
+        if(canAccessAsShopper) Column(
           children: [
 
             /// Spacer
@@ -134,29 +121,21 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
           ],
         ),
 
-        if(!isOpen && hasJoinedStoreTeam) ...[
+        /// Access Denied For Shopper
+        if((!hasJoinedStoreTeam || (hasJoinedStoreTeam && canAccessAsTeamMember)) && !canAccessAsShopper) ...[
 
-          /// Spacer
-          const SizedBox(height: 4),
-
-          /// (If Requires Subscription) Subscribe Instruction
-          if(!hasAuthActiveSubscription) const CustomBodyText('Subscribe to continue selling', margin: EdgeInsets.symmetric(vertical: 4), lightShade: true),
-          
-          /// (If Does Not Require Subscription But Offline) Custom Store Offline Message (If provided) / We Are Closed
-          if(hasAuthActiveSubscription && !isOnline) offlineMessageWidget
+          /// Reason for denied access e.g "We are currently closed"
+          CustomBodyText(store.attributes.shopperAccess!.description, margin: const EdgeInsets.symmetric(vertical: 4), lightShade: true),
 
         ],
-        
-        /// Store Closure Notice
-        if(!isOpen && !hasJoinedStoreTeam) ...[
 
-          /// Spacer
-          const SizedBox(height: 4),
+        /// Access Denied For Team Member
+        if(hasJoinedStoreTeam && !canAccessAsTeamMember) ...[
 
-          /// Custom Store Offline Message (If provided) / We Are Closed
-          offlineMessageWidget
+          /// Reason for denied access e.g "Subscribe to start selling"
+          CustomBodyText(store.attributes.teamMemberAccess!.description, margin: const EdgeInsets.symmetric(vertical: 4), lightShade: true),
 
-        ]
+        ],
         
       ],
     );

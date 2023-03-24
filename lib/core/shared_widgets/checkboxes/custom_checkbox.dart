@@ -60,9 +60,11 @@ class CustomCheckbox extends StatelessWidget {
           onChanged: disabled ? null : onChanged,
         ),
         
-        GestureDetector(
-          onTap: () => disabled ? null : onChanged(!value),
-          child: (text is Widget) ? text : Text(text),
+        Flexible(
+          child: GestureDetector(
+            onTap: () => disabled ? null : onChanged(!value),
+            child: (text is Widget) ? text : Text(text),
+          ),
         ),
 
         if(link.isNotEmpty) linkContent,

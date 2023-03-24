@@ -1,4 +1,12 @@
+import 'dart:convert';
+
+import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
+import 'package:bonako_demo/features/user/widgets/user_profile/user_orders_in_horizontal_list_view_infinite_scroll.dart';
 
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import '../store_menu/store_menu_modal_bottom_sheet/store_menu_modal_bottom_sheet.dart';
@@ -105,122 +113,253 @@ class _StorePageState extends State<StorePage> {
   }
 }
 
-class StorePageContent extends StatelessWidget {
+class StorePageContent extends StatefulWidget {
 
   final ShoppableStore store;
   
   const StorePageContent({required this.store, Key? key}) : super(key: key);
 
-  double get logoRadius => isOpen && hasDescription  ? 36 : 24;
-  bool get hasDescription => store.description != null;
+  @override
+  State<StorePageContent> createState() => _StorePageContentState();
+}
 
-  bool get isOnline => store.online;
-  bool get isOpen => StoreServices.isOpen(store);
-  bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
-  bool get isClosedButNotTeamMember => StoreServices.isClosedButNotTeamMember(store);
-  bool get hasAuthActiveSubscription => store.relationships.authActiveSubscription != null;
+class _StorePageContentState extends State<StorePageContent> {
+
+  bool isLoading = false;
+
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  User get user => authProvider.user!;
+  ShoppableStore? store;
+
+  void _stopLoader() => setState(() => isLoading = false);
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Set the widget store as the local store
+    store = widget.store;
+
+    /**
+     *  We need to re-fetch this store on two conditions:
+     * 
+     *  1) If the user and store association does not exist. This usually occurs when we
+     *     navigate to this StorePage widget after searching for a store. Stores that
+     *     are being searched don't contain the user and store association 
+     *     relationship. We need this information to know if the user has
+     *     access to the store as a shopper and as a team member.
+     * 
+     *  2) If the store does not have the relationship totals e.g total followers,
+     *     team members, e.t.c. This usually occurs when we navigate to this
+     *     StorePage widget after clicking on a store card from the user's
+     *     profile. Usually such store cards do not request these totals
+     *     so that we can improve performance.
+     */
+
+    final doesNotHaveUserAndStoreAssociation = store!.attributes.userAndStoreAssociation == null;
+    final doesNotHaveRelationshipTotals = store!.teamMembersCount == null ||
+                                          store!.followersCount == null ||
+                                          store!.couponsCount == null ||
+                                          store!.reviewsCount == null ||
+                                          store!.ordersCount == null;
+
+    if(doesNotHaveUserAndStoreAssociation || doesNotHaveRelationshipTotals) {
+      
+      requestStore();
+
+    }
+
+  }
+
+  void requestStore() {
+
+    isLoading = true;
+
+    storeProvider.storeRepository.showStore(
+      storeUrl: store!.links.self.href,
+      withCountTeamMembers: true,
+      withVisitShortcode: true,
+      withCountFollowers: true,
+      withCountReviews: true,
+      withCountCoupons: true,
+      withCountOrders: true,
+      withProducts: true,
+      withRating: true,
+    ).then((response) {
+
+      if(response.statusCode == 200) {
+
+        final responseBody = jsonDecode(response.body);
+
+        setState(() {
+        
+          /// Set the response store as the local store
+          store = ShoppableStore.fromJson(responseBody);
+
+        });
+
+      }
+      
+    }).whenComplete(() {
+
+      _stopLoader();
+
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+  bool canAccessAsTeamMember = isLoading ? false : StoreServices.canAccessAsTeamMember(store!);
+  bool canAccessAsShopper = isLoading ? false : StoreServices.canAccessAsShopper(store!);
+  bool hasJoinedStoreTeam = isLoading ? false : StoreServices.hasJoinedStoreTeam(store!);
+  bool hasDescription = store!.description != null;
+  double logoRadius = canAccessAsShopper && hasDescription ? 36 : 24;
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return isLoading 
+      ? Column(
+        children: [
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+  
+              /// Back Arrow
+              IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
+
+            ],
+          ),
+
+          const CustomCircularProgressIndicator(),
+
+        ],
+      )
+      : SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-    
-                /// Back Arrow
-                IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
 
-                /// Menu Modal Bottom Sheet
-                StoreMenuModalBottomSheet(
-                  store: store,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+        
+                    /// Back Arrow
+                    IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
+
+                    /// Menu Modal Bottom Sheet
+                    StoreMenuModalBottomSheet(
+                      store: store!,
+                    ),
+
+                  ],
+                ),
+        
+                /// Spacer
+                const SizedBox(height: 16,),
+
+                /// Store Logo, Profile, Adverts, Rating, e.t.c
+                StorePrimarySectionContent(
+                  store: store!,
+                  logoRadius: logoRadius, 
+                  showProfileRightSide: false,
                 ),
 
-              ],
-            ),
-    
-            /// Spacer
-            const SizedBox(height: 16,),
-    
-            /// Store Logo, Profile, Adverts, Rating, e.t.c
-            StorePrimarySectionContent(
-              store: store,
-              logoRadius: logoRadius, 
-              showProfileRightSide: false,
-            ),
+                /// Access Denied For Team Member
+                if(hasJoinedStoreTeam && !canAccessAsTeamMember) ...[
 
-        if(!isOpen && hasJoinedStoreTeam && !hasAuthActiveSubscription) ...[
+                  /// Spacer
+                  const SizedBox(height: 20,),
 
-              /// Spacer
-              const SizedBox(height: 20,),
+                  /// Reason for denied access e.g "Subscribe to start selling"
+                  CustomMessageAlert(store!.attributes.teamMemberAccess!.description!),
 
-              /// Subscribe Message Alert
-              const CustomMessageAlert('You cannot access this store until you subscribe'),
-
-              /// Divider
-              const Divider(height: 40,),
-
-              /// Subscribe Modal Bottom Sheet
-              SubscribeToStoreModalBottomSheet(
-                store: store,
-                subscribeButtonAlignment: Alignment.center,
-              )
-            
-            ],
-
-            if(isOpen || isClosedButNotTeamMember) Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
+                  /// Divider
+                  const Divider(height: 40,),
                 
-                /// Add Store To Group Button
-                AddStoreToGroupButton(store: store),
-    
+                ],
+
+                if(canAccessAsShopper) Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    
+                    /// Add Store To Group Button
+                    AddStoreToGroupButton(store: store!),
+        
+                    /// Spacer
+                    const SizedBox(width: 8,),
+
+                    /// Follow / Unfollow Button
+                    FollowStoreButton(store: store!, alignment: Alignment.centerRight),
+
+                  ],
+                ),
+
+                /// Access Denied For Shopper
+                if(!hasJoinedStoreTeam && !canAccessAsShopper) ...[
+
+                  /// Spacer
+                  const SizedBox(height: 20,),
+
+                  /// Reason for denied access e.g "We are currently closed"
+                  CustomMessageAlert(store!.attributes.shopperAccess!.description!),
+                
+                ],
+        
                 /// Spacer
-                const SizedBox(width: 8,),
+                const SizedBox(height: 16,),
+                
+                //  Store Products, Shopping Cart, Subscribe e.t.c
+                ListenableProvider.value(
+                  value: store,
+                  child: const Content()
+                ),
 
-                /// Follow / Unfollow Button
-                FollowStoreButton(store: store, alignment: Alignment.centerRight),
-
+                /// Divider
+                const Divider(height: 40,),
+        
+                /// User Orders
+                UserOrdersInHorizontalListViewInfiniteScroll(
+                  store: store,
+                  user: user,
+                ),
+    
+                //  Spacer
+                const SizedBox(height: 100),
+        
               ],
             ),
-
-            if(!isOpen && !hasJoinedStoreTeam) ...[
-
-              /// Spacer
-              const SizedBox(height: 20,),
-
-              /// Cannot Place Orders Message Alert
-              const CustomMessageAlert('You cannot place orders because the store managers are not available to take orders'),
-            
-            ],
-
-            if(isOnline) ... [
-    
-              /// Spacer
-              const SizedBox(height: 16,),
-              
-              // Shopping Cart
-              ListenableProvider.value(
-                value: store,
-                child: const ShoppingCartContent(
-                  shoppingCartCurrentView: ShoppingCartCurrentView.storePage,
-                )
-              ),
-          
-              //  Spacer
-              const SizedBox(height: 100),
-
-            ],
-    
-          ],
         ),
-      ),
+    );
+  }
+}
+
+class Content extends StatelessWidget {
+
+  const Content({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    
+    /**
+     *  Capture the store that was passed on ListenableProvider.value()
+     *  
+     *  Set listen to "true'" to catch changes at this level of the
+     *  widget tree. For now i have disabled listening as this
+     *  level because i can listen to the store changes from
+     *  directly on the ShoppableProductCards widget level, which is
+     *  a descendant widget of this widget.
+     */
+    ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
+                
+    //  Store Products, Shopping Cart, Subscribe e.t.c
+    return StoreSecondarySectionContent(
+      store: store,
+      subscribeButtonAlignment: Alignment.center,
+      shoppingCartCurrentView: ShoppingCartCurrentView.storePage
     );
   }
 }

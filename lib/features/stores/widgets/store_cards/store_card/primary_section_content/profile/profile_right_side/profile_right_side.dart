@@ -23,8 +23,8 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
 
   ShoppableStore get store => widget.store;
   bool get hasRating => store.rating != null;
-  bool get isOpen => StoreServices.isOpen(store);
   bool get hasAdverts => store.adverts.isNotEmpty;
+  bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
         /// Menu Modal Bottom Sheet
         StoreMenuModalBottomSheet(store: store),
 
-        if(isOpen) ...[
+        if(canAccessAsShopper) ...[
 
           /// Spacer
           const SizedBox(height: 4.0,),

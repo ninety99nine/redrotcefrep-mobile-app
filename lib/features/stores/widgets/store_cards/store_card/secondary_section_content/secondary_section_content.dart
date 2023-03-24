@@ -1,24 +1,24 @@
-import 'package:bonako_demo/core/shared_widgets/checkboxes/custom_checkbox.dart';
 import 'package:bonako_demo/features/products/widgets/modifiable_product_cards/edit_product_cards/edit_product_cards.dart';
 import '../../../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
+import 'package:bonako_demo/core/shared_widgets/checkboxes/custom_checkbox.dart';
 import '../../../../../shopping_cart/widgets/shopping_cart_content.dart';
-import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import '../../../../services/store_services.dart';
 import '../../../../models/shoppable_store.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class StoreSecondarySectionContent extends StatefulWidget {
 
   final ShoppableStore store;
   final bool canShowSubscribeCallToAction;
+  final Alignment subscribeButtonAlignment;
   final ShoppingCartCurrentView shoppingCartCurrentView;
 
   const StoreSecondarySectionContent({
     Key? key,
     required this.store,
     required this.shoppingCartCurrentView,
-    this.canShowSubscribeCallToAction = true
+    this.canShowSubscribeCallToAction = true,
+    this.subscribeButtonAlignment = Alignment.centerRight
   }) : super(key: key);
 
   @override
@@ -27,17 +27,14 @@ class StoreSecondarySectionContent extends StatefulWidget {
 
 class _StoreSecondarySectionContentState extends State<StoreSecondarySectionContent> {
 
-  bool teamMemberWantsToViewAsCustomer = false;
-
   ShoppableStore get store => widget.store;
-  bool get isOpen => StoreServices.isOpen(store);
   bool get hasProducts => store.relationships.products.isNotEmpty;
-  bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
-  bool get hasSelectedFollowing => homeProvider.hasSelectedFollowing;
+  bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
+  Alignment get subscribeButtonAlignment => widget.subscribeButtonAlignment;
   bool get canShowSubscribeCallToAction => widget.canShowSubscribeCallToAction;
+  bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(widget.store);
-  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
-  bool get hasAuthActiveSubscription => store.relationships.authActiveSubscription != null;
+  bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
 
   @override
   Widget build(BuildContext context) {
@@ -45,39 +42,42 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
     return Column(
       children: [
 
-        if(!isOpen && hasJoinedStoreTeam && !hasAuthActiveSubscription && canShowSubscribeCallToAction) ...[
-
-          /// Subscribe Modal Bottom Sheet
-          SubscribeToStoreModalBottomSheet(store: widget.store)
-
-        ],
-
         /// View As Customer Checkbox
-        if(hasSelectedMyStores && hasProducts) ...[
+        if(canAccessAsTeamMember && hasProducts) ...[
 
           CustomCheckbox(
             value: teamMemberWantsToViewAsCustomer,
             text: 'View as customer',
             onChanged: (value) {
-              setState(() => teamMemberWantsToViewAsCustomer = value ?? false); 
+              if(value != null) store.updateTeamMemberWantsToViewAsCustomer(value);
             }
           ),
 
         ],
 
-        /// Shopping Cart (If selected the Following Tab)
-        if((isOpen && hasSelectedFollowing) || teamMemberWantsToViewAsCustomer) ShoppingCartContent(
+        /// Shopping Cart
+        if((!hasJoinedStoreTeam && canAccessAsShopper) || (hasJoinedStoreTeam && canAccessAsTeamMember && teamMemberWantsToViewAsCustomer)) ShoppingCartContent(
           shoppingCartCurrentView: widget.shoppingCartCurrentView
         ),
 
-        /// Create Product Button (If selected the My Stores Tab)
-        if(hasSelectedMyStores && hasAuthActiveSubscription && !teamMemberWantsToViewAsCustomer) ...[
+        /// Edit Product Cards
+        if(hasJoinedStoreTeam && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer)  ...[
 
-          /// Create Product Button
           EditProductCards(
             shoppingCartCurrentView: widget.shoppingCartCurrentView
           )
-        ]
+
+        ],
+
+        /// Subscribe Modal Bottom Sheet
+        if(hasJoinedStoreTeam && !canAccessAsTeamMember && canShowSubscribeCallToAction) ...[
+
+          SubscribeToStoreModalBottomSheet(
+            store: widget.store,
+            subscribeButtonAlignment: subscribeButtonAlignment,
+          )
+
+        ],
 
       ],
     );

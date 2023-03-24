@@ -74,14 +74,13 @@ class Content extends StatelessWidget {
      *  a descendant widget of this widget.
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
-    HomeProvider homeProvider = Provider.of<HomeProvider>(context, listen: false);
-
-    print('Build Store Card #${store.id}');
-
-    bool hasSelectedFollowing = homeProvider.hasSelectedFollowing;
-    bool hasSelectedMyStores = homeProvider.hasSelectedMyStores;
+    
+    bool canAccessAsTeamMember = StoreServices.canAccessAsTeamMember(store);
+    bool hasJoinedStoreTeam = StoreServices.hasJoinedStoreTeam(store);
+    bool canAccessAsShopper = StoreServices.canAccessAsShopper(store);
     bool hasProducts = store.relationships.products.isNotEmpty;
-    bool isOpen = StoreServices.isOpen(store);
+    
+    print('Build Store Card #${store.id}');
 
     return CustomCard(
       key: ValueKey<int>(store.id),
@@ -93,8 +92,13 @@ class Content extends StatelessWidget {
           //  Store Logo, Profile, Adverts, Rating, e.t.c
           StorePrimarySectionContent(store: store),
           
-          //  Spacer
-          if(isOpen && (hasSelectedMyStores || (hasSelectedFollowing && hasProducts))) const SizedBox(height: 8),
+          /**
+           *  Show the spacer if:
+           * 
+           *  1) This is a shopper and we have products to show
+           *  2) This is a team member
+           */
+          if((!hasJoinedStoreTeam && canAccessAsShopper && hasProducts) || (hasJoinedStoreTeam && canAccessAsTeamMember)) const SizedBox(height: 8),
     
           //  Store Products, Shopping Cart, Subscribe e.t.c
           StoreSecondarySectionContent(

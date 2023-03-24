@@ -1,4 +1,5 @@
 import 'package:bonako_demo/features/home/services/home_service.dart';
+import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
 
 import '../../../features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_popup.dart';
 import '../../../features/authentication/providers/auth_provider.dart';
@@ -151,6 +152,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  Widget get floatingActionButtons {
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        
+        /// QR Code Scanner Modal Bottom Sheet
+        qrCodeScannerModalBottomSheet,
+
+        /// Search Modal Bottom Sheet
+        searchModalBottomSheet,
+
+      ],
+    );
+
+  }
+
+  Widget get qrCodeScannerModalBottomSheet {
+    return const QRCodeScannerModalBottomSheet();
+  }
+
   Widget get searchModalBottomSheet {
     return const SearchModalBottomSheet();
   }
@@ -158,7 +180,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: searchModalBottomSheet,
+      floatingActionButton: floatingActionButtons,
       drawer: const NavigationDrawer(),
       appBar: appBar,
       body: body,

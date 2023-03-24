@@ -362,19 +362,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalListView
       },
 
     /// On Error
-    ).catchError((e) {
-
-      if(mounted) {
-
-        /// We have a client side error
-        setHasError(true);
-
-        /// Show the Snackbar error message
-        SnackbarUtility.showErrorMessage(message: catchErrorMessage);
-
-      }
-
-    });
+    );
 
   }
 

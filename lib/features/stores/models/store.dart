@@ -1,3 +1,6 @@
+import 'package:bonako_demo/features/stores/models/shopper_access.dart';
+import 'package:bonako_demo/features/stores/models/team_member_access.dart';
+
 import '../../../../core/shared_models/user_and_store_association.dart';
 import '../../../../core/shared_models/shortcode.dart';
 import '../../subscriptions/models/subscription.dart';
@@ -52,9 +55,13 @@ class Store {
 }
 
 class Attributes {
+  late ShopperAccess? shopperAccess;
+  late TeamMemberAccess? teamMemberAccess;
   late UserAndStoreAssociation? userAndStoreAssociation;
 
   Attributes.fromJson(Map<String, dynamic> json) {
+    shopperAccess = json['shopperAccess'] == null ? null : ShopperAccess.fromJson(json['shopperAccess']);
+    teamMemberAccess = json['teamMemberAccess'] == null ? null : TeamMemberAccess.fromJson(json['teamMemberAccess']);
     userAndStoreAssociation = json['userAndStoreAssociation'] == null ? null : UserAndStoreAssociation.fromJson(json['userAndStoreAssociation']);
   }
 }
@@ -62,12 +69,10 @@ class Attributes {
 class Relationships {
   late List<Product> products;
   late Shortcode? visitShortcode;
-  late Subscription? authActiveSubscription;
 
   Relationships.fromJson(Map<String, dynamic> json) {
     visitShortcode = json['visitShortcode'] == null ? null : Shortcode.fromJson(json['visitShortcode']);
     products = json['products'] == null ? [] : (json['products'] as List).map((product) => Product.fromJson(product)).toList();
-    authActiveSubscription = json['authActiveSubscription'] == null ? null : Subscription.fromJson(json['authActiveSubscription']);
   }
 }
 

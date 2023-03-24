@@ -35,8 +35,30 @@ class OrderRepository {
     
   }
 
+  /// Generate the collection code
+  Future<http.Response> generateCollectionCode() {
+    
+    if(order == null) throw Exception('The order must be set to generate the collection code');
+
+    String url = order!.links.generateCollectionCode.href;
+
+    return apiRepository.post(url: url);
+    
+  }
+
+  /// Revoke the collection code
+  Future<http.Response> revokeCollectionCode() {
+    
+    if(order == null) throw Exception('The order must be set to revoke the collection code');
+
+    String url = order!.links.revokeCollectionCode.href;
+
+    return apiRepository.post(url: url);
+    
+  }
+
   /// Update the status of the specified order
-  Future<http.Response> updateStatus({ required String status, String? collectionConfirmationCode, bool withCart = false, bool withCustomer = false, bool withTransactions = false, BuildContext? context }) {
+  Future<http.Response> updateStatus({ required String status, String? collectionCode, bool withCart = false, bool withCustomer = false, bool withTransactions = false, BuildContext? context }) {
     
     if(order == null) throw Exception('The order must be set to update status');
 
@@ -51,9 +73,9 @@ class OrderRepository {
       'status': status
     };
 
-    if(collectionConfirmationCode != null) {
+    if(collectionCode != null) {
       body.addAll({
-        'collection_confirmation_code': collectionConfirmationCode
+        'collection_code': collectionCode
       });
     }
 
