@@ -5,7 +5,7 @@ import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/logo.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
@@ -185,6 +185,7 @@ class _OrderItemState extends State<OrderItem> {
     return OrdersModalBottomSheet(
       store: store,
       order: order,
+      canShowFloatingActionButton: false,
       trigger: Container(
         margin: const EdgeInsets.only(right: 8),
         width: MediaQuery.of(context).size.width * 0.8,

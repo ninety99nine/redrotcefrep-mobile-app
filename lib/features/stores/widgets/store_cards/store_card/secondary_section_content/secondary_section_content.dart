@@ -1,4 +1,5 @@
 import 'package:bonako_demo/features/products/widgets/modifiable_product_cards/edit_product_cards/edit_product_cards.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import '../../../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/checkboxes/custom_checkbox.dart';
 import '../../../../../shopping_cart/widgets/shopping_cart_content.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 
 class StoreSecondarySectionContent extends StatefulWidget {
 
+  final bool canShowAdverts;
   final ShoppableStore store;
   final bool canShowSubscribeCallToAction;
   final Alignment subscribeButtonAlignment;
@@ -16,6 +18,7 @@ class StoreSecondarySectionContent extends StatefulWidget {
   const StoreSecondarySectionContent({
     Key? key,
     required this.store,
+    this.canShowAdverts = true,
     required this.shoppingCartCurrentView,
     this.canShowSubscribeCallToAction = true,
     this.subscribeButtonAlignment = Alignment.centerRight
@@ -28,6 +31,7 @@ class StoreSecondarySectionContent extends StatefulWidget {
 class _StoreSecondarySectionContentState extends State<StoreSecondarySectionContent> {
 
   ShoppableStore get store => widget.store;
+  bool get canShowAdverts => widget.canShowAdverts;
   bool get hasProducts => store.relationships.products.isNotEmpty;
   bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
   Alignment get subscribeButtonAlignment => widget.subscribeButtonAlignment;
@@ -52,6 +56,16 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
               if(value != null) store.updateTeamMemberWantsToViewAsCustomer(value);
             }
           ),
+
+        ],
+
+        if(canShowAdverts && (canAccessAsShopper || canAccessAsTeamMember)) ...[
+        
+          /// Store Adverts
+          StoreAdvertCarousel(store: store),
+
+          /// Spacer
+          const SizedBox(height: 16,),
 
         ],
 

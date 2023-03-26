@@ -1,3 +1,6 @@
+import 'package:bonako_demo/features/orders/providers/order_provider.dart';
+import 'package:get/get.dart';
+
 import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../user/widgets/customer_profile/customer_profile_avatar.dart';
@@ -18,12 +21,14 @@ class OrdersContent extends StatefulWidget {
   final Order? order;
   final ShoppableStore store;
   final bool showingFullPage;
+  final bool canShowFloatingActionButton;
 
   const OrdersContent({
     super.key,
     this.order,
     required this.store,
-    this.showingFullPage = false
+    this.showingFullPage = false,
+    this.canShowFloatingActionButton = true
   });
 
   @override
@@ -45,8 +50,15 @@ class _OrdersContentState extends State<OrdersContent> {
   ShoppableStore get store => widget.store;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
+
+  /// canShowFloatingActionButton: Sometimes when we are showing a very specific order, we might not
+  /// want the user to have the ability to go back and view the list of other orders, which shows a 
+  /// list of orders by this user as well as by other users. In this case we might want to hide the 
+  /// floating action button completely so that the "Back" option does not appear.
+  bool get canShowFloatingActionButton => widget.canShowFloatingActionButton;
   bool get isViewingOrder => orderContentView == OrderContentView.viewingOrder;
   bool get isViewingOrders => orderContentView == OrderContentView.viewingOrders;
+  OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   String get subtitle => isViewingOrders ?  'See what others are ordering' : 'Place a new order';
 
@@ -68,7 +80,7 @@ class _OrdersContentState extends State<OrdersContent> {
 
       order = widget.order;
       orderContentView = OrderContentView.viewingOrder;
-
+      
     }
 
   }
@@ -273,7 +285,13 @@ class _OrdersContentState extends State<OrdersContent> {
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(OrdersPage.routeName);
+                Get.toNamed(
+                  OrdersPage.routeName,
+                  arguments: {
+                    'order': order,
+                    'canShowFloatingActionButton': canShowFloatingActionButton
+                  }
+                );
               
               }
             ),
@@ -290,7 +308,7 @@ class _OrdersContentState extends State<OrdersContent> {
           ),
   
           /// Floating Button
-          AnimatedPositioned(
+          if(canShowFloatingActionButton) AnimatedPositioned(
             right: 10,
             duration: const Duration(milliseconds: 500),
             top: (isViewingOrders ? 112 : (isViewingOrder ? 52 : 64)) + topPadding,

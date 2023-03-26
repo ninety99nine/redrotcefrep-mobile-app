@@ -3,7 +3,7 @@ import '../../../../../../../rating/widgets/rating_show_using_stars.dart';
 import '../../../../../add_store_to_group/add_to_group_button.dart';
 import '../../../../../../services/store_services.dart';
 import '../../../../../../models/shoppable_store.dart';
-import 'adverts/advert_avatar_popup.dart';
+import 'adverts/show_adverts/advert_avatar_popup.dart';
 import 'package:flutter/material.dart';
 
 class StoreProfileRightSide extends StatefulWidget {
@@ -54,9 +54,10 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
           /// Spacer
           const SizedBox(height: 4.0,),
 
+          /// Add Store To Group Button
           AddStoreToGroupButton(store: store)
 
-        ]
+        ],
 
       ]
     );

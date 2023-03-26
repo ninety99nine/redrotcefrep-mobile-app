@@ -10,12 +10,14 @@ class OrdersModalBottomSheet extends StatefulWidget {
   final Order? order;
   final Widget? trigger;
   final ShoppableStore store;
+  final bool canShowFloatingActionButton;
 
   const OrdersModalBottomSheet({
     super.key,
     this.order,
     this.trigger,
-    required this.store
+    required this.store,
+    this.canShowFloatingActionButton = true
   });
 
   @override
@@ -28,6 +30,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
   Order? get order => widget.order;
   ShoppableStore get store => widget.store;
   String get totalOrders => store.ordersCount.toString();
+  bool get canShowFloatingActionButton => widget.canShowFloatingActionButton;
   String get totalOrdersText => store.ordersCount == 1 ? 'Order' : 'Orders';
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
@@ -134,6 +137,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
       trigger: trigger,
       /// Content of the bottom modal sheet
       content: OrdersContent(
+        canShowFloatingActionButton: canShowFloatingActionButton,
         store: store,
         order: order
       ),

@@ -1,7 +1,7 @@
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../store_cards/store_card/primary_section_content/logo.dart';
+import '../store_cards/store_card/primary_section_content/store_logo.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_models/shortcode.dart';
 import '../../../../core/utils/snackbar.dart';

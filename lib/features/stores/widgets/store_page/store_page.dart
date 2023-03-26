@@ -5,6 +5,7 @@ import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
 import 'package:bonako_demo/features/user/widgets/user_profile/user_orders_in_horizontal_list_view_infinite_scroll.dart';
 
@@ -306,20 +307,24 @@ class _StorePageContentState extends State<StorePageContent> {
 
                   /// Reason for denied access e.g "We are currently closed"
                   CustomMessageAlert(store!.attributes.shopperAccess!.description!),
+
+                  /// Divider
+                  const Divider(height: 40,),
                 
                 ],
-        
-                /// Spacer
-                const SizedBox(height: 16,),
                 
                 //  Store Products, Shopping Cart, Subscribe e.t.c
-                ListenableProvider.value(
-                  value: store,
-                  child: const Content()
-                ),
+                if(hasJoinedStoreTeam || (!hasJoinedStoreTeam && canAccessAsShopper)) ...[
+                  
+                  ListenableProvider.value(
+                    value: store,
+                    child: const Content()
+                  ),
 
-                /// Divider
-                const Divider(height: 40,),
+                  /// Divider
+                  const Divider(height: 40,),
+
+                ],
         
                 /// User Orders
                 UserOrdersInHorizontalListViewInfiniteScroll(
@@ -348,18 +353,35 @@ class Content extends StatelessWidget {
      *  Capture the store that was passed on ListenableProvider.value()
      *  
      *  Set listen to "true'" to catch changes at this level of the
-     *  widget tree. For now i have disabled listening as this
+     *  widget tree. For now i have disabled listening at this
      *  level because i can listen to the store changes from
-     *  directly on the ShoppableProductCards widget level, which is
-     *  a descendant widget of this widget.
+     *  directly on the ShoppableProductCards widget level, 
+     *  which is a descendant widget of this widget.
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
                 
-    //  Store Products, Shopping Cart, Subscribe e.t.c
-    return StoreSecondarySectionContent(
-      store: store,
-      subscribeButtonAlignment: Alignment.center,
-      shoppingCartCurrentView: ShoppingCartCurrentView.storePage
+    /**
+     *  The StoreSecondarySectionContent() widgets is placed here so that they can listen 
+     *  to changes on the store and pickup those new updates e.g Whenever we toggle the 
+     *  teamMemberWantsToViewAsCustomer on the ShoppableStore model, we execute the 
+     *  notifyListeners() method so that this change and be picked up by these 
+     *  widgets and render the UI to reflect whether we want to view as a 
+     *  customer or a team member. This is not the only type of update,
+     *  but the idea applies across any update on the store model that
+     *  requires widgets to rebuild.
+     */
+
+    /// Store Adverts, Products, Shopping Cart, Subscribe e.t.c
+    return Column(
+      children: [
+
+        StoreSecondarySectionContent(
+          store: store,
+          subscribeButtonAlignment: Alignment.center,
+          shoppingCartCurrentView: ShoppingCartCurrentView.storePage
+        ),
+        
+      ],
     );
   }
 }

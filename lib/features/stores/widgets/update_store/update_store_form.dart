@@ -10,6 +10,7 @@ import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -156,10 +157,18 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: storeForm.isEmpty ? [] : [
+
+              /// Store Logo
+              StoreLogo(
+                radius: 32,
+                store: store,
+                canChangeLogo: true,
+              ),
               
               /// Spacer
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               /// Name
               CustomTextFormField(

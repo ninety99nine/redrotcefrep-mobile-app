@@ -1,5 +1,5 @@
 import '../../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
-import '../../../../stores/widgets/store_cards/store_card/primary_section_content/logo.dart';
+import '../../../../stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../features/orders/widgets/order_show/order_status.dart';
 import '../../../../friend_groups/providers/friend_group_provider.dart';

@@ -1,7 +1,7 @@
 import '../../../../models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import 'profile/profile.dart';
-import 'logo.dart';
+import 'store_logo.dart';
 
 class StorePrimarySectionContent extends StatefulWidget {
 

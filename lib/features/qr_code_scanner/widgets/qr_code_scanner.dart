@@ -37,18 +37,10 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
   @override
   void didUpdateWidget(covariant QRCodeScanner oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    print('cameraController.isStarting');
-    print(cameraController.isStarting);
-    
-    print('isLoading');
-    print(isLoading);
 
     if(isLoading == true) {
-      print('cameraController.stop()');
       cameraController.stop();
     }else if(isLoading == false) {
-      print('cameraController.start()');
       cameraController.start();
     }
   }

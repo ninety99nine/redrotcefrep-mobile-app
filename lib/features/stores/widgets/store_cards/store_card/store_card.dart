@@ -103,6 +103,7 @@ class Content extends StatelessWidget {
           //  Store Products, Shopping Cart, Subscribe e.t.c
           StoreSecondarySectionContent(
             store: store,
+            canShowAdverts: false,
             shoppingCartCurrentView: ShoppingCartCurrentView.storeCard
           ),
           

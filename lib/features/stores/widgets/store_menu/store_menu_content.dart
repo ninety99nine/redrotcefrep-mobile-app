@@ -4,7 +4,7 @@ import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
-import '../store_cards/store_card/primary_section_content/logo.dart';
+import '../store_cards/store_card/primary_section_content/store_logo.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../add_store_to_group/add_to_group_button.dart';
@@ -69,6 +69,11 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
         'name': 'Subscribe',
       });
     }
+    
+    menus.add({
+      'icon': Icons.arrow_forward,
+      'name': 'Visit Store',
+    });
     
     if(StoreServices.isAssociatedAsCreator(store)) {
       menus.add({
@@ -165,14 +170,22 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
   }
 
   bool canTap(String name) {
-    return ['Delete Store', 'Remove From Group'].contains(name);
+    return ['Visit Store', 'Delete Store', 'Remove From Group'].contains(name);
   }
 
   void onTap(String name) async {
-    if(name == 'Delete Store') {
+    if(name == 'Visit Store') {
+      
+      visitStore();
+
+    }else if(name == 'Delete Store') {
+      
       confirmDeleteStore();
+    
     }else if(name == 'Remove From Group') {
+      
       confirmRemoveFromGroup();
+    
     }
   }
 
@@ -261,6 +274,17 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       _stopLoader();
 
     });
+  }
+
+  /// Visit the store
+  void visitStore() {
+
+    /// Close the modal bottom sheet
+    Get.back();
+    
+    /// Navigate to the store page
+    StoreServices.navigateToStorePage(store);
+    
   }
 
   /// Confirm remove the store from group

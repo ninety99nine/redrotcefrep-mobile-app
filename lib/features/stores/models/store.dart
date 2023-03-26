@@ -79,10 +79,14 @@ class Relationships {
 class Links {
   late Link self;
   late Link showOrders;
+  late Link updateLogo;
   late Link deleteStore;
   late Link updateStore;
   late Link showReviews;
   late Link showCoupons;
+  late Link updateAdvert;
+  late Link createAdvert;
+  late Link deleteAdvert;
   late Link createReviews;
   late Link createProducts;
   late Link showFollowers;
@@ -114,11 +118,15 @@ class Links {
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
+    updateLogo = Link.fromJson(json['updateLogo']);
     showOrders = Link.fromJson(json['showOrders']);
     updateStore = Link.fromJson(json['updateStore']);
     deleteStore = Link.fromJson(json['deleteStore']);
     showReviews = Link.fromJson(json['showReviews']);
     showCoupons = Link.fromJson(json['showCoupons']);
+    updateAdvert = Link.fromJson(json['updateAdvert']);
+    createAdvert = Link.fromJson(json['createAdvert']);
+    deleteAdvert = Link.fromJson(json['deleteAdvert']);
     createReviews = Link.fromJson(json['createReviews']);
     showFollowers = Link.fromJson(json['showFollowers']);
     showFollowing = Link.fromJson(json['showFollowing']);

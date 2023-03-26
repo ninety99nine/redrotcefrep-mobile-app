@@ -5,16 +5,16 @@ import 'dart:convert';
 
 class ApiRepository {
 
-  String? _bearerToken;
+  String? bearerToken;
 
   Map<String, String> get _apiHeaders => {
-    'Authorization': 'Bearer $_bearerToken',
+    'Authorization': 'Bearer $bearerToken',
     'Content-Type': 'application/json'
   };
 
   /// Set the bearer token
   ApiRepository setBearerToken(String? bearerToken) {
-    _bearerToken = bearerToken;
+    this.bearerToken = bearerToken;
     return this;
   }
 
@@ -55,18 +55,18 @@ class ApiRepository {
     url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
 
     print('get url $url');
-    print('_bearerToken: $_bearerToken');
+    print('_bearerToken: $bearerToken');
 
     return http.get(
       Uri.parse(url),
       headers: _apiHeaders,
     ).then((response) {
 
-      ApiService.handleRequestFailure(response, context);
+      ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
-      ApiService.handleApplicationFailure(error, context);
+      ApiService.handleApplicationFailure(error);
       throw(error);
       
     });
@@ -81,7 +81,7 @@ class ApiRepository {
     url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
     
     print('post url $url');
-    print('_bearerToken: $_bearerToken');
+    print('_bearerToken: $bearerToken');
     print('post body');
     print(body);
 
@@ -91,12 +91,12 @@ class ApiRepository {
       body: jsonEncode(body),
     ).then((response) {
 
-      ApiService.handleRequestFailure(response, context);
+      ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
 
-      ApiService.handleApplicationFailure(error, context);
+      ApiService.handleApplicationFailure(error);
       throw(error);
       
     });
@@ -121,12 +121,12 @@ class ApiRepository {
       body: jsonEncode(body),
     ).then((response) {
       
-      ApiService.handleRequestFailure(response, context);
+      ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
       
-      ApiService.handleApplicationFailure(error, context);
+      ApiService.handleApplicationFailure(error);
       throw(error);
       
     });
@@ -150,12 +150,12 @@ class ApiRepository {
       body: jsonEncode(body),
     ).then((response) {
 
-      ApiService.handleRequestFailure(response, context);
+      ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
 
-      ApiService.handleApplicationFailure(error, context);
+      ApiService.handleApplicationFailure(error);
       throw(error);
       
     });
@@ -179,12 +179,12 @@ class ApiRepository {
       body: jsonEncode(body),
     ).then((response) {
 
-      ApiService.handleRequestFailure(response, context);
+      ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
 
-      ApiService.handleApplicationFailure(error, context);
+      ApiService.handleApplicationFailure(error);
       throw(error);
       
     });

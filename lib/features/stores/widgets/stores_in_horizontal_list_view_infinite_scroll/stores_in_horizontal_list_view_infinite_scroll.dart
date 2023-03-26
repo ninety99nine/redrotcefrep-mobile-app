@@ -4,7 +4,7 @@ import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_v
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_models/user_and_store_association.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../store_cards/store_card/primary_section_content/logo.dart';
+import '../store_cards/store_card/primary_section_content/store_logo.dart';
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:timeago/timeago.dart' as timeago;

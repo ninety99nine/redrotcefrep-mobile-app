@@ -33,8 +33,8 @@ class CreateProductModalBottomSheetState extends State<CreateProductModalBottomS
 
   Product? get product => widget.product;
   ShoppableStore get store => widget.store;
-  Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
   Widget Function(void Function())? get trigger => widget.trigger;
+  Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
   Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
 

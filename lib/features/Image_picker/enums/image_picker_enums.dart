@@ -1,0 +1,4 @@
+enum SubmitMethod {
+  put,
+  post
+}

@@ -62,52 +62,67 @@ class ApiService {
   }
 
   /// Handle the request failure
-  static void handleRequestFailure(http.Response response, BuildContext? context) {
+  static void handleRequestFailure({ required http.Response response, bool ignoreValidationErrors = false }) {
 
-    /// Get the response body
-    final responseBody = jsonDecode(response.body);
+    try {
 
-    /// If the request status code is 400 or greater
-    if(response.statusCode >= 400) {
+      /// Get the response body
+      final responseBody = jsonDecode(response.body);
 
-      /// Check if this is a 401 Unauthorized Request
-      if(response.statusCode == 401) {
+      /// If the request status code is 400 or greater
+      if(response.statusCode >= 400) {
 
-        /// Navigate to the page 
-        Get.toNamed(
-          LandingPage.routeName
-        );
+        /// Check if this is a 401 Unauthorized Request
+        if(response.statusCode == 401) {
 
-        /// Show the unauthorized message
-        SnackbarUtility.showInfoMessage(message: responseBody['message']);
+          /// Navigate to the page 
+          Get.toNamed(
+            LandingPage.routeName
+          );
 
-      }else {
+          /// Show the unauthorized message
+          SnackbarUtility.showInfoMessage(message: responseBody['message']);
 
-        /// If the response body contains a message
-        if(responseBody.containsKey('message')) {
+        }else {
 
-          /// Show the error message
-          SnackbarUtility.showErrorMessage(message: responseBody['message']);
+          /// If the response body contains a message
+          if(responseBody.containsKey('message')) {
 
-          print(responseBody['error']);
+            if( !(response.statusCode == 422 && ignoreValidationErrors == true) ) {
 
-        }else{
+              /// Show the error message
+              SnackbarUtility.showErrorMessage(message: responseBody['message']);
 
-          /// Throw an exception since we don't have the Api Error Message to show
-          /// using a snackbar. The method responsible for making this Request 
-          /// can catch this Exception and show a more meaningful error.
-          throw Exception('Request Failed');
+            }
+
+            print(responseBody['error']);
+
+          }else{
+
+            /// Throw an exception since we don't have the Api Error Message to show
+            /// using a snackbar. The method responsible for making this Request 
+            /// can catch this Exception and show a more meaningful error.
+            throw Exception('Request Failed');
+
+          }
 
         }
 
       }
+
+    } catch (e) {
+
+      e.printError();
+      
+      /// Show the error message e.g when the jsonDecode(response.body) fails
+      SnackbarUtility.showErrorMessage(message: e.toString());
 
     }
 
   }
 
   /// Handle the application failure
-  static void handleApplicationFailure(error, BuildContext? context) {
+  static void handleApplicationFailure(error) {
 
   }
 

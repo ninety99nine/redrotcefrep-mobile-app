@@ -1,5 +1,5 @@
-import '../../../../../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../../../../../models/shoppable_store.dart';
+import '../../../../../../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../../../../../models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import 'advert_carousel.dart';
 
