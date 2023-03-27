@@ -1,3 +1,6 @@
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/user/providers/user_provider.dart';
+
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/services/store_services.dart';
@@ -11,12 +14,12 @@ import 'dart:convert';
 class OrderFilters extends StatefulWidget {
   
   final String orderFilter;
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final Function(String) onSelectedOrderFilter;
 
   const OrderFilters({
     super.key,
-    required this.store,
+    this.store,
     required this.orderFilter,
     required this.onSelectedOrderFilter
   });
@@ -30,11 +33,13 @@ class OrderFiltersState extends State<OrderFilters> {
   String? orderFilter;
   model.OrderFilters? orderFilters;
 
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   bool get hasOrderFilters => orderFilters != null;
   Function(String) get onSelectedOrderFilter => widget.onSelectedOrderFilter;
-  bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+  bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
   
   @override
   void initState() {
@@ -50,9 +55,24 @@ class OrderFiltersState extends State<OrderFilters> {
   /// This will allow us to show filters that can be used
   /// to filter the results of orders returned on each request
   void requestStoreOrderFilters() {
+
+    Future<http.Response> request;
+
+    /// If the store is not provided
+    if( store == null ) {
+
+      /// Request the user order filters
+      request = userProvider.setUser(authProvider.user!).userRepository.showOrderFilters();
+
+    /// If the store is provided
+    }else{
+
+      /// Request the store order filters
+      request = storeProvider.setStore(store!).storeRepository.showOrderFilters();
+      
+    }
     
-    storeProvider.setStore(store).storeRepository.showOrderFilters()
-    .then((http.Response response) {
+    request.then((http.Response response) {
 
       if(!mounted) return;
 
@@ -112,7 +132,7 @@ class OrderFiltersState extends State<OrderFilters> {
                     if(canManageOrders == false) {
               
                       /// Return only the "All" and "Me" filter
-                      return ['All', 'Me'].contains(filter.name);
+                      return ['All', 'Me', 'Friends'].contains(filter.name);
               
                     }
 

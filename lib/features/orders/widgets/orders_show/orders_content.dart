@@ -19,7 +19,7 @@ import 'order_filters.dart';
 class OrdersContent extends StatefulWidget {
 
   final Order? order;
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final bool showingFullPage;
   final bool canShowFloatingActionButton;
 
@@ -47,7 +47,7 @@ class _OrdersContentState extends State<OrdersContent> {
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   GlobalKey<OrderFiltersState>? _orderFiltersState;
 
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
 
@@ -106,7 +106,7 @@ class _OrdersContentState extends State<OrdersContent> {
 
       /// Show the add order view
       return OrderCreate(
-        store: store,
+        store: store!,
         onLoading: onLoading,
         onCreatedOrder: onCreatedOrder
       );
@@ -282,7 +282,7 @@ class _OrdersContentState extends State<OrdersContent> {
                 Navigator.of(context).pop();
 
                 /// Set the store
-                storeProvider.setStore(store);
+                if(store != null) storeProvider.setStore(store!);
                 
                 /// Navigate to the page
                 Get.toNamed(

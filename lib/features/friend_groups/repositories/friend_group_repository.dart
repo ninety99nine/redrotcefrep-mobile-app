@@ -30,7 +30,7 @@ class FriendGroupRepository {
   /// Show friend group menus
   Future<http.Response> showFriendGroupMenus({ BuildContext? context }){
     
-    final url =  user.links.showFriendGroupMenus!.href;
+    final url =  user.links.showFriendGroupMenus.href;
 
     return apiRepository.get(url: url, context: context);
     
@@ -39,7 +39,7 @@ class FriendGroupRepository {
   /// Show friend groups
   Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, bool withCountOrders = false, String searchWord = '', int? page = 1, BuildContext? context }){
 
-    final url =  user.links.showFriendGroups!.href;
+    final url =  user.links.showFriendGroups.href;
 
     Map<String, String> queryParams = {};
 
@@ -61,7 +61,7 @@ class FriendGroupRepository {
   /// Remove friend groups
   Future<http.Response> createFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends, BuildContext? context }) {
 
-    String url = user.links.createFriendGroups!.href;
+    String url = user.links.createFriendGroups.href;
 
     List<String> mobileNumbers = friends.map((friend) {
         return friend.mobileNumber!.withExtension;
@@ -125,7 +125,7 @@ class FriendGroupRepository {
   /// Delete friend groups
   Future<http.Response> deleteFriendGroups({ required List<FriendGroup> friendGroups, BuildContext? context }) {
 
-    String url = user.links.deleteFriendGroups!.href;
+    String url = user.links.deleteFriendGroups.href;
 
     List<int> friendGroupIds = friendGroups.map((friendGroup) {
         return friendGroup.id;
@@ -177,7 +177,7 @@ class FriendGroupRepository {
   /// Show last selected friend group
   Future<http.Response> showLastSelectedFriendGroup({ BuildContext? context }) {
 
-    final url = user.links.showLastSelectedFriendGroup!.href;
+    final url = user.links.showLastSelectedFriendGroup.href;
 
     return apiRepository.get(url: url, context: context);
   
@@ -186,7 +186,7 @@ class FriendGroupRepository {
   /// Update last selected friend groups
   Future<http.Response> updateLastSelectedFriendGroups({ required List<FriendGroup> friendGroups, BuildContext? context }) {
 
-    final url = user.links.updateLastSelectedFriendGroups!.href;
+    final url = user.links.updateLastSelectedFriendGroups.href;
 
     List<int> friendGroupIds = friendGroups.map((friendGroup) {
         return friendGroup.id;

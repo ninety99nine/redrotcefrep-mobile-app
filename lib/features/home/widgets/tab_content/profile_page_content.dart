@@ -57,6 +57,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
               const StoresInHorizontalListViewInfiniteScroll(
                 userAssociation: UserAssociation.recentVisiter,
               ),
+              
               /// Spacer
               const SizedBox(height: 100),
         

@@ -58,6 +58,7 @@ dependencies:
   audioplayers: ^3.0.1
   cached_network_image: ^3.2.3
   image_picker: ^0.8.7
+  flutter_countdown_timer: ^4.1.0
 
 dev_dependencies:
   flutter_test:

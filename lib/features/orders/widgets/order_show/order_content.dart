@@ -1,10 +1,14 @@
 import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
 import 'package:bonako_demo/core/shared_widgets/checkboxes/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_dialog/qr_code_scanner_dialog.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../../core/shared_widgets/text_form_fields/custom_one_time_pin_field.dart';
 import '../../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
@@ -23,6 +27,8 @@ import '../../../../../core/utils/snackbar.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../../providers/order_provider.dart';
 import 'package:collection/collection.dart';
+
+import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/utils/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +41,7 @@ class OrderContent extends StatefulWidget {
   
   final Order order;
   final Color? color;
+  final bool showLogo;
   final bool triggerCancel;
   final ShoppableStore store;
   final Function(Order)? onUpdatedOrder;
@@ -46,6 +53,7 @@ class OrderContent extends StatefulWidget {
     required this.store,
     required this.order,
     this.onUpdatedOrder,
+    this.showLogo = false,
     this.triggerCancel = false,
     this.onRequestedOrderRelationships,
   }) : super(key: key);
@@ -66,6 +74,7 @@ class OrderContentState extends State<OrderContent> {
   NameAndDescription? selectedFollowUpStatus;
 
   Color? get color => widget.color;
+  bool get showLogo => widget.showLogo;
   ShoppableStore get store => widget.store;
   String get statusName => order.status.name;
   bool get hasBeenSeen => totalViewsByTeam > 0;
@@ -77,14 +86,17 @@ class OrderContentState extends State<OrderContent> {
   bool get isCompleted => statusName.toLowerCase() == 'completed';
   bool get canCollect => userAndOrderAssociation?.canCollect == true;
   String? get collectionCode => userAndOrderAssociation?.collectionCode;
+  bool get hasCollectionCodeExpiresAt => collectionCodeExpiresAt != null;
   String? get collectionQrCode => userAndOrderAssociation?.collectionQrCode;
   bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
   bool get hasCollectionCode => userAndOrderAssociation?.collectionCode != null;
   bool get hasCollectionQrCode => userAndOrderAssociation?.collectionQrCode != null;
   List<NameAndDescription> get followUpStatuses => order.attributes.followUpStatuses;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
+  DateTime? get collectionCodeExpiresAt => userAndOrderAssociation?.collectionCodeExpiresAt;
   Function(Order)? get onRequestedOrderRelationships => widget.onRequestedOrderRelationships;
   UserAndOrderAssociation? get userAndOrderAssociation => order.attributes.userAndOrderAssociation;
+  bool get collectionCodeHasExpired => collectionCodeExpiresAt == null ? true : collectionCodeExpiresAt!.isBefore(DateTime.now());
 
   bool get canShowEnterCollectionCode => followUpStatuses.where((followUpStatus) {
     return followUpStatus.name.toLowerCase() == 'completed';
@@ -161,7 +173,7 @@ class OrderContentState extends State<OrderContent> {
 
         /// If the user and order association has a collection code, then this means that the user
         /// must have accepted the terms and conditions to collect the order.
-        if(hasCollectionCode) {
+        if(hasCollectionCode && !collectionCodeHasExpired) {
 
           /// Indicate that the customer accepts to collect this order
           setState(() => acceptToCollectOrder = true);
@@ -497,6 +509,34 @@ class OrderContentState extends State<OrderContent> {
             }
           ),
 
+          /// Spacer
+          const SizedBox(height: 16,),
+
+          /// Collection Code Expiry Countdown
+          if(!isSubmitting && hasCollectionCodeExpiresAt) CountdownTimer(
+            endTime: collectionCodeExpiresAt!.millisecondsSinceEpoch,
+            onEnd: () => resetCollectionCode(),
+            widgetBuilder: (context, time) {
+
+              final String minutes = (time == null || time.min == null) ? '00' : '${time.min! < 10 ? '0' : ''}${time.min}';
+              final String seconds = (time == null || time.sec == null) ? '00' : '${time.sec! < 10 ? '0' : ''}${time.sec}';
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+
+                  const CustomBodyText('Expires in'),
+                  
+                  const SizedBox(width: 8,),
+
+                  CustomTitleLargeText('$minutes:$seconds'),
+
+                ],
+              );
+
+            },
+          ),
+
           /// Collection Code
           if(!isSubmitting && hasCollectionCode) ...[
 
@@ -557,6 +597,17 @@ class OrderContentState extends State<OrderContent> {
     );
   }
 
+  void resetCollectionCode() {
+    Future.delayed(Duration.zero).then((_) {
+      setState(() {
+        acceptToCollectOrder = false;
+        order.attributes.userAndOrderAssociation!.collectionCode = null;
+        order.attributes.userAndOrderAssociation!.collectionQrCode = null;
+        order.attributes.userAndOrderAssociation!.collectionCodeExpiresAt = null;
+      });
+    });
+  }
+
   void showViewers () {
 
     if(hasBeenSeen == false) {
@@ -599,11 +650,30 @@ class OrderContentState extends State<OrderContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
     
-          /// Title
-          CustomTitleMediumText(
-            'Order #${order.attributes.number}',
-            margin: const EdgeInsets.only(top: 8, bottom: 8),  
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+
+              if(showLogo) ...[
+                
+                /// Store Logo
+                StoreLogo(store: store),
+
+                /// Spacer
+                const SizedBox(width: 8,),
+
+              ],
+
+              /// Title
+              CustomTitleMediumText(
+                'Order #${order.attributes.number}',
+                margin: const EdgeInsets.only(top: 8, bottom: 8),  
+              ),
+
+            ],
           ),
+
+          if(showLogo) Divider(),
     
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -697,6 +767,73 @@ class OrderContentState extends State<OrderContent> {
                             margin: const EdgeInsets.only(top: 8, bottom: 8),
                             child: CustomMessageAlert(instruction, type: isCompleted ? AlertMessageType.success : AlertMessageType.info, icon: isCompleted ? Icons.check_circle : null,)
                           ),
+                            
+                          /// Spacer
+                          const SizedBox(height: 8,),
+
+                          if(isCompleted) ...[
+
+                            /// Collection Verified By
+                            Row(
+                              children: [
+
+                                /// Title
+                                const CustomBodyText('Verified By: '),
+                              
+                                /// Spacer
+                                const SizedBox(width: 8,),
+
+                                /// Name
+                                CustomBodyText(order.attributes.collectionVerifiedByUserName, isLink: true,),
+
+                              ],
+                            ),
+                            
+                            /// Spacer
+                            const SizedBox(height: 16,),
+
+                            /// Collection By
+                            Row(
+                              children: [
+
+                                /// Title
+                                const CustomBodyText('Collected By: '),
+                              
+                                /// Spacer
+                                const SizedBox(width: 8,),
+
+                                /// Name
+                                CustomBodyText(order.attributes.collectionByUserName, isLink: true,),
+
+                              ],
+                            ),
+                            
+                            /// Spacer
+                            const SizedBox(height: 16,),
+                            
+                            /// Collection Verified At DateTime
+                            Row(
+                              children: [
+
+                                /// Watch Later Icon
+                                const Icon(Icons.watch_later_outlined, size: 20, color: Colors.grey,),
+                              
+                                /// Spacer
+                                const SizedBox(width: 8,),
+
+                                /// Collection Verified At DateTime
+                                CustomBodyText(timeago.format(order.collectionVerifiedAt!)),
+                              
+                                /// Spacer
+                                const SizedBox(width: 8,),
+
+                                /// Collection Verified At DateTime
+                                CustomBodyText(DateFormat.yMMMEd().format(order.collectionVerifiedAt!), lightShade: true),
+
+                              ],
+                            ),
+
+                          ],
               
                           /// Enter Collection Code (Merchant side)
                           if(canManageOrders && !isCompleted) enterCollectionCode,
@@ -705,7 +842,7 @@ class OrderContentState extends State<OrderContent> {
                           if(canManageOrders && hasFollowUpStatuses && !isCompleted) ...[
                             
                             /// Spacer
-                            const SizedBox(height: 16,),
+                            const SizedBox(height: 8,),
               
                             /// Instructions
                             const CustomMessageAlert('Change the order status'),

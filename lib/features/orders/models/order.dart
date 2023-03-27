@@ -25,6 +25,7 @@ class Order {
   late Attributes attributes;
   late int orderForTotalUsers;
   late Money amountOutstanding;
+  late int? collectionByUserId;
   late String customerLastName;
   late int orderForTotalFriends;
   late String customerFirstName;
@@ -34,11 +35,16 @@ class Order {
   late DateTime? lastViewedByTeamAt;
   late DateTime? firstViewedByTeamAt;
   late DateTime? collectionVerifiedAt;
+  late int? collectionVerifiedByUserId;
   late Percentage amountPaidPercentage;
+  late String? collectionByUserLastName;
   late NameAndDescription paymentStatus;
+  late String? collectionByUserFirstName;
   late MobileNumber customerMobileNumber;
   late Percentage amountPendingPercentage;
   late Percentage amountOutstandingPercentage;
+  late String? collectionVerifiedByUserLastName;
+  late String? collectionVerifiedByUserFirstName;
 
   Order.fromJson(Map<String, dynamic> json) {
 
@@ -53,16 +59,22 @@ class Order {
     createdAt = DateTime.parse(json['createdAt']);
     currency = Currency.fromJson(json['currency']);
     amountPaid = Money.fromJson(json['amountPaid']);
+    collectionByUserId = json['collectionByUserId'];
     orderForTotalUsers = json['orderForTotalUsers'];
     orderForTotalFriends = json['orderForTotalFriends'];
     status = NameAndDescription.fromJson(json['status']);
     attributes = Attributes.fromJson(json['attributes']);
     amountPending = Money.fromJson(json['amountPending']);
+    collectionByUserLastName = json['collectionByUserLastName'];
+    collectionByUserFirstName = json['collectionByUserFirstName'];
     amountOutstanding = Money.fromJson(json['amountOutstanding']);
+    collectionVerifiedByUserId = json['collectionVerifiedByUserId'];
     collectionVerified = Status.fromJson(json['collectionVerified']);
     paymentStatus = NameAndDescription.fromJson(json['paymentStatus']);
     amountPaidPercentage = Percentage.fromJson(json['amountPaidPercentage']);
     customerMobileNumber = MobileNumber.fromJson(json['customerMobileNumber']);
+    collectionVerifiedByUserLastName = json['collectionVerifiedByUserLastName'];
+    collectionVerifiedByUserFirstName = json['collectionVerifiedByUserFirstName'];
     amountPendingPercentage = Percentage.fromJson(json['amountPendingPercentage']);
     amountOutstandingPercentage = Percentage.fromJson(json['amountOutstandingPercentage']);
     lastViewedByTeamAt = json['lastViewedByTeamAt'] == null ? null : DateTime.parse(json['lastViewedByTeamAt']);
@@ -75,6 +87,8 @@ class Order {
 class Attributes {
   late String number;
   late String customerName;
+  late String? collectionByUserName;
+  late String? collectionVerifiedByUserName;
   late List<NameAndDescription> followUpStatuses;
   late UserAndOrderAssociation? userAndOrderAssociation;
   late DialToShowCollectionCode dialToShowCollectionCode;
@@ -82,6 +96,8 @@ class Attributes {
   Attributes.fromJson(Map<String, dynamic> json) {
     number = json['number'];
     customerName = json['customerName'];
+    collectionByUserName = json['collectionByUserName'];
+    collectionVerifiedByUserName = json['collectionVerifiedByUserName'];
     followUpStatuses = List<NameAndDescription>.from(json['followUpStatuses'].map((followUpStatus) {
       return NameAndDescription.fromJson(followUpStatus);
     })).toList();

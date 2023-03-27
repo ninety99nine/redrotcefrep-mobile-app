@@ -503,15 +503,8 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    selectAllCheckbox,
-                    CustomBodyText([
-                      totalSelectedItems.toString(),
-                      ' selected'
-                    ]),
-                  ],
+                Flexible(
+                  child: selectAllCheckbox
                 ),
                 if(selectedAllAction != null) selectedAllAction!(isLoading)
               ],
@@ -525,7 +518,10 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   /// Show the select all checkbox
   Widget get selectAllCheckbox {
     return CustomCheckbox(
-      text: '',
+      text: CustomBodyText([
+        totalSelectedItems.toString(),
+        ' selected'
+      ]),
       value: selectedAll,
       disabled: disabled,
       onChanged: (status) {

@@ -9,14 +9,14 @@ class OrdersModalBottomSheet extends StatefulWidget {
   
   final Order? order;
   final Widget? trigger;
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final bool canShowFloatingActionButton;
 
   const OrdersModalBottomSheet({
     super.key,
     this.order,
+    this.store,
     this.trigger,
-    required this.store,
     this.canShowFloatingActionButton = true
   });
 
@@ -28,10 +28,10 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
 
   int initialOrdersCount = 0;
   Order? get order => widget.order;
-  ShoppableStore get store => widget.store;
-  String get totalOrders => store.ordersCount.toString();
+  ShoppableStore? get store => widget.store;
+  String get totalOrders => (store?.ordersCount ?? 0).toString();
   bool get canShowFloatingActionButton => widget.canShowFloatingActionButton;
-  String get totalOrdersText => store.ordersCount == 1 ? 'Order' : 'Orders';
+  String get totalOrdersText => store?.ordersCount == 1 ? 'Order' : 'Orders';
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -60,11 +60,11 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
      *  provided. In the case that an order has not been provided then the
      *  "ordersCount" will be set.
      */
-    if(widget.trigger == null) {
+    if(widget.trigger == null && store != null) {
 
       /// Get the initial orders count before placing an order.
       /// This initial orders count will be incremented for every new order placed
-      initialOrdersCount = store.ordersCount!;
+      initialOrdersCount = store!.ordersCount!;
 
     }
   }
@@ -75,7 +75,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
 
     /// Check if the number of orders increased.
     /// This happens if the user placed a new order.
-    if(widget.trigger == null && store.ordersCount! > initialOrdersCount) {
+    if(widget.trigger == null && store != null && store!.ordersCount! > initialOrdersCount) {
 
       /**
        *  Automatically open the Orders Modal Popup to show the new order placed
@@ -98,7 +98,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
         openBottomModalSheet();
 
         /// Increment the initial orders count
-        initialOrdersCount = store.ordersCount!;
+        initialOrdersCount = store!.ordersCount!;
 
       });
 

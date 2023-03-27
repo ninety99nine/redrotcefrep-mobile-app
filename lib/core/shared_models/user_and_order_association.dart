@@ -17,6 +17,7 @@ class UserAndOrderAssociation {
     collectionQrCode = json['collectionQrCode'];
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
+    collectionCodeExpiresAt = json['collectionCodeExpiresAt'] == null ? null : DateTime.parse(json['collectionCodeExpiresAt']);
     
   }
 }

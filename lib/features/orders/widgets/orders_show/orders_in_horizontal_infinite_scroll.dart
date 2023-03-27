@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/user/providers/user_provider.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
 import '../../../user/widgets/customer_profile/customer_profile_avatar.dart';
 import '../../../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
@@ -18,15 +20,15 @@ class OrdersInHorizontalInfiniteScroll extends StatefulWidget {
   final bool triggerCancel;
   final String? orderFilter;
   final bool isViewingOrder;
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final Function(Order) onUpdatedOnMultipleOrders;
   final Function(Order) onUpdatedPreviewSingleOrder;
   final void Function(Order) onRequestedOrderRelationships;
 
   const OrdersInHorizontalInfiniteScroll({
     Key? key,
+    this.store,
     required this.order,
-    required this.store,
     required this.orderFilter,
     this.triggerCancel = false,
     required this.isViewingOrder,
@@ -50,11 +52,12 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
   PreviewOrderMode? previewOrderMode;
 
   Order get order => widget.order;
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   String? get orderFilter => widget.orderFilter;
   bool get triggerCancel => widget.triggerCancel;
   bool get isViewingOrder => widget.isViewingOrder;
   Function(Order) get onUpdatedOnMultipleOrders => widget.onUpdatedOnMultipleOrders;
+  UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   Function(Order) get onUpdatedPreviewSingleOrder => widget.onUpdatedPreviewSingleOrder;
@@ -119,6 +122,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
     
     int? orderId;
     int? customerUserId;
+    Future<http.Response> request;
 
     /// If we are viewing a specific order
     if(isViewingOrder) {
@@ -129,34 +133,47 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
       /// Set the order customer user id as the customer user id
       customerUserId = order.customerUserId;
     
-    /// If the order filter is Me
-    }else if(orderFilter == 'Me') {
-      
-      /// Set the authenticated user id as the customer user id
-      customerUserId = authProvider.user!.id;
-    
     }
 
-    /**
-     *  If we are viewing a specific order of a customer, then do not
-     *  filter by the order filter so that we can fetch all their 
-     *  orders. If we are showing different customer orders, then
-     *  we can filter by the order filter (orderFilter).
-     * 
-     *  We can also indicate that the request must return orders
-     *  including the selected order that we are currently 
-     *  viewing, that is show all other orders including 
-     *  this one (exceptOrderId = null).
-     */
-    return storeProvider.setStore(store).storeRepository.showOrders(
-      filter: isViewingOrder ? null : orderFilter,
-      customerUserId: customerUserId,
-      //  exceptOrderId: orderId,
-      startAtOrderId: orderId,
-      searchWord: searchWord,
-      withCustomer: false,
-      page: page
-    );
+    /// If the store is not provided
+    if( store == null ) {
+
+      /// Request the user orders
+      request = userProvider.setUser(authProvider.user!).userRepository.showOrders(
+        filter: isViewingOrder ? null : orderFilter,
+        withStore: store == null ? true : false,
+        startAtOrderId: orderId,
+        searchWord: searchWord,
+        page: page
+      );
+
+    /// If the store is provided
+    }else{
+
+      /// Request the store orders
+      request = storeProvider.setStore(store!).storeRepository.showOrders(
+        /**
+         *  If we are viewing a specific order of a customer, then do not
+         *  filter by the order filter so that we can fetch all their 
+         *  orders. If we are showing different customer orders, then
+         *  we can filter by the order filter (orderFilter).
+         * 
+         *  We can also indicate that the request must return orders
+         *  including the selected order that we are currently 
+         *  viewing, that is show all other orders including 
+         *  this one (exceptOrderId = null).
+         */
+        filter: isViewingOrder ? null : orderFilter,
+        startAtOrderId: orderId,
+        searchWord: searchWord,
+        userId: customerUserId,
+        page: page
+      );
+      
+    }
+    
+    return request;
+
   }
 
   /// Show the preview order mode checkbox
@@ -289,7 +306,7 @@ class OrderItem extends StatefulWidget {
   final int? index;
   final Order order;
   final bool triggerCancel;
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final PreviewOrderMode? previewOrderMode;
   final Function(Order)? onUpdatedOnMultipleOrders;
   final Function(Order) onUpdatedPreviewSingleOrder;
@@ -299,7 +316,7 @@ class OrderItem extends StatefulWidget {
   const OrderItem({
     super.key,
     this.index,
-    required this.store,
+    this.store,
     required this.order,
     required this.triggerCancel,
     required this.previewOrderMode,
@@ -317,8 +334,10 @@ class _OrderItemState extends State<OrderItem> {
 
   int? get index => widget.index;
   Order get order => widget.order;
-  ShoppableStore get store => widget.store;
   bool get triggerCancel => widget.triggerCancel;
+  bool get hasStoreFromOrder => storeFromOrder != null;
+  ShoppableStore get store => widget.store ?? storeFromOrder!;
+  ShoppableStore? get storeFromOrder => order.relationships.store;
   PreviewOrderMode? get previewOrderMode => widget.previewOrderMode;
   Function(Order)? get onUpdatedOnMultipleOrders => widget.onUpdatedOnMultipleOrders;
   Function(Order) get onUpdatedPreviewSingleOrder => widget.onUpdatedPreviewSingleOrder;
@@ -367,10 +386,14 @@ class _OrderItemState extends State<OrderItem> {
               OrderContent(
                 store: store,
                 order: order,
+                showLogo: hasStoreFromOrder,
                 color: Colors.transparent,
                 triggerCancel: triggerCancel,
                 key: ValueKey<String>(order.status.name),
                 onRequestedOrderRelationships: (Order order) {
+
+                  /// Set the store on the order since this order might not have a store eager loaded as a relationship
+                  order.relationships.store = store;
 
                   updateOrderOnItemList(order);
         
@@ -379,6 +402,9 @@ class _OrderItemState extends State<OrderItem> {
                   
                 },
                 onUpdatedOrder: (Order order) {
+
+                  /// Set the store on the order since this order might not have a store eager loaded as a relationship
+                  order.relationships.store = store;
 
                   ///  If we are updating a single order (the initial order that was
                   ///  passed as an argument of the OrdersInHorizontalInfiniteScroll

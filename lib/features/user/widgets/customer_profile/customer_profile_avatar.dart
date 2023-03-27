@@ -8,7 +8,7 @@ import '../../../orders/models/order.dart';
 class CustomerProfileAvatar extends StatefulWidget {
 
   final Order order;
-  final ShoppableStore store;
+  final ShoppableStore? store;
 
   const CustomerProfileAvatar({
     super.key,
@@ -23,10 +23,10 @@ class CustomerProfileAvatar extends StatefulWidget {
 class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
 
   Order get order => widget.order;
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   String get name => order.attributes.customerName;
   String get mobileNumber => order.customerMobileNumber.withoutExtension;
-  bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
+  bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
 
   @override
   Widget build(BuildContext context) {

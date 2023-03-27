@@ -1,3 +1,7 @@
+import 'package:bonako_demo/features/stores/enums/store_enums.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:bonako_demo/features/user/providers/user_provider.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -22,7 +26,7 @@ class OrdersInVerticalListViewInfiniteScroll extends StatefulWidget {
   
   final Order? order;
   final String orderFilter;
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final Function(Order) onViewOrder;
   final Function(Order) onUpdatedOrder;
   final OrderContentView orderContentView;
@@ -31,7 +35,7 @@ class OrdersInVerticalListViewInfiniteScroll extends StatefulWidget {
   const OrdersInVerticalListViewInfiniteScroll({
     Key? key,
     this.order,
-    required this.store,
+    this.store,
     required this.onViewOrder,
     required this.orderFilter,
     required this.onUpdatedOrder,
@@ -52,15 +56,15 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
 
   bool hasOrders = false;
   Order? get order => widget.order;
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   String get orderFilter => widget.orderFilter;
   Function(Order) get onViewOrder => widget.onViewOrder;
   Function(Order) get onUpdatedOrder => widget.onUpdatedOrder;
   OrderContentView get orderContentView => widget.orderContentView;
   Function() get requestStoreOrderFilters => widget.requestStoreOrderFilters;
   bool get isViewingOrder => orderContentView == OrderContentView.viewingOrder;
-  bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
   bool get isViewingOrders => orderContentView == OrderContentView.viewingOrders;
+  UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
@@ -96,18 +100,20 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   }
 
   /// Render each request item as an OrderItem
-  Widget onRenderItem(order, int index, List orders, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => OrderItem(
-    customVerticalListViewInfiniteScrollState: _customVerticalListViewInfiniteScrollState,
-    requestStoreOrderFilters: requestStoreOrderFilters,
-    orderContentView: orderContentView,
-    orders: (List<Order>.from(orders)),
-    canManageOrders: canManageOrders,
-    onViewOrder: onViewOrder,
-    orderFilter: orderFilter,
-    order: (order as Order),
-    store: store,
-    index: index,
-  );
+  Widget onRenderItem(order, int index, List orders, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) {
+    
+    return OrderItem(
+      customVerticalListViewInfiniteScrollState: _customVerticalListViewInfiniteScrollState,
+      requestStoreOrderFilters: requestStoreOrderFilters,
+      orderContentView: orderContentView,
+      orders: (List<Order>.from(orders)),
+      onViewOrder: onViewOrder,
+      orderFilter: orderFilter,
+      order: (order as Order),
+      store: store,
+      index: index,
+    );
+  }
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
@@ -115,6 +121,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
     
     int? orderId;
     int? customerUserId;
+    Future<http.Response> request;
 
     /// If we are viewing a specific order
     if(isViewingOrder) {
@@ -127,25 +134,44 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
     
     }
 
-    return storeProvider.setStore(store).storeRepository.showOrders(
-      /**
-       *  If we are viewing a specific order of a customer, then do not
-       *  filter by the order filter so that we can fetch all their 
-       *  orders. If we are showing different customer orders, then
-       *  we can filter by the order filter (orderFilter). 
-       * 
-       *  We can also indicate that the request must return orders
-       *  except the selected order that we are currently viewing, 
-       *  that is, show all other orders except this one, where
-       *  (exceptOrderId = orderId).
-       */
-      filter: isViewingOrder ? null : orderFilter,
-      customerUserId: customerUserId,
-      exceptOrderId: orderId,
-      searchWord: searchWord,
-      withCustomer: false,
-      page: page
-    ).then((response) {
+    /// If the store is not provided
+    if( store == null ) {
+
+      /// Request the user orders
+      request = userProvider.setUser(authProvider.user!).userRepository.showOrders(
+        filter: isViewingOrder ? null : orderFilter,
+        withStore: store == null ? true : false,
+        exceptOrderId: orderId,
+        searchWord: searchWord,
+        page: page
+      );
+
+    /// If the store is provided
+    }else{
+
+      /// Request the store orders
+      request = storeProvider.setStore(store!).storeRepository.showOrders(
+        /**
+         *  If we are viewing a specific order of a customer, then do not
+         *  filter by the order filter so that we can fetch all their 
+         *  orders. If we are showing different customer orders, then
+         *  we can filter by the order filter (orderFilter). 
+         * 
+         *  We can also indicate that the request must return orders
+         *  except the selected order that we are currently viewing, 
+         *  that is, show all other orders except this one, where
+         *  (exceptOrderId = orderId).
+         */
+        filter: isViewingOrder ? null : orderFilter,
+        userId: customerUserId,
+        exceptOrderId: orderId,
+        searchWord: searchWord,
+        page: page
+      );
+      
+    }
+
+    return request.then((response) {
 
       if( response.statusCode == 200 ) {
 
@@ -182,6 +208,25 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   /// The selected order content to show
   Widget get selectedOrderContent {
 
+    /**
+     *  If the store is not provided, then get the store 
+     *  directly from the order that is provided
+     */
+    final ShoppableStore store = this.store ?? order!.relationships.store!;
+
+    /**
+     *  If the store is not provided, then we know that we must load the current authenticated
+     *  user's orders. So every order we return is associated with the current authenticated
+     *  user in some way e.g the user is listed as a customer or a friend. In this case we
+     *  can just grab the current authenticated user's name.
+     * 
+     *  If the store is provided, then we can grap the customer name instead, since this order
+     *  might not be assosiated with the current authenticated user in any way.
+     *
+     */
+    final String name = this.store == null ? authProvider.user!.attributes.name : order!.attributes.customerName;
+    final String title = this.store == null ? 'Other orders related to $name' : 'Other orders by $name';
+
     /// Instruction (On viewing a specific orderer)
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -210,7 +255,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
     
           /// Title
           CustomTitleSmallText(
-            'Other orders by ${order!.attributes.customerName}',
+            title,
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           ),
     
@@ -252,8 +297,7 @@ class OrderItem extends StatefulWidget {
   final Order order;
   final List<Order> orders;
   final String? orderFilter;
-  final ShoppableStore store;
-  final bool canManageOrders;
+  final ShoppableStore? store;
   final Function(Order) onViewOrder;
   final OrderContentView orderContentView;
   final Function() requestStoreOrderFilters;
@@ -261,13 +305,12 @@ class OrderItem extends StatefulWidget {
 
   const OrderItem({
     super.key,
-    required this.store,
+    this.store,
     required this.order,
     required this.index,
     required this.orders,
     required this.orderFilter,
     required this.onViewOrder,
-    required this.canManageOrders,
     required this.orderContentView,
     required this.requestStoreOrderFilters,
     required this.customVerticalListViewInfiniteScrollState,
@@ -287,15 +330,16 @@ class _OrderItemState extends State<OrderItem> {
   int get index => widget.index;
   Order get order => widget.order;
   List<Order> get orders => widget.orders;
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   bool get hasBeenSeen => totalViewsByTeam > 0;
   String? get orderFilter => widget.orderFilter;
-  bool get canManageOrders => widget.canManageOrders;
   Function(Order) get onViewOrder => widget.onViewOrder;
   int get totalViewsByTeam => widget.order.totalViewsByTeam;
+  ShoppableStore? get storeFromOrder => order.relationships.store;
   OrderContentView get orderContentView => widget.orderContentView;
   bool get isViewingOrder => widget.orderContentView == OrderContentView.viewingOrder;
   bool get isViewingOrders => widget.orderContentView == OrderContentView.viewingOrders;
+  bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store ?? storeFromOrder!);
 
   String get orderFor => order.orderFor;
   bool get isOrderingForMe => orderFor == 'Me';
@@ -538,49 +582,67 @@ class _OrderItemState extends State<OrderItem> {
             onViewOrder(widget.order);
 
           },
-          title: Column(
+          title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              
+              /// Store Logo (If the order has a nested store relationship)
+              if(storeFromOrder != null) ...[
+                
+                StoreLogo(store: storeFromOrder!),
 
-              /// If we are viewing mulitple orders (show customer name)
-              if(isViewingOrders) RichText(text: TextSpan(
+                const SizedBox(width: 8,),
 
-                /// Customer Name (John Doe)
-                text: widget.order.attributes.customerName,
-                style: Theme.of(context).textTheme.titleMedium,
-                children: [
+              ],
 
-                  /// Me & Friends (+ 3 friends)
-                  if(isOrderingForMeAndFriends) TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Colors.grey,
+              /// Order
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+              
+                    /// If we are viewing mulitple orders (show customer name)
+                    if(isViewingOrders) RichText(text: TextSpan(
+              
+                      /// Customer Name (John Doe)
+                      text: widget.order.attributes.customerName,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      children: [
+              
+                        /// Me & Friends (+ 3 friends)
+                        if(isOrderingForMeAndFriends) TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Colors.grey,
+                          ),
+                          text: '  +$orderForTotalFriends ${orderForTotalFriends == 1 ? 'friend' : 'friends'}'
+                        ),
+              
+                        /// Friends Only (for 3 people)
+                        if(isOrderingForFriendsOnly) TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Colors.grey
+                          ),
+                          text: '  for $orderForTotalFriends ${orderForTotalFriends == 1 ? 'friend' : 'friends'}'
+                        )
+              
+                      ]
+                    )),
+              
+                    /// Spacer
+                    const SizedBox(height:  4,),
+              
+                    /// Status
+                    OrderStatus(
+                      lightShade: true,
+                      status: widget.order.status.name,
                     ),
-                    text: '  +$orderForTotalFriends ${orderForTotalFriends == 1 ? 'friend' : 'friends'}'
-                  ),
-
-                  /// Friends Only (for 3 people)
-                  if(isOrderingForFriendsOnly) TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Colors.grey
-                    ),
-                    text: '  for $orderForTotalFriends ${orderForTotalFriends == 1 ? 'friend' : 'friends'}'
-                  )
-
-                ]
-              )),
-
-              /// Spacer
-              const SizedBox(height:  4,),
-
-              /// Status
-              OrderStatus(
-                lightShade: true,
-                status: widget.order.status.name,
+              
+                    /// Summary
+                    CustomBodyText(widget.order.summary, margin: const EdgeInsets.only(top: 4),),
+              
+                  ],
+                ),
               ),
-
-              /// Summary
-              CustomBodyText(widget.order.summary, margin: const EdgeInsets.only(top: 4),),
-
             ],
           ),
           trailing: Column(

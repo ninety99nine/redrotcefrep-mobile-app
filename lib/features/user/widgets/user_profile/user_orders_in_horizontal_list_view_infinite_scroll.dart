@@ -1,6 +1,9 @@
+import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+import 'package:bonako_demo/core/shared_widgets/buttons/custom_text_button.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
@@ -62,6 +65,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
 
       /// Get the orders of the users from any store
       request = userProvider.setUser(user).userRepository.showOrders(
+        withStore: store == null ? true : false,
         searchWord: searchWord,
         page: page
       );
@@ -70,9 +74,8 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
 
       /// Get the orders of the users from this specified store
       request = storeProvider.setStore(store!).storeRepository.showOrders(
-        customerUserId: user.id,
         searchWord: searchWord,
-        withCustomer: false,
+        userId: user.id,
         page: page
       );
 
@@ -100,13 +103,33 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   }
 
   Widget get contentBeforeSearchBar {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: const [
-        CustomTitleSmallText('My Orders'),
-        SizedBox(height: 4,),
-        CustomBodyText('See orders placed by you and friends', lightShade: true,),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: const [
+
+            /// Title
+            CustomTitleSmallText('My Orders'),
+
+            /// Spacer
+            SizedBox(height: 4,),
+
+            /// Subtitle
+            CustomBodyText('See orders placed by you and friends', lightShade: true,),
+
+          ],
+        ),
+
+        /// View All Button
+        const OrdersModalBottomSheet(
+          trigger: CustomTextButton('View All', padding: EdgeInsets.all(0),),
+        ),
+
       ],
     );
   }
@@ -133,7 +156,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   Widget build(BuildContext context) {
 
     return CustomHorizontalListViewInfiniteScroll(
-      height: 170,
+      height: 175,
       showSearchBar: false,
       debounceSearch: true,
       showNoMoreContent: false,
@@ -176,8 +199,12 @@ class _OrderItemState extends State<OrderItem> {
   int get index => widget.index;
   Order get order => widget.order;
   bool get hasBeenSeen => totalViewsByTeam > 0;
-  int get totalViewsByTeam => widget.order.totalViewsByTeam;
+  int get totalViewsByTeam => order.totalViewsByTeam;
+  bool get orderForManyPeople => order.orderForTotalUsers > 1;
   ShoppableStore get store => widget.store ?? order.relationships.store!;
+  bool get isAssociatedAsFriend => userAndOrderAssociation.role == 'Friend';
+  bool get isAssociatedAsCustomer => userAndOrderAssociation.role == 'Customer';
+  UserAndOrderAssociation get userAndOrderAssociation => order.attributes.userAndOrderAssociation!;
 
   @override
   Widget build(BuildContext context) {
@@ -201,10 +228,23 @@ class _OrderItemState extends State<OrderItem> {
                 children: [
                       
                   /// Order Number
-                  CustomTitleMediumText('#${widget.order.attributes.number}'),
-    
-                  /// Created At
-                  CustomBodyText(timeago.format(widget.order.createdAt, locale: 'en_short')),
+                  CustomTitleMediumText('#${order.attributes.number}'),
+
+                  /// Order For
+                  if(orderForManyPeople) Row(
+                    children: [
+                        
+                      /// Group Icon (Indication Of A Shared Order)
+                      Icon(Icons.group_outlined, color: Colors.grey.shade400, size: 20,),
+
+                      /// Spacer
+                      if(isAssociatedAsFriend) const SizedBox(width: 4,),
+                      
+                      /// Customer Name (The Person That Shared This Order)
+                      if(isAssociatedAsFriend) CustomBodyText(order.customerFirstName, lightShade: true,),
+                    
+                    ],
+                  ),
     
                 ],
               ),
@@ -220,20 +260,32 @@ class _OrderItemState extends State<OrderItem> {
                   /// Status
                   OrderStatus(
                     lightShade: true,
-                    status: widget.order.status.name,
+                    status: order.status.name,
                   ),
     
-                  /// Seen Icon
-                  if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
-    
+                  /// Created At
+                  CustomBodyText(timeago.format(order.createdAt, locale: 'en_short'), lightShade: true,),
+
                 ],
               ),
     
               /// Spacer
               const SizedBox(height: 8,),
     
-              /// Summary
-              CustomBodyText(widget.order.summary, maxLines: 2, overflow: TextOverflow.ellipsis),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  /// Summary
+                  Flexible(
+                    child: CustomBodyText(order.summary, maxLines: 2, overflow: TextOverflow.ellipsis)
+                  ),
+    
+                  /// Seen Icon
+                  if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
+
+                ],
+              ),
     
               /// Spacer
               const Spacer(),

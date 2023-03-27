@@ -37,6 +37,7 @@ class _EditProductCardsState extends State<EditProductCards> {
   bool get isShoppingOnStoreCard => (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
   List<Product> get filteredProducts => showAllProducts ? products : products.take(constants.minimumProductsPerStoreOnPreview).toList();
   bool get hasMoreProductsThanMinimumProductsToShow => (hasReachedMaximumProductsPerStore ? products.length : products.length + 1) > constants.minimumProductsPerStoreOnPreview;
+  
   @override
   void initState() {
     super.initState();
