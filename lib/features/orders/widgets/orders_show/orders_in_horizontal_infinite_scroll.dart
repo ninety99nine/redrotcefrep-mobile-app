@@ -48,8 +48,10 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<CustomHorizontalPageViewInfiniteScrollState> _customHorizontalPageViewInfiniteScrollState = GlobalKey<CustomHorizontalPageViewInfiniteScrollState>();
 
-  bool canShowTogglePreviewMode = true;
+  int? orderId;
+  int? customerUserId;
   PreviewOrderMode? previewOrderMode;
+  bool canShowTogglePreviewMode = true;
 
   Order get order => widget.order;
   ShoppableStore? get store => widget.store;
@@ -65,12 +67,25 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
   @override
   void initState() {
+
     super.initState();
     setPreviewOrderMode();
 
     /// Show the toggle preview mode checkbox as long as we are 
     /// triggering an automatic cancellation of this order
     canShowTogglePreviewMode = (triggerCancel == false);
+
+    /// If we are viewing a specific order
+    if(isViewingOrder) {
+
+      /// Set the order id (This will exclude this order from the list of orders returned)
+      orderId = order.id;
+
+      /// Set the order customer user id as the customer user id
+      customerUserId = order.customerUserId;
+    
+    }
+
   }
 
   /// Set on the "previewOrderMode" property, the last selected preview order mode 
@@ -120,20 +135,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
   Order onParseItem(order) => Order.fromJson(order);
   Future<http.Response> requestStoreOrders(int page, String searchWord) {
     
-    int? orderId;
-    int? customerUserId;
     Future<http.Response> request;
-
-    /// If we are viewing a specific order
-    if(isViewingOrder) {
-
-      /// Set the order id (This will exclude this order from the list of orders returned)
-      orderId = order.id;
-
-      /// Set the order customer user id as the customer user id
-      customerUserId = order.customerUserId;
-    
-    }
 
     /// If the store is not provided
     if( store == null ) {

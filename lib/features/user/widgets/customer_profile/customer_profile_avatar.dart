@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../stores/services/store_services.dart';
@@ -26,6 +28,10 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
   ShoppableStore? get store => widget.store;
   String get name => order.attributes.customerName;
   String get mobileNumber => order.customerMobileNumber.withoutExtension;
+  bool get hasUserAndOrderAssociation => userAndOrderAssociation != null;
+  UserAndOrderAssociation? get userAndOrderAssociation => order.attributes.userAndOrderAssociation;
+  bool get isAssociatedAsAFriend => hasUserAndOrderAssociation && userAndOrderAssociation!.role == 'Friend';
+  
   bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
 
   @override
@@ -50,10 +56,21 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
               children: [
 
                 /// Spacer
-                if(canManageOrders == false) const SizedBox(height: 12),
+                if(!canManageOrders && !isAssociatedAsAFriend) const SizedBox(height: 12),
     
                 /// Name
                 CustomTitleMediumText(name),
+
+                /// If Associated As Friend
+                if(isAssociatedAsAFriend) ...[
+    
+                  /// Spacer
+                  const SizedBox(height: 4),
+      
+                  /// Mobile Number
+                  const CustomBodyText('Shared with me', lightShade: true),
+
+                ],
 
                 if(canManageOrders) ... [
     
