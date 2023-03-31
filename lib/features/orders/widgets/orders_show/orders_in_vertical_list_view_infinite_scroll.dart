@@ -54,6 +54,8 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
+  int? orderId;
+  int? customerUserId;
   bool hasOrders = false;
   Order? get order => widget.order;
   ShoppableStore? get store => widget.store;
@@ -67,6 +69,24 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+
+  @override
+  void initState() {
+    
+    super.initState();
+
+    /// If we are viewing a specific order
+    if(isViewingOrder) {
+
+      /// Set the order id (This will exclude this order from the list of orders returned)
+      orderId = order!.id;
+
+      /// Set the order customer user id as the customer user id
+      customerUserId = order!.customerUserId;
+    
+    }
+
+  }
 
   @override
   void didUpdateWidget(covariant OrdersInVerticalListViewInfiniteScroll oldWidget) {
@@ -90,6 +110,9 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
 
     /// If the order changed such as selecting another order while viewing a specific order
     if(order != null && oldWidget.order != null && order!.id != oldWidget.order!.id) {
+
+      /// Set the order id (This will exclude this order from the list of orders returned)
+      orderId = order!.id;
 
       /// Start a new request (so that we can filter orders by the specified customer) and 
       /// also exclude the selected order from the list of orders returned by the request
@@ -119,20 +142,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   Order onParseItem(order) => Order.fromJson(order);
   Future<http.Response> requestStoreOrders(int page, String searchWord) {
     
-    int? orderId;
-    int? customerUserId;
     Future<http.Response> request;
-
-    /// If we are viewing a specific order
-    if(isViewingOrder) {
-
-      /// Set the order id (This will exclude this order from the list of orders returned)
-      orderId = order!.id;
-
-      /// Set the order customer user id as the customer user id
-      customerUserId = order!.customerUserId;
-    
-    }
 
     /// If the store is not provided
     if( store == null ) {
@@ -223,6 +233,12 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
      *  If the store is provided, then we can grap the customer name instead, since this order
      *  might not be assosiated with the current authenticated user in any way.
      *
+     *  This scenerio where the store does not exist occurs when clicking on the "View All"
+     *  button of the profile orders. This launches the modal bottom sheet without which
+     *  will at some point call this OrdersInVerticalListViewInfiniteScroll(). In this
+     *  situation the OrdersInVerticalListViewInfiniteScroll() will not have any store
+     *  as a point of reference to pull the orders, therefore we will default to the
+     *  current authenticated user as a point of reference to pull the orders
      */
     final String name = this.store == null ? authProvider.user!.attributes.name : order!.attributes.customerName;
     final String title = this.store == null ? 'Other orders related to $name' : 'Other orders by $name';
