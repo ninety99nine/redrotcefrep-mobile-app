@@ -1,4 +1,5 @@
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
 
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
@@ -38,6 +39,7 @@ class OrderFiltersState extends State<OrderFilters> {
   Function(String) get onSelectedOrderFilter => widget.onSelectedOrderFilter;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
   
@@ -128,11 +130,22 @@ class OrderFiltersState extends State<OrderFilters> {
                   /// List review filters as selectable choice chips       
                   if(hasOrderFilters) ...orderFilters!.filters.where((filter) {
                     
-                    /// If we cannot manage orders
-                    if(canManageOrders == false) {
-              
-                      /// Return only the "All" and "Me" filter
-                      return ['All', 'Me', 'Friends'].contains(filter.name);
+                    /**
+                     *  We need to know whether the user has permission to manage orders so
+                     *  that we can show the correct filters e.g If we can manage the 
+                     *  orders then show the following filters:
+                     * 
+                     *  All, 'Waiting', 'On Its Way', 'Ready For Pickup', 'Cancelled', 'Completed', 'Me'
+                     * 
+                     *  If we cannot manage the orders then show the following filters:
+                     * 
+                     *  All, 'Me', 'Me And Friends', 'Friends Only', 'Business', 'Shared'
+                     * 
+                     *  We do this by ignoring any filters reserved for managing orders
+                     */
+                    if(!canManageOrders) {
+
+                      return ['Waiting', 'On Its Way', 'Ready For Pickup', 'Cancelled', 'Completed'].contains(filter.name) == false;
               
                     }
 

@@ -1,8 +1,8 @@
-import '../../../core/shared_widgets/text_form_fields/custom_search_text_form_field.dart';
+import '../text_form_field/custom_search_text_form_field.dart';
 import '../../../core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
-import '../message_alerts/custom_message_alert.dart';
+import '../message_alert/custom_message_alert.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/snackbar.dart';
 import 'package:http/http.dart' as http;

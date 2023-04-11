@@ -183,12 +183,29 @@ class AuthRepository {
     
   }
 
+  /// Update the specified user
+  Future<http.Response> updateUser({ String? firstName, String? lastName, String? nickName, bool? anonymous }) {
+
+    if(user == null) throw Exception('An authenticated user is required to update');
+
+    String url = user!.links.updateUser.href;
+
+    Map body = {};
+    if((firstName ?? '').isNotEmpty) body.addAll({'first_name': firstName});
+    if((lastName ?? '').isNotEmpty) body.addAll({'last_name': lastName});
+    if((nickName ?? '').isNotEmpty) body.addAll({'nick_name': nickName});
+    if(anonymous != null) body.addAll({'anonymous': anonymous});
+
+    return apiRepository.put(url: url, body: body);
+    
+  }
+
   /// Show friend menus
   Future<http.Response> showFriendMenus({ BuildContext? context }){
     
     if(user == null) throw Exception('An authenticated user is required to show friend menus'); 
     
-    final url =  user!.links.showFriendMenus!.href;
+    final url =  user!.links.showFriendMenus.href;
 
     return apiRepository.get(url: url, context: context);
     
@@ -199,7 +216,7 @@ class AuthRepository {
     
     if(user == null) throw Exception('An authenticated user is required to show friends'); 
     
-    final url =  user!.links.showFriends!.href;
+    final url =  user!.links.showFriends.href;
 
     return apiRepository.get(url: url, page: page, context: context);
     
@@ -210,7 +227,7 @@ class AuthRepository {
 
     if(user == null) throw Exception('An authenticated user is required to show friends'); 
     
-    final url =  user!.links.showFriends!.href;
+    final url =  user!.links.showFriends.href;
 
     Map body = {
       /// Add the mobile number extension to each mobile number
@@ -226,7 +243,7 @@ class AuthRepository {
 
     if(user == null) throw Exception('An authenticated user is required to remove the friends');
 
-    String url = user!.links.removeFriends!.href;
+    String url = user!.links.removeFriends.href;
 
     List<String> mobileNumbers = friends.map((friend) {
         return friend.mobileNumber!.withExtension;
@@ -243,7 +260,7 @@ class AuthRepository {
   /// Show last selected friend
   Future<http.Response> showLastSelectedFriend({ BuildContext? context }) {
 
-    final url = user!.links.showLastSelectedFriend!.href;
+    final url = user!.links.showLastSelectedFriend.href;
 
     return apiRepository.get(url: url, context: context);
   
@@ -252,7 +269,7 @@ class AuthRepository {
   /// Update last selected friend groups
   Future<http.Response> updateLastSelectedFriends({ required List<User> friends, BuildContext? context }) {
 
-    final url = user!.links.updateLastSelectedFriends!.href;
+    final url = user!.links.updateLastSelectedFriends.href;
 
     List<int> friendUserIds = friends.map((friend) {
         return friend.id;
@@ -286,7 +303,7 @@ class AuthRepository {
 
     if(user == null) throw Exception('An authenticated user is required to show the terms and conditions'); 
     
-    final url =  user!.links.showTermsAndConditions!.href;
+    final url =  user!.links.showTermsAndConditions.href;
 
     return apiRepository.get(url: url, context: context);
     
@@ -297,7 +314,7 @@ class AuthRepository {
 
     if(user == null) throw Exception('An authenticated user is required to accept the terms and conditions'); 
     
-    final url =  user!.links.acceptTermsAndConditions!.href;
+    final url =  user!.links.acceptTermsAndConditions.href;
 
     final body = {
       'accept': true
@@ -312,7 +329,7 @@ class AuthRepository {
 
     if(user == null) throw Exception('An authenticated user is required to show addresses');
 
-    String url =  user!.links.showAddresses!.href;
+    String url =  user!.links.showAddresses.href;
 
     Map<String, String> queryParams = {
       'types': types.map((type) => type.name).join(',')

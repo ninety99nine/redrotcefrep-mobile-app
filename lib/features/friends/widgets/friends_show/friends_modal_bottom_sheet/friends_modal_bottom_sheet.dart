@@ -1,5 +1,5 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import '../../../../../core/shared_widgets/buttons/custom_text_button.dart';
+import '../../../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../../friend_groups/models/friend_group.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../../enums/friend_enums.dart';

@@ -1,8 +1,7 @@
-import 'package:bonako_demo/features/home/services/home_service.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
-
 import '../../../features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_popup.dart';
 import '../../../features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/home/services/home_service.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../features/home/providers/home_provider.dart';
 import 'tab_content/communities_page_content.dart';
@@ -13,7 +12,7 @@ import 'tab_content/profile_page_content.dart';
 import 'tab_content/groups_page_content.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'navigation_drawer.dart';
+import 'home_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -181,7 +180,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: floatingActionButtons,
-      drawer: const NavigationDrawer(),
+      drawer: const HomeDrawer(),
       appBar: appBar,
       body: body,
     );

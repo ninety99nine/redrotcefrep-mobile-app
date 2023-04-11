@@ -1,7 +1,7 @@
 import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../../../../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../../../../models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import 'advert_carousel.dart';

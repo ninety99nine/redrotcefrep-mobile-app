@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_models/user_and_store_association.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';

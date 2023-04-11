@@ -1,6 +1,6 @@
-import '../../../core/shared_widgets/text_form_fields/custom_mobile_number_text_form_field.dart';
-import '../../../core/shared_widgets/text_form_fields/custom_text_form_field.dart';
-import '../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
+import '../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import '../../../core/utils/mobile_number.dart';
 import '../../../core/utils/snackbar.dart';

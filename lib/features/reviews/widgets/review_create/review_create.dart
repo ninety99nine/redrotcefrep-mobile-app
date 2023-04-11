@@ -1,6 +1,6 @@
 import '../../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../../../core/shared_widgets/text_form_fields/custom_text_form_field.dart';
-import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
 import '../../../rating/widgets/rating_selector_using_stars.dart';

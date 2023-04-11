@@ -1,5 +1,5 @@
 
-import 'package:bonako_demo/features/friend_groups/widgets/friend_groups_show/friend_group_orders_show/friend_group_orders_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/friend_group_orders_in_horizontal_list_view_infinite_scroll.dart';
 
 import '../../../friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';

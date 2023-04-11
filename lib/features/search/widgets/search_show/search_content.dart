@@ -1,7 +1,7 @@
 import 'package:bonako_demo/features/search/widgets/search_show/searched_friend_groups_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/search/widgets/search_show/searched_friends_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/search/widgets/search_show/searched_stores_in_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_fields/custom_search_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_search_text_form_field.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:bonako_demo/features/stores/widgets/store_page/store_page.dart';

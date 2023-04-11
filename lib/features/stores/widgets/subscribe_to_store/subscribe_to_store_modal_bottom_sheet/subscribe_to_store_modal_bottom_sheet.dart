@@ -1,5 +1,5 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../models/shoppable_store.dart';
 import '../subscribe_to_store_content.dart';
 import 'package:flutter/material.dart';

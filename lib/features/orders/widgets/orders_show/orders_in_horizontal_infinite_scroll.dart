@@ -2,7 +2,7 @@ import 'package:bonako_demo/features/user/providers/user_provider.dart';
 
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
 import '../../../user/widgets/customer_profile/customer_profile_avatar.dart';
-import '../../../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
+import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
@@ -166,9 +166,9 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
          *  this one (exceptOrderId = null).
          */
         filter: isViewingOrder ? null : orderFilter,
+        customerUserId: customerUserId,
         startAtOrderId: orderId,
         searchWord: searchWord,
-        userId: customerUserId,
         page: page
       );
       

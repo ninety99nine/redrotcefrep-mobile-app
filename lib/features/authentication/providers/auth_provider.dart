@@ -25,6 +25,10 @@ class AuthProvider with ChangeNotifier {
   AuthRepository get authRepository => AuthRepository(user: user, apiProvider: apiProvider);
 
   /// Set the specified user
-  void setUser(User user) => _user = user;
+  AuthProvider setUser(User user, { bool canNotifyListeners = false }) {
+    _user = user;
+    if(canNotifyListeners) notifyListeners();
+    return this;
+  }
 
 }

@@ -1,5 +1,5 @@
-import '../../../../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
-import '../../../../../../../core/shared_widgets/buttons/show_more_or_less_button.dart';
+import '../../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
+import '../../../../../core/shared_widgets/button/show_more_or_less_button.dart';
 import '../../../../../../../core/constants/constants.dart' as constants;
 import '../../../../stores/providers/store_provider.dart';
 import '../../../../stores/models/shoppable_store.dart';

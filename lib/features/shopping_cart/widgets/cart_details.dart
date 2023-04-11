@@ -1,5 +1,5 @@
 import 'package:bonako_demo/core/shared_models/cart.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alerts/custom_message_alert.dart';
+import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 

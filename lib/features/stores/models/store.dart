@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/shared_models/money.dart';
 import 'package:bonako_demo/features/stores/models/shopper_access.dart';
 import 'package:bonako_demo/features/stores/models/team_member_access.dart';
 
@@ -29,6 +30,18 @@ class Store {
   late Relationships relationships;
   late int? activeSubscriptionsCount;
 
+  late bool allowDelivery;
+  late String? deliveryNote;
+  late Money deliveryFlatFee;
+  late bool allowFreeDelivery;
+  late List<DeliveryDestination> deliveryDestinations;
+  
+  late bool allowPickup;
+  late String? pickupNote;
+  late List<PickupDestination> pickupDestinations;
+
+  late List<String> supportedPaymentMethods;
+
   Store.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     logo = json['logo'];
@@ -36,20 +49,29 @@ class Store {
     online = json['online'];
     rating = json['rating'];
     verified = json['verified'];
+    pickupNote = json['pickupNote'];
     description = json['description'];
     ordersCount = json['ordersCount'];
+    allowPickup = json['allowPickup'];
     couponsCount = json['couponsCount'];
     reviewsCount = json['reviewsCount'];
+    deliveryNote = json['deliveryNote'];
+    allowDelivery = json['allowDelivery'];
     links = Links.fromJson(json['links']);
     followersCount = json['followersCount'];
     offlineMessage = json['offlineMessage'];
     teamMembersCount = json['teamMembersCount'];
+    allowFreeDelivery = json['allowFreeDelivery'];
     adverts = List<String>.from(json['adverts']);
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
+    deliveryFlatFee = Money.fromJson(json['deliveryFlatFee']);
     activeSubscriptionsCount = json['activeSubscriptionsCount'];
+    supportedPaymentMethods = List<String>.from(json['supportedPaymentMethods']);
     attributes = Attributes.fromJson(json['attributes'].runtimeType == List ? {} : json['attributes']);
     relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
+    pickupDestinations = json['pickupDestinations'] == null ? [] : (json['pickupDestinations'] as List).map((destination) => PickupDestination.fromJson(destination)).toList();
+    deliveryDestinations = json['deliveryDestinations'] == null ? [] : (json['deliveryDestinations'] as List).map((destination) => DeliveryDestination.fromJson(destination)).toList();
   }
   
 }
@@ -73,6 +95,26 @@ class Relationships {
   Relationships.fromJson(Map<String, dynamic> json) {
     visitShortcode = json['visitShortcode'] == null ? null : Shortcode.fromJson(json['visitShortcode']);
     products = json['products'] == null ? [] : (json['products'] as List).map((product) => Product.fromJson(product)).toList();
+  }
+}
+
+class DeliveryDestination {
+  late Money cost;
+  late String name;
+  late bool allowFreeDelivery;
+
+  DeliveryDestination.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    cost = Money.fromJson(json['cost']);
+    allowFreeDelivery = json['allowFreeDelivery'];
+  }
+}
+
+class PickupDestination {
+  late String name;
+
+  PickupDestination.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
   }
 }
 

@@ -25,12 +25,16 @@ class CustomerProfileAvatar extends StatefulWidget {
 class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
 
   Order get order => widget.order;
+  String get orderFor => order.orderFor;
   ShoppableStore? get store => widget.store;
   String get name => order.attributes.customerName;
+  int get orderForTotalUsers => order.orderForTotalUsers;
+  int get orderForTotalFriends => order.orderForTotalFriends;
   String get mobileNumber => order.customerMobileNumber.withoutExtension;
   bool get hasUserAndOrderAssociation => userAndOrderAssociation != null;
   UserAndOrderAssociation? get userAndOrderAssociation => order.attributes.userAndOrderAssociation;
   bool get isAssociatedAsAFriend => hasUserAndOrderAssociation && userAndOrderAssociation!.role == 'Friend';
+  bool get isAssociatedAsACustomer => hasUserAndOrderAssociation && userAndOrderAssociation!.role == 'Customer';
   
   bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
 
@@ -61,14 +65,47 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
                 /// Name
                 CustomTitleMediumText(name),
 
-                /// If Associated As Friend
-                if(isAssociatedAsAFriend) ...[
+                /// If Associated As Customer / Friend And Order Is For More Than One Person
+                if((isAssociatedAsAFriend || isAssociatedAsACustomer) && orderForTotalUsers > 1) ...[
     
                   /// Spacer
                   const SizedBox(height: 4),
+
+                  Row(
+                    children: [
+
+                      /// Group Icon
+                      Icon(Icons.group_outlined, color: Colors.grey.shade400, size: 20,),
+
+                      /// Spacer
+                      const SizedBox(width: 4),
       
-                  /// Mobile Number
-                  const CustomBodyText('Shared with me', lightShade: true),
+                      if(isAssociatedAsACustomer) ...[
+                      
+                        /// Shared With "Me And Friends"
+                        if(orderFor == 'Me And Friends') ...[
+
+                          /// Shared with a friend / friends
+                          CustomBodyText('Shared with ${orderForTotalFriends == 1 ? 'a friend' : '$orderForTotalFriends friends'}', lightShade: true),
+
+                        ],
+                      
+                        /// Shared With "Friends Only"
+                        if(orderFor == 'Friends Only') ...[
+
+                          /// Ordered for a friend / friends
+                          CustomBodyText('Ordered for ${orderForTotalFriends == 1 ? 'a friend' : '$orderForTotalFriends friends'}', lightShade: true),
+
+                        ],
+
+                      ],
+          
+                      /// Shared With Me
+                      if(isAssociatedAsAFriend) const CustomBodyText('Shared with me', lightShade: true),
+
+
+                    ],
+                  )
 
                 ],
 

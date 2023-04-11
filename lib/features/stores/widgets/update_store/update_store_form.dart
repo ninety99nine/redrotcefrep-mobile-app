@@ -1,14 +1,18 @@
-import 'package:bonako_demo/core/shared_widgets/checkboxes/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/switch/custom_switch.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_fields/custom_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/buttons/custom_elevated_button.dart';
+import 'package:bonako_demo/core/shared_widgets/text_field_tags/custom_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/features/products/repositories/product_repository.dart';
+import 'package:bonako_demo/features/stores/models/store.dart';
 import 'package:bonako_demo/features/stores/repositories/store_repository.dart';
 import 'package:bonako_demo/features/products/providers/product_provider.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:textfield_tags/textfield_tags.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +42,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   Map serverErrors = {};
   bool isSubmitting = false;
   final _formKey = GlobalKey<FormState>();
+  final TextfieldTagsController _deliveryDestinationsController = TextfieldTagsController();
   
   ShoppableStore get store => widget.store;
   Function(bool) get onSubmitting => widget.onSubmitting;
@@ -54,15 +59,39 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
     setStoreForm();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _deliveryDestinationsController.dispose();
+  }
+
   setStoreForm() {
 
     setState(() {
       
       storeForm = {
+
+        /// Store
         'name': store.name,
         'online': store.online,
         'description': store.description,
         'offlineMessage': store.offlineMessage,
+
+        /// Delivery
+        'deliveryNote': store.deliveryNote,
+        'allowDelivery': store.allowDelivery,
+        'allowFreeDelivery': store.allowFreeDelivery,
+        'deliveryDestinations': store.deliveryDestinations,
+        'deliveryFlatFee': store.deliveryFlatFee.amountWithoutCurrency,
+
+        /// Pickup
+        'pickupNote': store.pickupNote,
+        'allowPickup': store.allowPickup,
+        'pickupDestinations': store.pickupDestinations,
+
+        /// Payment
+        'supportedPaymentMethods': store.supportedPaymentMethods,
+
       };
 
     });
@@ -213,19 +242,6 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
               /// Spacer
               const SizedBox(height: 8),
 
-              /// Online Checkbox
-              CustomCheckbox(
-                value: storeForm['online'],
-                disabled: isSubmitting,
-                text: 'We are open for business',
-                onChanged: (value) {
-                  setState(() => storeForm['online'] = value ?? false); 
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 8),
-
               /// Offline Message
               if(!storeForm['online']) CustomTextFormField(
                 errorText: serverErrors.containsKey('offlineMessage') ? serverErrors['offlineMessage'] : null,
@@ -240,6 +256,174 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                 onSaved: (value) {
                   setState(() => storeForm['offlineMessage'] = value ?? ''); 
                 },
+              ),
+              
+              /// Spacer
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+
+                  /// Allow Delivery Switch
+                  CustomSwitch(
+                    value: storeForm['allowDelivery'],
+                    onChanged: (value) {
+                      setState(() => storeForm['allowDelivery'] = value); 
+                    },
+                  ),
+
+                  /// Spacer
+                  const SizedBox(width: 8),
+
+                  //// Allow Delivery Text
+                  const CustomBodyText('Allow Delivery'),
+
+                ],
+              ),
+
+              /// Delivery Settings
+              if(storeForm['allowDelivery']) ...[
+
+                /// Spacer
+                const SizedBox(height: 8),
+
+                /// Delivery Note
+                CustomTextFormField(
+                  errorText: serverErrors.containsKey('deliveryNote') ? serverErrors['deliveryNote'] : null,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  hintText: 'We deliver only on weekends',
+                  initialValue: storeForm['deliveryNote'],
+                  labelText: 'Delivery Note',
+                  enabled: !isSubmitting,
+                  borderRadiusAmount: 16,
+                  minLines: 1,
+                  onChanged: (value) {
+                    setState(() => storeForm['deliveryNote'] = value); 
+                  },
+                  onSaved: (value) {
+                    setState(() => storeForm['deliveryNote'] = value ?? ''); 
+                  },
+                  validator: (value) {
+                    return null;
+                  }
+                ),
+              
+                /// Spacer
+                const SizedBox(height: 16),
+
+                Row(
+                  children: [
+
+                    /// Allow Free Delivery Checkbox
+                    Flexible(
+                      child: CustomCheckbox(
+                        value: storeForm['allowFreeDelivery'],
+                        disabled: isSubmitting,
+                        text: 'Allow Free Delivery',
+                        onChanged: (value) {
+                          setState(() => storeForm['allowFreeDelivery'] = value ?? false); 
+                        }
+                      ),
+                    ),
+
+                    /// Unit Regular Price
+                    if(!storeForm['allowFreeDelivery']) Flexible(
+                      child: CustomTextFormField(
+                        errorText: serverErrors.containsKey('deliveryFlatFee') ? serverErrors['deliveryFlatFee'] : null,
+                        initialValue: storeForm['deliveryFlatFee'],
+                        labelText: 'Flat Fee',
+                        enabled: !isSubmitting,
+                        borderRadiusAmount: 16,
+                        hintText: '100.00',
+                        onChanged: (value) {
+                          setState(() => storeForm['deliveryFlatFee'] = value); 
+                        },
+                        onSaved: (value) {
+                          setState(() => storeForm['deliveryFlatFee'] = value ?? '0'); 
+                        },
+                      ),
+                    ),
+
+                  ],
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 8),
+
+                /// Delivery Destinations
+                CustomTextFieldTags(
+                  borderRadiusAmount: 16,
+                  hintText: 'Add one or more destinations',
+                  textfieldTagsController: _deliveryDestinationsController,
+                  errorText: serverErrors.containsKey('deliveryDestinations') ? serverErrors['deliveryDestinations'] : null,
+                  initialTags: ['one', 'two', 'three'],   //  (storeForm['deliveryDestinations'] as List<DeliveryDestination>).map((destination) => destination.name).toList()
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 8),
+
+              ],
+
+              Row(
+                children: [
+
+                  /// Allow Pickup Switch
+                  CustomSwitch(
+                    value: storeForm['allowPickup'],
+                    onChanged: (value) {
+                      setState(() => storeForm['allowPickup'] = value); 
+                    },
+                  ),
+
+                  /// Spacer
+                  const SizedBox(width: 8),
+
+                  //// Allow Pickup Text
+                  const CustomBodyText('Allow Pickup'),
+
+                ],
+              ),
+
+              /// Pickup Settings
+              if(storeForm['allowPickup']) ...[
+
+                /// Spacer
+                const SizedBox(height: 8),
+
+                /// Pickup Note
+                CustomTextFormField(
+                  errorText: serverErrors.containsKey('pickupNote') ? serverErrors['pickupNote'] : null,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  hintText: 'Pickups are only before 6pm',
+                  initialValue: storeForm['pickupNote'],
+                  labelText: 'Pickup Note',
+                  enabled: !isSubmitting,
+                  borderRadiusAmount: 16,
+                  minLines: 1,
+                  onChanged: (value) {
+                    setState(() => storeForm['pickupNote'] = value); 
+                  },
+                  onSaved: (value) {
+                    setState(() => storeForm['pickupNote'] = value ?? ''); 
+                  },
+                  validator: (value) {
+                    return null;
+                  }
+                ),
+
+              ],
+              
+              /// Spacer
+              const SizedBox(height: 8),
+
+              /// Online Checkbox
+              CustomCheckbox(
+                value: storeForm['online'],
+                disabled: isSubmitting,
+                text: 'We are open for business',
+                onChanged: (value) {
+                  setState(() => storeForm['online'] = value ?? false); 
+                }
               ),
 
               /// Spacer

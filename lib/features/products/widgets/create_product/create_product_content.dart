@@ -1,5 +1,5 @@
 import 'package:bonako_demo/features/products/widgets/create_product/create_product_form/create_product_form.dart';
-import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/products/models/product.dart';

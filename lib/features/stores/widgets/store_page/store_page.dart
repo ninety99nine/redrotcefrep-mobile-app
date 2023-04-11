@@ -7,12 +7,12 @@ import 'package:bonako_demo/features/authentication/providers/auth_provider.dart
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
-import 'package:bonako_demo/features/user/widgets/user_profile/user_orders_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/user_orders_in_horizontal_list_view_infinite_scroll.dart';
 
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import '../store_menu/store_menu_modal_bottom_sheet/store_menu_modal_bottom_sheet.dart';
 import '../store_cards/store_card/primary_section_content/primary_section_content.dart';
-import '../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
+import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
 import '../../../shopping_cart/widgets/shopping_cart_content.dart';
 import '../add_store_to_group/add_to_group_button.dart';
 import '../follow_store/follow_store_button.dart';

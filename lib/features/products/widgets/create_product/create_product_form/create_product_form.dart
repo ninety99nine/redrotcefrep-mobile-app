@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_widgets/checkboxes/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_fields/custom_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/buttons/custom_elevated_button.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/features/products/repositories/product_repository.dart';
 import 'package:bonako_demo/features/stores/repositories/store_repository.dart';

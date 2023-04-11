@@ -1,5 +1,5 @@
 import 'package:bonako_demo/features/products/widgets/create_product/create_product_modal_bottom_sheet/create_product_modal_bottom_sheet.dart';
-import '../../../../../../../core/shared_widgets/buttons/show_more_or_less_button.dart';
+import '../../../../../core/shared_widgets/button/show_more_or_less_button.dart';
 import '../../../../../../../core/constants/constants.dart' as constants;
 import '../../../../stores/providers/store_provider.dart';
 import '../../../../stores/models/shoppable_store.dart';

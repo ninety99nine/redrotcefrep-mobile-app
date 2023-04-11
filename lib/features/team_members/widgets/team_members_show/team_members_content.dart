@@ -1,6 +1,6 @@
 import '../../../user/widgets/team_member_profile/team_member_profile_avatar.dart';
 import '../team_member_invitations_show/team_member_invitations_content.dart';
-import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../team_member_send_invitation/team_member_send_invitation.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';

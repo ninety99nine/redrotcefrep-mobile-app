@@ -1,4 +1,4 @@
-import '../../../core/utils/mobile_number.dart';
+import '../../utils/mobile_number.dart';
 import 'package:flutter/material.dart';
 import 'custom_text_form_field.dart';
 

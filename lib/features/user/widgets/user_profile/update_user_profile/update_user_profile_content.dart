@@ -1,55 +1,55 @@
+import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/features/products/widgets/create_product/create_product_form/create_product_form.dart';
-import 'package:bonako_demo/features/stores/widgets/update_store/update_store_form.dart';
-import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/features/user/providers/user_provider.dart';
+import 'package:bonako_demo/features/user/widgets/user_profile/update_user_profile/update_user_profile_form.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
-import '../../providers/store_provider.dart';
-import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class UpdateStoreContent extends StatefulWidget {
+class UpdateUserProfileContent extends StatefulWidget {
   
-  final ShoppableStore store;
+  final User user;
   final bool showingFullPage;
-  final Function(ShoppableStore)? onUpdatedStore;
+  final Function(User)? onUpdatedUser;
 
-  const UpdateStoreContent({
+  const UpdateUserProfileContent({
     super.key,
-    required this.store,
-    this.onUpdatedStore,
+    required this.user,
+    this.onUpdatedUser,
     this.showingFullPage = false
   });
 
   @override
-  State<UpdateStoreContent> createState() => _UpdateStoreContentState();
+  State<UpdateUserProfileContent> createState() => _UpdateUserProfileContentState();
 }
 
-class _UpdateStoreContentState extends State<UpdateStoreContent> {
+class _UpdateUserProfileContentState extends State<UpdateUserProfileContent> {
 
   bool isSubmitting = false;
+  User get user => widget.user;
   bool disableFloatingActionButton = false;
-  ShoppableStore get store => widget.store;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
-  Function(ShoppableStore)? get onUpdatedStore => widget.onUpdatedStore;
-  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+  Function(User)? get onUpdatedUser => widget.onUpdatedUser;
+  UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
 
   /// This allows us to access the state of UpdateStoreForm widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<UpdateStoreFormState> _updateStoreFormState = GlobalKey<UpdateStoreFormState>();
+  final GlobalKey<UpdateUserProfileFormState> _updateUserProfileFormState = GlobalKey<UpdateUserProfileFormState>();
 
   /// Content to show based on the specified view
   Widget get content {
     
-    return UpdateStoreForm(
-      store: store,
+    return UpdateUserProfileForm(
+      user: user,
       onSubmitting: onSubmitting,
-      key: _updateStoreFormState,
-      onUpdatedStore: _onUpdatedStore
+      onUpdatedUser: _onUpdatedUser,
+      key: _updateUserProfileFormState,
     );
 
   }
@@ -61,12 +61,12 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
     });
   }
 
-  void _onUpdatedStore(ShoppableStore store){
+  void _onUpdatedUser(User user){
     
     /// Close the bottom modal sheet
     Get.back();
 
-    if(onUpdatedStore != null) onUpdatedStore!(store);
+    if(onUpdatedUser != null) onUpdatedUser!(user);
 
   }
 
@@ -89,8 +89,8 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
     /// If we should disable the floating action button, then do nothing
     if(disableFloatingActionButton) return;
 
-    if(_updateStoreFormState.currentState != null) {
-      _updateStoreFormState.currentState!.requestUpdateStore();
+    if(_updateUserProfileFormState.currentState != null) {
+      _updateUserProfileFormState.currentState!.requestUpdateUser();
     }
 
   }
@@ -117,7 +117,7 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
                   children: const [
             
                     /// Title
-                    CustomTitleMediumText('Edit Store', padding: const EdgeInsets.only(bottom: 8),),
+                    CustomTitleMediumText('Edit Profile', padding: EdgeInsets.only(bottom: 8),),
                     
                     /// Subtitle
                     Align(
@@ -154,8 +154,8 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
                 /// Close the Modal Bottom Sheet
                 Navigator.of(context).pop();
 
-                /// Set the store
-                storeProvider.setStore(store);
+                /// Set the user
+                //userProvider.setStore(user);
                 
                 /// Navigate to the page
                 //Navigator.of(context).pushNamed(ReviewsPage.routeName);

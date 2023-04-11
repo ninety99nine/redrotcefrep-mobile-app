@@ -8,7 +8,7 @@ import Foundation
 import audioplayers_darwin
 import mobile_scanner
 import path_provider_foundation
-import shared_preferences_macos
+import shared_preferences_foundation
 import sqflite
 import url_launcher_macos
 

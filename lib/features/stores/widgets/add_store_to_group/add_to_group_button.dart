@@ -1,6 +1,6 @@
 import '../../../friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../../core/shared_widgets/buttons/custom_text_button.dart';
+import '../../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../friend_groups/enums/friend_group_enums.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../providers/store_provider.dart';

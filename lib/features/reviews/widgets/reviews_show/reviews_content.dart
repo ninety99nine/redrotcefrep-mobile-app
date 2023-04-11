@@ -1,4 +1,4 @@
-import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../user/widgets/reviewer_profile/reviewer_profile_avatar.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';

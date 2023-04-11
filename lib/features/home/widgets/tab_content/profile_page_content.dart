@@ -1,6 +1,6 @@
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/user/widgets/user_profile/user_orders_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/user_orders_in_horizontal_list_view_infinite_scroll.dart';
 import '../../../authentication/repositories/auth_repository.dart';
 import '../../../user/widgets/user_profile/user_profile_avatar.dart';
 import '../../../authentication/providers/auth_provider.dart';
@@ -32,8 +32,22 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
               
               /// Profile
               Padding(
-                padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
-                child: UserProfile(user: user)
+                /**
+                 *  The Consumer Widget is used here so that we can update the user profile
+                 *  as soon as the user updates their profile information.
+                 */
+                padding: const EdgeInsets.only(top: 32, left: 16, right: 16),
+                child: Consumer<AuthProvider>(
+                  builder: (context, consumerAuthProvider, child) {
+                    return UserProfile(
+                      key: UniqueKey(),
+                      user: consumerAuthProvider.user!,
+                      onUpdatedUser: (updatedUser) {
+                        authProvider.setUser(updatedUser, canNotifyListeners: true);
+                      },
+                    );
+                  },
+                )
               ),
           
               /// Spacer

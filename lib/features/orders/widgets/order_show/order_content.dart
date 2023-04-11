@@ -1,5 +1,5 @@
 import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
-import 'package:bonako_demo/core/shared_widgets/checkboxes/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner.dart';
@@ -10,12 +10,12 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../../core/shared_widgets/text_form_fields/custom_one_time_pin_field.dart';
+import '../../../../core/shared_widgets/text_form_field/custom_one_time_pin_field.dart';
 import '../../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
-import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../../../../../core/shared_widgets/buttons/custom_text_button.dart';
+import '../../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -634,7 +634,7 @@ class OrderContentState extends State<OrderContent> {
         switchOutCurve: Curves.easeOut,
         duration: const Duration(milliseconds: 500),
         child: Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
           key: ValueKey(order.id),
           color: color ?? Colors.grey.shade50,
           child: child,
@@ -673,7 +673,7 @@ class OrderContentState extends State<OrderContent> {
             ],
           ),
 
-          if(showLogo) Divider(),
+          if(showLogo) const Divider(),
     
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

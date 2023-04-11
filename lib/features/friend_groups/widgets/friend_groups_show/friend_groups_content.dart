@@ -1,5 +1,5 @@
 import '../friend_group_create_or_update/friend_group_create_or_update.dart';
-import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'friend_groups_in_vertical_list_view_infinite_scroll.dart';

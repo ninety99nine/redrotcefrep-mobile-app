@@ -1,5 +1,5 @@
-import '../shared_widgets/message_alerts/custom_message_alert.dart';
-import '../shared_widgets/buttons/custom_elevated_button.dart';
+import '../shared_widgets/message_alert/custom_message_alert.dart';
+import '../shared_widgets/button/custom_elevated_button.dart';
 import '../shared_widgets/text/custom_title_large_text.dart';
 import '../shared_widgets/text/custom_body_text.dart';
 import '../constants/constants.dart' as constants;

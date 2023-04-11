@@ -1,5 +1,5 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
-import '../../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
+import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
 import '../../../../../core/shared_models/user_association_as_order_viewer.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

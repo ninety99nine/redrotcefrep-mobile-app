@@ -1,4 +1,4 @@
-import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_models/user_and_store_association.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';

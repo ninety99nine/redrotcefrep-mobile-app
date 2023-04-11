@@ -1,5 +1,5 @@
 import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
-import 'package:bonako_demo/core/shared_widgets/buttons/custom_text_button.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
@@ -14,11 +14,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
-import '../../../orders/widgets/order_show/order_status.dart';
+import '../order_show/order_status.dart';
 import '../../../user/providers/user_provider.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../../../orders/models/order.dart';
+import '../../models/order.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -74,8 +74,8 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
 
       /// Get the orders of the users from this specified store
       request = storeProvider.setStore(store!).storeRepository.showOrders(
+        customerUserId: user.id,
         searchWord: searchWord,
-        userId: user.id,
         page: page
       );
 
@@ -277,7 +277,7 @@ class _OrderItemState extends State<OrderItem> {
                 children: [
                   
                   /// Summary
-                  Flexible(
+                  Expanded(
                     child: CustomBodyText(order.summary, maxLines: 2, overflow: TextOverflow.ellipsis)
                   ),
     

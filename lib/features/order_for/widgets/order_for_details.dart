@@ -4,7 +4,7 @@ import '../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends_mo
 import '../../order_for/widgets/users_show/users_modal_bottom_sheet/users_modal_bottom_sheet.dart';
 import '../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
+import '../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../core/shared_widgets/chips/custom_chip.dart';
@@ -49,7 +49,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
   bool get hasShoppingCart => store?.hasShoppingCart ?? false;
   bool get hasSelectedFriendGroups => friendGroups.isNotEmpty;
   bool get isOrderingForFriendsOnly => orderFor == 'Friends Only';
-  bool get isOrderingForMeAndFriends => orderFor == 'Me & Friends';
+  bool get isOrderingForMeAndFriends => orderFor == 'Me And Friends';
   List<FriendGroup> get friendGroups => store?.friendGroups ?? [];
   bool get hasSelectedProducts => store?.hasSelectedProducts ?? false;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
@@ -65,19 +65,19 @@ class _OrderForDetailsState extends State<OrderForDetails> {
       /// Calculate client side
       return true;
 
-    /// If ordering for "Me & Friends" or "Friends Only" and selected friends only
+    /// If ordering for "Me And Friends" or "Friends Only" and selected friends only
     }else if((isOrderingForMeAndFriends || isOrderingForFriendsOnly) && hasSelectedFriendsOnly) {
 
       /// Calculate client side
       return true;
 
-    /// If ordering for "Me & Friends" or "Friends Only" and selected 1 friend group only
+    /// If ordering for "Me And Friends" or "Friends Only" and selected 1 friend group only
     }else if((isOrderingForMeAndFriends || isOrderingForFriendsOnly) && hasSelectedFriendGroupsOnly && totalFriendGroups == 1) {
 
       /// Calculate client side
       return true;
 
-    /// If ordering for "Me & Friends" or "Friends Only" and we haven't selected any friends or friend groups
+    /// If ordering for "Me And Friends" or "Friends Only" and we haven't selected any friends or friend groups
     }else if((isOrderingForMeAndFriends || isOrderingForFriendsOnly) && !hasSelectedFriends && !hasSelectedFriendGroups) {
       
       /// Calculate client side
@@ -266,7 +266,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
 
   /// Called to check if we can open the friends modal bottom sheet
   bool canOpenFriendsModalBottomSheet(String option) {
-    return ['Me & Friends', 'Friends Only'].contains(option);
+    return ['Me And Friends', 'Friends Only'].contains(option);
   }
 
   /// Called to open the friends modal bottom sheet
@@ -370,7 +370,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
     if(!hasSelectedFriends && !hasSelectedFriendGroups) {
 
       /// Indicate that we want to order for "Me" instead of 
-      /// "Me & Friends" or "Friends Only"
+      /// "Me And Friends" or "Friends Only"
       selectOrderFor('Me');
 
     }
@@ -458,7 +458,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
                 /// Spacer
                 const SizedBox(height: 8),
 
-                /// Order For Options (Me | Me & Friends | Friends Only | Business)
+                /// Order For Options (Me | Me And Friends | Friends Only | Business)
                 ClipRRect(
                   clipBehavior: Clip.antiAlias,
                   borderRadius: BorderRadius.circular(24),

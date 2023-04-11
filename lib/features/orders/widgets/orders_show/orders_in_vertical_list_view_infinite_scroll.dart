@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
@@ -55,9 +56,11 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
   int? orderId;
+  int? friendUserId;
   int? customerUserId;
   bool hasOrders = false;
   Order? get order => widget.order;
+  bool? authenticatedUserIsOrderCustomer;
   ShoppableStore? get store => widget.store;
   String get orderFilter => widget.orderFilter;
   Function(Order) get onViewOrder => widget.onViewOrder;
@@ -83,6 +86,23 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
 
       /// Set the order customer user id as the customer user id
       customerUserId = order!.customerUserId;
+
+      /// Check if this order belongs to the authenticated user
+      authenticatedUserIsOrderCustomer = order!.customerUserId == authProvider.user!.id;
+
+      /**
+       *  If the customer user id does not match the authenticated user id, then set the friend 
+       *  user id as the current authenticated user id so that we can query orders where this
+       *  customer has shared orders with the authenticated user. This means that we can 
+       *  query orders where the authenticated user is added as a friend to this 
+       *  customer's order.
+       */
+      if(authenticatedUserIsOrderCustomer! == false) {
+        
+        /// Set the friend user id as the current authenticated user id
+        friendUserId = authProvider.user!.id;
+
+      }
     
     }
 
@@ -144,13 +164,31 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
     
     Future<http.Response> request;
 
-    /// If the store is not provided
+    /**
+     *  If the store is not provided, then we must load the current authenticated user's orders.
+     *  These must be orders where the current authenticated user is a customer.
+     *
+     *  This scenerio where the store does not exist occurs when clicking on the "View All"
+     *  button of the profile orders. This launches the modal bottom sheet which at some 
+     *  point calls this OrdersInVerticalListViewInfiniteScroll(). In this situation the
+     *  OrdersInVerticalListViewInfiniteScroll() will not have any store as a point of 
+     *  reference to pull orders, therefore we will default to the current 
+     *  authenticated user as a point of reference to pull the orders.
+     */
     if( store == null ) {
 
-      /// Request the user orders
+      /**
+       *  Request the user orders.
+       * 
+       *  When veiwing multiple orders, then filter by the order filter. When viewing a
+       *  specific order, then filter by the "me" filter so that we can only fetch
+       *  orders where the current authenticated user is a customer. 
+       */
       request = userProvider.setUser(authProvider.user!).userRepository.showOrders(
         filter: isViewingOrder ? null : orderFilter,
         withStore: store == null ? true : false,
+        customerUserId: customerUserId,
+        friendUserId: friendUserId,
         exceptOrderId: orderId,
         searchWord: searchWord,
         page: page
@@ -173,7 +211,8 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
          *  (exceptOrderId = orderId).
          */
         filter: isViewingOrder ? null : orderFilter,
-        userId: customerUserId,
+        customerUserId: customerUserId,
+        friendUserId: friendUserId,
         exceptOrderId: orderId,
         searchWord: searchWord,
         page: page
@@ -219,29 +258,14 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   Widget get selectedOrderContent {
 
     /**
-     *  If the store is not provided, then get the store 
-     *  directly from the order that is provided
+     *  If the store is not provided, then get the store directly from the order that is provided.
+     *  The store extracted from the order is eager loaded on the selected order. This scenerio
+     *  occurs when we click on the "View All" to launch the modal bottom sheet to show the
+     *  orders. In this case the store cannot be specified since we are requesting orders
+     *  of the user regardless of the store. Knowing this, we eager load the associated
+     *  store on each order so that we can then capture that nested store.
      */
     final ShoppableStore store = this.store ?? order!.relationships.store!;
-
-    /**
-     *  If the store is not provided, then we know that we must load the current authenticated
-     *  user's orders. So every order we return is associated with the current authenticated
-     *  user in some way e.g the user is listed as a customer or a friend. In this case we
-     *  can just grab the current authenticated user's name.
-     * 
-     *  If the store is provided, then we can grap the customer name instead, since this order
-     *  might not be assosiated with the current authenticated user in any way.
-     *
-     *  This scenerio where the store does not exist occurs when clicking on the "View All"
-     *  button of the profile orders. This launches the modal bottom sheet without which
-     *  will at some point call this OrdersInVerticalListViewInfiniteScroll(). In this
-     *  situation the OrdersInVerticalListViewInfiniteScroll() will not have any store
-     *  as a point of reference to pull the orders, therefore we will default to the
-     *  current authenticated user as a point of reference to pull the orders
-     */
-    final String name = this.store == null ? authProvider.user!.attributes.name : order!.attributes.customerName;
-    final String title = this.store == null ? 'Other orders related to $name' : 'Other orders by $name';
 
     /// Instruction (On viewing a specific orderer)
     return Column(
@@ -270,9 +294,9 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
           const SizedBox(height: 16,),
     
           /// Title
-          CustomTitleSmallText(
-            title,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          const CustomTitleSmallText(
+            'Other orders',
+            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           ),
     
           /// Divider
@@ -302,7 +326,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
       key: _customVerticalListViewInfiniteScrollState,
       loaderMargin: const EdgeInsets.symmetric(vertical: 32),
       onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
-      headerPadding: order == null ? const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16) : const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+      headerPadding: order == null ? const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16) : const EdgeInsets.all(0)
     );
   }
 }
@@ -355,13 +379,17 @@ class _OrderItemState extends State<OrderItem> {
   OrderContentView get orderContentView => widget.orderContentView;
   bool get isViewingOrder => widget.orderContentView == OrderContentView.viewingOrder;
   bool get isViewingOrders => widget.orderContentView == OrderContentView.viewingOrders;
+
+  UserAndOrderAssociation? get userAndOrderAssociation => order.attributes.userAndOrderAssociation;
   bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store ?? storeFromOrder!);
+  bool get isAssociatedAsFriend => userAndOrderAssociation != null && userAndOrderAssociation!.role == 'Friend';
+  bool get isAssociatedAsCustomer => userAndOrderAssociation != null && userAndOrderAssociation!.role == 'Customer';
 
   String get orderFor => order.orderFor;
   bool get isOrderingForMe => orderFor == 'Me';
   int get orderForTotalFriends => order.orderForTotalFriends;
   bool get isOrderingForFriendsOnly => orderFor == 'Friends Only';
-  bool get isOrderingForMeAndFriends => orderFor == 'Me & Friends';
+  bool get isOrderingForMeAndFriends => orderFor == 'Me And Friends';
 
   /// Set an indication that an Api Request to retrieve a fresh list
   /// of the orders must be initiated as soon as the Dialog Widget 
@@ -625,7 +653,7 @@ class _OrderItemState extends State<OrderItem> {
                       style: Theme.of(context).textTheme.titleMedium,
                       children: [
               
-                        /// Me & Friends (+ 3 friends)
+                        /// Me And Friends (+ 3 friends)
                         if(isOrderingForMeAndFriends) TextSpan(
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             color: Colors.grey,
@@ -669,7 +697,7 @@ class _OrderItemState extends State<OrderItem> {
               CustomBodyText(timeago.format(widget.order.createdAt, locale: 'en_short')),
                   
               /// Order Number
-              if(canManageOrders) CustomBodyText('#${widget.order.attributes.number}', lightShade: true, margin: const EdgeInsets.only(top: 4),),
+              if(isAssociatedAsCustomer || isAssociatedAsFriend || canManageOrders) CustomBodyText('#${widget.order.attributes.number}', lightShade: true, margin: const EdgeInsets.only(top: 4),),
 
               /// If this order has been seen by the store team members (show the following widgets)
               if(hasBeenSeen) ...[

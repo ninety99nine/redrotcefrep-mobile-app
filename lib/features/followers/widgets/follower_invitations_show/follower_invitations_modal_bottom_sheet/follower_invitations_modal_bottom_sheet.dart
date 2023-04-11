@@ -1,5 +1,5 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import '../../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../follower_invitations_in_vertical_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';

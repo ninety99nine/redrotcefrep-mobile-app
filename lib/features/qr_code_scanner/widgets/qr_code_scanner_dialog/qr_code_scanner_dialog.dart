@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../../../../../core/shared_widgets/buttons/custom_text_button.dart';
+import '../../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../../../core/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import '../qr_code_scanner.dart';

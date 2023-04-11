@@ -7,7 +7,9 @@ import 'link.dart';
 class User {
   late int id;
   late Links links;
+  late bool anonymous;
   late String lastName;
+  late String? nickName;
   late String firstName;
   late DateTime? createdAt;
   late DateTime? updatedAt;
@@ -18,7 +20,9 @@ class User {
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    nickName = json['nickName'];
     lastName = json['lastName'];
+    anonymous = json['anonymous'];
     firstName = json['firstName'];
     links = Links.fromJson(json['links']);
     attributes = Attributes.fromJson(json['attributes']);
@@ -48,6 +52,7 @@ class Attributes {
 
 class Links {
   late Link self;
+  late Link updateUser;
   late Link showOrders;
   late Link showFriends;
   late Link createFriends;
@@ -72,6 +77,7 @@ class Links {
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
+    updateUser = Link.fromJson(json['updateUser']);
     showOrders = Link.fromJson(json['showOrders']);
     showFriends = Link.fromJson(json['showFriends']);
     createFriends = Link.fromJson(json['createFriends']);

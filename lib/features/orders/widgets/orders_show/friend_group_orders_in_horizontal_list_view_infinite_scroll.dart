@@ -1,14 +1,16 @@
-import '../../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
-import '../../../../stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../../../../../features/orders/widgets/order_show/order_status.dart';
-import '../../../../friend_groups/providers/friend_group_provider.dart';
-import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../../../../core/shared_widgets/cards/custom_card.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
+
+import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
+import '../../../stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
+import '../order_show/order_status.dart';
+import '../../../friend_groups/providers/friend_group_provider.dart';
+import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../../core/shared_widgets/cards/custom_card.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../../friend_groups/models/friend_group.dart';
-import '../../../../stores/models/shoppable_store.dart';
-import '../../../../orders/models/order.dart';
+import '../../../friend_groups/models/friend_group.dart';
+import '../../../stores/models/shoppable_store.dart';
+import '../../models/order.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -133,75 +135,80 @@ class _OrderItemState extends State<OrderItem> {
   @override
   Widget build(BuildContext context) {
 
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      width: MediaQuery.of(context).size.width * 0.8,
-      child: CustomCard(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                    
-                /// Order Number
-                CustomTitleMediumText('#${widget.order.attributes.number}'),
-
-                /// Created At
-                CustomBodyText(timeago.format(widget.order.createdAt, locale: 'en_short')),
-
-              ],
-            ),
-
-            /// Spacer
-            const SizedBox(height:  4,),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                /// Status
-                OrderStatus(
-                  lightShade: true,
-                  status: widget.order.status.name,
-                ),
-
-                /// Seen Icon
-                if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
-
-              ],
-            ),
-
-            /// Spacer
-            const SizedBox(height: 8,),
-
-            /// Summary
-            CustomBodyText(widget.order.summary, maxLines: 2, overflow: TextOverflow.ellipsis),
-
-            /// Spacer
-            const Spacer(),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-          
-                //  Store Logo
-                StoreLogo(store: store, radius: 16,),
-
-                /// Spacer
-                const SizedBox(width: 8,),
-
-                /// Store Name
-                CustomBodyText(store.name),
-
-              ],
-            )
-
-          ],
+    return OrdersModalBottomSheet(
+      store: store,
+      order: order,
+      canShowFloatingActionButton: false,
+      trigger: Container(
+        margin: const EdgeInsets.only(right: 8),
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: CustomCard(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+    
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                      
+                  /// Order Number
+                  CustomTitleMediumText('#${widget.order.attributes.number}'),
+    
+                  /// Created At
+                  CustomBodyText(timeago.format(widget.order.createdAt, locale: 'en_short')),
+    
+                ],
+              ),
+    
+              /// Spacer
+              const SizedBox(height:  4,),
+    
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+    
+                  /// Status
+                  OrderStatus(
+                    lightShade: true,
+                    status: widget.order.status.name,
+                  ),
+    
+                  /// Seen Icon
+                  if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
+    
+                ],
+              ),
+    
+              /// Spacer
+              const SizedBox(height: 8,),
+    
+              /// Summary
+              CustomBodyText(widget.order.summary, maxLines: 2, overflow: TextOverflow.ellipsis),
+    
+              /// Spacer
+              const Spacer(),
+    
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+            
+                  //  Store Logo
+                  StoreLogo(store: store, radius: 16,),
+    
+                  /// Spacer
+                  const SizedBox(width: 8,),
+    
+                  /// Store Name
+                  CustomBodyText(store.name),
+    
+                ],
+              )
+    
+            ],
+          ),
         ),
       ),
     );

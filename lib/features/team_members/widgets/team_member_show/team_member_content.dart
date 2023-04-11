@@ -1,5 +1,5 @@
-import '../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
-import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../authentication/providers/auth_provider.dart';

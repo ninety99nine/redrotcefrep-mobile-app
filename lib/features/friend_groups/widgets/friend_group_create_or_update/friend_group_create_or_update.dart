@@ -1,13 +1,13 @@
 import '../../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends_modal_bottom_sheet.dart';
 import '../../../friends/widgets/friends_show/friends_in_vertical_infinite_scroll.dart';
 import '../../../friend_groups/widgets/friend_group_create_or_update/friend_items.dart';
-import '../../../../core/shared_widgets/text_form_fields/custom_text_form_field.dart';
+import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import '../../../../core/shared_models/user_association_as_friend_group_member.dart';
-import '../../../../core/shared_widgets/message_alerts/custom_message_alert.dart';
-import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../friend_groups/repositories/friend_group_repository.dart';
-import '../../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
+import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
 import '../../../friend_groups/models/friend_group.dart';

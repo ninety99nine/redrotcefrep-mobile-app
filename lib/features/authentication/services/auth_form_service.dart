@@ -1,7 +1,7 @@
-import '../../../core/shared_widgets/text_form_fields/custom_mobile_number_text_form_field.dart';
-import '../../../core/shared_widgets/text_form_fields/custom_password_text_form_field.dart';
-import '../../../core/shared_widgets/text_form_fields/custom_one_time_pin_field.dart';
-import '../../../core/shared_widgets/text_form_fields/custom_text_form_field.dart';
+import '../../../core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
+import '../../../core/shared_widgets/text_form_field/custom_password_text_form_field.dart';
+import '../../../core/shared_widgets/text_form_field/custom_one_time_pin_field.dart';
+import '../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import '../../../core/shared_widgets/chips/custom_avatar_and_name_chip.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';

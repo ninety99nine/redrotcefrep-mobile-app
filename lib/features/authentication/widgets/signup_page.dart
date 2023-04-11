@@ -1,5 +1,5 @@
-import '../../../core/shared_widgets/buttons/custom_elevated_button.dart';
-import '../../../core/shared_widgets/buttons/previous_text_button.dart';
+import '../../../core/shared_widgets/button/custom_elevated_button.dart';
+import '../../../core/shared_widgets/button/previous_text_button.dart';
 import '../../introduction/widgets/landing_page.dart';
 import '../repositories/auth_repository.dart';
 import '../services/auth_form_service.dart';

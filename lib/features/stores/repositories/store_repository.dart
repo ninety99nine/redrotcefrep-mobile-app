@@ -210,7 +210,7 @@ class StoreRepository {
   }
 
   /// Get the orders of the specified store
-  Future<http.Response> showOrders({ String? filter, int? userId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, String searchWord = '', int page = 1 }) {
+  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show orders');
 
@@ -220,8 +220,11 @@ class StoreRepository {
 
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
 
-    /// Filter orders by the specified user id
-    if(userId != null) queryParams.addAll({'user_id': userId.toString()});
+    /// Filter orders by the specified friend user id
+    if(friendUserId != null) queryParams.addAll({'friend_user_id': friendUserId.toString()});
+
+    /// Filter orders by the specified customer user id
+    if(customerUserId != null) queryParams.addAll({'customer_user_id': customerUserId.toString()});
 
     /// Exclude specific orders matching the specified order id
     if(exceptOrderId != null) queryParams.addAll({'except_order_id': exceptOrderId.toString()});

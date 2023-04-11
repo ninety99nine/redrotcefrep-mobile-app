@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'features/team_members/widgets/team_members_show/team_members_page/team_members_page.dart';
 import 'features/followers/widgets/followers_show/followers_page/followers_page.dart';
 import 'features/introduction/widgets/introduction_role_selection_page.dart';
@@ -56,6 +58,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(

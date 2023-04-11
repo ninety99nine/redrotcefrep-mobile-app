@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:bonako_demo/core/shared_widgets/buttons/custom_elevated_button.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_fields/custom_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/api/repositories/api_repository.dart';
@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../shared_widgets/Loader/custom_circular_progress_indicator_with_text.dart';
 import '../shared_widgets/text/custom_title_small_text.dart';
-import '../shared_widgets/buttons/custom_text_button.dart';
+import '../shared_widgets/button/custom_text_button.dart';
 import '../shared_widgets/text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 

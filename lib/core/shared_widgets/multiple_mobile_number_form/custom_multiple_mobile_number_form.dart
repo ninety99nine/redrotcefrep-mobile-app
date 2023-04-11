@@ -1,6 +1,6 @@
-import '../../../../core/shared_widgets/text_form_fields/custom_mobile_number_text_form_field.dart';
+import '../text_form_field/custom_mobile_number_text_form_field.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../../core/shared_widgets/buttons/custom_elevated_button.dart';
+import '../button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../features/contacts/widgets/contacts_modal_popup.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';

@@ -1,7 +1,7 @@
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../../core/shared_widgets/checkboxes/custom_checkbox.dart';
+import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_models/permission.dart';
 import '../../../stores/providers/store_provider.dart';

@@ -10,15 +10,15 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-class NavigationDrawer extends StatefulWidget {
+class HomeDrawer extends StatefulWidget {
 
-  const NavigationDrawer({super.key});
+  const HomeDrawer({super.key});
 
   @override
-  State<NavigationDrawer> createState() => _NavigationDrawerState();
+  State<HomeDrawer> createState() => _HomeDrawerState();
 }
 
-class _NavigationDrawerState extends State<NavigationDrawer> {
+class _HomeDrawerState extends State<HomeDrawer> {
 
   User get user => authProvider.user!;
   AuthRepository get authRepository => authProvider.authRepository;
