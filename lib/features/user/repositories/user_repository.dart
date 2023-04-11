@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/addresses/enums/address_enums.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 
 import '../../api/repositories/api_repository.dart';
@@ -62,6 +63,37 @@ class UserRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
     
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
+
+  /// Create user address
+  Future<http.Response> createAddress({ required AddressType type, required String addressLine }){
+
+    if(user == null) throw Exception('The user must be set to show addresses');
+
+    String url = user!.links.createAddresses.href;
+
+    Map body = {
+      'type': type.name,
+      'addressLine': addressLine
+    };
+
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+  /// Show the user addresses
+  Future<http.Response> showAddresses({ List<AddressType> types = const [], int? page = 1 }){
+
+    if(user == null) throw Exception('The user must be set to show addresses');
+
+    String url =  user!.links.showAddresses.href;
+
+    Map<String, String> queryParams = {
+      'types': types.map((type) => type.name).join(',')
+    };
+
     return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }

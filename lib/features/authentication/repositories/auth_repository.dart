@@ -323,19 +323,4 @@ class AuthRepository {
     return apiRepository.post(url: url, body: body, context: context);
     
   }
-
-  /// Show the user addresses
-  Future<http.Response> showAddresses({ List<AddressType> types = const [], int? page = 1, BuildContext? context }){
-
-    if(user == null) throw Exception('An authenticated user is required to show addresses');
-
-    String url =  user!.links.showAddresses.href;
-
-    Map<String, String> queryParams = {
-      'types': types.map((type) => type.name).join(',')
-    };
-
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
-    
-  }
 }

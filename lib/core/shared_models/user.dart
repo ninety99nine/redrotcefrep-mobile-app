@@ -58,7 +58,6 @@ class Links {
   late Link createFriends;
   late Link removeFriends;
   late Link showAddresses;
-  //  late Link updateAddress;
   late Link showFriendMenus;
   late Link createAddresses;
   late Link showOrderFilters;
@@ -83,7 +82,6 @@ class Links {
     createFriends = Link.fromJson(json['createFriends']);
     removeFriends = Link.fromJson(json['removeFriends']);
     showAddresses = Link.fromJson(json['showAddresses']);
-    //  updateAddress = Link.fromJson(json['updateAddress']);
     showFriendMenus = Link.fromJson(json['showFriendMenus']);
     createAddresses = Link.fromJson(json['createAddresses']);
     showOrderFilters = Link.fromJson(json['showOrderFilters']);

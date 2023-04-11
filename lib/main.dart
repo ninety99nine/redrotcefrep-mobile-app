@@ -10,6 +10,7 @@ import 'features/introduction/widgets/introduction_slides_page.dart';
 import 'features/authentication/widgets/reset_password_page.dart';
 import 'features/authentication/providers/auth_provider.dart';
 import 'features/stores/widgets/store_page/store_page.dart';
+import 'features/addresses/providers/address_provider.dart';
 import 'features/products/providers/product_provider.dart';
 import 'features/authentication/widgets/signup_page.dart';
 import 'features/authentication/widgets/signin_page.dart';
@@ -126,6 +127,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<ApiProvider, OrderProvider>(
           create: (_) => OrderProvider(apiProvider: ApiProvider()),
           update: (ctx, apiProvider, previousOrderProvider) => OrderProvider(apiProvider: apiProvider)
+        ),
+        /**
+         *  Note: We have to use the ChangeNotifierProxyProvider instead of 
+         *  ChangeNotifierProvider because the AddressProvider requires the
+         *  ApiProvider as a dependency. When the ApiProvider changes,
+         *  then the AddressProvider will also rebuild.
+         */
+        ChangeNotifierProxyProvider<ApiProvider, AddressProvider>(
+          create: (_) => AddressProvider(apiProvider: ApiProvider()),
+          update: (ctx, apiProvider, previousAddressProvider) => AddressProvider(apiProvider: apiProvider)
         ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 

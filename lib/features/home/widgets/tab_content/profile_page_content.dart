@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/addresses/widgets/address_cards_in_vertical_view.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/user_orders_in_horizontal_list_view_infinite_scroll.dart';
@@ -48,6 +49,14 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
                     );
                   },
                 )
+              ),
+          
+              /// Spacer
+              const SizedBox(height: 24),
+
+              /// Home & Work Address
+              AddressCardsInVerticalView(
+                user: user
               ),
           
               /// Spacer

@@ -238,105 +238,111 @@ class _StorePageContentState extends State<StorePageContent> {
         ],
       )
       : SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-        
-                    /// Back Arrow
-                    IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
-
-                    /// Menu Modal Bottom Sheet
-                    StoreMenuModalBottomSheet(
-                      store: store!,
-                    ),
-
-                  ],
-                ),
-        
-                /// Spacer
-                const SizedBox(height: 16,),
-
-                /// Store Logo, Profile, Adverts, Rating, e.t.c
-                StorePrimarySectionContent(
-                  store: store!,
-                  logoRadius: logoRadius, 
-                  showProfileRightSide: false,
-                ),
-
-                /// Access Denied For Team Member
-                if(hasJoinedStoreTeam && !canAccessAsTeamMember) ...[
-
-                  /// Spacer
-                  const SizedBox(height: 20,),
-
-                  /// Reason for denied access e.g "Subscribe to start selling"
-                  CustomMessageAlert(store!.attributes.teamMemberAccess!.description!),
-
-                  /// Divider
-                  const Divider(height: 40,),
-                
-                ],
-
-                if(canAccessAsShopper) Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    
-                    /// Add Store To Group Button
-                    AddStoreToGroupButton(store: store!),
-        
-                    /// Spacer
-                    const SizedBox(width: 8,),
-
-                    /// Follow / Unfollow Button
-                    FollowStoreButton(store: store!, alignment: Alignment.centerRight),
-
-                  ],
-                ),
-
-                /// Access Denied For Shopper
-                if(!hasJoinedStoreTeam && !canAccessAsShopper) ...[
-
-                  /// Spacer
-                  const SizedBox(height: 20,),
-
-                  /// Reason for denied access e.g "We are currently closed"
-                  CustomMessageAlert(store!.attributes.shopperAccess!.description!),
-
-                  /// Divider
-                  const Divider(height: 40,),
-                
-                ],
-                
-                //  Store Products, Shopping Cart, Subscribe e.t.c
-                if(hasJoinedStoreTeam || (!hasJoinedStoreTeam && canAccessAsShopper)) ...[
-                  
-                  ListenableProvider.value(
-                    value: store,
-                    child: const Content()
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+      
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                              
+                      /// Back Arrow
+                      IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
+                            
+                      /// Menu Modal Bottom Sheet
+                      StoreMenuModalBottomSheet(
+                        store: store!,
+                      ),
+                            
+                    ],
                   ),
-
-                  /// Divider
-                  const Divider(height: 40,),
-
+            
+                  /// Spacer
+                  const SizedBox(height: 16,),
+          
+                  /// Store Logo, Profile, Adverts, Rating, e.t.c
+                  StorePrimarySectionContent(
+                    store: store!,
+                    logoRadius: logoRadius, 
+                    showProfileRightSide: false,
+                  ),
+          
+                  /// Access Denied For Team Member
+                  if(hasJoinedStoreTeam && !canAccessAsTeamMember) ...[
+          
+                    /// Spacer
+                    const SizedBox(height: 20,),
+          
+                    /// Reason for denied access e.g "Subscribe to start selling"
+                    CustomMessageAlert(store!.attributes.teamMemberAccess!.description!),
+          
+                    /// Divider
+                    const Divider(height: 40,),
+                  
+                  ],
+          
+                  if(canAccessAsShopper) Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      
+                      /// Add Store To Group Button
+                      AddStoreToGroupButton(store: store!),
+            
+                      /// Spacer
+                      const SizedBox(width: 8,),
+          
+                      /// Follow / Unfollow Button
+                      FollowStoreButton(store: store!, alignment: Alignment.centerRight),
+          
+                    ],
+                  ),
+          
+                  /// Access Denied For Shopper
+                  if(!hasJoinedStoreTeam && !canAccessAsShopper) ...[
+          
+                    /// Spacer
+                    const SizedBox(height: 20,),
+          
+                    /// Reason for denied access e.g "We are currently closed"
+                    CustomMessageAlert(store!.attributes.shopperAccess!.description!),
+          
+                    /// Divider
+                    const Divider(height: 40,),
+                  
+                  ],
+            
                 ],
-        
-                /// User Orders
-                UserOrdersInHorizontalListViewInfiniteScroll(
-                  store: store,
-                  user: user,
-                ),
-    
-                //  Spacer
-                const SizedBox(height: 100),
-        
-              ],
+              ),
             ),
+            
+            //  Store Products, Shopping Cart, Subscribe e.t.c
+            if(hasJoinedStoreTeam || (!hasJoinedStoreTeam && canAccessAsShopper)) ...[
+              
+              ListenableProvider.value(
+                value: store,
+                child: const Content()
+              ),
+      
+              /// Divider
+              const Divider(height: 40,),
+
+            ],
+        
+            /// User Orders
+            UserOrdersInHorizontalListViewInfiniteScroll(
+              store: store,
+              user: user,
+            ),
+            
+            //  Spacer
+            const SizedBox(height: 100),
+        
+          ],
         ),
     );
   }
@@ -378,6 +384,7 @@ class Content extends StatelessWidget {
         StoreSecondarySectionContent(
           store: store,
           subscribeButtonAlignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           shoppingCartCurrentView: ShoppingCartCurrentView.storePage
         ),
         

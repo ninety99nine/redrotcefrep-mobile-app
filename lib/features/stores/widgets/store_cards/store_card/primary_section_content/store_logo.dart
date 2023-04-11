@@ -89,7 +89,7 @@ class _StoreLogoState extends State<StoreLogo> {
                     borderRadius: BorderRadius.circular(50)
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.edit, color: Colors.white,)     
+                  child: const Icon(Icons.mode_edit_outlined, color: Colors.white,)     
                 ),
               )
               

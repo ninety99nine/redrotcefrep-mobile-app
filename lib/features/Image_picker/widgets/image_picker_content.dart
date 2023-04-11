@@ -207,7 +207,12 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
 
       }
 
-    }).whenComplete(() {
+    }).catchError((e) {
+        
+        SnackbarUtility.showErrorMessage(message: 'Failed to upload!');
+
+    })
+    .whenComplete(() {
 
       _stopLoader();
 

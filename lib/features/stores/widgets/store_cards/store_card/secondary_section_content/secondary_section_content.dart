@@ -11,6 +11,7 @@ class StoreSecondarySectionContent extends StatefulWidget {
 
   final bool canShowAdverts;
   final ShoppableStore store;
+  final EdgeInsetsGeometry padding;
   final bool canShowSubscribeCallToAction;
   final Alignment subscribeButtonAlignment;
   final ShoppingCartCurrentView shoppingCartCurrentView;
@@ -20,8 +21,9 @@ class StoreSecondarySectionContent extends StatefulWidget {
     required this.store,
     this.canShowAdverts = true,
     required this.shoppingCartCurrentView,
+    this.padding = const EdgeInsets.all(0),
     this.canShowSubscribeCallToAction = true,
-    this.subscribeButtonAlignment = Alignment.centerRight
+    this.subscribeButtonAlignment = Alignment.centerRight,
   }) : super(key: key);
 
   @override
@@ -31,6 +33,7 @@ class StoreSecondarySectionContent extends StatefulWidget {
 class _StoreSecondarySectionContentState extends State<StoreSecondarySectionContent> {
 
   ShoppableStore get store => widget.store;
+  EdgeInsetsGeometry get padding => widget.padding;
   bool get canShowAdverts => widget.canShowAdverts;
   bool get hasProducts => store.relationships.products.isNotEmpty;
   bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
@@ -49,12 +52,15 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
         /// View As Customer Checkbox
         if(canAccessAsTeamMember && hasProducts) ...[
 
-          CustomCheckbox(
-            value: teamMemberWantsToViewAsCustomer,
-            text: 'View as customer',
-            onChanged: (value) {
-              if(value != null) store.updateTeamMemberWantsToViewAsCustomer(value);
-            }
+          Padding(
+            padding: padding,
+            child: CustomCheckbox(
+              value: teamMemberWantsToViewAsCustomer,
+              text: 'View as customer',
+              onChanged: (value) {
+                if(value != null) store.updateTeamMemberWantsToViewAsCustomer(value);
+              }
+            ),
           ),
 
         ],
@@ -69,19 +75,28 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
 
         ],
 
-        /// Shopping Cart
-        if((!hasJoinedStoreTeam && canAccessAsShopper) || (hasJoinedStoreTeam && canAccessAsTeamMember && teamMemberWantsToViewAsCustomer)) ShoppingCartContent(
-          shoppingCartCurrentView: widget.shoppingCartCurrentView
+        Padding(
+          padding: padding,
+          child: Column(
+            children: [
+
+              /// Shopping Cart
+              if((!hasJoinedStoreTeam && canAccessAsShopper) || (hasJoinedStoreTeam && canAccessAsTeamMember && teamMemberWantsToViewAsCustomer)) ShoppingCartContent(
+                shoppingCartCurrentView: widget.shoppingCartCurrentView
+              ),
+
+              /// Edit Product Cards
+              if(hasJoinedStoreTeam && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer)  ...[
+
+                EditProductCards(
+                  shoppingCartCurrentView: widget.shoppingCartCurrentView
+                )
+
+              ],
+
+            ],
+          ),
         ),
-
-        /// Edit Product Cards
-        if(hasJoinedStoreTeam && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer)  ...[
-
-          EditProductCards(
-            shoppingCartCurrentView: widget.shoppingCartCurrentView
-          )
-
-        ],
 
         /// Subscribe Modal Bottom Sheet
         if(hasJoinedStoreTeam && !canAccessAsTeamMember && canShowSubscribeCallToAction) ...[

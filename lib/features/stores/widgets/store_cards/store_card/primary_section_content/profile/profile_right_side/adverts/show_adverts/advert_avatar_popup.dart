@@ -32,6 +32,7 @@ Future<void> showAdvertDialog(ShoppableStore store, BuildContext context) {
       builder: (BuildContext context) {
         return Dialog(
               elevation: 0,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 24.0),
               backgroundColor: Colors.transparent,
               child: advertCarousel(store, context),
             );
@@ -43,34 +44,42 @@ Future<void> showAdvertDialog(ShoppableStore store, BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        
+        /// Store Advert Carousel
         StoreAdvertCarousel(store: store),
+        
+        /// Spacer
         const SizedBox(height: 40,),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
 
-            /// Visit Store Button
-            CustomElevatedButton(
-              width: 120, 
-              'Visit Store', 
-              onPressed: onVisitStore,
-              suffixIcon: Icons.arrow_forward_rounded
-            ),
-
-            /// Spacer
-            const SizedBox(height: 8,),
-
-            /// Close Button
-            CustomElevatedButton(
-              '', 
-              width: 16, 
-              prefixIconSize: 12, 
-              prefixIcon: Icons.close, 
-              onPressed: () => Navigator.of(context).pop()
-            )
-            
-          ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+        
+              /// Visit Store Button
+              CustomElevatedButton(
+                width: 120, 
+                'Visit Store', 
+                onPressed: onVisitStore,
+                suffixIcon: Icons.arrow_forward_rounded
+              ),
+        
+              /// Spacer
+              const SizedBox(height: 8,),
+        
+              /// Close Button
+              CustomElevatedButton(
+                '', 
+                width: 16, 
+                prefixIconSize: 12, 
+                prefixIcon: Icons.close, 
+                onPressed: () => Navigator.of(context).pop()
+              )
+              
+            ],
+          ),
         )
       ],
     );
