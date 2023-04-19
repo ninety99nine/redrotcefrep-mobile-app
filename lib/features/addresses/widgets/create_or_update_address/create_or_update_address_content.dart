@@ -157,9 +157,9 @@ class _CreateOrUpdateAddressContentState extends State<CreateOrUpdateAddressCont
                     CustomTitleMediumText('${isEditing ? 'Edit' : 'Create'} Address', padding: const EdgeInsets.only(bottom: 8),),
                     
                     /// Subtitle
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
-                      child: CustomBodyText('Want to make changes?'),
+                      child: CustomBodyText(isEditing ? 'Want to make changes?' : 'Home, work or business address'),
                     ),
                     
                   ],

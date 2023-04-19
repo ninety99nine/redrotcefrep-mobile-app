@@ -1,7 +1,8 @@
+import '../../user/widgets/user_profile/user_profile_avatar.dart';
 import '../../../features/introduction/widgets/landing_page.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../authentication/repositories/auth_repository.dart';
-import '../../user/widgets/user_profile/user_profile_avatar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../authentication/providers/auth_provider.dart';
 import '../../../core/shared_models/user.dart';
 import '../../../core/utils/snackbar.dart';
@@ -24,12 +25,12 @@ class _HomeDrawerState extends State<HomeDrawer> {
   AuthRepository get authRepository => authProvider.authRepository;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
-  _requestLogout() {
+  void _requestLogout() {
 
     //  Show logging out loader
     DialogUtility.showLoader(message: 'Signing out', context: context);
 
-    return authRepository.logout(
+    authRepository.logout(
       context: context,
     ).then((response) async {
 
@@ -85,6 +86,12 @@ class _HomeDrawerState extends State<HomeDrawer> {
 
   }
 
+  void _resetSharedPreferences() {
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.clear().then((value) => _requestLogout());
+    });
+  }
+
   Widget menuItem(String title, { required IconData icon, required void Function() onTap, bool showDivider = true }) {
     return Column(
       children: [
@@ -126,6 +133,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
 
             menuItem('Communities', icon: Icons.people, onTap: (){}),
             menuItem('Sign Out', icon: Icons.logout, onTap: _requestLogout),
+            menuItem('Reset', icon: Icons.settings_backup_restore_outlined, onTap: _resetSharedPreferences),
 
           ],
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomTextFormField extends StatelessWidget {
+class CustomTextFormField extends StatefulWidget {
   
   final bool enabled;
   final int? minLines;
@@ -18,6 +18,7 @@ class CustomTextFormField extends StatelessWidget {
   final String validatorOnEmptyText;
   final void Function(String?)? onSaved;
   final void Function(String)? onChanged;
+  final TextEditingController? controller;
   final String? Function(String?)? validator;
   final void Function(String)? onFieldSubmitted;
 
@@ -33,6 +34,7 @@ class CustomTextFormField extends StatelessWidget {
       this.validator,
       this.onChanged,
       this.prefixIcon,
+      this.controller,
       this.suffixIcon,
       this.initialValue,
       this.enabled = true,
@@ -46,6 +48,27 @@ class CustomTextFormField extends StatelessWidget {
   );
 
   @override
+  State<CustomTextFormField> createState() => CustomTextFormFieldState();
+}
+
+class CustomTextFormFieldState extends State<CustomTextFormField> {
+
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    
+    super.initState();
+
+    if(widget.controller != null) {
+      controller = widget.controller!;
+    } else {
+      controller = TextEditingController(text: widget.initialValue);
+    }
+
+  }
+  
+  @override
   Widget build(BuildContext context) {
 
     final primaryColor = Theme.of(context).primaryColor;
@@ -53,25 +76,25 @@ class CustomTextFormField extends StatelessWidget {
 
     return TextFormField(
       autofocus: false,
-      enabled: enabled,
-      minLines: minLines,
-      maxLines: maxLines,
+      controller: controller,
+      enabled: widget.enabled,
+      minLines: widget.minLines,
+      maxLines: widget.maxLines,
       cursorColor: primaryColor,
-      initialValue: initialValue,
-      keyboardType: keyboardType,
+      keyboardType: widget.keyboardType,
       style: bodyLarge.copyWith(
-        color: enabled ? Colors.black : Colors.grey.shade400,
+        color: widget.enabled ? Colors.black : Colors.grey.shade400,
         fontWeight: FontWeight.normal,
       ),
-      obscureText: obscureText,
+      obscureText: widget.obscureText,
       decoration: InputDecoration(
         filled: true,
         errorMaxLines: 2,
-        hintText: hintText,
-        errorText: errorText,
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
-        label: labelText == null ? null : Text(labelText!),
+        hintText: widget.hintText,
+        errorText: widget.errorText,
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: widget.suffixIcon,
+        label: widget.labelText == null ? null : Text(widget.labelText!),
         labelStyle: TextStyle(
           color: bodyLarge.color,
           fontWeight: FontWeight.normal
@@ -80,12 +103,12 @@ class CustomTextFormField extends StatelessWidget {
           color: Colors.grey.shade400,
           fontWeight: FontWeight.normal
         ),
-        contentPadding: contentPadding,
+        contentPadding: widget.contentPadding,
         fillColor: primaryColor.withOpacity(0.05),
         
         //  Border disabled (i.e enabled = false)
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadiusAmount),
+          borderRadius: BorderRadius.circular(widget.borderRadiusAmount),
           borderSide: BorderSide(
             color: primaryColor.withOpacity(0.1),
             width: 1.0,
@@ -94,7 +117,7 @@ class CustomTextFormField extends StatelessWidget {
 
         //  Border enabled (i.e enabled = true)
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadiusAmount),
+          borderRadius: BorderRadius.circular(widget.borderRadiusAmount),
           borderSide: BorderSide(
             color: primaryColor.withOpacity(0.5),
             width: 1.0,
@@ -103,7 +126,7 @@ class CustomTextFormField extends StatelessWidget {
 
         //  Border focused (i.e while typing - onFocus)
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadiusAmount),
+          borderRadius: BorderRadius.circular(widget.borderRadiusAmount),
           borderSide: BorderSide(
             color: primaryColor.withOpacity(1),
             width: 1.0,
@@ -112,7 +135,7 @@ class CustomTextFormField extends StatelessWidget {
 
         //  Border error onfocused (i.e validation error showing while not typing - onblur)
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadiusAmount),
+          borderRadius: BorderRadius.circular(widget.borderRadiusAmount),
           borderSide: BorderSide(
             color: Colors.red.withOpacity(0.5),
             width: 1.0,
@@ -121,27 +144,27 @@ class CustomTextFormField extends StatelessWidget {
 
         //  Border error focused (i.e validation error showing while typing - onFocus)
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadiusAmount),
+          borderRadius: BorderRadius.circular(widget.borderRadiusAmount),
           borderSide: const BorderSide(
             color: Colors.red,
             width: 1.0,
           ),
         ),
       ),
-      validator: validator ?? (value) {
+      validator: widget.validator ?? (value) {
         
         if(value == null || value.isEmpty){
-          return validatorOnEmptyText;
-        }else if(errorText != null){
-          return errorText;
+          return widget.validatorOnEmptyText;
+        }else if(widget.errorText != null){
+          return widget.errorText;
         }
         
         return null;
 
       },
-      onFieldSubmitted: onFieldSubmitted,
-      onChanged: onChanged,
-      onSaved: onSaved,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      onChanged: widget.onChanged,
+      onSaved: widget.onSaved,
     );
     
   }

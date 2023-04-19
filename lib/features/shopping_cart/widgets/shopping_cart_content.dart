@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/shopping_cart/widgets/delivery_or_pickup/delivery_or_pickup.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
 import '../../order_for/widgets/order_for_details.dart';
@@ -354,6 +355,9 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
         /// Show the order for details
         const OrderForDetails(),
+
+        /// Show the cart details
+        const DeliveryOrPickup(),
 
         //  Call To Action
         AnimatedSwitcher(

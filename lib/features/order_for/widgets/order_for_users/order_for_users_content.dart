@@ -1,54 +1,42 @@
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'users_in_vertical_list_view_infinite_scroll.dart';
+import 'order_for_users_in_vertical_list_view_infinite_scroll.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'users_page/users_page.dart';
+import 'order_for_users_page/order_for_users_page.dart';
 
-class UsersContent extends StatefulWidget {
+class OrderForUsersContent extends StatefulWidget {
   
-  final String orderFor;
-  final List<User> friends;
   final ShoppableStore store;
   final bool showingFullPage;
-  final List<FriendGroup> friendGroups;
 
-  const UsersContent({
+  const OrderForUsersContent({
     super.key,
     required this.store,
-    required this.friends,
-    required this.orderFor,
-    required this.friendGroups,
     this.showingFullPage = false
   });
 
   @override
-  State<UsersContent> createState() => _UsersContentState();
+  State<OrderForUsersContent> createState() => _OrderForUsersContentState();
 }
 
-class _UsersContentState extends State<UsersContent> {
+class _OrderForUsersContentState extends State<OrderForUsersContent> {
 
-  String get orderFor => widget.orderFor;
   ShoppableStore get store => widget.store;
-  List<User> get friends => widget.friends;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
-  List<FriendGroup> get friendGroups => widget.friendGroups;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   /// Content to show based on the specified view
   Widget get content {
 
     /// Show users view
-    return UsersInVerticalListViewInfiniteScroll(
+    return OrderForUsersInVerticalListViewInfiniteScroll(
       store: store,
-      friends: friends,
-      orderFor: orderFor,
-      friendGroups: friendGroups,
     );
     
   }
@@ -118,7 +106,7 @@ class _UsersContentState extends State<UsersContent> {
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(UsersPage.routeName);
+                Navigator.of(context).pushNamed(OrderForUsersPage.routeName);
               
               }
             ),

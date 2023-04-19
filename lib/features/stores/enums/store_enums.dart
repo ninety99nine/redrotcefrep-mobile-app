@@ -18,3 +18,8 @@ enum UserAcceptedInvitationStatus {
   no,
   notSpecified
 }
+
+enum CollectionType {
+  delivery,
+  pickup
+}

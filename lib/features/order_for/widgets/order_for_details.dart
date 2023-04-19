@@ -1,7 +1,7 @@
 import 'package:bonako_demo/features/order_for/services/order_for_service.dart';
 
 import '../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends_modal_bottom_sheet.dart';
-import '../../order_for/widgets/users_show/users_modal_bottom_sheet/users_modal_bottom_sheet.dart';
+import 'order_for_users/order_for_users_modal_bottom_sheet/order_for_users_modal_bottom_sheet.dart';
 import '../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../core/shared_widgets/checkbox/custom_checkbox.dart';
@@ -49,8 +49,8 @@ class _OrderForDetailsState extends State<OrderForDetails> {
   bool get hasShoppingCart => store?.hasShoppingCart ?? false;
   bool get hasSelectedFriendGroups => friendGroups.isNotEmpty;
   bool get isOrderingForFriendsOnly => orderFor == 'Friends Only';
-  bool get isOrderingForMeAndFriends => orderFor == 'Me And Friends';
   List<FriendGroup> get friendGroups => store?.friendGroups ?? [];
+  bool get isOrderingForMeAndFriends => orderFor == 'Me And Friends';
   bool get hasSelectedProducts => store?.hasSelectedProducts ?? false;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
@@ -401,11 +401,8 @@ class _OrderForDetailsState extends State<OrderForDetails> {
         const SizedBox(width: 4,),
 
         /// View Users Button
-        if(hasStore && (hasSelectedFriends || hasSelectedFriendGroups)) UsersModalBottomSheet(
-          store: store!, 
-          friends: friends, 
-          orderFor: orderFor!, 
-          friendGroups: friendGroups
+        if(hasStore && (hasSelectedFriends || hasSelectedFriendGroups)) OrderForUsersModalBottomSheet(
+          store: store!
         ),
 
       ],

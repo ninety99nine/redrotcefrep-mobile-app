@@ -85,6 +85,9 @@ class ApiService {
 
         }else {
 
+          print(responseBody);
+          print(responseBody['error']);
+
           /// If the response body contains a message
           if(responseBody.containsKey('message')) {
 
@@ -94,8 +97,6 @@ class ApiService {
               SnackbarUtility.showErrorMessage(message: responseBody['message']);
 
             }
-
-            print(responseBody['error']);
 
           }else{
 
@@ -112,6 +113,8 @@ class ApiService {
 
     } catch (e) {
 
+      print(e);
+      
       e.printError();
       
       /// Show the error message e.g when the jsonDecode(response.body) fails

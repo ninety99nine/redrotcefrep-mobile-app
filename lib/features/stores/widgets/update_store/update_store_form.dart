@@ -114,8 +114,17 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
       storeProvider.setStore(store).storeRepository.updateStore(
         name: storeForm['name'],
         online: storeForm['online'],
+        pickupNote: storeForm['pickupNote'],
+        allowPickup: storeForm['allowPickup'],
         description: storeForm['description'],
+        deliveryNote: storeForm['deliveryNote'],
+        allowDelivery: storeForm['allowDelivery'],
         offlineMessage: storeForm['offlineMessage'],
+        deliveryFlatFee: storeForm['deliveryFlatFee'],
+        allowFreeDelivery: storeForm['allowFreeDelivery'],
+        pickupDestinations: storeForm['pickupDestinations'],
+        deliveryDestinations: storeForm['deliveryDestinations'],
+        supportedPaymentMethods: storeForm['supportedPaymentMethods'],
       ).then((response) async {
 
         final responseBody = jsonDecode(response.body);

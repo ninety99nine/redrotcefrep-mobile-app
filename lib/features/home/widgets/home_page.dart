@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/home/widgets/tab_content/chat_page_content.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
 import '../../../features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_popup.dart';
 import '../../../features/authentication/providers/auth_provider.dart';
@@ -23,13 +24,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
-  int totalTabs = 5;
+  int totalTabs = 6;
   User get user => authProvider.user!;
   String get firstName => user.firstName;
   late final TabController _tabController;
   bool isGettingSelectedHomeTabIndexFromDeviceStorage = true;
 
   int get selectedHomeTabIndex => homeProvider.selectedHomeTabIndex;
+  bool get canShowFloatingActionButtons => selectedHomeTabIndex != 4;
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
@@ -104,7 +106,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   getNavigationTab('Following', 1),    
                   getNavigationTab('Groups', 2),        
                   getNavigationTab('My stores', 3),    
-                  getNavigationTab('Communities', 4),    
+                  getNavigationTab('Chat', 4),
+                  getNavigationTab('Communities', 5),    
                 ],
               ),
             ),
@@ -132,8 +135,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           /// Groups page
           GroupsPageContent(),
 
-          /// My Stores
+          /// My stores page
           MyStoresPageContent(),
+
+          /// Chat page
+          ChatPageContent(),
 
           /// Communities page
           CommunitiesPageContent(),
@@ -155,7 +161,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: [
+      children: canShowFloatingActionButtons ? [
         
         /// QR Code Scanner Modal Bottom Sheet
         qrCodeScannerModalBottomSheet,
@@ -163,7 +169,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         /// Search Modal Bottom Sheet
         searchModalBottomSheet,
 
-      ],
+      ] : [],
     );
 
   }

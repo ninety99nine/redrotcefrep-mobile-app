@@ -208,8 +208,8 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
       }
 
     }).catchError((e) {
-        
-        SnackbarUtility.showErrorMessage(message: 'Failed to upload!');
+      
+      SnackbarUtility.showErrorMessage(message: 'Failed to upload!');
 
     })
     .whenComplete(() {

@@ -12,9 +12,8 @@ class CustomMessageAlert extends StatelessWidget {
   
   final String text;
   final double? size;
+  final bool showIcon;
   final IconData? icon;
-  final bool lightShade;
-  final String? details;
   final EdgeInsets margin;
   final EdgeInsets padding;
   final AlertMessageType type;
@@ -25,8 +24,7 @@ class CustomMessageAlert extends StatelessWidget {
       super.key,  
       this.icon,
       this.size,
-      this.details,
-      this.lightShade = false,
+      this.showIcon = true,
       this.type = AlertMessageType.info,
       this.margin = const EdgeInsets.all(0),
       this.padding = const EdgeInsets.all(8.0),
@@ -50,26 +48,24 @@ class CustomMessageAlert extends StatelessWidget {
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
-        color: lightShade ? Colors.grey.shade100 : Colors.grey.shade200,
+        color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(16.0)
       ),
       child: Row(
         children: [
 
-          /// Icon
-          Icon(icon ?? Icons.info, color: color, size: size),
+          if(showIcon) ...[
+            
+            /// Icon
+            Icon(icon ?? Icons.info, color: color, size: size),
 
-          /// Spacer
-          const SizedBox(width: 8,),
+            /// Spacer
+            const SizedBox(width: 8,),
+
+          ],
     
           /// Text
-          Expanded(child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomBodyText(text, lightShade: lightShade),
-              if(details != null) CustomBodyText(details, lightShade: true,),
-            ],
-          ))
+          Expanded(child: CustomBodyText(text),)
     
         ],
       ),

@@ -49,7 +49,7 @@ class FriendsModalBottomSheetState extends State<FriendsModalBottomSheet> {
     /// If the purpose is to select friends for an order
     if(purpose == Purpose.addFriendsToOrder) {
       
-      return const Text('');
+      return Container();
 
     /// If the purpose is to select friends for a group
     }else{

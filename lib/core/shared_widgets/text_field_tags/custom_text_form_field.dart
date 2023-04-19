@@ -57,7 +57,7 @@ class CustomTextFieldTags extends StatelessWidget {
     return TextFieldTags(
       initialTags: initialTags,
       textSeparators: textSeparators,
-      //textfieldTagsController: textfieldTagsController,
+      textfieldTagsController: textfieldTagsController,
       validator: validator ?? (String tag) {
         if (
           !allowDuplicates && 
@@ -66,7 +66,7 @@ class CustomTextFieldTags extends StatelessWidget {
           textfieldTagsController!.getTags!.contains(tag)
         ) {
           
-          return 'Destination already exists';
+          return 'Already exists';
 
         }else if(
             validatorOnEmptyText.isNotEmpty && 

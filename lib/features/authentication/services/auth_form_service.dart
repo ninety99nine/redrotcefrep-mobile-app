@@ -485,11 +485,8 @@ class AuthFormService {
        */
       final data = jsonDecode( (prefs.getString(type.name)) ?? '{}' );
 
-      /// Get the current date and time
-      final now = DateTime.now();
-
-      /// Check if the data exists and has not expired (Expires after 1 hour)
-      final isValidData = data.isNotEmpty && DateTime.parse(data['expiresAt']).isAfter(now);
+      /// Check if the data exists and has not expired
+      final isValidData = data.isNotEmpty && DateTime.parse(data['expiresAt']).isAfter(DateTime.now());
 
       /// Return the valid data of null
       return isValidData ? data : null;

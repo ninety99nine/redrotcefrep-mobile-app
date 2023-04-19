@@ -1,5 +1,7 @@
 import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
+import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 
 import '../../../../core/shared_models/product_line.dart';
 import '../../../core/shared_models/cart.dart';
@@ -31,6 +33,16 @@ class ShoppableStore extends Store with ChangeNotifier {
   String orderFor = 'Me';
   List<User> friends = [];
   List<FriendGroup> friendGroups = [];
+  bool get isOrderingForMe => orderFor == 'Me';
+  bool get hasSelectedFriends => friends.isNotEmpty;
+  bool get hasSelectedFriendGroups => friendGroups.isNotEmpty;
+  bool get isOrderingForFriendsOnly => orderFor == 'Friends Only';
+  bool get isOrderingForMeAndFriends => orderFor == 'Me And Friends';
+
+  Address? deliveryAddress;
+  String? pickupDestination;
+  String? deliveryDestination;
+  CollectionType? collectionType;
   
   ShoppableStore.fromJson(super.json) : super.fromJson();
 
@@ -55,10 +67,13 @@ class ShoppableStore extends Store with ChangeNotifier {
     if(canNotifyListeners) notifyListeners();
   }
 
+  updateCollectionType(CollectionType collectionType) {
+    this.collectionType = collectionType;
+    notifyListeners();
+  }
+
   updateTeamMemberWantsToViewAsCustomer(bool status) {
     teamMemberWantsToViewAsCustomer = status;
-    print('teamMemberWantsToViewAsCustomer');
-    print(teamMemberWantsToViewAsCustomer);
     notifyListeners();
   }
 

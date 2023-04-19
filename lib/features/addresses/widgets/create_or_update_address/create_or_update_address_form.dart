@@ -2,12 +2,14 @@ import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/features/addresses/enums/address_enums.dart';
 import 'package:bonako_demo/features/addresses/providers/address_provider.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../models/address.dart';
@@ -282,10 +284,9 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
             children: addressForm.isEmpty ? [] : [
 
               /// Address Type Label
-              if(isEditing) CustomMessageAlert(
-                'You can include directions for this ${address!.type.name} address',
-                margin: const EdgeInsets.only(top: 16),
-                lightShade: true,
+              if(isEditing) CustomTitleSmallText(
+                '${address!.type.name.capitalize} address',
+                margin: const EdgeInsets.only(top: 16, left: 8, bottom: 8),
               ),
 
               /// Address Type Dropdown

@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_models/cart.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -9,31 +11,25 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
-class UsersInVerticalListViewInfiniteScroll extends StatefulWidget {
+class OrderForUsersInVerticalListViewInfiniteScroll extends StatefulWidget {
   
-  final String orderFor;
-  final List<User> friends;
   final ShoppableStore store;
-  final List<FriendGroup> friendGroups;
 
-  const UsersInVerticalListViewInfiniteScroll({
+  const OrderForUsersInVerticalListViewInfiniteScroll({
     super.key,
     required this.store,
-    required this.friends,
-    required this.orderFor,
-    required this.friendGroups,
   });
 
   @override
-  State<UsersInVerticalListViewInfiniteScroll> createState() => _UsersInVerticalListViewInfiniteScrollState();
+  State<OrderForUsersInVerticalListViewInfiniteScroll> createState() => _OrderForUsersInVerticalListViewInfiniteScrollState();
 }
 
-class _UsersInVerticalListViewInfiniteScrollState extends State<UsersInVerticalListViewInfiniteScroll> {
+class _OrderForUsersInVerticalListViewInfiniteScrollState extends State<OrderForUsersInVerticalListViewInfiniteScroll> {
 
-  String get orderFor => widget.orderFor;
+  String get orderFor => store.orderFor;
+  List<User> get friends => store.friends;
   ShoppableStore get store => widget.store;
-  List<User> get friends => widget.friends;
-  List<FriendGroup> get friendGroups => widget.friendGroups;
+  List<FriendGroup> get friendGroups => store.friendGroups;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   /// Render each request item as an UserItem

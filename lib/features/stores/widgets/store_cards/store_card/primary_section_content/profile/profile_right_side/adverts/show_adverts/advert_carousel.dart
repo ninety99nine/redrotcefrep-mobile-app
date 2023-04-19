@@ -99,8 +99,17 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
         /// Set the updated advert from the response
         setState(() => store.adverts[itemIndex] = responseBody['advert']);
 
-        /// Navigate to this item
-        carouselController.jumpToPage(itemIndex);
+        /**
+         *  The reason we use a Future.delayed here is because the carouselController.jumpToPage() 
+         *  method does not work if called immediately after the setState() method. Instead it
+         *  works if called after a delay.
+         */
+        Future.delayed(Duration.zero).then((value) {
+
+          /// Navigate to this item
+          carouselController.jumpToPage(adverts.length - 1);
+          
+        });
 
       },
       deleteUrl: store.links.deleteAdvert.href,
@@ -133,8 +142,17 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
           /// Set the updated advert from the response
           setState(() => store.adverts.add(responseBody['advert']));
 
-          /// Navigate to this item
-          carouselController.jumpToPage(adverts.length - 1);
+          /**
+           *  The reason we use a Future.delayed here is because the carouselController.jumpToPage() 
+           *  method does not work if called immediately after the setState() method. Instead it
+           *  works if called after a delay.
+           */
+          Future.delayed(Duration.zero).then((value) {
+
+            /// Navigate to this item
+            carouselController.jumpToPage(adverts.length - 1);
+
+          });
 
         },
         triggerText: 'Add Advert ${adverts.isEmpty ? '' : '#${adverts.length + 1}'}',

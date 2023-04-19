@@ -108,6 +108,14 @@ class DeliveryDestination {
     cost = Money.fromJson(json['cost']);
     allowFreeDelivery = json['allowFreeDelivery'];
   }
+
+  Map toJson() {
+    return {
+      'name': name,
+      'cost': cost,
+      'allowFreeDelivery': allowFreeDelivery
+    };
+  }
 }
 
 class PickupDestination {
@@ -115,6 +123,12 @@ class PickupDestination {
 
   PickupDestination.fromJson(Map<String, dynamic> json) {
     name = json['name'];
+  }
+
+  Map toJson() {
+    return {
+      'name': name
+    };
   }
 }
 

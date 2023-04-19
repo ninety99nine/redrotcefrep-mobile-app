@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/models/store.dart';
+
 import '../../../../../core/shared_models/permission.dart';
 import '../../friend_groups/models/friend_group.dart';
 import '../../../../../core/utils/mobile_number.dart';
@@ -88,19 +90,39 @@ class StoreRepository {
   }
 
   /// Update the specified store
-  Future<http.Response> updateStore({ required String name, required String? description, required bool online, required String? offlineMessage}) {
+  Future<http.Response> updateStore({ 
+    String? name, bool? online, String? description, String? offlineMessage, String? deliveryNote,
+    bool? allowDelivery, bool? allowFreeDelivery, List<DeliveryDestination>? deliveryDestinations, 
+    String? deliveryFlatFee, String? pickupNote, bool? allowPickup,
+    List<PickupDestination>? pickupDestinations,
+    List<String>? supportedPaymentMethods,
+  }) {
 
     if(store == null) throw Exception('The store must be set to update');
 
     String url = store!.links.updateStore.href;
     
-    Map body = {
-      'name': name,
-      'online': online
-    };
+    Map body = {};
 
-    if(description != null && description.isNotEmpty) body['description'] = description; 
-    if(offlineMessage != null && offlineMessage.isNotEmpty) body['offline_message'] = offlineMessage; 
+    if(online != null) body['online'] = online;
+    if(name != null && name.isNotEmpty) body['name'] = name;
+    if(allowPickup != null) body['allowPickup'] = allowPickup;
+    if(allowDelivery != null) body['allowDelivery'] = allowDelivery;
+    if(allowFreeDelivery != null) body['allowFreeDelivery'] = allowFreeDelivery;
+    if(pickupNote != null && pickupNote.isNotEmpty) body['pickupNote'] = pickupNote;
+    if(description != null && description.isNotEmpty) body['description'] = description;
+    if(deliveryNote != null && deliveryNote.isNotEmpty) body['delivery_note'] = deliveryNote;
+    if(offlineMessage != null && offlineMessage.isNotEmpty) body['offlineMessage'] = offlineMessage;
+    if(deliveryFlatFee != null && deliveryFlatFee.isNotEmpty) body['deliveryFlatFee'] = deliveryFlatFee;
+    if(supportedPaymentMethods != null && supportedPaymentMethods.isNotEmpty) body['supportedPaymentMethods'] = supportedPaymentMethods;
+
+    if(pickupDestinations != null && pickupDestinations.isNotEmpty) {
+      body['pickupDestinations'] = pickupDestinations.map((pickupDestination) => pickupDestination.toJson()).toList();
+    }
+    
+    if(deliveryDestinations != null && deliveryDestinations.isNotEmpty) {
+      body['deliveryDestinations'] = deliveryDestinations.map((deliveryDestination) => deliveryDestination.toJson()).toList();
+    }
 
     return apiRepository.put(url: url, body: body);
 
