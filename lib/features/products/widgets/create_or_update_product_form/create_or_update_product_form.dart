@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-class CreateProductForm extends StatefulWidget {
+class CreateOrUpdateProductForm extends StatefulWidget {
   
   final Product? product;
   final ShoppableStore store;
@@ -24,7 +24,7 @@ class CreateProductForm extends StatefulWidget {
   final Function(Product)? onUpdatedProduct;
   final Function(Product)? onCreatedProduct;
 
-  const CreateProductForm({
+  const CreateOrUpdateProductForm({
     super.key,
     this.product,
     required this.store,
@@ -36,10 +36,10 @@ class CreateProductForm extends StatefulWidget {
   });
 
   @override
-  State<CreateProductForm> createState() => CreateProductFormState();
+  State<CreateOrUpdateProductForm> createState() => CreateOrUpdateProductFormState();
 }
 
-class CreateProductFormState extends State<CreateProductForm> {
+class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
   Map productForm = {};
   Map serverErrors = {};
@@ -112,11 +112,11 @@ class CreateProductFormState extends State<CreateProductForm> {
 
         /// Quantity
         'allowedQuantityPerOrder': isEditing ? product!.allowedQuantityPerOrder.value.toLowerCase() : 'unlimited',
-        'maximumAllowedQuantityPerOrder': isEditing ? product!.maximumAllowedQuantityPerOrder.value.toString() : '2',
+        'maximumAllowedQuantityPerOrder': isEditing ? product!.maximumAllowedQuantityPerOrder.value.toString() : '5',
 
         /// Stock
         'stockQuantityType': isEditing ? product!.stockQuantityType.value.toLowerCase() : 'unlimited',
-        'stockQuantity': isEditing ? product!.stockQuantity.value.toString() : '0',
+        'stockQuantity': isEditing ? product!.stockQuantity.value.toString() : '10',
 
       };
 
@@ -357,6 +357,9 @@ class CreateProductFormState extends State<CreateProductForm> {
           key: _formKey,
           child: Column(
             children: productForm.isEmpty ? [] : [
+              
+              /// Spacer
+              const SizedBox(height: 8),
 
               /// Visible Checkbox
               CustomCheckbox(
@@ -369,7 +372,7 @@ class CreateProductFormState extends State<CreateProductForm> {
               ),
               
               /// Spacer
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
               /// Name
               CustomTextFormField(
@@ -388,7 +391,7 @@ class CreateProductFormState extends State<CreateProductForm> {
               ),
               
               /// Spacer
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
               /// Show Description Checkbox
               CustomCheckbox(
@@ -401,7 +404,7 @@ class CreateProductFormState extends State<CreateProductForm> {
               ),
               
               /// Spacer
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
               /// Description
               CustomTextFormField(

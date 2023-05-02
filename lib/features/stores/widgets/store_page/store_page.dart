@@ -180,12 +180,13 @@ class _StorePageContentState extends State<StorePageContent> {
     storeProvider.storeRepository.showStore(
       storeUrl: store!.links.self.href,
       withCountTeamMembers: true,
+      withVisibleProducts: true,
       withVisitShortcode: true,
       withCountFollowers: true,
+      withCountProducts: true,
       withCountReviews: true,
       withCountCoupons: true,
       withCountOrders: true,
-      withProducts: true,
       withRating: true,
     ).then((response) {
 

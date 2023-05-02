@@ -28,13 +28,23 @@ class _DeliveryDetailsState extends State<PickupDetails> {
     /// Get the updated Shoppable Store Model
     store = Provider.of<ShoppableStore>(context, listen: false);
 
-    /// If the pickup destination is null and we have pickup destinations
-    if(store!.pickupDestination == null && store!.pickupDestinations.isNotEmpty) {
+    /// If the pickup destination has not been selected and we have pickup destinations
+    if(hasSelectedPickupDestination() == false && store!.pickupDestinations.isNotEmpty) {
 
       /// Set the pickup destination to the first pickup destination
-      setState(() => store!.pickupDestination = store!.pickupDestinations[0].name);
+      setState(() => store!.pickupDestination = store!.pickupDestinations[0]);
 
     }
+
+  }
+
+  bool hasSelectedPickupDestination() {
+
+    /// If the pickup destination is not selected, return false
+    if(store!.pickupDestination == null) return false;
+
+    /// Check if the selected pickup destination exists in the list of pickup destinations
+    return store!.pickupDestinations.any((destination) => destination.name == store!.pickupDestination);
 
   }
 
@@ -83,12 +93,23 @@ class _DeliveryDetailsState extends State<PickupDetails> {
 
                 /// Return a RadioListTile for each pickup destination
                 return RadioListTile(
-                  groupValue: store!.pickupDestination,
-                  title: Text(pickupDestination.name),
+                  groupValue: store!.pickupDestination?.name,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      /// Pickup Destination Name
+                      CustomTitleSmallText(pickupDestination.name),
+
+                      /// Pickup Destination Address
+                      if(pickupDestination.address.isNotEmpty) CustomBodyText(pickupDestination.address),
+                      
+                    ],
+                  ),
                   value: pickupDestination.name,
                   dense: true,
                   onChanged: (value) {
-                    setState(() => store!.pickupDestination = value);
+                    setState(() => store!.pickupDestination = store!.pickupDestinations.firstWhere((destination) => destination.name == value));
                   },
                 );
 

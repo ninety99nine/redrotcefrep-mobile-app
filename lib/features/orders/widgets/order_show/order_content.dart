@@ -2,6 +2,7 @@ import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/addresses/widgets/delivery_address_card.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_dialog/qr_code_scanner_dialog.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
@@ -159,6 +160,7 @@ class OrderContentState extends State<OrderContent> {
     _startLoader();
 
     orderProvider.setOrder(order).orderRepository.showOrder(
+      withDeliveryAddress: true,
       withTransactions: false,
       withCustomer: false,
       context: context,
@@ -258,7 +260,6 @@ class OrderContentState extends State<OrderContent> {
         status: selectedFollowUpStatus!.name,
         withTransactions: false,
         withCustomer: false,
-        context: context,
         withCart: true,
       ).then((response) {
 
@@ -720,6 +721,40 @@ class OrderContentState extends State<OrderContent> {
                 ),
             )
           ),
+
+          if(order.collectionType != null) ...[
+
+            CustomTitleSmallText(order.collectionType!, margin: const EdgeInsets.only(top: 16)),
+            CustomBodyText(order.collectionType!.toLowerCase() == 'delivery' ? 'Seller will deliver to specified address' : 'Customer will pickup this order', margin: const EdgeInsets.only(top: 8)),
+            
+          ],
+
+          if(order.destinationName != null) ...[
+
+            /// Spacer
+            const SizedBox(height: 16,),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const CustomBodyText('Location: '),
+                CustomTitleSmallText(order.destinationName!),
+              ],
+            ),
+
+            /// Spacer
+            const SizedBox(height: 16,),
+            
+          ],
+
+          /// Delivery Address
+          if(order.relationships.deliveryAddress != null) ...[
+
+            DeliveryAddressCard(
+              deliveryAddress: order.relationships.deliveryAddress!,
+            ),
+
+          ],
     
           /// Manage Order Options 
           SizedBox(

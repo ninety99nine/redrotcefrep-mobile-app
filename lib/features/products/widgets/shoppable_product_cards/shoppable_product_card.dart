@@ -1,10 +1,10 @@
-import '../../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../../../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../../../stores/models/shoppable_store.dart';
+import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
+import '../../../../../core/shared_widgets/text/custom_title_small_text.dart';
+import '../../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../../../models/product.dart';
+import '../../models/product.dart';
 
 class ShoppableProductCard extends StatefulWidget {
 

@@ -1,10 +1,8 @@
 import 'package:bonako_demo/core/shared_models/money.dart';
 import 'package:bonako_demo/features/stores/models/shopper_access.dart';
 import 'package:bonako_demo/features/stores/models/team_member_access.dart';
-
 import '../../../../core/shared_models/user_and_store_association.dart';
 import '../../../../core/shared_models/shortcode.dart';
-import '../../subscriptions/models/subscription.dart';
 import '../../../../core/shared_models/link.dart';
 import '../../products/models/product.dart';
 
@@ -19,6 +17,7 @@ class Store {
   late int? ordersCount;
   late int? couponsCount;
   late int? reviewsCount;
+  late int? productsCount;
   late DateTime createdAt;
   late DateTime updatedAt;
   late int? followersCount;
@@ -56,6 +55,7 @@ class Store {
     couponsCount = json['couponsCount'];
     reviewsCount = json['reviewsCount'];
     deliveryNote = json['deliveryNote'];
+    productsCount = json['productsCount'];
     allowDelivery = json['allowDelivery'];
     links = Links.fromJson(json['links']);
     followersCount = json['followersCount'];
@@ -112,22 +112,25 @@ class DeliveryDestination {
   Map toJson() {
     return {
       'name': name,
-      'cost': cost,
-      'allowFreeDelivery': allowFreeDelivery
+      'cost': cost.amountWithoutCurrency,
+      'allow_free_delivery': allowFreeDelivery
     };
   }
 }
 
 class PickupDestination {
   late String name;
+  late String address;
 
   PickupDestination.fromJson(Map<String, dynamic> json) {
     name = json['name'];
+    address = json['address'];
   }
 
   Map toJson() {
     return {
-      'name': name
+      'name': name,
+      'address': address,
     };
   }
 }
@@ -143,10 +146,11 @@ class Links {
   late Link updateAdvert;
   late Link createAdvert;
   late Link deleteAdvert;
+  late Link showProducts;
   late Link createReviews;
-  late Link createProducts;
   late Link showFollowers;
   late Link showFollowing;
+  late Link createProducts;
   late Link showTeamMembers;
   late Link updateFollowing;
   late Link inviteFollowers;
@@ -156,6 +160,7 @@ class Links {
   late Link showReviewFilters;
   late Link addToFriendGroups;
   late Link confirmDeleteStore;
+  late Link showProductFilters;
   late Link inspectShoppingCart;
   late Link convertShoppingCart;
   late Link showFollowerFilters;
@@ -163,6 +168,7 @@ class Links {
   late Link removeFromFriendGroups;
   late Link showReviewRatingOptions;
   late Link createFakeSubscriptions;
+  late Link updateProductArrangement;
   late Link generatePaymentShortcode;
   late Link acceptInvitationToFollow;
   late Link declineInvitationToFollow;
@@ -180,6 +186,7 @@ class Links {
     deleteStore = Link.fromJson(json['deleteStore']);
     showReviews = Link.fromJson(json['showReviews']);
     showCoupons = Link.fromJson(json['showCoupons']);
+    showProducts = Link.fromJson(json['showProducts']);
     updateAdvert = Link.fromJson(json['updateAdvert']);
     createAdvert = Link.fromJson(json['createAdvert']);
     deleteAdvert = Link.fromJson(json['deleteAdvert']);
@@ -195,6 +202,7 @@ class Links {
     inviteTeamMembers = Link.fromJson(json['inviteTeamMembers']);
     removeTeamMembers = Link.fromJson(json['removeTeamMembers']);
     showReviewFilters = Link.fromJson(json['showReviewFilters']);
+    showProductFilters = Link.fromJson(json['showProductFilters']);
     confirmDeleteStore = Link.fromJson(json['confirmDeleteStore']);
     inspectShoppingCart = Link.fromJson(json['inspectShoppingCart']);
     convertShoppingCart = Link.fromJson(json['convertShoppingCart']);
@@ -203,6 +211,7 @@ class Links {
     removeFromFriendGroups = Link.fromJson(json['removeFromFriendGroups']);
     showReviewRatingOptions = Link.fromJson(json['showReviewRatingOptions']);
     createFakeSubscriptions = Link.fromJson(json['createFakeSubscriptions']);
+    updateProductArrangement = Link.fromJson(json['updateProductArrangement']);
     generatePaymentShortcode = Link.fromJson(json['generatePaymentShortcode']);
     acceptInvitationToFollow = Link.fromJson(json['acceptInvitationToFollow']);
     declineInvitationToFollow = Link.fromJson(json['declineInvitationToFollow']);

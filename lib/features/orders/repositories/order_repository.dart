@@ -20,7 +20,7 @@ class OrderRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Show the specified order
-  Future<http.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withTransactions = false, BuildContext? context }) {
+  Future<http.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withTransactions = false, BuildContext? context }) {
     
     if(order == null) throw Exception('The order must be set to show this order');
 
@@ -30,6 +30,7 @@ class OrderRepository {
     if(withCart) queryParams.addAll({'withCart': '1'});
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
     if(withTransactions) queryParams.addAll({'withTransactions': '1'});
+    if(withDeliveryAddress) queryParams.addAll({'withDeliveryAddress': '1'});
 
     return apiRepository.get(url: url, queryParams: queryParams, context: context);
     
@@ -58,7 +59,7 @@ class OrderRepository {
   }
 
   /// Update the status of the specified order
-  Future<http.Response> updateStatus({ required String status, String? collectionCode, bool withCart = false, bool withCustomer = false, bool withTransactions = false, BuildContext? context }) {
+  Future<http.Response> updateStatus({ required String status, String? collectionCode, bool withCart = false, bool withCustomer = false, bool withTransactions = false }) {
     
     if(order == null) throw Exception('The order must be set to update status');
 
@@ -79,7 +80,7 @@ class OrderRepository {
       });
     }
 
-    return apiRepository.put(url: url, body: body, queryParams: queryParams, context: context);
+    return apiRepository.put(url: url, body: body, queryParams: queryParams);
     
   }
 

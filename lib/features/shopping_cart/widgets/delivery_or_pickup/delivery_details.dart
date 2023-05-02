@@ -25,7 +25,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
   bool isLoadingAddresses = false;
 
   User get user => authProvider.user!;
-  bool get hasDeliveryAddress => store?.deliveryAddress != null;
+  bool get hasAddressForDelivery => store?.addressForDelivery != null;
   bool get hasSelectedFriends => store == null ? false : store!.hasSelectedFriends;
   bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
@@ -42,13 +42,23 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
     /// Get the updated Shoppable Store Model
     store = Provider.of<ShoppableStore>(context, listen: false);
 
-    /// If the delivery destination is null and we have delivery destinations
-    if(store!.deliveryDestination == null && store!.deliveryDestinations.isNotEmpty) {
+    /// If the delivery destination has not been selected and we have delivery destinations
+    if(hasSelectedDeliveryDestination() == false && store!.deliveryDestinations.isNotEmpty) {
 
       /// Set the delivery destination to the first delivery destination
-      setState(() => store!.deliveryDestination = store!.deliveryDestinations[0].name);
+      setState(() => store!.deliveryDestination = store!.deliveryDestinations[0]);
 
     }
+
+  }
+
+  bool hasSelectedDeliveryDestination() {
+
+    /// If the delivery destination is not selected, return false
+    if(store!.deliveryDestination == null) return false;
+
+    /// Check if the selected delivery destination exists in the list of delivery destinations
+    return store!.deliveryDestinations.any((destination) => destination.name == store!.deliveryDestination);
 
   }
 
@@ -76,7 +86,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
   }
 
   void onSelectedAddress(Address? address) {
-    setState(() => store!.deliveryAddress = address);
+    setState(() => store!.addressForDelivery = address);
   }
 
   Widget getDeliveryDestinationName(DeliveryDestination deliveryDestination) {
@@ -136,12 +146,12 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                     /// Return a RadioListTile for each delivery destination
                     return RadioListTile(
                       title: getDeliveryDestinationName(deliveryDestination),
+                      groupValue: store!.deliveryDestination?.name,
                       contentPadding: const EdgeInsets.all(0.0),
-                      groupValue: store!.deliveryDestination,
                       value: deliveryDestination.name,
                       dense: true,
                       onChanged: (value) {
-                        setState(() => store!.deliveryDestination = value);
+                        setState(() => store!.deliveryDestination = store!.deliveryDestinations.firstWhere((destination) => destination.name == value));
                       },
                     );
 
@@ -201,15 +211,15 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                       const SizedBox(height: 8),
                       
                       /// Add Address Message
-                      if(!hasDeliveryAddress) CustomMessageAlert(
+                      if(!hasAddressForDelivery) CustomMessageAlert(
                         'Add a delivery address for ${selectedUser?.attributes.name ?? user.attributes.name}',
                         type: AlertMessageType.warning,
                         icon: Icons.location_pin
                       ),
                       
                       /// Delivery Address Summary (Deliver To)
-                      if(hasDeliveryAddress) CustomMessageAlert(
-                        'Deliver to ${selectedUser?.attributes.name ?? user.attributes.name} in ${store!.deliveryAddress!.addressLine}',
+                      if(hasAddressForDelivery) CustomMessageAlert(
+                        'Deliver to ${selectedUser?.attributes.name ?? user.attributes.name} in ${store!.addressForDelivery!.addressLine}',
                         icon: Icons.location_pin
                       ),
               

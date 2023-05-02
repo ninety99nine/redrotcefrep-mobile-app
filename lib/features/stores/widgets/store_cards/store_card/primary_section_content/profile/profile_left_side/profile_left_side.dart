@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/products/widgets/show_products/products_modal_bottom_sheet/products_modal_bottom_sheet.dart';
 import '../../../../../../../team_members/widgets/team_members_show/team_members_modal_bottom_sheet/team_members_modal_bottom_sheet.dart';
 import '../../../../../../../followers/widgets/followers_show/followers_modal_bottom_sheet/followers_modal_bottom_sheet.dart';
 import '../../../../../../../orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
@@ -102,7 +103,6 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
 
               /// Reviews
               ReviewsModalBottomSheet(store: store),
-            
       
             ]
           )
@@ -114,9 +114,26 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
 
             /// Spacer
             const SizedBox(height: 8),
+
+            Row(
+              children: [
+                
+                /// Products
+                if(canAccessAsShopper && hasJoinedStoreTeam) ...[
+
+                  /// Products
+                  ProductsModalBottomSheet(store: store),
+
+                  /// Spacer
+                  const SizedBox(width: 4,),
+
+                ],
             
-            /// Visit Shortcode
-            StoreVisitShortcode(store: store)
+                /// Visit Shortcode
+                StoreVisitShortcode(store: store)
+        
+              ]
+            ),
 
           ],
         ),

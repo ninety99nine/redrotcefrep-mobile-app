@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
 
 import '../../../../../core/shared_models/permission.dart';
@@ -49,18 +50,19 @@ class StoreRepository {
   /// e.g where the user is a follower, customer, or team member.
   /// If the association is not provided, the default behaviour is
   /// to return stores where the authenticated user is a team member
-  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
+  Future<http.Response> showStores({ UserAssociation? userAssociation, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
 
     String url = homeApiLinks.showStores;
 
     Map<String, String> queryParams = {};
     if(withRating) queryParams.addAll({'withRating': '1'});
-    if(withProducts) queryParams.addAll({'withProducts': '1'});
     if(withCountOrders) queryParams.addAll({'withCountOrders': '1'});
     if(withCountCoupons) queryParams.addAll({'withCountCoupons': '1'});
     if(withCountReviews) queryParams.addAll({'withCountReviews': '1'});
+    if(withCountProducts) queryParams.addAll({'withCountProducts': '1'});
     if(withCountFollowers) queryParams.addAll({'withCountFollowers': '1'});
     if(withVisitShortcode) queryParams.addAll({'withVisitShortcode': '1'});
+    if(withVisibleProducts) queryParams.addAll({'withVisibleProducts': '1'});
     if(withCountTeamMembers) queryParams.addAll({'withCountTeamMembers': '1'});
     if(userAssociation != null) queryParams.addAll({'type': userAssociation.name});
     if(friendGroup != null) queryParams.addAll({'friend_group_id': friendGroup.id.toString()});
@@ -73,16 +75,17 @@ class StoreRepository {
   }
 
   /// Get the specified store
-  Future<http.Response> showStore({ required String storeUrl, bool withProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false }) {
+  Future<http.Response> showStore({ required String storeUrl, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false }) {
 
     Map<String, String> queryParams = {};
     if(withRating) queryParams.addAll({'withRating': '1'});
-    if(withProducts) queryParams.addAll({'withProducts': '1'});
     if(withCountOrders) queryParams.addAll({'withCountOrders': '1'});
     if(withCountCoupons) queryParams.addAll({'withCountCoupons': '1'});
     if(withCountReviews) queryParams.addAll({'withCountReviews': '1'});
+    if(withCountProducts) queryParams.addAll({'withCountProducts': '1'});
     if(withCountFollowers) queryParams.addAll({'withCountFollowers': '1'});
     if(withVisitShortcode) queryParams.addAll({'withVisitShortcode': '1'});
+    if(withVisibleProducts) queryParams.addAll({'withVisibleProducts': '1'});
     if(withCountTeamMembers) queryParams.addAll({'withCountTeamMembers': '1'});
 
     return apiRepository.get(url: storeUrl, queryParams: queryParams);
@@ -92,9 +95,9 @@ class StoreRepository {
   /// Update the specified store
   Future<http.Response> updateStore({ 
     String? name, bool? online, String? description, String? offlineMessage, String? deliveryNote,
-    bool? allowDelivery, bool? allowFreeDelivery, List<DeliveryDestination>? deliveryDestinations, 
+    bool? allowDelivery, bool? allowFreeDelivery, List<Map>? deliveryDestinations, 
     String? deliveryFlatFee, String? pickupNote, bool? allowPickup,
-    List<PickupDestination>? pickupDestinations,
+    List<Map>? pickupDestinations,
     List<String>? supportedPaymentMethods,
   }) {
 
@@ -117,11 +120,11 @@ class StoreRepository {
     if(supportedPaymentMethods != null && supportedPaymentMethods.isNotEmpty) body['supportedPaymentMethods'] = supportedPaymentMethods;
 
     if(pickupDestinations != null && pickupDestinations.isNotEmpty) {
-      body['pickupDestinations'] = pickupDestinations.map((pickupDestination) => pickupDestination.toJson()).toList();
+      body['pickupDestinations'] = pickupDestinations.map((pickupDestination) => pickupDestination).toList();
     }
     
     if(deliveryDestinations != null && deliveryDestinations.isNotEmpty) {
-      body['deliveryDestinations'] = deliveryDestinations.map((deliveryDestination) => deliveryDestination.toJson()).toList();
+      body['deliveryDestinations'] = deliveryDestinations.map((deliveryDestination) => deliveryDestination).toList();
     }
 
     return apiRepository.put(url: url, body: body);
@@ -142,6 +145,36 @@ class StoreRepository {
   ///////////////////////////////////
   ///   PRODUCTS                 ///
   //////////////////////////////////
+
+  /// Get the product filters of the specified store
+  Future<http.Response> showProductFilters() {
+
+    if(store == null) throw Exception('The store must be set to show product filters');
+
+    String url = store!.links.showProductFilters.href;
+
+    return apiRepository.get(url: url);
+    
+  }
+
+  /// Get the products of the specified store
+  Future<http.Response> showProducts({ String? filter, String searchWord = '', int page = 1 }) {
+
+    if(store == null) throw Exception('The store must be set to show products');
+
+    String url = store!.links.showProducts.href;
+
+    Map<String, String> queryParams = {};
+      
+    /// Filter products by the specified status
+    if(filter != null) queryParams.addAll({'filter': filter});
+
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
 
   /// Create a product on the specified store
   Future<http.Response> createProduct({ 
@@ -175,6 +208,18 @@ class StoreRepository {
     if(description != null && description.isNotEmpty) body['description'] = description;
     if(allowedQuantityPerOrder == 'limited') body['maximum_allowed_quantity_per_order'] = maximumAllowedQuantityPerOrder;
 
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+  /// Update the product arrangement on the specified store
+  Future<http.Response> updateProductArrangement({ required List productIds }) {
+
+    if(store == null) throw Exception('The store must be set to update the product arrangement');
+
+    String url = store!.links.updateProductArrangement.href;
+    
+    Map body = {'arrangement': productIds};
 
     return apiRepository.post(url: url, body: body);
     
@@ -725,7 +770,7 @@ class StoreRepository {
   }
 
   /// Inspect the shopping cart
-  Future<http.Response> inspectShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
+  Future<http.Response> inspectShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [], DeliveryDestination? deliveryDestination }) {
 
     if(store == null) throw Exception('The store must be set to inspect the shopping cart');
 
@@ -741,12 +786,14 @@ class StoreRepository {
       }).toList(),
     };
 
+    if(deliveryDestination != null) body.addAll({'delivery_destination_name': deliveryDestination.name});
+
     return apiRepository.post(url: url, body: body);
     
   }
 
   /// Convert the shopping cart into an order
-  Future<http.Response> convertShoppingCart({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups, List<Product> products = const [], List<String> cartCouponCodes = const [] }) {
+  Future<http.Response> convertShoppingCart({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups, List<Product> products = const [], List<String> cartCouponCodes = const [], CollectionType? collectionType, PickupDestination? pickupDestination, DeliveryDestination? deliveryDestination, Address? addressForDelivery }) {
 
     if(store == null) throw Exception('The store must be set to convert the shopping cart');
 
@@ -774,6 +821,11 @@ class StoreRepository {
       'friend_group_ids': friendGroupIds,
       'cart_coupon_codes': cartCouponCodes,
     };
+
+    if(collectionType != null) body.addAll({'collection_type': collectionType.name});
+    if(addressForDelivery != null) body.addAll({'address_id': addressForDelivery.id});
+    if(pickupDestination != null) body.addAll({'pickup_destination_name': pickupDestination.name});
+    if(deliveryDestination != null) body.addAll({'delivery_destination_name': deliveryDestination.name});
 
     return apiRepository.post(url: url, body: body);
     

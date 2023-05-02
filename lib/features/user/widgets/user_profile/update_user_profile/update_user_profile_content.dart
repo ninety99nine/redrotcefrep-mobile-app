@@ -1,6 +1,6 @@
 import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/products/widgets/create_product/create_product_form/create_product_form.dart';
+import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/create_or_update_product_form.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
 import 'package:bonako_demo/features/user/widgets/user_profile/update_user_profile/update_user_profile_form.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -86,7 +86,7 @@ class _UpdateUserProfileContentState extends State<UpdateUserProfileContent> {
   /// Action to be called when the floating action button is pressed 
   void floatingActionButtonOnPressed() {
 
-    /// If we should disable the floating action button, then do nothing
+    /// If we have disabled the floating action button, then do nothing
     if(disableFloatingActionButton) return;
 
     if(_updateUserProfileFormState.currentState != null) {

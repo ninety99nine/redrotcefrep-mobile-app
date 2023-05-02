@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/products/widgets/modifiable_product_cards/edit_product_cards/edit_product_cards.dart';
+import 'package:bonako_demo/features/products/widgets/edit_product_cards/edit_product_cards.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import '../../../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
@@ -52,8 +52,9 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
         /// View As Customer Checkbox
         if(canAccessAsTeamMember && hasProducts) ...[
 
-          Padding(
+          Container(
             padding: padding,
+            margin: const EdgeInsets.only(bottom: 8, left: 8),
             child: CustomCheckbox(
               value: teamMemberWantsToViewAsCustomer,
               text: 'View as customer',

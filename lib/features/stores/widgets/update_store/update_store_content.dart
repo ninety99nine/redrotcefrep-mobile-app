@@ -1,9 +1,7 @@
-import 'package:bonako_demo/features/products/widgets/create_product/create_product_form/create_product_form.dart';
-import 'package:bonako_demo/features/stores/widgets/update_store/update_store_form.dart';
-import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/features/stores/widgets/update_store/update_store_form/update_store_form.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +84,7 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
   /// Action to be called when the floating action button is pressed 
   void floatingActionButtonOnPressed() {
 
-    /// If we should disable the floating action button, then do nothing
+    /// If we have disabled the floating action button, then do nothing
     if(disableFloatingActionButton) return;
 
     if(_updateStoreFormState.currentState != null) {

@@ -1,43 +1,44 @@
-import 'package:bonako_demo/features/products/widgets/create_product/create_product_modal_bottom_sheet/create_product_modal_bottom_sheet.dart';
-import '../../../../../core/shared_widgets/button/show_more_or_less_button.dart';
-import '../../../../../../../core/constants/constants.dart' as constants;
-import '../../../../stores/providers/store_provider.dart';
-import '../../../../stores/models/shoppable_store.dart';
+import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
+import '../../../../core/shared_widgets/button/show_more_or_less_button.dart';
+import '../../../../../../core/constants/constants.dart' as constants;
+import '../../../stores/providers/store_provider.dart';
+import '../../../stores/models/shoppable_store.dart';
 import 'package:collection/collection.dart';
+import 'shoppable_product_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../../../models/product.dart';
-import 'edit_product_card.dart';
+import '../../models/product.dart';
 
-class EditProductCards extends StatefulWidget {
+class ShoppableProductCards extends StatefulWidget {
 
   final ShoppingCartCurrentView shoppingCartCurrentView;
 
-  const EditProductCards({
+  const ShoppableProductCards({
     super.key,
     required this.shoppingCartCurrentView,
   });
 
   @override
-  State<EditProductCards> createState() => _EditProductCardsState();
+  State<ShoppableProductCards> createState() => _ShoppableProductCardsState();
 }
 
-class _EditProductCardsState extends State<EditProductCards> {
+class _ShoppableProductCardsState extends State<ShoppableProductCards> {
   
   ShoppableStore? store;
   bool showAllProducts = false;
+  List<int> selectedProductIds = [];
 
+  bool get doesntHaveSelectedProducts => !hasSelectedProducts;
   List<Product> get products => store == null ? [] : store!.relationships.products;
+  bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
   ShoppingCartCurrentView get shoppingCartCurrentView => widget.shoppingCartCurrentView;
-  bool get hasReachedMaximumProductsPerStore => products.length == constants.maximumProductsPerStore;
   bool get isShowingStorePage => Provider.of<StoreProvider>(context, listen: true).isShowingStorePage;
-  bool get canShowMoreOrLessButton => isShoppingOnStoreCard && hasMoreProductsThanMinimumProductsToShow;
-  bool get hasReachedMinimumProductsPerStoreOnPreview => products.length >= constants.minimumProductsPerStoreOnPreview;
+  bool get hasMoreProductsThanMinimumProductsToShow => products.length > constants.minimumProductsPerStoreOnPreview;
+  List<Product> get selectedProducts => products.where((product) => selectedProductIds.contains(product.id) ).toList();
   bool get isShoppingOnStorePage => (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
   bool get isShoppingOnStoreCard => (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
+  bool get canShowMoreOrLessButton => isShoppingOnStoreCard && doesntHaveSelectedProducts && hasMoreProductsThanMinimumProductsToShow;
   List<Product> get filteredProducts => showAllProducts ? products : products.take(constants.minimumProductsPerStoreOnPreview).toList();
-  bool get hasMoreProductsThanMinimumProductsToShow => (hasReachedMaximumProductsPerStore ? products.length : products.length + 1) > constants.minimumProductsPerStoreOnPreview;
-  
   @override
   void initState() {
     super.initState();
@@ -63,13 +64,19 @@ class _EditProductCardsState extends State<EditProductCards> {
      *  causing the didChangeDependencies() to run as well. Once this
      *  happens we can execute the following updates:
      * 
-     *  1) autoToggleShowAllProducts(): Automatically show all products if 
+     *  1) setSelectedProductIds(): Update the list of selected product ids, 
+     *     so that the changes can be picked up by each ShoppableProductCard widget 
+     *     to update on whether that ShoppableProductCard is selected or not, and 
+     *     therefore update the UI accordingly
+     * 
+     *  2) autoToggleShowAllProducts(): Automatically show all products if 
      *     we selected one of the products while other products where 
      *     hidden. This will allow the hidden products to be displayed
      */
     if(isShoppingOnStoreCard || isShoppingOnStorePage) {
 
       setState(() {
+        setSelectedProductIds();
         autoToggleShowAllProducts();
       });
 
@@ -77,25 +84,17 @@ class _EditProductCardsState extends State<EditProductCards> {
     
   }
 
+  void setSelectedProductIds() {
+    selectedProductIds = store == null ? [] : store!.selectedProducts.map((product) => product.id).toList();
+  }
+
   void autoToggleShowAllProducts() {
-    showAllProducts = isShoppingOnStorePage;
+    showAllProducts = hasSelectedProducts || isShoppingOnStorePage;
   }
   
   void toggleShowAllProducts() => setState(() {   
     showAllProducts = !showAllProducts;
   });
-
-  void onUpdatedProduct(Product updatedProduct, int index) {
-    setState(() => store!.relationships.products[index] = updatedProduct);
-  }
-
-  void onCreatedProduct(Product createdProduct) {
-    store!.addProductRelationship(createdProduct);
-  }
-
-  void onDeletedProduct(Product deletedProduct) {
-    store!.removeProductRelationship(deletedProduct);
-  }
 
   Widget content() {
     return Column(
@@ -103,26 +102,37 @@ class _EditProductCardsState extends State<EditProductCards> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
+        /// More Information Message
+        AnimatedSize(
+          duration: const Duration(milliseconds: 500),
+          child: SizedBox(
+            width: double.infinity,
+            child: AnimatedSwitcher(
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              duration: const Duration(milliseconds: 500),
+              child: hasSelectedProducts ? const CustomMessageAlert(
+                'Swipe to the right for more information',
+                margin: EdgeInsets.only(bottom: 8),
+              ) : null
+            ),
+          ),
+        ),
+
         //  Product Cards
         ...filteredProducts.mapIndexed((index, product) {
           
-          return EditProductCard(
-            store: store!,
+          return ShoppableProductCard(
             product: product,
-            onDeletedProduct: onDeletedProduct,
-            onUpdatedProduct: (updatedProduct) => onUpdatedProduct(updatedProduct, index),
+            showAllProducts: showAllProducts,
+            selected: selectedProductIds.contains(product.id),
             margin: EdgeInsets.only(bottom: (index == filteredProducts.length - 1) ? 0 : 5)
           );
           
         }).toList(),
 
-        if((showAllProducts || !hasReachedMinimumProductsPerStoreOnPreview) && !hasReachedMaximumProductsPerStore) CreateProductModalBottomSheet(
-          store: store!,
-          onCreatedProduct: onCreatedProduct,
-        ),
-
         //  Spacer
-        if(canShowMoreOrLessButton) const SizedBox(height: 8),
+        if(canShowMoreOrLessButton) const SizedBox(height: 8,),
 
         /// Show More Or Less Button
         AnimatedSize(
@@ -147,6 +157,16 @@ class _EditProductCardsState extends State<EditProductCards> {
 
   @override
   Widget build(BuildContext context) {
+
+    /// Listen to changes on the Shoppable Store Model that was passed on 
+    /// ListenableProvider.value() of the StoreCard. Once these changes
+    /// occur, the didChangeDependencies() change will be notified
+    /// first so that we can capture the store and its changes. We 
+    /// can then run any other logic after the updated store is 
+    /// retrieved. After the didChangeDependencies() completes
+    /// its logic, this build() method will be called to
+    /// rebuild the UI and implement any new changes.
+    Provider.of<ShoppableStore>(context, listen: true);
 
     /**
      *  AnimatedSize helps to animate the sizing from a bigger height

@@ -4,14 +4,9 @@ import 'package:textfield_tags/textfield_tags.dart';
 class CustomTextFieldTags extends StatelessWidget {
   
   final bool enabled;
-  final int? minLines;
-  final int? maxLines;
   final String? hintText;
-  final bool obscureText;
   final String? errorText;
   final String? labelText;
-  final Widget? prefixIcon;
-  final Widget? suffixIcon;
   final String? helperText;
   final bool allowDuplicates;
   final List<String>? initialTags;
@@ -19,31 +14,36 @@ class CustomTextFieldTags extends StatelessWidget {
   final EdgeInsets contentPadding;
   final TextInputType? keyboardType;
   final String validatorOnEmptyText;
+  final Function(String)? onChanged;
   final List<String>? textSeparators;
+  final Function(String)? onSubmitted;
+  final Function(String)? onRemovedTag;
+  final String validatorOnDuplicateText;
+  final Function(String)? onSelectedTag;
   final String? Function(String?)? validator;
   final TextfieldTagsController? textfieldTagsController;
 
   const CustomTextFieldTags( 
     {
       super.key,
-      this.hintText,
-      this.minLines,
-      this.maxLines,
       this.errorText,
       this.labelText,
       this.validator,
+      this.onChanged,
       this.helperText,
-      this.prefixIcon,
-      this.suffixIcon,
       this.initialTags,
+      this.onSubmitted,
+      this.onRemovedTag,
+      this.onSelectedTag,
       this.enabled = true,
       this.textSeparators,
-      this.obscureText = false,
-      this.textfieldTagsController,
+      this.hintText = 'Enter tag',
       this.allowDuplicates = false,
       this.borderRadiusAmount = 50.0,
       this.validatorOnEmptyText = '',
+      required this.textfieldTagsController,
       this.keyboardType = TextInputType.text,
+      this.validatorOnDuplicateText = 'Already exists',
       this.contentPadding = const EdgeInsets.symmetric(vertical: 8, horizontal: 20)
     }
   );
@@ -59,14 +59,16 @@ class CustomTextFieldTags extends StatelessWidget {
       textSeparators: textSeparators,
       textfieldTagsController: textfieldTagsController,
       validator: validator ?? (String tag) {
+
         if (
-          !allowDuplicates && 
+          allowDuplicates == false && 
           textfieldTagsController != null && 
           textfieldTagsController!.getTags != null && 
           textfieldTagsController!.getTags!.contains(tag)
         ) {
           
-          return 'Already exists';
+          /// Duplicate tag error
+          return validatorOnDuplicateText;
 
         }else if(
             validatorOnEmptyText.isNotEmpty && 
@@ -75,7 +77,7 @@ class CustomTextFieldTags extends StatelessWidget {
             textfieldTagsController!.getTags!.isEmpty
           ) {
           
-          /// Enter a tag
+          /// Empty tag error
           return validatorOnEmptyText;
 
         }else{
@@ -84,27 +86,93 @@ class CustomTextFieldTags extends StatelessWidget {
 
         }
       },
-      inputfieldBuilder: (context, tec, fn, error, onChanged, onSubmitted) {
+      inputfieldBuilder: (context, tec, fn, error, onChangedCallback, onSubmittedCallback) {
         return ((context, sc, tags, onTagDelete) {
           return TextField(
             focusNode: fn,
             controller: tec,
             enabled: enabled,
-            minLines: minLines,
-            maxLines: maxLines,
-            obscureText: obscureText,
             keyboardType: keyboardType,
             style: bodyLarge.copyWith(
               color: enabled ? Colors.black : Colors.grey.shade400,
               fontWeight: FontWeight.normal,
             ),
+            onChanged: (value) {
+
+              /// Internal action
+              if(onChangedCallback != null) onChangedCallback(value);
+
+              /// Notify parent widget
+              if(onChanged != null) onChanged!(value);
+
+            },
+            onSubmitted: (value) {
+
+              /// Internal action
+              if(onSubmittedCallback != null) onSubmittedCallback(value);
+
+              /// Notify parent widget
+              if(onSubmitted != null) onSubmitted!(value);
+
+            },
             decoration: InputDecoration(
               filled: true,
               errorMaxLines: 2,
-              hintText: hintText,
-              errorText: errorText,
-              suffixIcon: suffixIcon,
-              prefixIcon: prefixIcon ?? Icon(Icons.location_on_sharp, color: Colors.grey.shade400,),
+              errorText: error ?? errorText,
+              prefixIconConstraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+              hintText: textfieldTagsController == null ? hintText : (textfieldTagsController!.hasTags ? '  Add' : hintText),
+              prefixIcon: tags.isNotEmpty
+                /// Tags in a horizontal scrollable list
+                ? ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8.0),
+                    topRight: Radius.circular(20.0),
+                    bottomLeft: Radius.circular(8.0),
+                    bottomRight: Radius.circular(20.0),
+                  ),
+                  child: SingleChildScrollView(
+                    controller: sc,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                        children: tags.map((String tag) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                      
+                                /// Tag
+                                InkWell(
+                                  child: Text(tag, style: const TextStyle(color: Colors.white)),
+                                  onTap: () {
+                                    if(onSelectedTag != null) onSelectedTag!(tag);
+                                  },
+                                ),
+                      
+                                /// Spacer
+                                const SizedBox(width: 4.0),
+                      
+                                /// Delete Icon
+                                InkWell(
+                                  child: const Icon(Icons.cancel, size: 14.0, color: Color.fromARGB(255, 233, 233, 233)),
+                                  onTap: () {
+                                    onTagDelete(tag);
+                                    if(onRemovedTag != null) onRemovedTag!(tag);
+                                  },
+                                )
+                      
+                              ],
+                            ),
+                          );
+                      }).toList()),
+                  ),
+                )
+                : null,
               label: labelText == null ? null : Text(labelText!),
               labelStyle: TextStyle(
                 color: bodyLarge.color,
@@ -112,7 +180,7 @@ class CustomTextFieldTags extends StatelessWidget {
               ),
               hintStyle: bodyLarge.copyWith(
                 color: Colors.grey.shade400,
-                fontWeight: FontWeight.normal
+                fontWeight: FontWeight.normal,
               ),
               contentPadding: contentPadding,
               fillColor: primaryColor.withOpacity(0.05),

@@ -20,36 +20,36 @@ class ProductRepository {
 
   /// Update the specified product
   Future<http.Response> updateProduct({ 
-    required String name, required String? description, required bool showDescription, required bool visible,
-    required String unitRegularPrice, required String unitSalePrice, required String unitCostPrice,
-    required String? sku, required String? barcode, required bool isFree, required bool allowVariations,
-    required String allowedQuantityPerOrder, required String maximumAllowedQuantityPerOrder, 
-    required String stockQuantity, required String stockQuantityType, 
+    bool? visible, String? name, bool? showDescription, String? description,
+    String? unitRegularPrice, String? unitSalePrice, String? unitCostPrice,
+    String? sku, String? barcode, bool? isFree, bool? allowVariations,
+    String? allowedQuantityPerOrder, String? maximumAllowedQuantityPerOrder, 
+    String? stockQuantity, String? stockQuantityType, 
   }) {
 
     if(product == null) throw Exception('The product must be set to update');
 
     String url = product!.links.updateProduct.href;
     
-    Map body = {
-      'name': name,
-      'is_free': isFree,
-      'visible': visible,
-      'unit_cost_price': unitCostPrice,
-      'unit_sale_price': unitSalePrice,
-      'allow_variations': allowVariations,
-      'show_description': showDescription,
-      'unit_regular_price': unitRegularPrice,
-      'stock_quantity_type': stockQuantityType,
-      'allowed_quantity_per_order': allowedQuantityPerOrder,
-    };
+    Map body = {};
 
+    if(visible != null) body['visible'] = visible;
+    if(name != null && name.isNotEmpty) body['name'] = name;
+    if(showDescription != null) body['showDescription'] = showDescription;
+    if(description != null && description.isNotEmpty) body['description'] = description;
+    if(unitRegularPrice != null && unitRegularPrice.isNotEmpty) body['unitRegularPrice'] = unitRegularPrice;
+    if(unitSalePrice != null && unitSalePrice.isNotEmpty) body['unitSalePrice'] = unitSalePrice;
+    if(unitCostPrice != null && unitCostPrice.isNotEmpty) body['unitCostPrice'] = unitCostPrice;
     if(sku != null && sku.isNotEmpty) body['sku'] = sku;
     if(barcode != null && barcode.isNotEmpty) body['barcode'] = barcode;
-    if(stockQuantityType == 'limited') body['stock_quantity'] = stockQuantity;
-    if(description != null && description.isNotEmpty) body['description'] = description;
-    if(allowedQuantityPerOrder == 'limited') body['maximum_allowed_quantity_per_order'] = maximumAllowedQuantityPerOrder;
-    
+    if(isFree != null) body['isFree'] = isFree;
+    if(allowVariations != null) body['allowVariations'] = allowVariations;
+    if(allowedQuantityPerOrder != null && allowedQuantityPerOrder.isNotEmpty) body['allowedQuantityPerOrder'] = allowedQuantityPerOrder;
+    if(maximumAllowedQuantityPerOrder != null && maximumAllowedQuantityPerOrder.isNotEmpty) body['maximumAllowedQuantityPerOrder'] = maximumAllowedQuantityPerOrder;
+    if(stockQuantityType != null && stockQuantityType.isNotEmpty) {
+      if(stockQuantity != null && stockQuantityType.toLowerCase() == 'limited') body['stockQuantity'] = stockQuantity;
+      body['stockQuantityType'] = stockQuantityType;
+    }
     return apiRepository.put(url: url, body: body);
     
   }

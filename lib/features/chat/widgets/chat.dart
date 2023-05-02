@@ -60,6 +60,8 @@ class ChatState extends State<Chat> {
         addMessage(openaiMessage, isSent: false);
 
       } catch (e) {
+
+        print(e);
         
         /// Show error message
         SnackbarUtility.showErrorMessage(message: 'Bonako can\'t respond at the moment. Please try again later');

@@ -23,9 +23,15 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final bool showSeparater;
   final bool debounceSearch;
   final String catchErrorMessage;
-  final EdgeInsetsGeometry? margin;
-  final EdgeInsetsGeometry listPadding;
-  final EdgeInsetsGeometry headerPadding;
+  final EdgeInsets? margin;
+  final EdgeInsets listPadding;
+  final EdgeInsets headerPadding;
+
+  /// Indication that we can reoder
+  final bool canReorder;
+
+  /// Method to call on reorder
+  final Function(int, int)? onReorder;
 
   /// Content to show above the search bar
   final Widget? contentBeforeSearchBar;
@@ -97,12 +103,14 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   const CustomVerticalListViewInfiniteScroll({
     Key? key,
     this.margin,
+    this.onReorder,
     this.onLoading,
     this.searchWord,
     this.onSearching,
     this.onSelectedItems,
     this.disabled = false,
     this.selectedAllAction,
+    this.canReorder = false,
     required this.onRequest,
     this.showNoContent = true,
     this.showSearchBar = true,
@@ -148,6 +156,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   int get totalItems => data.length;
   bool get disabled => widget.disabled;
   String get noContent => widget.noContent;
+  bool get canReorder => widget.canReorder;
   bool get showNoContent => widget.showNoContent;
   bool get showSearchBar => widget.showSearchBar;
   bool get showSeparater => widget.showSeparater;
@@ -157,6 +166,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   EdgeInsets get loaderMargin => widget.loaderMargin;
   Function(Map) get onParseItem => widget.onParseItem;
   Function(bool)? get onSearching => widget.onSearching;
+  Function(int, int)? get onReorder => widget.onReorder;
   bool get showNoMoreContent => widget.showNoMoreContent;
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
@@ -256,14 +266,27 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     setState(() => hasError = status);
   }
 
+  setData(data) {
+    setState(() {
+      this.data = data;
+    });
+  }
+
+  getItemAt(int index) {
+    return data[index];
+  }
+
   int removeItemAt(int index) {
-    if(!mounted) return 0;
     setState(() => data.removeAt(index));
     return totalItems;
   }
 
+  int insetItemAt(int index, item) {
+    setState(() => data.insert(index, item));
+    return totalItems;
+  }
+
   void updateItemAt(int index, item) {
-    if(!mounted) return;
     setState(() => data[index] = item);
   }
 
@@ -674,88 +697,190 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
             AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
               opacity: isStartingRequest && isLoading ? 0.3 : 1,
-              child: ListView.separated(
-                key: ValueKey(forceRenderListView),
-                shrinkWrap: true,
-                itemCount: totalItems,
-                padding: widget.listPadding,
-                physics: const NeverScrollableScrollPhysics(),
-                separatorBuilder: (BuildContext context, int index) => showSeparater ? const Divider() : const SizedBox(),
-                itemBuilder: ((context, index) {
-
-                  final Widget singleItemAndNoMoreContent = Column(
-                    children: [
-          
-                      /// Build Custom Item Widget
-                      buildItem(index),
-          
-                      /// No more content widget
-                      CustomBodyText(
-                        textAlign: TextAlign.center,
-                        showNoMoreContent ? noMoreContent : '',
-                        margin: const EdgeInsets.only(top: 20, bottom: 100),
-                      )
-          
-                    ],
-                  );
-                  
-                  if(index == 0) {
-
-                    /// If this is the first item, but not the only item
-                    if(totalItems == 1) {
-
-                      /// Return the store card and no more content message
-                      return singleItemAndNoMoreContent;
-
-                    /// If this is the first and only item
-                    }else{
-              
-                      /// Build Custom Item Widget
-                      return buildItem(index);
-
-                    }
-            
-                  }else{
-                    
-                    /// If this is the last item and we are loading on a continuing request
-                    if(isLoading && (index == totalItems - 1) && isContinuingRequest) {
-                      
-                      /// Return the store card and loader
-                      return Column(
-                        children: [
-              
-                          /// Build Custom Item Widget
-                          buildItem(index),
-              
-                          /// Loader (Shows up when more content is loading)
-                          const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 60),)
-                        
-                        ],
-                      );
-                
-                    /// If this is the last item and have loaded every store
-                    }else if(loadedLastPage && (index == totalItems - 1)) {
-                      
-                      /// Return the store card and no more content message
-                      return singleItemAndNoMoreContent;
-              
-                    }else{
-              
-                      /// Return the built item widget
-                      return buildItem(index);
-              
-                    }
-              
-                  }
-              
-                })
-              ),
+              child: canReorder ? reorderableListView() : listView(),
             ),
           
           ],
         ),
       ),
     );
+  }
+
+  Widget listView() {
+
+    return ListView.separated(
+      key: ValueKey(forceRenderListView),
+      shrinkWrap: true,
+      itemCount: totalItems,
+      padding: widget.listPadding,
+      physics: const NeverScrollableScrollPhysics(),
+      separatorBuilder: (BuildContext context, int index) => showSeparater ? const Divider() : const SizedBox(),
+      itemBuilder: ((context, index) {
+
+        final Widget singleItemAndNoMoreContent = Column(
+          children: [
+
+            /// Build Custom Item Widget
+            buildItem(index),
+
+            /// No more content widget
+            CustomBodyText(
+              textAlign: TextAlign.center,
+              showNoMoreContent ? noMoreContent : '',
+              margin: const EdgeInsets.only(top: 20, bottom: 100),
+            )
+
+          ],
+        );
+        
+        if(index == 0) {
+
+          /// If this is the first and only item
+          if(totalItems == 1) {
+
+            /// Return the single Item Widget
+            return singleItemAndNoMoreContent;
+
+          /// If this is the first item, but not the only item
+          }else{
+    
+            /// Build Custom Item Widget
+            return buildItem(index);
+
+          }
+  
+        }else{
+          
+          /// If this is the last item and we are loading on a continuing request
+          if(isLoading && (index == totalItems - 1) && isContinuingRequest) {
+            
+            /// Return the store card and loader
+            return Column(
+              children: [
+    
+                /// Build Custom Item Widget
+                buildItem(index),
+    
+                /// Loader (Shows up when more content is loading)
+                const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 60),)
+              
+              ],
+            );
+      
+          /// If this is the last item and have loaded every store
+          }else if(loadedLastPage && (index == totalItems - 1)) {
+            
+            /// Return the single Item Widget
+            return singleItemAndNoMoreContent;
+    
+          }else{
+    
+            /// Return the built item widget
+            return buildItem(index);
+    
+          }
+    
+        }
+    
+      })
+    );
+
+  }
+
+  Widget reorderableListView() {
+
+    return ReorderableListView.builder(
+      key: ValueKey(forceRenderListView),
+      shrinkWrap: true,
+      onReorder: onReorder!,
+      itemCount: totalItems,
+      padding: widget.listPadding,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: ((context, index) {
+
+        Key itemKey = ValueKey<int>(data[index].id);
+
+        final Widget singleItem = Column(
+          key: itemKey,
+          children: [
+
+            /// Build Custom Item Widget
+            buildItem(index),
+
+          ],
+        );
+
+        final Widget singleItemAndDivider = Column(
+          key: itemKey,
+          children: [
+
+            /// Build Custom Item Widget
+            buildItem(index),
+
+            /// Spacer
+            const SizedBox(height: 8),
+
+            /// Divider
+            const Divider(height: 0,)
+
+          ],
+        );
+
+        final Widget singleItemAndLoader = Column(
+          key: itemKey,
+          children: [
+
+            /// Build Custom Item Widget
+            buildItem(index),
+
+            /// Loader (Shows up when more content is loading)
+            const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 60),)
+          
+          ],
+        );
+        
+        if(index == 0) {
+
+          /// If this is the first and only item
+          if(totalItems == 1) {
+
+            /// Return the single Item Widget
+            return singleItem;
+
+          /// If this is the first item, but not the only item
+          }else{
+    
+            /// Return the Custom Item Widget and Divider
+            return singleItemAndDivider;
+
+          }
+  
+        }else{
+          
+          /// If this is the last item and we are loading on a continuing request
+          if(isLoading && (index == totalItems - 1) && isContinuingRequest) {
+            
+            /// Return the store card and loader
+            return singleItemAndLoader;
+      
+          /// If this is the last item and have loaded every store
+          }else if(loadedLastPage && (index == totalItems - 1)) {
+            
+            /// Return the single Item Widget
+            return singleItem;
+    
+          }else{
+    
+            /// Return the Custom Item Widget and Divider
+            return singleItemAndDivider;
+    
+          }
+    
+        }
+    
+      })
+    );
+
   }
 
   @override

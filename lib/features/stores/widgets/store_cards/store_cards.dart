@@ -105,15 +105,16 @@ class StoreCardsState extends State<StoreCards> {
   Future<http.Response> requestShowStores(int page, String searchWord) {
     return storeProvider.storeRepository.showStores(
       userAssociation: userAssociation,
+      withVisibleProducts: true,
       withCountTeamMembers: true,
       withVisitShortcode: true,
       friendGroup: friendGroup,
       withCountFollowers: true,
+      withCountProducts: true,
       withCountReviews: true,
       searchWord: searchWord,
       withCountCoupons: true,
       withCountOrders: true,
-      withProducts: true,
       withRating: true,
       page: page
     );

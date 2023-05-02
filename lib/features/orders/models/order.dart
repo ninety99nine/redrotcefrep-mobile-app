@@ -1,4 +1,5 @@
 import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+import 'package:bonako_demo/features/addresses/models/delivery_address.dart';
 
 import '../../../core/shared_models/name_and_description.dart';
 import '../../../../core/shared_models/mobile_number.dart';
@@ -24,9 +25,11 @@ class Order {
   late int totalViewsByTeam;
   late Attributes attributes;
   late int orderForTotalUsers;
+  late String? collectionType;
   late Money amountOutstanding;
   late int? collectionByUserId;
   late String customerLastName;
+  late String? destinationName;
   late int orderForTotalFriends;
   late String customerFirstName;
   late NameAndDescription status;
@@ -53,6 +56,8 @@ class Order {
     orderFor = json['orderFor'];
     links = Links.fromJson(json['links']);
     customerUserId = json['customerUserId'];
+    collectionType = json['collectionType'];
+    destinationName = json['destinationName'];
     totalViewsByTeam = json['totalViewsByTeam'];
     customerLastName = json['customerLastName'];
     customerFirstName = json['customerFirstName'];
@@ -120,12 +125,14 @@ class Relationships {
   late Cart? cart;
   late User? customer;
   late ShoppableStore? store;
+  late DeliveryAddress? deliveryAddress;
   //  late List<Transaction> transactions;
 
   Relationships.fromJson(Map<String, dynamic> json) {
     cart = json['cart'] == null ? null : Cart.fromJson(json['cart']);
     customer = json['customer'] == null ? null : User.fromJson(json['customer']);
     store = json['store'] == null ? null : ShoppableStore.fromJson(json['store']);
+    deliveryAddress = json['deliveryAddress'] == null ? null : DeliveryAddress.fromJson(json['deliveryAddress']);
     //  transactions = (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
   }
 }

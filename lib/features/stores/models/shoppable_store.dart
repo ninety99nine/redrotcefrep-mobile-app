@@ -39,10 +39,10 @@ class ShoppableStore extends Store with ChangeNotifier {
   bool get isOrderingForFriendsOnly => orderFor == 'Friends Only';
   bool get isOrderingForMeAndFriends => orderFor == 'Me And Friends';
 
-  Address? deliveryAddress;
-  String? pickupDestination;
-  String? deliveryDestination;
+  Address? addressForDelivery;
   CollectionType? collectionType;
+  PickupDestination? pickupDestination;
+  DeliveryDestination? deliveryDestination;
   
   ShoppableStore.fromJson(super.json) : super.fromJson();
 
@@ -65,6 +65,11 @@ class ShoppableStore extends Store with ChangeNotifier {
     }
 
     if(canNotifyListeners) notifyListeners();
+  }
+
+  setProducts(List<Product> products) {
+    relationships.products = products;
+    notifyListeners();
   }
 
   updateCollectionType(CollectionType collectionType) {

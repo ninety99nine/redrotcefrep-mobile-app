@@ -1,51 +1,68 @@
-import 'package:bonako_demo/core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/products/enums/product_enums.dart';
+
+import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
+import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
-import 'package:bonako_demo/features/products/widgets/create_product/create_product_content.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import '../../../../stores/models/shoppable_store.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import '../products_content.dart';
 
-class CreateProductModalBottomSheet extends StatefulWidget {
+enum TriggerType {
+  addProduct,
+  totalProducts
+}
 
+class ProductsModalBottomSheet extends StatefulWidget {
+  
   final Product? product;
   final ShoppableStore store;
-  final Function(Product)? onDeletedProduct;
-  final Function(Product)? onUpdatedProduct;
-  final Function(Product)? onCreatedProduct;
+  final TriggerType triggerType;
   final Widget Function(void Function())? trigger;
 
-  const CreateProductModalBottomSheet({
+  const ProductsModalBottomSheet({
     super.key,
-    this.product,
     this.trigger,
+    this.product,
     required this.store,
-    this.onDeletedProduct,
-    this.onUpdatedProduct,
-    this.onCreatedProduct,
+    this.triggerType = TriggerType.totalProducts
   });
 
   @override
-  State<CreateProductModalBottomSheet> createState() => CreateProductModalBottomSheetState();
+  State<ProductsModalBottomSheet> createState() => _ProductsModalBottomSheetState();
 }
 
-class CreateProductModalBottomSheetState extends State<CreateProductModalBottomSheet> {
+class _ProductsModalBottomSheetState extends State<ProductsModalBottomSheet> {
 
+  ProductContentView? productContentView;
   Product? get product => widget.product;
   ShoppableStore get store => widget.store;
+  TriggerType get triggerType => widget.triggerType;
   Widget Function(void Function())? get trigger => widget.trigger;
-  Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
-  Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
-  Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
+  String get totalProducts => widget.store.productsCount!.toString();
+  String get totalProductsText => widget.store.productsCount == 1 ? 'Product' : 'Products';
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
 
+  @override
+  void initState() {
+    super.initState();
+
+    /// If the trigger is null and the trigger type is add product
+    if( trigger == null && triggerType == TriggerType.addProduct ) {
+
+      /// Set the product content view to creating product
+      productContentView = ProductContentView.creatingProduct;
+
+    }
+  }
+
   Widget get _trigger {
 
-    final Widget defaultTrigger = Container(
+    final Widget addProductTrigger = Container(
       margin: const EdgeInsets.only(top: 5),
       child: DottedBorder(
         color: Colors.grey,
@@ -85,7 +102,24 @@ class CreateProductModalBottomSheetState extends State<CreateProductModalBottomS
       ),
     );
 
-    return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
+    /// If the trigger is null and the trigger type is total products
+    if( trigger == null && triggerType == TriggerType.totalProducts ) {
+
+      /// Return the total products and total products text
+      return CustomBodyText([totalProducts, totalProductsText]);
+    
+    /// If the trigger is null and the trigger type is add product
+    }else if( trigger == null && triggerType == TriggerType.addProduct ) {
+
+      /// Return the add product trigger
+      return addProductTrigger;
+
+    }else{
+
+      /// If the trigger is not null, return the custom trigger
+      return trigger!(openBottomModalSheet);
+
+    }
 
   }
 
@@ -103,12 +137,10 @@ class CreateProductModalBottomSheetState extends State<CreateProductModalBottomS
       /// Trigger to open the bottom modal sheet
       trigger: _trigger,
       /// Content of the bottom modal sheet
-      content: CreateProductContent(
+      content: ProductsContent(
         store: store,
         product: product,
-        onCreatedProduct: onCreatedProduct,
-        onUpdatedProduct: onUpdatedProduct,
-        onDeletedProduct: onDeletedProduct,
+        productContentView: productContentView,
       ),
     );
   }

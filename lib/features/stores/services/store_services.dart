@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+
 import '../../../../core/shared_models/permission.dart';
 import '../widgets/store_page/store_page.dart';
 import '../models/shoppable_store.dart';
@@ -13,6 +18,21 @@ class StoreServices {
       StorePage.routeName,
       arguments: store
     );
+
+  }
+
+  /// Refresh the products of the specified store
+  static void refreshProducts(ShoppableStore store, StoreProvider storeProvider) {
+
+    storeProvider.setStore(store).storeRepository.showProducts(
+      filter: 'Visible'
+    ).then((response) {
+
+      final responseBody = jsonDecode(response.body);
+      final List<Product> products = List<Product>.from(responseBody['data'].map((product) => Product.fromJson(product)));
+      store.setProducts(products);
+
+    });
 
   }
 

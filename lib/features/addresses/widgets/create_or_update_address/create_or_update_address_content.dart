@@ -123,7 +123,7 @@ class _CreateOrUpdateAddressContentState extends State<CreateOrUpdateAddressCont
   /// Action to be called when the floating action button is pressed 
   void floatingActionButtonOnPressed() {
 
-    /// If we should disable the floating action button, then do nothing
+    /// If we have disabled the floating action button, then do nothing
     if(disableFloatingActionButton) return;
 
     if(_createOrUpdateAddressFormState.currentState != null) {
