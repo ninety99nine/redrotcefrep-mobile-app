@@ -27,6 +27,7 @@ class StoreLogo extends StatefulWidget {
 
 class _StoreLogoState extends State<StoreLogo> {
 
+  bool get hasLogo => store.logo != null;
   ShoppableStore get store => widget.store;
   bool get canChangeLogo => widget.canChangeLogo;
   bool get doesNothaveLogo => store.logo == null;
@@ -49,8 +50,17 @@ class _StoreLogoState extends State<StoreLogo> {
         setState(() => store.logo = responseBody['logo']);
 
       },
+      onDeletedFile: (response) {
+        if(response.statusCode == 200) {
+        
+          /// Unset the logo
+          setState(() => store.logo = null);
+
+        }
+      },
       submitMethod: SubmitMethod.post,
       submitUrl: store.links.updateLogo.href,
+      deleteUrl: hasLogo ? store.links.deleteLogo.href : null,
       trigger: doesNothaveLogo ? null : (openBottomModalSheet) => GestureDetector(
         onTap: () {
            

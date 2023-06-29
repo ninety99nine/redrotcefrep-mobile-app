@@ -60,6 +60,8 @@ dependencies:
   image_picker: ^0.8.7
   flutter_countdown_timer: ^4.1.0
   textfield_tags: ^2.0.2
+  date_time_picker: ^2.1.0
+  multiselect_formfield: ^0.1.7
 
 dev_dependencies:
   flutter_test:
@@ -88,7 +90,10 @@ flutter:
     - assets/sounds/
     - assets/images/
     - assets/images/auth/
+    - assets/images/groups/
     - assets/images/welcome/
+    - assets/images/following/
+    - assets/images/my_stores/
     - assets/images/intro_slides/
     
   #  - assets/icons/ecommerce_pack_1/

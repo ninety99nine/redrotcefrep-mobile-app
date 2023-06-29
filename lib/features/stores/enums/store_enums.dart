@@ -10,13 +10,9 @@ enum UserAssociation {
   friendGroupMember,
 
   customer,
-  recentVisiter,
-}
+  recentVisitor,
 
-enum UserAcceptedInvitationStatus {
-  yes,
-  no,
-  notSpecified
+  brands
 }
 
 enum CollectionType {

@@ -26,9 +26,8 @@ class FollowerInvitationsModalBottomSheet extends StatefulWidget {
 
 class _FollowerInvitationsModalBottomSheetState extends State<FollowerInvitationsModalBottomSheet> {
 
-  bool respondedToAnyInvitation = false;
-
   Widget get trigger => widget.trigger;
+  bool respondedToAnyInvitation = false;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   void onClose() {

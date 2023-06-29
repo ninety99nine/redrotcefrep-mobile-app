@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
 import '../../repositories/search_repository.dart';
-import '../../models/search_menus.dart' as model;
+import '../../models/search_filters.dart' as model;
 import '../../providers/search_provider.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
@@ -9,42 +9,42 @@ import 'package:flutter/material.dart';
 import '../../enums/search_enums.dart';
 import 'dart:convert';
 
-class SearchMenus extends StatefulWidget {
+class SearchFilters extends StatefulWidget {
   
-  final Menu selectedMenu;
-  final Function(Menu) onSelectedMenu;
+  final Filter selectedFilter;
+  final Function(Filter) onSelectedFilter;
 
-  const SearchMenus({
+  const SearchFilters({
     super.key,
-    required this.selectedMenu,
-    required this.onSelectedMenu
+    required this.selectedFilter,
+    required this.onSelectedFilter
   });
 
   @override
-  State<SearchMenus> createState() => SearchMenusState();
+  State<SearchFilters> createState() => SearchFiltersState();
 }
 
-class SearchMenusState extends State<SearchMenus> {
+class SearchFiltersState extends State<SearchFilters> {
   
-  int selectedMenuIndex = 0;
-  model.SearchMenus? friendMenus;
-  bool get hasSearchMenus => friendMenus != null;
-  Function(Menu) get onSelectedMenu => widget.onSelectedMenu;
+  int selectedFilterIndex = 0;
+  model.SearchFilters? friendFilters;
+  bool get hasSearchFilters => friendFilters != null;
+  Function(Filter) get onSelectedFilter => widget.onSelectedFilter;
   SearchRepository get searchRepository => searchProvider.searchRepository;
   SearchProvider get searchProvider => Provider.of<SearchProvider>(context, listen: false);
   
   @override
   void initState() {
     super.initState();
-    setMenuIndex();
-    requestShowSearchMenus();
+    setFilterIndex();
+    requestShowSearchFilters();
   }
 
-  /// Request the friend menus
-  /// This will allow us to show menus e.g "Stores", "Friends", "Groups"
-  void requestShowSearchMenus() {
+  /// Request the search filters
+  /// This will allow us to show filters e.g "Stores", "Friends", "Groups"
+  void requestShowSearchFilters() {
     
-    searchRepository.showSearchMenus().then((http.Response response) {
+    searchRepository.showSearchFilters().then((http.Response response) {
 
       if(!mounted) return;
 
@@ -54,8 +54,8 @@ class SearchMenusState extends State<SearchMenus> {
         
         setState(() {
           
-          /// Set the friend menus
-          friendMenus = model.SearchMenus.fromJson(responseBody);
+          /// Set the search filters
+          friendFilters = model.SearchFilters.fromJson(responseBody);
 
         });
 
@@ -65,32 +65,32 @@ class SearchMenusState extends State<SearchMenus> {
 
   }
 
-  /// Set the selected menu index based on the selected menu
-  void setMenuIndex() {
+  /// Set the selected filter index based on the selected filter
+  void setFilterIndex() {
 
-    if(widget.selectedMenu == Menu.stores) {
-      selectedMenuIndex = 0;
-    }else if(widget.selectedMenu == Menu.friends) {
-      selectedMenuIndex = 1;
-    }else if(widget.selectedMenu == Menu.friendGroups) {
-      selectedMenuIndex = 2;
+    if(widget.selectedFilter == Filter.stores) {
+      selectedFilterIndex = 0;
+    }else if(widget.selectedFilter == Filter.friends) {
+      selectedFilterIndex = 1;
+    }else if(widget.selectedFilter == Filter.friendGroups) {
+      selectedFilterIndex = 2;
     }
 
   }
 
-  /// Set the selected menu index based on the selected menu
-  void setSelectedMenuIndex(int index) {
+  /// Set the selected filter index based on the selected filter
+  void setSelectedFilterIndex(int index) {
 
-    /// Update the selectedMenuIndex on this widget state
-    setState(() => selectedMenuIndex = index);
+    /// Update the selectedFilterIndex on this widget state
+    setState(() => selectedFilterIndex = index);
 
     /// Notify parent widget on change
-    if(selectedMenuIndex == 0) {
-      onSelectedMenu(Menu.stores);
-    }else if(selectedMenuIndex == 1) {
-      onSelectedMenu(Menu.friends);
-    }else if(selectedMenuIndex == 2) {
-      onSelectedMenu(Menu.friendGroups);
+    if(selectedFilterIndex == 0) {
+      onSelectedFilter(Filter.stores);
+    }else if(selectedFilterIndex == 1) {
+      onSelectedFilter(Filter.friends);
+    }else if(selectedFilterIndex == 2) {
+      onSelectedFilter(Filter.friendGroups);
     }
 
   }
@@ -104,7 +104,7 @@ class SearchMenusState extends State<SearchMenus> {
         switchOutCurve: Curves.easeOut,
         duration: const Duration(milliseconds: 500),
         child: Align(
-          key: ValueKey(hasSearchMenus),
+          key: ValueKey(hasSearchFilters),
           alignment: Alignment.centerLeft,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -113,11 +113,11 @@ class SearchMenusState extends State<SearchMenus> {
               child: Row(
                 children: [
                          
-                  /// List friend menus as selectable choice chips       
-                  if(hasSearchMenus) ...friendMenus!.menus.mapIndexed((index, option) {
+                  /// List friend filters as selectable choice chips       
+                  if(hasSearchFilters) ...friendFilters!.filters.mapIndexed((index, option) {
 
                     final String name = option.name;
-                    final bool isSelected = selectedMenuIndex == index;
+                    final bool isSelected = selectedFilterIndex == index;
                     final String totalSummarized = option.totalSummarized;
 
                     return CustomFilterChoiceChip(
@@ -126,7 +126,7 @@ class SearchMenusState extends State<SearchMenus> {
                       isSelected: isSelected,
                       totalSummarized: totalSummarized,
                       onSelected: (_) {
-                        setSelectedMenuIndex(index);
+                        setSelectedFilterIndex(index);
                       },
                     );
             

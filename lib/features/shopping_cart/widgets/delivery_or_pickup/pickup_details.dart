@@ -1,11 +1,6 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/addresses/models/address.dart';
-import 'package:bonako_demo/features/addresses/widgets/address_cards_in_vertical_view.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/order_for/widgets/order_for_users/order_for_users_in_horizontal_list_view_infinite_scroll.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +15,7 @@ class PickupDetails extends StatefulWidget {
 class _DeliveryDetailsState extends State<PickupDetails> {
   
   ShoppableStore? store;
+  bool get hasPickupDestinations => store?.pickupDestinations.isNotEmpty ?? false;
 
   @override
   void didChangeDependencies() {
@@ -28,8 +24,8 @@ class _DeliveryDetailsState extends State<PickupDetails> {
     /// Get the updated Shoppable Store Model
     store = Provider.of<ShoppableStore>(context, listen: false);
 
-    /// If the pickup destination has not been selected and we have pickup destinations
-    if(hasSelectedPickupDestination() == false && store!.pickupDestinations.isNotEmpty) {
+    /// If we have pickup destinations and the pickup destination has not been selected
+    if(hasPickupDestinations && hasSelectedPickupDestination() == false) {
 
       /// Set the pickup destination to the first pickup destination
       setState(() => store!.pickupDestination = store!.pickupDestinations[0]);
@@ -44,7 +40,7 @@ class _DeliveryDetailsState extends State<PickupDetails> {
     if(store!.pickupDestination == null) return false;
 
     /// Check if the selected pickup destination exists in the list of pickup destinations
-    return store!.pickupDestinations.any((destination) => destination.name == store!.pickupDestination);
+    return store!.pickupDestinations.any((destination) => destination.name == store!.pickupDestination!.name);
 
   }
 
@@ -74,7 +70,7 @@ class _DeliveryDetailsState extends State<PickupDetails> {
         ],
 
         /// If we have pickup destinations
-        if(store!.pickupDestinations.isNotEmpty) ...[
+        if(hasPickupDestinations) ...[
 
           /// Spacer
           const SizedBox(height: 8),

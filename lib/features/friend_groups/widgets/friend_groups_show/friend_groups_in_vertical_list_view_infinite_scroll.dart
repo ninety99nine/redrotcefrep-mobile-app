@@ -96,14 +96,14 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
 
     /// Delete Icon
     return GestureDetector(
-      onTap: _requestDeleteFriendGroups,
+      onTap: _requestDeleteManyFriendGroups,
       child: const Icon(Icons.delete_rounded, color: Colors.red,)
     );
 
   }
 
   /// Request to delete the selected friend groups
-  void _requestDeleteFriendGroups() async {
+  void _requestDeleteManyFriendGroups() async {
 
     final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final List<FriendGroup> selectedFriendGroups = List<FriendGroup>.from(customInfiniteScrollCurrentState.selectedItems);
@@ -118,7 +118,7 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
       /// Notify parent that we are starting the deleting process
       onDeletingFriendGroups(true);
 
-      friendGroupRepository.deleteFriendGroups(
+      friendGroupRepository.deleteManyFriendGroups(
         friendGroups: selectedFriendGroups,
         context: context,
       ).then((response) async {
@@ -305,7 +305,7 @@ class GroupItem extends StatelessWidget {
                         ],
                       ),
                 
-                      /// Close Icon
+                      /// Cancel Icon
                       if(!isDeleting && isSelected) Positioned(
                         top: -6,
                         right: -16,

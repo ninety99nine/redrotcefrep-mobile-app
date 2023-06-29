@@ -27,6 +27,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
   
   String name = '';
   Map serverErrors = {};
+  String description = '';
   bool isSubmitting = false;
   String callToAction = 'Buy';
   bool acceptedGoldenRules = false;
@@ -36,6 +37,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
   StoreRepository get storeRepository => friendGroupProvider.storeRepository;
   StoreProvider get friendGroupProvider => Provider.of<StoreProvider>(context, listen: false);
   String? get nameErrorText => serverErrors.containsKey('name') ? serverErrors['name'] : null;
+  String? get descriptionErrorText => serverErrors.containsKey('description') ? serverErrors['description'] : null;
 
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
@@ -50,6 +52,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
 
         storeRepository.createStore(
           name: name,
+          description: description,
           callToAction: callToAction,
           acceptedGoldenRules: acceptedGoldenRules
         ).then((response) async {
@@ -160,25 +163,47 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
         child: Column(
           children: [
 
-          /// Store Name
-          CustomTextFormField(
-            errorText: nameErrorText,
-            enabled: !isSubmitting,
-            initialValue: name,
-            hintText: 'Baby Cakes',
-            onChanged: (value) {
-              setState(() => name = value); 
-            },
-            onSaved: (value) {
-              setState(() => name = value ?? ''); 
-            },
-          ),
+            /// Store Name
+            CustomTextFormField(
+              hintText: 'Baby Cakes 🧁',
+              errorText: nameErrorText,
+              enabled: !isSubmitting,
+              borderRadiusAmount: 16,
+              initialValue: name,
+              labelText: 'Name',
+              maxLength: 25,
+              onChanged: (value) {
+                setState(() => name = value); 
+              },
+            ),
+              
+            /// Spacer
+            const SizedBox(height: 16),
+
+            /// Description
+            CustomTextFormField(
+              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+              hintText: 'The sweetest and softed cakes in the world 🍰',
+              errorText: descriptionErrorText,
+              initialValue: description,
+              labelText: 'Description',
+              enabled: !isSubmitting,
+              borderRadiusAmount: 16,
+              maxLength: 120,
+              minLines: 2,
+              onChanged: (value) {
+                setState(() => description = value); 
+              }
+            ),
 
             /// Spacer
-            const SizedBox(height: 8,),
+            const SizedBox(height: 16,),
 
             /// Accepted Golden Rules Checkbox
             acceptedGoldenRulesCheckbox,
+
+            /// Spacer
+            const SizedBox(height: 16,),
 
             /// Add Button
             CustomElevatedButton(

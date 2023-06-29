@@ -2,7 +2,7 @@ import '../../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends
 import '../../../friends/widgets/friends_show/friends_in_vertical_infinite_scroll.dart';
 import '../../../friend_groups/widgets/friend_group_create_or_update/friend_items.dart';
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
-import '../../../../core/shared_models/user_association_as_friend_group_member.dart';
+import '../../../../core/shared_models/user_friend_group_association.dart';
 import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -21,17 +21,21 @@ import 'dart:convert';
 
 class FriendGroupCreateOrUpdate extends StatefulWidget {
   
+  final EdgeInsets padding;
+  final double bottomHeight;
   final FriendGroup? friendGroup;
-  final Function(bool) onSubmitting;
+  final Function(bool)? onSubmitting;
   final Function? onUpdatedFriendGroup;
   final Function? onCreatedFriendGroup;
 
   const FriendGroupCreateOrUpdate({
     super.key,
     this.friendGroup,
-    required this.onSubmitting,
+    this.onSubmitting,
+    this.bottomHeight = 100,
     this.onUpdatedFriendGroup,
     this.onCreatedFriendGroup,
+    this.padding = const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0,)
   });
 
   @override
@@ -49,18 +53,20 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
   final _formKey = GlobalKey<FormState>();
   ShakeUtility shakeName = ShakeUtility();
   
+  EdgeInsets get padding => widget.padding;
   bool get hasFriends => friends.isNotEmpty;
   bool get isCreating => friendGroup == null;
   bool get isEditing => friendGroup != null;
+  double get bottomHeight => widget.bottomHeight;
   FriendGroup? get friendGroup => widget.friendGroup;
-  Function(bool) get onSubmitting => widget.onSubmitting;
+  Function(bool)? get onSubmitting => widget.onSubmitting;
   Function? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
   Function? get onCreatedFriendGroup => widget.onCreatedFriendGroup;
   FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
 
-  bool get isCreator => friendGroup == null ? true : userAssociationAsFriendGroupMember!.role == 'Creator';
-  UserAssociationAsFriendGroupMember? get userAssociationAsFriendGroupMember => friendGroup == null ? null : friendGroup!.attributes.userAssociationAsFriendGroupMember;
+  bool get isCreator => friendGroup == null ? true : userFriendGroupAssociation!.role == 'Creator';
+  UserFriendGroupAssociation? get userFriendGroupAssociation => friendGroup == null ? null : friendGroup!.attributes.userFriendGroupAssociation;
 
   bool get hasChanged {
     if(isCreating) {
@@ -99,7 +105,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
       _startSubmittionLoader();
       
       /// Notify parent that we are loading
-      onSubmitting(true);
+      if(onSubmitting != null) onSubmitting!(true);
 
       friendGroupRepository.createFriendGroup(
         name: name,
@@ -111,7 +117,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
         final responseBody = jsonDecode(response.body);
 
-        if(response.statusCode == 200) {
+        if(response.statusCode == 201) {
 
           SnackbarUtility.showSuccessMessage(message: responseBody['message']);
 
@@ -132,7 +138,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
         _stopSubmittionLoader();
       
         /// Notify parent that we are not loading
-        onSubmitting(false);
+      if(onSubmitting != null) onSubmitting!(false);
 
       });
 
@@ -155,7 +161,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
       _startSubmittionLoader();
       
         /// Notify parent that we are loading
-      onSubmitting(true);
+      if(onSubmitting != null) onSubmitting!(true);
 
       friendGroupRepository.updateFriendGroup(
         name: name,
@@ -189,7 +195,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
         _stopSubmittionLoader();
       
         /// Notify parent that we are not loading
-        onSubmitting(false);
+      if(onSubmitting != null) onSubmitting!(false);
 
       });
 
@@ -263,7 +269,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0,),
+        padding: padding,
         child: Column(
           children: [
 
@@ -271,9 +277,6 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
               key: _formKey,
               child: Column(
                 children: [
-
-                  /// Spacer
-                  const SizedBox(height: 16),
                 
                   /// Show Catch Error Message
                   if(isCreating) const CustomMessageAlert(
@@ -294,14 +297,12 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
                     child: CustomTextFormField(
                       errorText: serverErrors.containsKey('name') ? serverErrors['name'] : null,
                       enabled: isCreator && !isSubmitting,
-                      initialValue: name,
                       hintText: 'Co-workers',
+                      initialValue: name,
+                      maxLength: 60,
                       onChanged: (value) {
                         setState(() => name = value); 
-                      },
-                      onSaved: (value) {
-                        setState(() => name = value ?? ''); 
-                      },
+                      }
                     ),
                   ),
 
@@ -317,42 +318,53 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
                     ),
                   ),
 
-                  /// Spacer
-                  if(isCreator) const SizedBox(height: 16),
+                  if(isCreator) ...[
 
-                  /// Share Group Checkbox
-                  if(isCreator) CustomCheckbox(
-                    value: shared,
-                    disabled: isSubmitting,
-                    text: 'Share group with friends',
-                    onChanged: (value) {
-                      setState(() => shared = value ?? false); 
-                    }
-                  ),
+                    /// Spacer
+                    const SizedBox(height: 16),
+
+                    /// Share Group Checkbox
+                    CustomCheckbox(
+                      value: shared,
+                      disabled: isSubmitting,
+                      text: 'Share group with friends',
+                      onChanged: (value) {
+                        setState(() => shared = value ?? false); 
+                      }
+                    ),
+
+                  ],
 
                   /// Can Add Other Friends Checkbox
-                  if(isCreator) AnimatedSize(
-                    duration: const Duration(milliseconds: 500),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: AnimatedSwitcher(
-                        switchInCurve: Curves.easeIn,
-                        switchOutCurve: Curves.easeOut,
-                        duration: const Duration(milliseconds: 500),
-                        child: shared ? CustomCheckbox(
-                          value: canAddFriends,
-                          disabled: isSubmitting,
-                          text: 'Friends can add other friends',
-                          onChanged: (value) {
-                            setState(() => canAddFriends = value ?? false); 
-                          }
-                        ) : null,
+                  if(isCreator) ...[
+
+                    /// Spacer
+                    const SizedBox(height: 8),
+
+                    /// Share Group Checkbox
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 500),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: AnimatedSwitcher(
+                          switchInCurve: Curves.easeIn,
+                          switchOutCurve: Curves.easeOut,
+                          duration: const Duration(milliseconds: 500),
+                          child: shared ? CustomCheckbox(
+                            value: canAddFriends,
+                            disabled: isSubmitting,
+                            text: 'Friends can add other friends',
+                            onChanged: (value) {
+                              setState(() => canAddFriends = value ?? false); 
+                            }
+                          ) : null,
+                        ),
                       ),
                     ),
-                  ),
+
+                  ],
 
                   /// Divider
-                  if(canAddFriends == false) const SizedBox(height: 16),
                   const Divider(height: 32),
 
                   /// Friend Modal Bottom Sheet
@@ -402,7 +414,7 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
             ),
 
             /// Spacer
-            const SizedBox(height: 100)
+            SizedBox(height: bottomHeight)
 
           ],
         ),

@@ -61,7 +61,7 @@ class _OrderForUsersInHorizontalListViewInfiniteScrollState extends State<OrderF
 
   }
 
-  /// Render each request item as an UserItem
+  /// Render each request item as a UserItem
   Widget onRenderItem(user, int index, List users) {
 
     /// If selected user is null, select first user
@@ -80,7 +80,7 @@ class _OrderForUsersInHorizontalListViewInfiniteScrollState extends State<OrderF
 
   }
   
-  /// Render each request item as an User
+  /// Render each request item as a User
   User onParseItem(user) => User.fromJson(user);
   Future<http.Response> requestShowShoppingCartOrderForUsers(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showShoppingCartOrderForUsers(

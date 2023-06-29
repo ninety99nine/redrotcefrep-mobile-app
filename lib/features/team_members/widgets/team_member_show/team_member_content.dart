@@ -104,25 +104,25 @@ class _PermissionsState extends State<Permissions> {
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get canManageTeamMembers => StoreServices.hasPermissionsToManageTeamMembers(store);
   String get permissionsError => serverErrors.containsKey('permissions') ? serverErrors['permissions'] : '';
-  List<Permission> get teamMemberPermissions => teamMember.attributes.userAndStoreAssociation!.teamMemberPermissions;
-  bool get teamMemberIsCreator => teamMember.attributes.userAndStoreAssociation!.teamMemberRole!.toLowerCase() == 'creator';
+  List<Permission> get teamMemberPermissions => teamMember.attributes.userStoreAssociation!.teamMemberPermissions;
+  bool get teamMemberIsCreator => teamMember.attributes.userStoreAssociation!.teamMemberRole!.toLowerCase() == 'creator';
   
   String get removeTeamMemberFirstName {
 
-    if(teamMember.attributes.userAndStoreAssociation!.mobileNumber == null) {
+    if(teamMember.attributes.userStoreAssociation!.mobileNumber == null) {
       return teamMember.firstName;
     }else{
-      return teamMember.attributes.userAndStoreAssociation!.mobileNumber!.withoutExtension;
+      return teamMember.attributes.userStoreAssociation!.mobileNumber!.withoutExtension;
     }
 
   }
 
   String get removeTeamMemberName {
 
-    if(teamMember.attributes.userAndStoreAssociation!.mobileNumber == null) {
+    if(teamMember.attributes.userStoreAssociation!.mobileNumber == null) {
       return teamMember.attributes.name;
     }else{
-      return teamMember.attributes.userAndStoreAssociation!.mobileNumber!.withoutExtension;
+      return teamMember.attributes.userStoreAssociation!.mobileNumber!.withoutExtension;
     }
 
   }
@@ -309,6 +309,7 @@ class _PermissionsState extends State<Permissions> {
 
         /// Team Member Permissions
         TeamPermissions(
+          store: store,
           onTogglePermissions: onTogglePermissions,
           teamMemberPermissions: teamMemberPermissions,
           disabled: isLoading || teamMemberIsYou || teamMemberIsCreator || cannotManageTeamMembers,

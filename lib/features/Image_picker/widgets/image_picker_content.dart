@@ -229,8 +229,12 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
       if(response.statusCode == 200) {
 
         if(onDeletedFile != null) onDeletedFile!(response);
+
+        final responseBody = jsonDecode(response.body);
+
+        final message = responseBody['message'] ?? 'Deleted successfully!';
         
-        SnackbarUtility.showSuccessMessage(message: 'Deleted successfully!');
+        SnackbarUtility.showSuccessMessage(message: message);
 
       }
 

@@ -1,12 +1,12 @@
-import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
+import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import 'package:bonako_demo/features/user/providers/user_provider.dart';
-
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
 import '../../../../../core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/user/providers/user_provider.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../../core/constants/constants.dart' as constants;
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/services/store_services.dart';
@@ -120,7 +120,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
       _customVerticalListViewInfiniteScrollState.currentState!.startRequest();
 
       /// Scroll to top
-      _customVerticalListViewInfiniteScrollState.currentState!.controller.animateTo( 
+      _customVerticalListViewInfiniteScrollState.currentState!.scrollController.animateTo( 
         0,
         curve:Curves.fastOutSlowIn,
         duration: const Duration(milliseconds: 1000),
@@ -242,7 +242,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   }
 
   /// The selected order content to show before the search bar
-  Widget get contentBeforeSearchBar {
+  Widget contentBeforeSearchBar(bool isLoading, int totalOrders) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -373,17 +373,17 @@ class _OrderItemState extends State<OrderItem> {
   ShoppableStore? get store => widget.store;
   bool get hasBeenSeen => totalViewsByTeam > 0;
   String? get orderFilter => widget.orderFilter;
+  int get totalViewsByTeam => order.totalViewsByTeam;
   Function(Order) get onViewOrder => widget.onViewOrder;
-  int get totalViewsByTeam => widget.order.totalViewsByTeam;
   ShoppableStore? get storeFromOrder => order.relationships.store;
   OrderContentView get orderContentView => widget.orderContentView;
+  String get customerName => OrderServices.getCustomerDiplayName(order);
   bool get isViewingOrder => widget.orderContentView == OrderContentView.viewingOrder;
   bool get isViewingOrders => widget.orderContentView == OrderContentView.viewingOrders;
-
-  UserAndOrderAssociation? get userAndOrderAssociation => order.attributes.userAndOrderAssociation;
   bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store ?? storeFromOrder!);
-  bool get isAssociatedAsFriend => userAndOrderAssociation != null && userAndOrderAssociation!.role == 'Friend';
-  bool get isAssociatedAsCustomer => userAndOrderAssociation != null && userAndOrderAssociation!.role == 'Customer';
+  UserOrderCollectionAssociation? get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation;
+  bool get isAssociatedAsFriend => userOrderCollectionAssociation != null && userOrderCollectionAssociation!.role == 'Friend';
+  bool get isAssociatedAsCustomer => userOrderCollectionAssociation != null && userOrderCollectionAssociation!.role == 'Customer';
 
   String get orderFor => order.orderFor;
   bool get isOrderingForMe => orderFor == 'Me';
@@ -614,7 +614,7 @@ class _OrderItemState extends State<OrderItem> {
 
               /// Scroll to top since we tapped on an order listed below the current
               /// selected order were orders appear listed as "Other orders by..."
-              widget.customVerticalListViewInfiniteScrollState.currentState!.controller.animateTo( 
+              widget.customVerticalListViewInfiniteScrollState.currentState!.scrollController.animateTo( 
                 0,
                 curve:Curves.fastOutSlowIn,
                 duration: const Duration(milliseconds: 500),
@@ -649,7 +649,7 @@ class _OrderItemState extends State<OrderItem> {
                     if(isViewingOrders) RichText(text: TextSpan(
               
                       /// Customer Name (John Doe)
-                      text: widget.order.attributes.customerName,
+                      text: customerName,
                       style: Theme.of(context).textTheme.titleMedium,
                       children: [
               

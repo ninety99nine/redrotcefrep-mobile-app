@@ -1,4 +1,4 @@
-enum Menu {
+enum FriendGroupFilter {
   groups,
   sharedGroups,
 }

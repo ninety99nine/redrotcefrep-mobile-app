@@ -20,9 +20,11 @@ import 'dart:convert';
 class FriendGroupOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
   
   final FriendGroup friendGroup;
+  final Widget? noContentWidget;
 
   const FriendGroupOrdersInHorizontalListViewInfiniteScroll({
     Key? key,
+    this.noContentWidget,
     required this.friendGroup,
   }) : super(key: key);
 
@@ -34,7 +36,32 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
 
   bool hasOrders = false;
   FriendGroup get friendGroup => widget.friendGroup;
+  Widget? get noContentWidget => widget.noContentWidget;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
+  final GlobalKey<CustomHorizontalInfiniteScrollState> customHorizontalInfiniteScrollState = GlobalKey<CustomHorizontalInfiniteScrollState>();
+
+
+  @override
+  void didUpdateWidget(covariant FriendGroupOrdersInHorizontalListViewInfiniteScroll oldWidget) {
+
+    super.didUpdateWidget(oldWidget);
+
+    /// If the friend group id has changed.
+    /// This happends if we are switching the friend group
+    if(friendGroup.id != oldWidget.friendGroup.id) {
+
+      /// Start a new request (so that we can filter orders by the specified friend group id)
+      startRequest();
+
+    }
+
+  }
+
+  void startRequest() {
+    if(customHorizontalInfiniteScrollState.currentState != null) {
+      customHorizontalInfiniteScrollState.currentState!.startRequest();
+    }
+  }
 
   /// Render each request item as an OrderItem
   Widget onRenderItem(order, int index, List orders) => OrderItem(
@@ -49,6 +76,7 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
 
     return friendGroupProvider.setFriendGroup(friendGroup).friendGroupRepository.showFriendGroupOrders(
       searchWord: searchWord,
+      withStore: true,
       page: page
     ).then((response) {
 
@@ -71,15 +99,15 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
     });
   }
 
-  Widget get noContentWidget {
-    return Row(
+  Widget get _noContentWidget {
+    return noContentWidget ?? Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.access_time_outlined, size: 24, color: Colors.grey.shade300,),
         const SizedBox(width: 8,),
         const CustomBodyText(
-          'No orders placed', 
+          'No orders placed',
           lightShade: true
         ),
       ],
@@ -96,9 +124,10 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
       showFirstRequestLoader: false,
-      noContentWidget: noContentWidget,
+      noContentWidget: _noContentWidget,
       headerPadding: const EdgeInsets.all(0),
       catchErrorMessage: 'Can\'t show orders',
+      key: customHorizontalInfiniteScrollState,
       margin: const EdgeInsets.symmetric(vertical: 16),
       loaderMargin: const EdgeInsets.symmetric(vertical: 16),
       listPadding: const EdgeInsets.symmetric(horizontal: 16),

@@ -1,4 +1,7 @@
+import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/features/shopping_cart/widgets/anonymous/anonymous_details.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/delivery_or_pickup/delivery_or_pickup.dart';
+import 'package:bonako_demo/features/shopping_cart/widgets/payment/payment_details.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
 import '../../order_for/widgets/order_for_details.dart';
@@ -292,6 +295,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
       pickupDestination: store!.pickupDestination,
       collectionType: store!.collectionType,
       products: store!.selectedProducts,
+      anonymous: store!.anonymous!,
       friendGroups: friendGroups,
       cartCouponCodes: [],
       orderFor: orderFor!,
@@ -311,6 +315,17 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
           store!.resetShoppingCart(
             canNotifyListeners: true
           );
+
+          /// If the store has the onCreatedOrder method
+          if(store!.onCreatedOrder != null) {
+
+            final responseBody = jsonDecode(response.body);
+            final Order createdOrder = Order.fromJson(responseBody);
+
+            /// Trigger this onCreatedOrder method and pass this order
+            store!.onCreatedOrder!(createdOrder);
+
+          }
 
         });
         
@@ -363,6 +378,12 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
         /// Show the cart details
         const DeliveryOrPickup(),
+
+        /// Show the payment details
+        const PaymentDetails(),
+
+        /// Show the anonymous details
+        const AnonymousDetails(),
 
         //  Call To Action
         AnimatedSwitcher(

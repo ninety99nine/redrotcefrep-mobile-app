@@ -1,14 +1,18 @@
 import 'package:bonako_demo/core/shared_models/money.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
+import 'package:bonako_demo/core/shared_widgets/multi_select_form_field/custom_multi_select_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/switch/custom_switch.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text_field_tags/custom_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/products/repositories/product_repository.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
 import 'package:bonako_demo/features/stores/repositories/store_repository.dart';
@@ -16,6 +20,7 @@ import 'package:bonako_demo/features/products/providers/product_provider.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_cover_photo.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
@@ -45,7 +50,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   Map storeForm = {};
   Map serverErrors = {};
   bool isSubmitting = false;
+  bool isLoadingPaymentMethods = false;
   final _formKey = GlobalKey<FormState>();
+  List<String> supportedPaymentMethods = [];
   final TextfieldTagsController _pickupDestinationsController = TextfieldTagsController();
   final TextfieldTagsController _deliveryDestinationsController = TextfieldTagsController();
   
@@ -53,19 +60,25 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   Function(bool) get onSubmitting => widget.onSubmitting;
   StoreRepository get storeRepository => storeProvider.storeRepository;
   Function(ShoppableStore)? get onUpdatedStore => widget.onUpdatedStore;
+  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get allowFreeDelivery => storeForm.isEmpty ? false : storeForm['allowFreeDelivery'];
-  bool get hasPickupDestinations => storeForm.isEmpty ? false : (storeForm['pickupDestinations'] as List).isNotEmpty;
-  bool get hasDeliveryDestinations => storeForm.isEmpty ? false : (storeForm['deliveryDestinations'] as List).isNotEmpty;
+  bool get hasPickupDestinations => storeForm.isEmpty ? false : (storeForm['pickupDestinations'] as List<Map>).isNotEmpty;
+  bool get hasDeliveryDestinations => storeForm.isEmpty ? false : (storeForm['deliveryDestinations'] as List<Map>).isNotEmpty;
+  bool get hasSupportedPaymentMethods => storeForm.isEmpty ? false : (storeForm['supportedPaymentMethods'] as List<Map>).isNotEmpty;
   bool get hasDeliveryFlatFee => storeForm.isEmpty ? false : ['', '0', '0.0', '0.00'].contains(storeForm['deliveryFlatFee']) == false;
 
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
+  void _startPaymentMethodsLoader() => setState(() => isLoadingPaymentMethods = true);
+  void _stopPaymentMethodsLoader() => setState(() => isLoadingPaymentMethods = false);
 
   @override
   void initState() {
     super.initState();
+    
     setStoreForm();
+    requestPaymentMethods();
   }
 
   @override
@@ -91,7 +104,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         'deliveryNote': store.deliveryNote,
         'allowDelivery': store.allowDelivery,
         'allowFreeDelivery': store.allowFreeDelivery,
-        'deliveryFlatFee': store.deliveryFlatFee.amountWithoutCurrency,
+        'deliveryFlatFee': store.deliveryFlatFee.amount.toStringAsFixed(2),
         'deliveryDestinations': store.deliveryDestinations.map((deliveryDestination) {
           return deliveryDestination.toJson();
         }).toList(),
@@ -104,11 +117,48 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         }).toList(),
 
         /// Payment
-        'supportedPaymentMethods': store.supportedPaymentMethods,
+        'supportedPaymentMethods': store.supportedPaymentMethods.map((paymentMethod) {
+          return paymentMethod.toJson();
+        }).toList(),
 
       };
 
     });
+
+  }
+
+  requestPaymentMethods() {
+
+      _startPaymentMethodsLoader();
+
+      apiProvider.apiRepository.get(url: apiProvider.apiHome!.links.paymentMethods).then((response) async {
+
+        if(response.statusCode == 200) {
+          
+          /// Get the payment methods
+          final paymentMethods = List<String>.from(jsonDecode(response.body));
+
+          /// Sort the payment methods alphabetically
+          paymentMethods.sort();
+
+          /// Set the payment methods
+          setState(() => supportedPaymentMethods = paymentMethods);
+
+        }else if(response.statusCode == 422) {
+
+          SnackbarUtility.showErrorMessage(message: 'Can\'t get payment methods');
+          
+        }
+
+      }).catchError((error) {
+
+          SnackbarUtility.showErrorMessage(message: 'Can\'t show payment methods');
+
+      }).whenComplete((){
+
+        _stopPaymentMethodsLoader();
+
+      });
 
   }
 
@@ -146,6 +196,16 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         if(response.statusCode == 200) {
 
           final ShoppableStore updatedStore = ShoppableStore.fromJson(responseBody);
+
+          /// Set the non editable fields
+          updatedStore.activeSubscriptionsCount = store.activeSubscriptionsCount;
+          updatedStore.teamMembersCount = store.teamMembersCount;
+          updatedStore.followersCount = store.followersCount;
+          updatedStore.relationships = store.relationships;
+          updatedStore.productsCount = store.productsCount;
+          updatedStore.reviewsCount = store.reviewsCount;
+          updatedStore.couponsCount = store.couponsCount;
+          updatedStore.ordersCount = store.ordersCount;
 
           /// Notify parent on update store
           if(onUpdatedStore != null) onUpdatedStore!(updatedStore);
@@ -212,37 +272,34 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: storeForm.isEmpty ? [] : [
 
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-
-                  /// Store Logo
-                  StoreLogo(
-                    radius: 32,
-                    store: store,
-                    canChangeLogo: true,
-                  ),
+              /// Store Logo
+              StoreLogo(
+                radius: 32,
+                store: store,
+                canChangeLogo: true,
+              ),
                   
-                  /// Spacer
-                  const SizedBox(height: 8),
+              /// Spacer
+              const SizedBox(height: 16),
 
-                  /// Online Checkbox
-                  Flexible(
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 8, bottom: 8),
-                      child: CustomCheckbox(
-                        value: storeForm['online'],
-                        disabled: isSubmitting,
-                        text: 'We are open for business',
-                        checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
-                        onChanged: (value) {
-                          setState(() => storeForm['online'] = value ?? false); 
-                        }
-                      ),
-                    ),
-                  ),
+              /// Store Cover Photo
+              StoreCoverPhoto(
+                store: store,
+                canChangeCoverPhoto: true,
+              ),
+                  
+              /// Spacer
+              const SizedBox(height: 16),
 
-                ],
+              /// Online Checkbox
+              CustomCheckbox(
+                value: storeForm['online'],
+                disabled: isSubmitting,
+                text: 'We are open for business',
+                checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
+                onChanged: (value) {
+                  setState(() => storeForm['online'] = value ?? false); 
+                }
               ),
 
               /// Offline Message
@@ -258,18 +315,16 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
                       CustomTextFormField(
                         errorText: serverErrors.containsKey('offlineMessage') ? serverErrors['offlineMessage'] : null,
-                        enabled: !isSubmitting,
-                        hintText: 'Closed for the holidays',
-                        borderRadiusAmount: 16,
-                        labelText: 'Offline Message',
-                        initialValue: storeForm['offlineMessage'],
                         prefixIcon: const Icon(Icons.info_rounded, color: Colors.orange,),
+                        initialValue: storeForm['offlineMessage'],
+                        hintText: 'Closed for the holidays',
+                        labelText: 'Offline Message',
+                        enabled: !isSubmitting,
+                        borderRadiusAmount: 16,
+                        maxLength: 120,
                         onChanged: (value) {
                           setState(() => storeForm['offlineMessage'] = value); 
-                        },
-                        onSaved: (value) {
-                          setState(() => storeForm['offlineMessage'] = value ?? ''); 
-                        },
+                        }
                       ),
                     
                       /// Spacer
@@ -288,16 +343,14 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
               /// Name
               CustomTextFormField(
                 errorText: serverErrors.containsKey('name') ? serverErrors['name'] : null,
-                enabled: !isSubmitting,
-                hintText: 'Baby Cakes',
-                borderRadiusAmount: 16,
                 initialValue: storeForm['name'],
+                hintText: 'Baby Cakes 🧁',
+                borderRadiusAmount: 16,
+                enabled: !isSubmitting,
                 labelText: 'Name',
+                maxLength: 25,
                 onChanged: (value) {
                   setState(() => storeForm['name'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => storeForm['name'] = value ?? ''); 
                 },
               ),
               
@@ -308,17 +361,15 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
               CustomTextFormField(
                 errorText: serverErrors.containsKey('description') ? serverErrors['description'] : null,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                hintText: 'The sweetest and softed cakes in the world',
+                hintText: 'The sweetest and softed cakes in the world 🍰',
                 initialValue: storeForm['description'],
                 labelText: 'Description',
                 enabled: !isSubmitting,
                 borderRadiusAmount: 16,
+                maxLength: 120,
                 minLines: 1,
                 onChanged: (value) {
                   setState(() => storeForm['description'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => storeForm['description'] = value ?? ''); 
                 },
                 validator: (value) {
                   return null;
@@ -367,12 +418,10 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                         labelText: 'Delivery Note',
                         enabled: !isSubmitting,
                         borderRadiusAmount: 16,
+                        maxLength: 120,
                         minLines: 2,
                         onChanged: (value) {
                           setState(() => storeForm['deliveryNote'] = value); 
-                        },
-                        onSaved: (value) {
-                          setState(() => storeForm['deliveryNote'] = value ?? ''); 
                         },
                         validator: (value) {
                           return null;
@@ -427,11 +476,10 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
                           /// Flat Fee
                           if(!storeForm['allowFreeDelivery']) Flexible(
-                            child: CustomTextFormField(
+                            child: CustomMoneyTextFormField(
                               hintText: '100.00',
                               labelText: 'Flat Fee',
                               enabled: !isSubmitting,
-                              borderRadiusAmount: 16,
                               initialValue: storeForm['deliveryFlatFee'],
                               errorText: serverErrors.containsKey('deliveryFlatFee') ? serverErrors['deliveryFlatFee'] : null,
                               onChanged: (value) {
@@ -441,8 +489,6 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                                   }else{
                                     storeForm['deliveryFlatFee'] = double.parse(value).toStringAsFixed(2);
                                   }
-
-                                  print(storeForm['deliveryFlatFee']);
                                 });
                               },
                             ),
@@ -488,8 +534,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                               const SizedBox(height: 8),
                     
                               /// Delivery Destinations Table
-                              Table(  
-                                //  defaultColumnWidth: FixedColumnWidth(120.0),  
+                              Table(   
                                 border: TableBorder.all(  
                                   color: Colors.grey,  
                                   style: BorderStyle.solid,  
@@ -518,6 +563,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                                   ...(storeForm['deliveryDestinations'] as List).map((deliveryDestination) {
                     
                                     return TableRow(
+                                      key: ValueKey(deliveryDestination['name']),
                                       children: [
                     
                                         /// Destination Name
@@ -649,12 +695,10 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                           labelText: 'Pickup Note',
                           enabled: !isSubmitting,
                           borderRadiusAmount: 16,
+                          maxLength: 120,
                           minLines: 2,
                           onChanged: (value) {
                             setState(() => storeForm['pickupNote'] = value); 
-                          },
-                          onSaved: (value) {
-                            setState(() => storeForm['pickupNote'] = value ?? ''); 
                           },
                           validator: (value) {
                             return null;
@@ -692,8 +736,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                                 const SizedBox(height: 8),
                       
                                 /// Pickup Destinations Table
-                                Table(  
-                                  //  defaultColumnWidth: FixedColumnWidth(120.0),  
+                                Table(    
                                   border: TableBorder.all(  
                                     color: Colors.grey,  
                                     style: BorderStyle.solid,  
@@ -722,6 +765,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                                     ...(storeForm['pickupDestinations'] as List).map((pickupDestination) {
                       
                                       return TableRow(
+                                        key: ValueKey(pickupDestination['name']),
                                         children: [
                       
                                           /// Destination Name
@@ -774,6 +818,175 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                     )
                   : Container()
               ),
+                          
+              /// Spacer
+              const SizedBox(height: 16),
+
+              /// Loader
+              if(isLoadingPaymentMethods) const CustomCircularProgressIndicator(),
+
+              /// Payment Method Settings
+              if(!isLoadingPaymentMethods) ...[
+
+                /// Supported Payment Methods
+                CustomMultiSelectFormField(
+                  title: 'Payment Methods',
+                  hintText: 'Select supported payment methods',
+                  key: ValueKey(storeForm['supportedPaymentMethods'].length),
+                  initialValue: (storeForm['supportedPaymentMethods'] as List<Map>)
+                    .where((supportedPaymentMethod) => supportedPaymentMethod['active'])
+                    .map((supportedPaymentMethod) => supportedPaymentMethod['name']).toList(),
+                  dataSource: List<dynamic>.from(supportedPaymentMethods.map((supportedPaymentMethod) => {
+                    'display': supportedPaymentMethod,
+                    'value': supportedPaymentMethod,
+                  })),
+                  onSaved: (value) {
+                    if (value != null) {
+                      
+                      List<String> selectedPaymentMethods = List<String>.from(value);
+
+                      setState(() {
+                        
+                        List<Map> existingPaymentMethods = storeForm['supportedPaymentMethods'];
+                        List<Map> newPaymentMethods = [];
+
+                        for (var sortedPaymentMethod in selectedPaymentMethods) {
+
+                          // Check if payment method already exists
+                          int existingIndex = existingPaymentMethods.indexWhere((existingMethod) => existingMethod['name'] == sortedPaymentMethod);
+                          
+                          if (existingIndex != -1) {
+                            
+                            // Payment method already exists, mark as active
+                            existingPaymentMethods[existingIndex]['active'] = true;
+                            newPaymentMethods.add(existingPaymentMethods[existingIndex]);
+                          
+                          } else {
+                            
+                            // Payment method is new, add to list
+                            newPaymentMethods.add({
+                              'active': true,
+                              'name': sortedPaymentMethod,
+                              'instructions': '',
+                            });
+                          
+                          }
+
+                        }
+
+                        // Mark all other payment methods as inactive
+                        for (var existingMethod in existingPaymentMethods) {
+                          if (!selectedPaymentMethods.contains(existingMethod['name'])) {
+                            existingMethod['active'] = false;
+                            newPaymentMethods.add(existingMethod);
+                          }
+                        }
+
+                        /// Sort the payment methods alphabetically
+                        newPaymentMethods.sort((a, b) => a['name'].compareTo(b['name']));
+
+                        storeForm['supportedPaymentMethods'] = newPaymentMethods;
+
+                      });
+                    }
+                  },
+                ),
+
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 500),
+                  child: !hasSupportedPaymentMethods 
+                  ? Container()
+                  : Column(
+                      children: [
+
+                        /// Spacer
+                        const SizedBox(height: 8),
+              
+                        /// Payment Methods Table Instructions
+                        const CustomMessageAlert('Add instructions for your payment methods so that customers understand how to pay (Optional)'),
+                      
+                        /// Spacer
+                        const SizedBox(height: 8),
+              
+                        /// Payment Methods Table
+                        Table(   
+                          border: TableBorder.all(  
+                            color: Colors.grey,  
+                            style: BorderStyle.solid,  
+                            width: 1
+                          ),  
+                          children: [  
+              
+                            /// Table Header
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                              ),
+                              children: const [
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: CustomTitleSmallText('Payment Method'),
+                                ),  
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: CustomTitleSmallText('Instruction'),
+                                ),
+                              ]
+                            ),
+              
+                            /// Table Rows (Payment Methods)
+                            ...(storeForm['supportedPaymentMethods'] as List<Map>)
+                              .where((supportedPaymentMethod) => supportedPaymentMethod['active'])
+                              .map((supportedPaymentMethod) {
+              
+                              return TableRow(
+                                key: ValueKey(supportedPaymentMethod['name']),
+                                children: [
+              
+                                  /// Payment Method Name
+                                  TableCell(
+                                    child: TextFormField(
+                                      enabled: false,
+                                      initialValue: supportedPaymentMethod['name'],
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Colors.black
+                                      ),
+                                      decoration: const InputDecoration(
+                                        contentPadding: EdgeInsets.all(8.0),
+                                        border: InputBorder.none
+                                      )
+                                    ),
+                                  ),
+              
+                                  /// Payment Method Instruction
+                                  TableCell(
+                                    child: TextFormField(
+                                      enabled: !isSubmitting,
+                                      initialValue: supportedPaymentMethod['instruction'],
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Colors.black
+                                      ),
+                                      decoration: const InputDecoration(
+                                        contentPadding: EdgeInsets.all(8.0),
+                                        border: InputBorder.none
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() => supportedPaymentMethod['instruction'] = value);
+                                      },
+                                    ),
+                                  ),
+              
+                                ]
+                              );
+              
+                            }).toList()
+                          ],  
+                        ),
+                      ],
+                  )
+                ),
+
+              ],
 
               /// Spacer
               const SizedBox(height: 100)

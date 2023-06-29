@@ -36,10 +36,15 @@ class StoreServices {
 
   }
 
+  /// Check if the user is following the specified store
+  static bool isFollowingStore(ShoppableStore store) {
+    return store.attributes.userStoreAssociation?.followerStatus?.toLowerCase() == 'following';
+  }
+
   /// Get the team members permissions on the specified store
   static List<Permission> teamMemberPermissions(ShoppableStore store) {
-    if(store.attributes.userAndStoreAssociation == null) return [];
-    return store.attributes.userAndStoreAssociation!.teamMemberPermissions;
+    if(store.attributes.userStoreAssociation == null) return [];
+    return store.attributes.userStoreAssociation!.teamMemberPermissions;
   }
 
   /// Check if the user has the permission to manage 
@@ -71,17 +76,32 @@ class StoreServices {
      *  ...
      * ]
      */
-    return permissions.map((p) => p.grant).contains(grant);
+    return hasJoinedStoreTeam(store) && permissions.map((p) => p.grant).contains(grant);
   }
 
   /// Check if the user has joined the team on the specified store
   static bool hasJoinedStoreTeam(ShoppableStore store) {
-    return store.attributes.userAndStoreAssociation?.teamMemberStatus.toLowerCase() == 'joined';
+    return store.attributes.userStoreAssociation?.teamMemberStatus?.toLowerCase() == 'joined';
+  }
+
+  /// Check if the user is associated as a creator or as an admin on the specified store
+  static bool isAssociatedAsCreatorOrAdmin(ShoppableStore store) {
+    return isAssociatedAsCreator(store) || isAssociatedAsAdmin(store);
   }
 
   /// Check if the user is associated as a creator on the specified store
   static bool isAssociatedAsCreator(ShoppableStore store) {
-    return store.attributes.userAndStoreAssociation?.teamMemberRole?.toLowerCase() == 'creator';
+    return isAssociatedAs(store, 'creator');
+  }
+
+  /// Check if the user is associated as a admin on the specified store
+  static bool isAssociatedAsAdmin(ShoppableStore store) {
+    return isAssociatedAs(store, 'admin');
+  }
+
+  /// Check if the user is associated with a specified role on the specified store
+  static bool isAssociatedAs(ShoppableStore store, String role) {
+    return hasJoinedStoreTeam(store) && store.attributes.userStoreAssociation?.teamMemberRole?.toLowerCase() == role;
   }
 
   /// Check if the user has access to the specified store as a shopper

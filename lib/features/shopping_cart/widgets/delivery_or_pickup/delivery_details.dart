@@ -24,8 +24,9 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
   ShoppableStore? store;
   bool isLoadingAddresses = false;
 
-  User get user => authProvider.user!;
+  User get authUser => authProvider.user!;
   bool get hasAddressForDelivery => store?.addressForDelivery != null;
+  bool get deliverToMe => selectedUser == null || authUser.id == selectedUser!.id;
   bool get hasSelectedFriends => store == null ? false : store!.hasSelectedFriends;
   bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
@@ -35,6 +36,28 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
   bool get isOrderingForMeAndFriends => store == null ? false : store!.isOrderingForMeAndFriends;
   String get orderForUsersKey => store == null ? '' : '${store!.orderFor} ${store!.friends.length} ${store!.friendGroups.length}';
 
+  String? get deliveryAddressSummary {
+
+    if(hasAddressForDelivery) {
+
+      if(deliverToMe) {
+
+        //  Note: The address line appears for this user since they own this address
+        return 'Deliver to ${authUser.attributes.name} in ${store!.addressForDelivery?.addressLine}';
+
+      }else{
+
+        //  Note: The address line does not appear since this user does not own this address
+        return 'Deliver to ${selectedUser!.attributes.name} @ ${store!.addressForDelivery?.name}';
+
+      }
+
+    }
+
+    return null;
+
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -42,8 +65,8 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
     /// Get the updated Shoppable Store Model
     store = Provider.of<ShoppableStore>(context, listen: false);
 
-    /// If the delivery destination has not been selected and we have delivery destinations
-    if(hasSelectedDeliveryDestination() == false && store!.deliveryDestinations.isNotEmpty) {
+    /// If we have delivery destinations and the delivery destination has not been selected
+    if(hasDeliveryDestinations && hasSelectedDeliveryDestination() == false) {
 
       /// Set the delivery destination to the first delivery destination
       setState(() => store!.deliveryDestination = store!.deliveryDestinations[0]);
@@ -58,7 +81,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
     if(store!.deliveryDestination == null) return false;
 
     /// Check if the selected delivery destination exists in the list of delivery destinations
-    return store!.deliveryDestinations.any((destination) => destination.name == store!.deliveryDestination);
+    return store!.deliveryDestinations.any((destination) => destination.name == store!.deliveryDestination!.name);
 
   }
 
@@ -82,7 +105,11 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
   }
 
   void onSelectedUser(User selectedUser) {
-    setState(() => this.selectedUser = selectedUser);
+    setState(() {
+      this.selectedUser = selectedUser;
+      store!.addressForDelivery = null;
+      isLoadingAddresses = true;
+    });
   }
 
   void onSelectedAddress(Address? address) {
@@ -166,7 +193,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
             ],
             
             /// Title
-            CustomTitleSmallText(hasDeliveryDestinations ? 'Choose your delivery address' : 'Where should we deliver?', margin: EdgeInsets.only(left: 8),),
+            CustomTitleSmallText(hasAddressForDelivery ? 'Choose your delivery address' : 'Where should we deliver?', margin: const EdgeInsets.only(left: 8),),
 
             /// Spacer
             const SizedBox(height: 8),
@@ -187,11 +214,13 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
 
             /// Address Cards
             AddressCardsInVerticalView(
-              key: ValueKey((selectedUser ?? user).id),
+              key: ValueKey((selectedUser ?? authUser).id),
               onLoadingAddresses: onLoadingAddresses,
               onSelectedAddress: onSelectedAddress,
+            
+              noAddressesMargin: EdgeInsets.zero,
+              user: selectedUser ?? authUser,
               screenWidthPercentage: 0.7,
-              user: selectedUser ?? user,
               selectable: true,
               elevation: 1,
             ),
@@ -206,21 +235,15 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                   duration: const Duration(milliseconds: 500),
                   child: isLoadingAddresses ? null : Column(
                     children: [
-              
+
                       /// Spacer
                       const SizedBox(height: 8),
                       
-                      /// Add Address Message
-                      if(!hasAddressForDelivery) CustomMessageAlert(
-                        'Add a delivery address for ${selectedUser?.attributes.name ?? user.attributes.name}',
-                        type: AlertMessageType.warning,
-                        icon: Icons.location_pin
-                      ),
-                      
                       /// Delivery Address Summary (Deliver To)
                       if(hasAddressForDelivery) CustomMessageAlert(
-                        'Deliver to ${selectedUser?.attributes.name ?? user.attributes.name} in ${store!.addressForDelivery!.addressLine}',
-                        icon: Icons.location_pin
+                        deliveryAddressSummary!,
+                        type: AlertMessageType.error,
+                        icon: Icons.location_pin,
                       ),
               
                       /// Spacer
@@ -236,7 +259,10 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
             if(store!.deliveryNote != null) ...[
               
               /// Delivery Note
-              CustomMessageAlert(store!.deliveryNote!),
+              CustomMessageAlert(
+                store!.deliveryNote!,
+                icon: Icons.delivery_dining_rounded,
+              ),
               
               /// Spacer
               const SizedBox(height: 16),

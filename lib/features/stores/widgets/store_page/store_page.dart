@@ -158,14 +158,14 @@ class _StorePageContentState extends State<StorePageContent> {
      *     so that we can improve performance.
      */
 
-    final doesNotHaveUserAndStoreAssociation = store!.attributes.userAndStoreAssociation == null;
+    final doesNotHaveUserStoreAssociation = store!.attributes.userStoreAssociation == null;
     final doesNotHaveRelationshipTotals = store!.teamMembersCount == null ||
                                           store!.followersCount == null ||
                                           store!.couponsCount == null ||
                                           store!.reviewsCount == null ||
                                           store!.ordersCount == null;
 
-    if(doesNotHaveUserAndStoreAssociation || doesNotHaveRelationshipTotals) {
+    if(doesNotHaveUserStoreAssociation || doesNotHaveRelationshipTotals) {
       
       requestStore();
 

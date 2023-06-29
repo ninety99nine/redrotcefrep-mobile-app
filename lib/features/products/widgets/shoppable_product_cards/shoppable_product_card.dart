@@ -2,6 +2,7 @@ import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../stores/models/shoppable_store.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../models/product.dart';
@@ -31,6 +32,8 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
   Product get product => widget.product;
   bool get canShowDescription => product.showDescription.status && selected && product.description != null;
     
+  AudioPlayer audioPlayer = AudioPlayer();
+
   /// Capture the store that was passed on ListenableProvider.value()
   /// of the StoreCard. This store is accessible if the StoreCard is
   /// an ancestor of this ShoppableProductCard. We can use this shoppable 
@@ -41,6 +44,12 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    audioPlayer.dispose();
   }
 
   Widget get namePriceAndQuantityAdjuster {
@@ -116,15 +125,15 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
     );
   }
 
-  Widget get subtractButtonWidget {
-
-    reduceQuantity() {
-      if( product.quantity > 1 ) {
-        store.updateSelectedProductQuantity(product, product.quantity - 1);
-      }else{
-        store.addOrRemoveSelectedProduct(product);
-      }
+  void reduceQuantity() {
+    if( product.quantity > 1 ) {
+      store.updateSelectedProductQuantity(product, product.quantity - 1);
+    }else{
+      store.addOrRemoveSelectedProduct(product);
     }
+  }
+
+  Widget get subtractButtonWidget {
 
     return GestureDetector(
       onTap: reduceQuantity,
@@ -133,11 +142,11 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
 
   }
 
-  Widget get addButtonWidget {
+  void increaseQuantity() {
+    store.updateSelectedProductQuantity(product, product.quantity + 1);
+  }
 
-    increaseQuantity() {
-      store.updateSelectedProductQuantity(product, product.quantity + 1);
-    }
+  Widget get addButtonWidget {
 
     return GestureDetector(
       onTap: increaseQuantity,
@@ -202,6 +211,14 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
   }
 
   void onTap() {
+
+    if(store.checkIfSelectedProductExists(product) == false) {
+
+      /// Play success sound
+      audioPlayer.play(AssetSource('sounds/success.mp3'));
+
+    }
+
     store.addOrRemoveSelectedProduct(product);
   }
 

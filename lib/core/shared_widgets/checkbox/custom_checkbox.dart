@@ -2,7 +2,7 @@ import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 
-class CustomCheckbox extends StatelessWidget {
+class CustomCheckbox extends StatefulWidget {
 
   final bool value;
   final String link;
@@ -12,6 +12,7 @@ class CustomCheckbox extends StatelessWidget {
   final void Function(bool?) onChanged;
   final EdgeInsetsGeometry checkBoxMargin;
   final MainAxisAlignment mainAxisAlignment;
+  final CrossAxisAlignment crossAxisAlignment;
 
   const CustomCheckbox({
     super.key, 
@@ -22,21 +23,30 @@ class CustomCheckbox extends StatelessWidget {
     this.disabled = false,
     required this.onChanged,
     this.mainAxisAlignment = MainAxisAlignment.start,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
     this.checkBoxMargin = const EdgeInsets.only(right: 8),
   });
 
+  @override
+  State<CustomCheckbox> createState() => _CustomCheckboxState();
+}
+
+class _CustomCheckboxState extends State<CustomCheckbox> {
+
   Widget get linkContent {
 
-    Widget linkWidget = Text(linkText, style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline));
+    final primaryColor = Theme.of(context).primaryColor;
 
-    if(text is Widget || (text is String && text.isEmpty == false) && linkText.isNotEmpty) {
+    Widget linkWidget = Text(widget.linkText, style: TextStyle(color: primaryColor, decoration: TextDecoration.underline));
+
+    if(widget.text is Widget || (widget.text is String && widget.text.isEmpty == false) && widget.linkText.isNotEmpty) {
       
       /// Add Spacer and Link
       linkWidget = Row(
         children: [
 
           /// Spacer
-          if(text is Widget || (text is String && text.isEmpty == false)) const SizedBox(width: 5,),
+          if(widget.text is Widget || (widget.text is String && widget.text.isEmpty == false)) const SizedBox(width: 5,),
           
           /// Link
           linkWidget
@@ -47,7 +57,7 @@ class CustomCheckbox extends StatelessWidget {
 
     return InkWell(
       child: linkWidget,
-      onTap: () => link.isEmpty ? null : launchUrl(Uri.parse(link))
+      onTap: () => widget.link.isEmpty ? null : launchUrl(Uri.parse(widget.link))
     );
 
   }
@@ -56,22 +66,22 @@ class CustomCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Row(
-      mainAxisAlignment: mainAxisAlignment,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: widget.mainAxisAlignment,
+      crossAxisAlignment: widget.crossAxisAlignment,
       children: [
         
         Container(
           width: 20.0,
           height: 20.0,
-          margin: checkBoxMargin,
+          margin: widget.checkBoxMargin,
           child: Checkbox(
-            value: value,
+            value: widget.value,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4)
             ),
-            onChanged: disabled ? null : onChanged,
+            onChanged: widget.disabled ? null : widget.onChanged,
             side: BorderSide(
-              color: disabled ? Colors.grey : Theme.of(context).primaryColor,
+              color: widget.disabled ? Colors.grey : Theme.of(context).primaryColor,
               width: 1
             ),
           ),
@@ -79,15 +89,14 @@ class CustomCheckbox extends StatelessWidget {
         
         Flexible(
           child: GestureDetector(
-            onTap: () => disabled ? null : onChanged(!value),
-            child: (text is Widget) ? text : CustomBodyText(text),
+            onTap: () => widget.disabled ? null : widget.onChanged(!widget.value),
+            child: (widget.text is Widget) ? widget.text : CustomBodyText(widget.text),
           ),
         ),
 
-        if(link.isNotEmpty) linkContent,
+        if(widget.link.isNotEmpty) linkContent,
       ],
     );
 
   }
-
 }

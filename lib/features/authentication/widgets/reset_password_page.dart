@@ -393,9 +393,9 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
     if( setNewPassword ) {
 
       formFields.addAll([
-        authForm.getAccountAvatarChip(),
+        authForm.getAccountMobileNumberChip(),
         const SizedBox(height: 16),
-        const CustomBodyText('Set a new password for your account'),
+        authForm.setNewPasswordInstruction(),
         const SizedBox(height: 16),
         authForm.getPasswordField(setState, _onResetPassword),
         const SizedBox(height: 16),
@@ -405,7 +405,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
     }else if( enterVerificationCode ) {
 
       formFields.addAll([
-        authForm.getAccountAvatarChip(),
+        authForm.getAccountMobileNumberChip(),
         const SizedBox(height: 16),
         authForm.getVerificationCodeMessage(authForm.verificationCodeMessage!, authForm.verificationCodeShortcode!, context),
         const SizedBox(height: 16),

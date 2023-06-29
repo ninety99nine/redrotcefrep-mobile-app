@@ -15,7 +15,7 @@ import 'package:provider/provider.dart';
 import 'friends_page/friends_page.dart';
 import '../../enums/friend_enums.dart';
 import 'package:flutter/material.dart';
-import 'friend_menus.dart';
+import 'friend_and_friend_group_filters.dart';
 
 class FriendsContent extends StatefulWidget {
   
@@ -432,7 +432,7 @@ class _FriendsContentState extends State<FriendsContent> {
                       ),
                   
                       //  Filter
-                      if(wantsToAddFriendsToOrder && isViewingAny) FriendMenus(
+                      if(wantsToAddFriendsToOrder && isViewingAny) FriendAndFriendGroupFilters(
                         selectedMenu: selectedMenu,
                         onSelectedMenu: onSelectedMenu,
                       ),

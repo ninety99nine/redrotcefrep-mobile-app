@@ -1,5 +1,4 @@
 import 'package:bonako_demo/features/stores/services/store_services.dart';
-import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
 import 'secondary_section_content/secondary_section_content.dart';
 import 'primary_section_content/primary_section_content.dart';

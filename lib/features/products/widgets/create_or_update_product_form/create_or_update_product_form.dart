@@ -1,5 +1,6 @@
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
@@ -106,9 +107,9 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         /// Pricing
         'isFree': isEditing ? product!.isFree.status : false,
         'currency': isEditing ? product!.currency.code : 'BWP',
-        'unitRegularPrice': isEditing ? product!.unitRegularPrice.amountWithoutCurrency : '0.00',
-        'unitSalePrice': isEditing ? product!.unitSalePrice.amountWithoutCurrency : '0.00',
-        'unitCostPrice': isEditing ? product!.unitCostPrice.amountWithoutCurrency : '0.00',
+        'unitRegularPrice': isEditing ? product!.unitRegularPrice.amount.toStringAsFixed(2) : '0.00',
+        'unitSalePrice': isEditing ? product!.unitSalePrice.amount.toStringAsFixed(2) : '0.00',
+        'unitCostPrice': isEditing ? product!.unitCostPrice.amount.toStringAsFixed(2) : '0.00',
 
         /// Quantity
         'allowedQuantityPerOrder': isEditing ? product!.allowedQuantityPerOrder.value.toLowerCase() : 'unlimited',
@@ -378,16 +379,14 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
               CustomTextFormField(
                 errorText: serverErrors.containsKey('name') ? serverErrors['name'] : null,
                 enabled: !isSubmitting && !isDeleting,
+                initialValue: productForm['name'],
                 hintText: 'Standard Ticket',
                 borderRadiusAmount: 16,
-                initialValue: productForm['name'],
                 labelText: 'Name',
+                maxLength: 60,
                 onChanged: (value) {
                   setState(() => productForm['name'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => productForm['name'] = value ?? ''); 
-                },
+                }
               ),
               
               /// Spacer
@@ -415,12 +414,10 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                 enabled: !isSubmitting && !isDeleting,
                 labelText: 'Description',
                 borderRadiusAmount: 16,
+                maxLength: 120,
                 minLines: 1,
                 onChanged: (value) {
                   setState(() => productForm['description'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => productForm['description'] = value ?? ''); 
                 },
                 validator: (value) {
                   return null;
@@ -444,37 +441,29 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
               const SizedBox(height: 16),
 
               /// Unit Regular Price
-              CustomTextFormField(
+              CustomMoneyTextFormField(
                 errorText: serverErrors.containsKey('unitRegularPrice') ? serverErrors['unitRegularPrice'] : null,
                 enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
                 initialValue: productForm['unitRegularPrice'],
                 labelText: 'Regular Price',
-                borderRadiusAmount: 16,
                 hintText: '100.00',
                 onChanged: (value) {
                   setState(() => productForm['unitRegularPrice'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => productForm['unitRegularPrice'] = value ?? '0'); 
-                },
+                }
               ),
               
               /// Spacer
               const SizedBox(height: 16),
 
               /// Unit Sale Price
-              CustomTextFormField(
+              CustomMoneyTextFormField(
                 errorText: serverErrors.containsKey('unitSalePrice') ? serverErrors['unitSalePrice'] : null,
                 enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
                 initialValue: productForm['unitSalePrice'],
                 labelText: 'Sale Price',
-                borderRadiusAmount: 16,
                 hintText: '50.00',
                 onChanged: (value) {
                   setState(() => productForm['unitSalePrice'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => productForm['unitSalePrice'] = value ?? '0'); 
                 },
               ),
               
@@ -482,19 +471,15 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
               const SizedBox(height: 16),
 
               /// Unit Cost Price
-              CustomTextFormField(
+              CustomMoneyTextFormField(
                 errorText: serverErrors.containsKey('unitCostPrice') ? serverErrors['unitCostPrice'] : null,
                 enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
                 initialValue: productForm['unitCostPrice'],
                 labelText: 'Cost Price',
-                borderRadiusAmount: 16,
                 hintText: '25.00',
                 onChanged: (value) {
                   setState(() => productForm['unitCostPrice'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => productForm['unitCostPrice'] = value ?? '0'); 
-                },
+                }
               ),
               
               /// Spacer
@@ -537,11 +522,9 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   enabled: !isSubmitting && !isDeleting,
                   borderRadiusAmount: 16,
                   hintText: '10',
+                  maxLength: 6,
                   onChanged: (value) {
                     setState(() => productForm['maximumAllowedQuantityPerOrder'] = value); 
-                  },
-                  onSaved: (value) {
-                    setState(() => productForm['maximumAllowedQuantityPerOrder'] = value ?? '0'); 
                   },
                 ),
               
@@ -587,11 +570,9 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   labelText: 'Stock Quantity',
                   borderRadiusAmount: 16,
                   hintText: '10',
+                  maxLength: 6,
                   onChanged: (value) {
                     setState(() => productForm['stockQuantity'] = value); 
-                  },
-                  onSaved: (value) {
-                    setState(() => productForm['stockQuantity'] = value ?? '0'); 
                   },
                 ),
 
@@ -605,14 +586,12 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                 errorText: serverErrors.containsKey('sku') ? serverErrors['sku'] : null,
                 enabled: !isSubmitting && !isDeleting,
                 initialValue: productForm['sku'],
-                labelText: 'SKU',
                 borderRadiusAmount: 16,
                 hintText: 'std-ticket',
+                labelText: 'SKU',
+                maxLength: 100,
                 onChanged: (value) {
                   setState(() => productForm['sku'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => productForm['sku'] = value ?? '0'); 
                 },
                 validator: (value) {
                   return null;
@@ -627,14 +606,12 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                 errorText: serverErrors.containsKey('barcode') ? serverErrors['barcode'] : null,
                 enabled: !isSubmitting && !isDeleting,
                 initialValue: productForm['barcode'],
-                labelText: 'Barcode',
                 borderRadiusAmount: 16,
                 hintText: '123456789',
+                labelText: 'Barcode',
+                maxLength: 100,
                 onChanged: (value) {
                   setState(() => productForm['barcode'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => productForm['barcode'] = value ?? '0'); 
                 },
                 validator: (value) {
                   return null;

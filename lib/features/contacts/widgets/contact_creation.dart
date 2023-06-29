@@ -91,6 +91,7 @@ class _FollowersModalBottomSheetState extends State<ContactCreation> {
                         initialValue: firstName,
                         hintText: 'First name',
                         enabled: !isLoading,
+                        maxLength: 20,
                         onChanged: (value) {
                           firstName = value;
                         },
@@ -114,6 +115,7 @@ class _FollowersModalBottomSheetState extends State<ContactCreation> {
                         initialValue: lastName,
                         hintText: 'Last name',
                         enabled: !isLoading,
+                        maxLength: 20,
                         onChanged: (value) {
                           lastName = value;
                         },

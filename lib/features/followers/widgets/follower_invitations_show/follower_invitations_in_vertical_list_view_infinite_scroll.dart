@@ -1,5 +1,6 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../stores/providers/store_provider.dart';
@@ -42,6 +43,7 @@ class _FollowerInvitationsInVerticalListViewInfiniteScrollState extends State<Fo
   bool? get isDecliningAll => widget.isDecliningAll;
   Function(Future<http.Response>) get onRequest => widget.onRequest;
   Function() get onRespondedToInvitation => widget.onRespondedToInvitation;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   /// Render each request item as an InvitationItem
@@ -58,9 +60,10 @@ class _FollowerInvitationsInVerticalListViewInfiniteScrollState extends State<Fo
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
   Future<http.Response> requestInvitedStores(int page, String searchWord) {
     
-    Future<http.Response> response = storeProvider.storeRepository.showStores(
+    Future<http.Response> response = storeProvider.storeRepository.showUserStores(
       /// Return stores were the user is invited to follow
       userAssociation: UserAssociation.invitedToFollow,
+      user: authProvider.user!,
       searchWord: searchWord,
       page: page
     );

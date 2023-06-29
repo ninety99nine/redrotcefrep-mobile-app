@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
 import 'package:bonako_demo/features/addresses/models/delivery_address.dart';
 
 import '../../../core/shared_models/name_and_description.dart';
@@ -15,12 +15,13 @@ import '../../stores/models/shoppable_store.dart';
 class Order {
   late int id;
   late Links links;
+  late bool anonymous;
   late String summary;
   late String orderFor;
   late Money amountPaid;
   late Currency currency;
   late DateTime createdAt;
-  late int customerUserId;
+  late int? customerUserId;
   late Money amountPending;
   late int totalViewsByTeam;
   late Attributes attributes;
@@ -43,7 +44,7 @@ class Order {
   late String? collectionByUserLastName;
   late NameAndDescription paymentStatus;
   late String? collectionByUserFirstName;
-  late MobileNumber customerMobileNumber;
+  late MobileNumber? customerMobileNumber;
   late Percentage amountPendingPercentage;
   late Percentage amountOutstandingPercentage;
   late String? collectionVerifiedByUserLastName;
@@ -54,6 +55,7 @@ class Order {
     id = json['id'];
     summary = json['summary'];
     orderFor = json['orderFor'];
+    anonymous = json['anonymous'];
     links = Links.fromJson(json['links']);
     customerUserId = json['customerUserId'];
     collectionType = json['collectionType'];
@@ -77,7 +79,6 @@ class Order {
     collectionVerified = Status.fromJson(json['collectionVerified']);
     paymentStatus = NameAndDescription.fromJson(json['paymentStatus']);
     amountPaidPercentage = Percentage.fromJson(json['amountPaidPercentage']);
-    customerMobileNumber = MobileNumber.fromJson(json['customerMobileNumber']);
     collectionVerifiedByUserLastName = json['collectionVerifiedByUserLastName'];
     collectionVerifiedByUserFirstName = json['collectionVerifiedByUserFirstName'];
     amountPendingPercentage = Percentage.fromJson(json['amountPendingPercentage']);
@@ -86,6 +87,7 @@ class Order {
     relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
     firstViewedByTeamAt = json['firstViewedByTeamAt'] == null ? null : DateTime.parse(json['firstViewedByTeamAt']);
     collectionVerifiedAt = json['collectionVerifiedAt'] == null ? null : DateTime.parse(json['collectionVerifiedAt']);
+    customerMobileNumber = json['customerMobileNumber'] == null ? null : MobileNumber.fromJson(json['customerMobileNumber']);
   }
 }
 
@@ -95,7 +97,7 @@ class Attributes {
   late String? collectionByUserName;
   late String? collectionVerifiedByUserName;
   late List<NameAndDescription> followUpStatuses;
-  late UserAndOrderAssociation? userAndOrderAssociation;
+  late UserOrderCollectionAssociation? userOrderCollectionAssociation;
   late DialToShowCollectionCode dialToShowCollectionCode;
 
   Attributes.fromJson(Map<String, dynamic> json) {
@@ -107,7 +109,7 @@ class Attributes {
       return NameAndDescription.fromJson(followUpStatus);
     })).toList();
     dialToShowCollectionCode = DialToShowCollectionCode.fromJson(json['dialToShowCollectionCode']);
-    userAndOrderAssociation = json['userAndOrderAssociation'] == null ? null : UserAndOrderAssociation.fromJson(json['userAndOrderAssociation']);
+    userOrderCollectionAssociation = json['userOrderCollectionAssociation'] == null ? null : UserOrderCollectionAssociation.fromJson(json['userOrderCollectionAssociation']);
   }
 }
 

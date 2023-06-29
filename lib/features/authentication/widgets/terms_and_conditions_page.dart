@@ -199,7 +199,8 @@ class _ContentState extends State<Content> {
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
                 opacity: isSubmitting ? 0.25 : 1,
-                child: Column(
+                child: Wrap(
+                  runSpacing: 16,
                   children: [
               
                     ...getAcceptableItems(),
@@ -212,6 +213,21 @@ class _ContentState extends State<Content> {
               if(isSubmitting) const CustomCircularProgressIndicator()
 
             ]
+          ),
+
+          SizedBox(
+            width: double.infinity,
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 500),
+              child: AnimatedSwitcher(
+                switchInCurve: Curves.easeIn,
+                switchOutCurve: Curves.easeOut,
+                duration: const Duration(milliseconds: 500),
+                child: acceptedTermsAndConditions 
+                  ? const CustomBodyText('I agree and accept these terms and conditions by proceeding to use this service.', margin: EdgeInsets.only(top: 24),)
+                  : null 
+              ),
+            ),
           ),
                 
           //  Divider
@@ -293,7 +309,7 @@ class _ContentState extends State<Content> {
 
   Widget checkboxToAccept({ required String name, required String link }){
     return CustomCheckbox(
-      text: 'Accept',
+      link: link,
       linkText: name,
       disabled: isSubmitting,
       value: acceptedItems.contains(name), 

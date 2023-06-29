@@ -2,6 +2,7 @@ import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:bonako_demo/features/addresses/widgets/address_cards_in_vertical_view.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/authentication/repositories/auth_repository.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
@@ -145,96 +146,101 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0,),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: userForm.isEmpty ? [] : [
-              
-              /// Spacer
-              const SizedBox(height: 16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: userForm.isEmpty ? [] : [
 
-              /// First Name
-              CustomTextFormField(
-                errorText: serverErrors.containsKey('firstName') ? serverErrors['firstName'] : null,
-                enabled: !isSubmitting,
-                hintText: 'Katlego',
-                borderRadiusAmount: 16,
-                initialValue: userForm['firstName'],
-                labelText: 'First Name',
-                onChanged: (value) {
-                  setState(() => userForm['firstName'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => userForm['firstName'] = value ?? ''); 
-                },
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0,),
+              child: Column(
+                children: [
+            
+                  /// Spacer
+                  const SizedBox(height: 16),
 
-              /// Last Name
-              CustomTextFormField(
-                errorText: serverErrors.containsKey('lastName') ? serverErrors['lastName'] : null,
-                enabled: !isSubmitting,
-                hintText: 'Warona',
-                borderRadiusAmount: 16,
-                initialValue: userForm['lastName'],
-                labelText: 'Last Name',
-                onChanged: (value) {
-                  setState(() => userForm['lastName'] = value); 
-                },
-                onSaved: (value) {
-                  setState(() => userForm['lastName'] = value ?? ''); 
-                },
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 8),
+                  /// First Name
+                  CustomTextFormField(
+                    errorText: serverErrors.containsKey('firstName') ? serverErrors['firstName'] : null,
+                    initialValue: userForm['firstName'],
+                    labelText: 'First Name',
+                    borderRadiusAmount: 16,
+                    enabled: !isSubmitting,
+                    hintText: 'Katlego',
+                    maxLength: 20,
+                    onChanged: (value) {
+                      setState(() => userForm['firstName'] = value); 
+                    }
+                  ),
+                  
+                  /// Spacer
+                  const SizedBox(height: 16),
 
-              /// Online Checkbox
-              CustomCheckbox(
-                value: userForm['anonymous'],
-                disabled: isSubmitting,
-                text: 'Make me anonymous',
-                onChanged: (value) {
-                  setState(() => userForm['anonymous'] = value ?? false); 
-                }
-              ),
+                  /// Last Name
+                  CustomTextFormField(
+                    errorText: serverErrors.containsKey('lastName') ? serverErrors['lastName'] : null,
+                    initialValue: userForm['lastName'],
+                    enabled: !isSubmitting,
+                    borderRadiusAmount: 16,
+                    labelText: 'Last Name',
+                    hintText: 'Warona',
+                    maxLength: 20,
+                    onChanged: (value) {
+                      setState(() => userForm['lastName'] = value); 
+                    }
+                  ),
+                  
+                  /// Spacer
+                  const SizedBox(height: 16),
 
-              if(userForm['anonymous']) ...[
+                  /// Online Checkbox
+                  CustomCheckbox(
+                    value: userForm['anonymous'],
+                    disabled: isSubmitting,
+                    text: 'Make me anonymous',
+                    onChanged: (value) {
+                      setState(() => userForm['anonymous'] = value ?? false); 
+                    }
+                  ),
 
-                /// Instructions
-                const CustomMessageAlert('You are anonymous, your name will not be shown to other users except shopkeepers. We will use your nick name instead.'),
-                
-                /// Spacer
-                const SizedBox(height: 16),
+                  if(userForm['anonymous']) ...[
 
-                /// Nick Name
-                CustomTextFormField(
-                  errorText: serverErrors.containsKey('nickName') ? serverErrors['nickName'] : null,
-                  enabled: !isSubmitting,
-                  hintText: 'Kat',
-                  borderRadiusAmount: 16,
-                  initialValue: userForm['nickName'],
-                  labelText: 'Nick Name',
-                  onChanged: (value) {
-                    setState(() => userForm['nickName'] = value); 
-                  },
-                  onSaved: (value) {
-                    setState(() => userForm['nickName'] = value ?? ''); 
-                  },
-                ),
+                    /// Instructions
+                    const CustomMessageAlert(
+                      'You are anonymous, your name will not be shown to other users except shopkeepers. We will use your nick name instead.',
+                      margin: EdgeInsets.only(top: 16, bottom: 24),
+                    ),
 
-              ],   
+                    /// Nick Name
+                    CustomTextFormField(
+                      errorText: serverErrors.containsKey('nickName') ? serverErrors['nickName'] : null,
+                      initialValue: userForm['nickName'],
+                      enabled: !isSubmitting,
+                      borderRadiusAmount: 16,
+                      labelText: 'Nick Name',
+                      hintText: 'Kat',
+                      maxLength: 40,
+                      onChanged: (value) {
+                        setState(() => userForm['nickName'] = value); 
+                      },
+                    ),
 
-              /// Spacer
-              const SizedBox(height: 100)
-              
-            ]
-          ),
+                  ],   
+
+                ],
+              )
+            ),
+
+            /// Address Cards
+            AddressCardsInVerticalView(
+              user: user
+            ),
+
+            /// Spacer
+            const SizedBox(height: 100)
+            
+          ]
         ),
       ),
     );

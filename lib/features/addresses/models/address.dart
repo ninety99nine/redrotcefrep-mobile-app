@@ -1,35 +1,22 @@
-import 'package:bonako_demo/features/addresses/enums/address_enums.dart';
-
-import './../../../core/shared_models/mobile_number.dart';
 import './../../../core/shared_models/link.dart';
 
 class Address {
   late int id;
-  late Links links;
-  late AddressType type;
-  late String addressLine;
+  late String name;
+  late Links? links;
+  late bool shareAddress;
   late DateTime createdAt;
   late DateTime updatedAt;
-  late Metadata? metadata;
+  late String? addressLine;
 
   Address.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    name = json['name'];
     addressLine = json['addressLine'];
-    links = Links.fromJson(json['links']);
+    shareAddress = json['shareAddress'];
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
-    metadata = json['metadata'] == null ? null : Metadata.fromJson(json['metadata']);
-    type = AddressType.values.firstWhere((addressType) => addressType.toString() == 'AddressType.${json['type'].toLowerCase()}');
-  }
-}
-
-class Metadata {
-  late String name;
-  late MobileNumber? mobileNumber;
-
-  Metadata.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    mobileNumber = json['mobileNumber'] == null ? null : MobileNumber.fromJson(json['mobileNumber']);
+    links = json['links'] == null ? null : Links.fromJson(json['links']);
   }
 }
 
@@ -43,5 +30,4 @@ class Links {
     updateAddress = Link.fromJson(json['updateAddress']);
     deleteAddress = Link.fromJson(json['deleteAddress']);
   }
-
 }

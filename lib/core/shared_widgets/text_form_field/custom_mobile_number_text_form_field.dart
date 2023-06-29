@@ -31,6 +31,7 @@ class CustomMobileNumberTextFormField extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
 
     return CustomTextFormField(
+      maxLength: 8,
       enabled: enabled,
       hintText: 'XXXXXXXX',
       errorText: errorText,

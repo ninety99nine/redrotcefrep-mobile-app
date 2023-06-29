@@ -1,10 +1,7 @@
-import '../../../followers/widgets/follower_invitations_show/follower_invitations_modal_bottom_sheet/follower_invitations_modal_bottom_sheet.dart';
-import '../../../team_members/widgets/team_member_invitations_show/team_member_invitations_modal_popup/team_member_invitations_modal_popup.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
-import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import '../../../friend_groups/models/friend_group.dart';
-import '../../models/check_store_invitations.dart';
-import '../../../../../core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
 import 'package:http/http.dart' as http;
@@ -12,18 +9,21 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../enums/store_enums.dart';
 import 'store_card/store_card.dart';
-import 'dart:convert';
 
 class StoreCards extends StatefulWidget {
 
+  final String? storesUrl;
   final FriendGroup? friendGroup;
-  final Widget? contentBeforeSearchBar;
-  final UserAssociation userAssociation;
+  final Function(Order)? onCreatedOrder;
+  final UserAssociation? userAssociation;
+  final Widget Function(bool, int)? contentBeforeSearchBar;
 
   const StoreCards({
     Key? key,
+    this.storesUrl,
     this.friendGroup,
-    required this.userAssociation,
+    this.onCreatedOrder,
+    this.userAssociation,
     required this.contentBeforeSearchBar,
   }) : super(key: key);
 
@@ -33,32 +33,19 @@ class StoreCards extends StatefulWidget {
 
 class StoreCardsState extends State<StoreCards> {
 
-  CheckStoreInvitations? checkStoreInvitations;
+  String? get storesUrl => widget.storesUrl;
+  bool get hasFriendGroup => friendGroup != null;
   FriendGroup? get friendGroup => widget.friendGroup;
-  UserAssociation get userAssociation => widget.userAssociation;
-  Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
+  Function(Order)? get onCreatedOrder => widget.onCreatedOrder;
+  UserAssociation? get userAssociation => widget.userAssociation;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  
+  Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
-  
-  bool get showInvitationsBanner => scrolledToTop && checkStoreInvitations != null && checkStoreInvitations!.hasInvitations;
-  
-  String get invitationsBannerText {
-    if(checkStoreInvitations != null) {
-      if(userAssociation == UserAssociation.teamMember) {
-        return 'You have been invited to join ${checkStoreInvitations!.totalInvitations} ${checkStoreInvitations!.totalInvitations == 1 ? 'store' : 'stores'}';
-      }else{
-        return 'You have been invited to follow ${checkStoreInvitations!.totalInvitations} ${checkStoreInvitations!.totalInvitations == 1 ? 'store' : 'stores'}';
-      }
-    }else{
-      return '';
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    requestStoreInvitations();
 
     /// Set the refresh method on the store provider so that we can easily refresh the
     /// stores from anyway in the application. This way we don't have to keep passing
@@ -82,142 +69,88 @@ class StoreCardsState extends State<StoreCards> {
     if(friendGroup?.id != oldWidget.friendGroup?.id) {
 
       /// Start a new request (so that we can filter stores by the specified friend group id)
-      startRequest();
+      refreshStores();
 
     }
 
   }
 
-  void startRequest() {
+  Widget onRenderItem(store, int index, List stores, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) {
 
-    if(customVerticalListViewInfiniteScrollState.currentState != null) {
+    if(hasFriendGroup) {
 
-      customVerticalListViewInfiniteScrollState.currentState!.startRequest();
+      /// Indicate that we want to place an order for Me And Friends 
+      (store as ShoppableStore).orderFor = 'Me And Friends';
+
+      /// Set the friend group on the list of store friend groups so that we can place an order there
+      store.friendGroups.add(friendGroup!);
 
     }
 
+    /// Check if the onCreatedOrder method is provided
+    if(onCreatedOrder != null) {
+
+      /**
+       *  Set the onCreatedOrder method on this store.
+       *  Whenever an order is created, we can then call this method to pass the created order
+       *  so that the parent widget can be notified of the created order.
+       */
+      store.onCreatedOrder = onCreatedOrder;
+
+    }
+
+    return StoreCard(
+      store: store
+    );
+
   }
 
-  Widget onRenderItem(store, int index, List stores, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => StoreCard(
-    store: (store as ShoppableStore)
-  );
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
   Future<http.Response> requestShowStores(int page, String searchWord) {
-    return storeProvider.storeRepository.showStores(
-      userAssociation: userAssociation,
-      withVisibleProducts: true,
-      withCountTeamMembers: true,
-      withVisitShortcode: true,
-      friendGroup: friendGroup,
-      withCountFollowers: true,
-      withCountProducts: true,
-      withCountReviews: true,
-      searchWord: searchWord,
-      withCountCoupons: true,
-      withCountOrders: true,
-      withRating: true,
-      page: page
-    );
-  }
 
-  /// Check invitations
-  void requestStoreInvitations() async {
+    if(storesUrl == null) {
 
-    final Future<http.Response> request;
-
-    if(userAssociation == UserAssociation.teamMember) {
-      request = requestStoreInvitationsToJoinTeam();
-    }else{
-      request = requestStoreInvitationsToFollow();
-    }
-
-    request.then((http.Response response) {
-
-      if(!mounted) return response;
-
-      if( response.statusCode == 200 ) {
-
-        final responseBody = jsonDecode(response.body);
-        
-        setState(() => checkStoreInvitations = CheckStoreInvitations.fromJson(responseBody));
-
-      }
-
-      return response;
-
-    }).catchError((error) {
-
-      /// Show the error message
-      SnackbarUtility.showErrorMessage(message: 'Can\'t check invitations');
-
-    });
-
-  }
-
-  /// Check the invitations to join teams
-  Future<http.Response> requestStoreInvitationsToJoinTeam() {
-    return storeProvider.storeRepository.checkStoreInvitationsToJoinTeam();
-  }
-
-  /// Check the invitations to follow
-  Future<http.Response> requestStoreInvitationsToFollow() {
-    return storeProvider.storeRepository.checkStoreInvitationsToFollow();
-  }
-
-  Widget get invitationsBanner {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      height: showInvitationsBanner ? null : 0,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-
-          /// Invitation banner text
-          if(showInvitationsBanner) CustomBodyText(invitationsBannerText),
-          
-          /// Open Button
-          const CustomBodyText('Open', isLink: true,)
-
-        ],
-      ),
-    );
-  }
-
-  Widget get invitationsModalBanner {
-          
-    if(userAssociation == UserAssociation.teamMember) {
-
-      /// Modal Popup to show invitations to join team
-      return TeamMemberInvitationsModalPopup(
-        trigger: invitationsBanner,
+      return storeProvider.storeRepository.showUserStores(
+        userAssociation: userAssociation,
+        withCountTeamMembers: true,
+        withVisibleProducts: true,
+        withVisitShortcode: true,
+        friendGroup: friendGroup,
+        withCountFollowers: true,
+        user: authProvider.user!,
+        withCountProducts: true,
+        withCountReviews: true,
+        searchWord: searchWord,
+        withCountCoupons: true,
+        withCountOrders: true,
+        withRating: true,
+        page: page
       );
 
     }else{
 
-      /// Modal Popup to show invitations to follow store
-      return FollowerInvitationsModalBottomSheet(
-        trigger: invitationsBanner,
+      return storeProvider.storeRepository.showStores(
+        withCountTeamMembers: true,
+        withVisibleProducts: true,
+        withVisitShortcode: true,
+        withCountFollowers: true,
+        withCountProducts: true,
+        withCountReviews: true,
+        searchWord: searchWord,
+        withCountCoupons: true,
+        withCountOrders: true,
+        withRating: true,
+        url: storesUrl,
+        page: page
       );
 
     }
-
   }
 
   void refreshStores() {
-
-    /// Reset the invitations checker
-    setState(() => checkStoreInvitations = null);
-
-    /// Refresh the store invitations
-    requestStoreInvitations();
-
-    /// Refresh the store cards
-    customVerticalListViewInfiniteScrollState.currentState!.startRequest();
-
+    if(customVerticalListViewInfiniteScrollState.currentState != null) {
+      customVerticalListViewInfiniteScrollState.currentState!.startRequest();
+    }
   }
 
   void updateStore(ShoppableStore updatedStore) {
@@ -259,29 +192,16 @@ class StoreCardsState extends State<StoreCards> {
     return CustomVerticalListViewInfiniteScroll(
       showSeparater: false,
       debounceSearch: true,
+      showNoContent: false,
+      showNoMoreContent: false,
       onParseItem: onParseItem,
       onRenderItem: onRenderItem,
+      headerPadding: EdgeInsets.zero,
       catchErrorMessage: 'Can\'t show stores',
-      contentBeforeSearchBar: contentBeforeSearchBar,
       key: customVerticalListViewInfiniteScrollState,
-      onRequest: (page, searchWord) => requestShowStores(page, searchWord), 
-      headerPadding: friendGroup == null ? const EdgeInsets.only(top: 8, bottom: 0, left: 16, right: 16) : EdgeInsets.zero,
+      contentBeforeSearchBar: contentBeforeSearchBar,
+      onRequest: (page, searchWord) => requestShowStores(page, searchWord),
     );
-  }
-
-  bool get scrolledToTop {
-
-    return true;
-
-    print(customVerticalListViewInfiniteScrollState.currentState);
-
-    if(customVerticalListViewInfiniteScrollState.currentState == null ) return false;
-
-    ScrollController controller = customVerticalListViewInfiniteScrollState.currentState!.controller;
-    
-    /// If we have scrolled half-way through, then check if we can start loading more content
-    return controller.offset > 100;
-
   }
 
   @override
@@ -289,9 +209,6 @@ class StoreCardsState extends State<StoreCards> {
 
     return Column(
       children: [
-        
-        /// Invitations Modal Banner
-        if(friendGroup == null) invitationsModalBanner,
         
         /// Store cards
         Expanded(

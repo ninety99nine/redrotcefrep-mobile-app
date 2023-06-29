@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/coupons/providers/coupon_provider.dart';
+
 import 'features/team_members/widgets/team_members_show/team_members_page/team_members_page.dart';
 import 'features/followers/widgets/followers_show/followers_page/followers_page.dart';
 import 'features/introduction/widgets/introduction_role_selection_page.dart';
@@ -115,6 +117,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<ApiProvider, ProductProvider>(
           create: (_) => ProductProvider(apiProvider: ApiProvider()),
           update: (ctx, apiProvider, previousProductProvider) => ProductProvider(apiProvider: apiProvider)
+        ),
+        /**
+         *  Note: We have to use the ChangeNotifierProxyProvider instead of 
+         *  ChangeNotifierProvider because the CouponProvider requires the
+         *  ApiProvider as a dependency. When the ApiProvider changes,
+         *  then the CouponProvider will also rebuild.
+         */
+        ChangeNotifierProxyProvider<ApiProvider, CouponProvider>(
+          create: (_) => CouponProvider(apiProvider: ApiProvider()),
+          update: (ctx, apiProvider, previousCouponProvider) => CouponProvider(apiProvider: apiProvider)
         ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 

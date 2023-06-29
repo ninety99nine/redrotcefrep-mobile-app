@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
-import '../../../../../core/shared_models/user_association_as_order_viewer.dart';
+import '../../../../core/shared_models/user_order_view_association.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../stores/services/store_services.dart';
@@ -49,7 +49,7 @@ class _OrderViewersState extends State<OrderViewers> {
     );
   }
 
-  Widget get contentBeforeSearchBar {
+  Widget contentBeforeSearchBar(bool isLoading, int totalViewers) {
 
     /// Order #00001 viewers
     return Align(
@@ -101,12 +101,12 @@ class Viewer extends StatelessWidget {
     required this.store,
   });
 
-  int get views => userAssociationAsOrderViewer.views;
-  DateTime get createdAt => userAssociationAsOrderViewer.createdAt;
-  DateTime get lastSeenAt => userAssociationAsOrderViewer.lastSeenAt;
+  int get views => userOrderViewAssociation.views;
+  DateTime get createdAt => userOrderViewAssociation.createdAt;
+  DateTime get lastSeenAt => userOrderViewAssociation.lastSeenAt;
   bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
   bool get createdAtAndLastSeenAtIsNotTheSame => timeago.format(createdAt) != timeago.format(lastSeenAt);
-  UserAssociationAsOrderViewer get userAssociationAsOrderViewer => user.attributes.userAssociationAsOrderViewer!;
+  UserOrderViewAssociation get userOrderViewAssociation => user.attributes.userOrderViewAssociation!;
 
   @override
   Widget build(BuildContext context) {

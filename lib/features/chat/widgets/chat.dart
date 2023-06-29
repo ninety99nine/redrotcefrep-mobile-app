@@ -226,6 +226,7 @@ class ChatState extends State<Chat> {
             children: <Widget>[
               Flexible(
                 child: CustomTextFormField(
+                  maxLength: 200,
                   initialValue: question,
                   hintText: "Ask a question",
                   key: _customTextFormFieldState,

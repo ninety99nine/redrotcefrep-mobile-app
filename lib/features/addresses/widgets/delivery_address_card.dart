@@ -21,6 +21,7 @@ class DeliveryAddressCard extends StatefulWidget {
 class _DeliveryAddressCardState extends State<DeliveryAddressCard> {
 
   DeliveryAddress get deliveryAddress => widget.deliveryAddress;
+  bool get hasAddressline => deliveryAddress.addressLine != null;
 
   Widget get addressContent {
     return Column(
@@ -32,22 +33,26 @@ class _DeliveryAddressCardState extends State<DeliveryAddressCard> {
           children: [
               
             /// Location Icon
-            const Icon(Icons.location_pin, size: 16, color: Colors.grey),
+            Icon(Icons.location_pin, size: 16, color: Colors.red.shade700),
       
             /// Spacer
             const SizedBox(width: 4,),
             
-            /// Address Type e.g Home / Work / Friend / Business
-            CustomTitleSmallText(deliveryAddress.type.name.capitalize!),
+            /// Address Type e.g Home / Work / Grannys House
+            CustomTitleSmallText(deliveryAddress.name.capitalize!),
 
           ],
         ),
+
+        if(hasAddressline) ...[
         
-        /// Spacer
-        const SizedBox(height: 8,),
-    
-        /// Address Line e.g Gaborone, Tlokweng, Plot 1234
-        CustomBodyText(deliveryAddress.addressLine),
+          /// Spacer
+          const SizedBox(height: 8,),
+      
+          /// Address Line e.g Gaborone, Tlokweng, Plot 1234
+          CustomBodyText(deliveryAddress.addressLine),
+
+        ]
     
       ]
     );

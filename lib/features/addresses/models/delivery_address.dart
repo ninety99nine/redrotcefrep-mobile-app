@@ -1,21 +1,20 @@
-import 'package:bonako_demo/features/addresses/enums/address_enums.dart';
 import './../../../core/shared_models/mobile_number.dart';
 
 class DeliveryAddress {
   late int id;
-  late AddressType type;
-  late String addressLine;
+  late String name;
+  late bool shareAddress;
   late DateTime createdAt;
   late DateTime updatedAt;
-  late Metadata? metadata;
+  late String? addressLine;
 
   DeliveryAddress.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    name = json['name'];
     addressLine = json['addressLine'];
+    shareAddress = json['shareAddress'];
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
-    metadata = json['metadata'] == null ? null : Metadata.fromJson(json['metadata']);
-    type = AddressType.values.firstWhere((addressType) => addressType.toString() == 'AddressType.${json['type'].toLowerCase()}');
   }
 }
 

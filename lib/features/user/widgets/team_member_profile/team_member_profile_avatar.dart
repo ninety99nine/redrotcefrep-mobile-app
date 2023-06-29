@@ -31,9 +31,9 @@ class _TeamMemberProfileAvatarState extends State<TeamMemberProfileAvatar> {
       /// Get the mobile number through the user and store association attribute.
       /// This occurs if this is a Guest user (non-existing user) who was invited 
       /// to join a store as a team member.
-      if(user.attributes.userAndStoreAssociation != null) {
-        if(user.attributes.userAndStoreAssociation!.mobileNumber != null) {
-          return user.attributes.userAndStoreAssociation!.mobileNumber!.withoutExtension;
+      if(user.attributes.userStoreAssociation != null) {
+        if(user.attributes.userStoreAssociation!.mobileNumber != null) {
+          return user.attributes.userStoreAssociation!.mobileNumber!.withoutExtension;
         }
       }
 
@@ -43,7 +43,7 @@ class _TeamMemberProfileAvatarState extends State<TeamMemberProfileAvatar> {
   }
 
   String get teamMemberStatus {
-    return user.attributes.userAndStoreAssociation!.teamMemberStatus;
+    return user.attributes.userStoreAssociation!.teamMemberStatus!;
   }
 
   @override
@@ -71,7 +71,7 @@ class _TeamMemberProfileAvatarState extends State<TeamMemberProfileAvatar> {
                 CustomTitleMediumText(name),
     
                 /// Spacer
-                if(teamMemberStatus.isNotEmpty) const SizedBox(height: 4),
+                const SizedBox(height: 4),
                 
                 /// Accepted Invitation Status
                 TeamMemberInvitationStatus(

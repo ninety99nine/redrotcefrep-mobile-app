@@ -323,6 +323,7 @@ class DialogUtility {
                     
                             /// Text Form Field To Confirm Delete Resource
                             CustomTextFormField(
+                              maxLength: 6,
                               hintText: code,
                               onChanged: (value) {
                                 setState(() => userProvidedCode = value);

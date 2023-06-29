@@ -1,3 +1,6 @@
+import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
+import '../../../../core/constants/constants.dart' as constants;
+import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../enums/order_enums.dart';
 
@@ -47,5 +50,31 @@ class OrderServices {
       return prefs.setString('previewOrderMode', previewOrderMode.name);
     });
 
+  }
+
+  /// Get the customer display name to show when veiwing the specified order
+  static String getCustomerDiplayName(Order order) {
+    final UserOrderCollectionAssociation? userOrderCollectionAssociation = order.attributes.userOrderCollectionAssociation;
+    final bool isAssociatedAsCustomer = userOrderCollectionAssociation?.role.toLowerCase() == 'customer';
+    final bool isAnonymous = order.anonymous;
+
+    /**
+     *  The order.attributes.customerName can represent the actual customer name e.g "John Doe"
+     *  or the text indication that the user is anonymous e.g "Anonymous", supposing that this
+     *  order is being veiwed by anyone else but the customer, friend or team member. If it is
+     *  anonymous but veiwed by the customer we modify the outcome to return "Me" otherwise if
+     *  it is veiwed by a friend or team member the actual customer name will appear.
+     */
+    String diplayName = isAssociatedAsCustomer && isAnonymous ? 'Me' : order.attributes.customerName;
+
+    /// If this order was placed anonymously
+    if(order.anonymous) {
+
+      /// Add the emoji that shows that this display name is anonymous
+      diplayName += ' ${constants.anonymousEmoji}';
+
+    }
+
+    return diplayName;
   }
 }

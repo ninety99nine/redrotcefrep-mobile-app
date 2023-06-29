@@ -1,5 +1,3 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/features/addresses/enums/address_enums.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import 'package:http/http.dart' as http;
@@ -21,27 +19,27 @@ class AddressRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Update the specified address
-  Future<http.Response> updateAddress({ AddressType? type, String? addressLine }){
+  Future<http.Response> updateAddress({ String? name, String? addressLine }){
 
     if(address == null) throw Exception('The address must be set to update address');
 
-    String url =  address!.links.updateAddress.href;
+    String url =  address!.links!.updateAddress.href;
 
     Map body = {};
 
-    if(type != null) body['type'] = type.name;
+    if(name != null) body['name'] = name;
     if(addressLine != null) body['addressLine'] = addressLine;
 
     return apiRepository.put(url: url, body: body);
     
   }
 
-  /// Update the specified address
-  Future<http.Response> deleteAddress({ AddressType? type, String? addressLine }){
+  /// Delete the specified address
+  Future<http.Response> deleteAddress(){
 
     if(address == null) throw Exception('The address must be set to delete address');
 
-    String url =  address!.links.deleteAddress.href;
+    String url =  address!.links!.deleteAddress.href;
 
     return apiRepository.delete(url: url);
     

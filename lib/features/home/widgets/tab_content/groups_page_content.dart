@@ -1,6 +1,11 @@
-
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/features/friend_groups/widgets/friend_group_create_or_update/friend_group_create_or_update_card.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/friend_group_orders_in_horizontal_list_view_infinite_scroll.dart';
-
+import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import '../../../friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
@@ -8,9 +13,9 @@ import '../../../friend_groups/repositories/friend_group_repository.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../friend_groups/enums/friend_group_enums.dart';
+import '../../../stores/widgets/store_cards/store_cards.dart';
 import '../../../../features/stores/enums/store_enums.dart';
 import '../../../friend_groups/models/friend_group.dart';
-import '../../../stores/widgets/store_cards/store_cards.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -26,13 +31,21 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
   
   bool isLoading = false;
   FriendGroup? friendGroup;
-  
+  bool isAddingStore = false;
+
   late FriendGroupProvider friendGroupProvider;
   bool get hasFriendGroup => friendGroup != null;
+  
+  final GlobalKey<StoreCardsState> storeCardsState = GlobalKey<StoreCardsState>();
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
+  final GlobalKey<FriendGroupOrdersInHorizontalListViewInfiniteScrollState> friendGroupOrdersInHorizontalListViewInfiniteScrollState = GlobalKey<FriendGroupOrdersInHorizontalListViewInfiniteScrollState>();
 
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
+
+  void _startAddStoreLoader() => setState(() => isAddingStore = true);
+  void _stopAddStoreLoader() => setState(() => isAddingStore = false);
 
   @override
   void initState() {
@@ -103,6 +116,46 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
 
   }
 
+  void _requestAddStoreToFriendGroups(ShoppableStore store) {
+    
+    _startAddStoreLoader();
+
+    storeProvider.setStore(store).storeRepository.addStoreToFriendGroups(
+      friendGroups: [friendGroup!],
+    ).then((response) {
+
+      final responseBody = jsonDecode(response.body);
+
+      if(response.statusCode == 200) {
+
+        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        refreshStores();
+
+      }
+
+    }).catchError((error) {
+
+      SnackbarUtility.showErrorMessage(message: 'Failed to add to group');
+
+    }).whenComplete((){
+
+      _stopAddStoreLoader();
+
+    });
+  }
+
+  void refreshStores() {
+    if(storeCardsState.currentState != null) {
+      storeCardsState.currentState!.refreshStores();
+    }
+  }
+
+  void refreshOrders() {
+    if(friendGroupOrdersInHorizontalListViewInfiniteScrollState.currentState != null) {
+      friendGroupOrdersInHorizontalListViewInfiniteScrollState.currentState!.startRequest();
+    }
+  }
+
   /// Called when the friend group is selected 
   void onSelectedFriendGroups(List<FriendGroup> friendGroups) {
     if(friendGroups.isNotEmpty) {
@@ -114,31 +167,38 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
     }
   }
 
-  Widget get content {
-    if(isLoading) {
-      
-      return const CustomCircularProgressIndicator();
-    
-    }else if(!isLoading && hasFriendGroup) {
-      
-      return storeCards;
-
-    }else{
-
-      return const CustomBodyText('No Group');
-
-    }
+  void onCreatedFriendGroup() {
+    _requestShowLastSelectedFriendGroup();
   }
 
-  Widget get header {
+  void onCreatedOrder(Order order) {
+    refreshOrders();
+  }
+
+  Widget get storeCards {
+    return StoreCards(
+      key: storeCardsState,
+      friendGroup: friendGroup,
+      onCreatedOrder: onCreatedOrder,
+      contentBeforeSearchBar: contentBeforeSearchBar,
+      userAssociation: UserAssociation.friendGroupMember,
+    );
+  }
+
+  Widget contentBeforeSearchBar(bool isLoading, int totalStores) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+
+        /// Friend Group Create Card
+        FriendGroupCreateOrUpdateCard(
+          hasFriendGroup: hasFriendGroup,
+          onCreatedFriendGroup: onCreatedFriendGroup,
+        ),
         
         /// Instruction
         const CustomBodyText(
           'Get something 👌 for your group',
-          padding: EdgeInsets.only(top: 32, bottom: 8)
         ),
 
         /// Spacer
@@ -151,10 +211,19 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
         const SizedBox(height: 8,),
 
         /// Group Card
-        orderCards,
+        orderCards(totalStores),
 
         /// Spacer
         const SizedBox(height: 8,),
+
+        /// Add Store Button
+        if(totalStores > 0) Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: addStoreButton
+        ),
+        
+        /// No Stores
+        if(totalStores == 0) noStores
 
       ],
     );
@@ -178,7 +247,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     
-                    /// Name
+                    /// Friend Group Name
                     AnimatedSize(
                       duration: const Duration(milliseconds: 500),
                       child: AnimatedSwitcher(
@@ -209,26 +278,94 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
     );
   }
   
-  Widget get orderCards {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 500),
-      child: FriendGroupOrdersInHorizontalListViewInfiniteScroll(
-        key: ValueKey(friendGroup!.name),
-        friendGroup: friendGroup!,
+  Widget orderCards(int totalStores) {
+
+    /// Don't show the no orders widget when we don't have stores and orders (Only show it when we have stores but not orders)
+    final Widget? noContentWidget = totalStores == 0 ? Container() : null;
+
+    return SizedBox(
+      width: double.infinity,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 500),
+        child: FriendGroupOrdersInHorizontalListViewInfiniteScroll(
+          key: friendGroupOrdersInHorizontalListViewInfiniteScrollState,
+          noContentWidget: noContentWidget,
+          friendGroup: friendGroup!,
+        ),
       ),
     );
   }
 
-  Widget get storeCards {
-    return StoreCards(
-      friendGroup: friendGroup,
-      contentBeforeSearchBar: header,
-      userAssociation: UserAssociation.friendGroupMember,
+  Widget get addStoreButton {
+
+    return SearchModalBottomSheet(
+      showFilters: false,
+      showExpandIconButton: false,
+      onSelectedStore: _requestAddStoreToFriendGroups,
+      trigger: (openBottomModalSheet) => CustomElevatedButton(
+        'Add Store',
+        disabled: isAddingStore,
+        isLoading: isAddingStore,
+        alignment: Alignment.center,
+        onPressed: () => openBottomModalSheet(),
+      ),
     );
+
+  }
+  
+  Widget get noStores {
+      
+    return Column(
+      children: [
+
+        //  Image
+        SizedBox(
+          height: 300,
+          child: Image.asset('assets/images/groups/4.png'),
+        ),
+
+        /// Spacer
+        const SizedBox(height: 20,),
+
+        /// Instruction
+        const CustomBodyText(
+          'Great! Now you and your friends can start adding stores and placing orders here',
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          textAlign: TextAlign.center,
+        ),
+
+        /// Spacer
+        const SizedBox(height: 16,),
+
+        /// Add Store Button
+        addStoreButton,
+
+        /// Spacer
+        const SizedBox(height: 100,),
+
+      ],
+    );
+
   }
 
   @override
   Widget build(BuildContext context) {
-    return content;
+    return Column(
+      children: [
+    
+        /// Loader
+        if(isLoading) const Expanded(child: CustomCircularProgressIndicator()),
+
+        /// Friend Group Create Card
+        if(!isLoading && !hasFriendGroup) FriendGroupCreateOrUpdateCard(
+          hasFriendGroup: hasFriendGroup,
+          onCreatedFriendGroup: onCreatedFriendGroup,
+        ),
+
+        /// Friend Group Store Cards
+        if(!isLoading && hasFriendGroup) Expanded(child: storeCards)
+
+      ],
+    );
   }
 }

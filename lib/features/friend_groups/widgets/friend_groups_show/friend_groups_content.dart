@@ -4,7 +4,7 @@ import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'friend_groups_in_vertical_list_view_infinite_scroll.dart';
 import '../../repositories/friend_group_repository.dart';
-import '../friend_groups_show/friend_group_menus.dart';
+import '../friend_groups_show/friend_group_filters.dart';
 import '../../providers/friend_group_provider.dart';
 import 'friend_groups_page/friend_groups_page.dart';
 import '../../enums/friend_group_enums.dart';
@@ -37,9 +37,9 @@ class FriendGroupsContent extends StatefulWidget {
 class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
   FriendGroup? friendGroup;
-  Menu selectedMenu = Menu.groups;
   List<FriendGroup> friendGroups = [];
   bool disableFloatingActionButton = false;
+  FriendGroupFilter selectedFilter = FriendGroupFilter.groups;
   FriendGroupContentView friendGroupContentView = FriendGroupContentView.viewingFriendGroups;
 
   Purpose get purpose => widget.purpose;
@@ -48,16 +48,16 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   bool get showingFullPage => widget.showingFullPage;
   bool get enableBulkSelection => widget.enableBulkSelection;
   bool get hasSelectedFriendGroups => friendGroups.isNotEmpty;
-  bool get hasSelectedGroupsMenu => selectedMenu == Menu.groups;
   bool get isViewingAnyGroups => isViewingGroups || isViewingSharedGroups;
-  bool get hasSelectedSharedGroupsMenu => selectedMenu == Menu.sharedGroups;
   bool get wantsToChooseFriendGroups => purpose == Purpose.chooseFriendGroups;
+  bool get hasSelectedGroupsFilter => selectedFilter == FriendGroupFilter.groups;
   bool get wantsToAddStoreToFriendGroups => purpose == Purpose.addStoreToFriendGroups;
+  bool get hasSelectedSharedGroupsFilter => selectedFilter == FriendGroupFilter.sharedGroups;
   FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
-  bool get isViewingGroup => hasSelectedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroup;
-  bool get isViewingGroups => hasSelectedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroups;
-  bool get isViewingSharedGroups => hasSelectedSharedGroupsMenu && friendGroupContentView == FriendGroupContentView.viewingFriendGroups;
+  bool get isViewingGroup => hasSelectedGroupsFilter && friendGroupContentView == FriendGroupContentView.viewingFriendGroup;
+  bool get isViewingGroups => hasSelectedGroupsFilter && friendGroupContentView == FriendGroupContentView.viewingFriendGroups;
+  bool get isViewingSharedGroups => hasSelectedSharedGroupsFilter && friendGroupContentView == FriendGroupContentView.viewingFriendGroups;
 
   String get title {
 
@@ -92,7 +92,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
     if(isViewingAnyGroups) {
 
       /// Set the filter for the groups that we want to show
-      final filter = selectedMenu == Menu.groups ? 'Created' : 'Shared';
+      final filter = selectedFilter == FriendGroupFilter.groups ? 'Created' : 'Shared';
 
       /// Show friend groups view
       return FriendGroupsInVerticalListViewInfiniteScroll(
@@ -162,7 +162,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   /// Action to be called when the floating action button is pressed
   void floatingActionButtonOnPressed() {
 
-    /// If we have disabled the floating action button, then do nothing
+    /// If we should disable the floating action button, then do nothing
     if(disableFloatingActionButton) return; 
 
     /// If we are done selecting friend groups
@@ -242,7 +242,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
     }
 
-    if(enableBulkSelection == false) onDoneSelectingFriendGroups();
+    if(enableBulkSelection == false && friendGroups.isNotEmpty) onDoneSelectingFriendGroups();
   }
 
   /// Called to change the view from viewing multiple friend groups
@@ -254,7 +254,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
   /// Called when the primary content view has been changed,
   /// such as changing from "Groups" to "Shared Groups"
-  void onSelectedMenu(Menu selectedMenu) {
+  void onSelectedFilter(FriendGroupFilter selectedFilter) {
 
     /// Reset the selected friends and friend groups
     friendGroups = [];
@@ -263,7 +263,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
     /// Reset the initial friend and friend group views
     friendGroupContentView = FriendGroupContentView.viewingFriendGroups;
     
-    setState(() => this.selectedMenu = selectedMenu);
+    setState(() => this.selectedFilter = selectedFilter);
   }
 
   /// Called to change the view to the specified view
@@ -320,9 +320,9 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
                       ),
                   
                       //  Filter
-                      if(isViewingAnyGroups) FriendGroupMenus(
-                        selectedMenu: selectedMenu,
-                        onSelectedMenu: onSelectedMenu,
+                      if(isViewingAnyGroups) FriendGroupFilters(
+                        selectedFilter: selectedFilter,
+                        onSelectedFilter: onSelectedFilter,
                       ),
                       
                     ],
@@ -375,7 +375,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
           /// Floating Button (show if provided)
           AnimatedPositioned(
             right: 10,
-            top: (isViewingAnyGroups ? 112 : 60) + topPadding,
+            top: (isViewingAnyGroups ? 112 : 56) + topPadding,
             duration: const Duration(milliseconds: 500),
             child: floatingActionButton,
           )

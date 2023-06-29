@@ -55,7 +55,7 @@ class _LandingPageState extends State<LandingPage> {
     hasSeenIntro = await introductionServices.checkIfHasSeenAnyIntroFromDeviceStorage();
 
     //  Set the Api Home
-    await apiProvider.setApiHome(context: context).then((response) async {
+    await apiProvider.setApiHome().then((response) async {
 
       errorMessage += '\n\nStatus Code: ${response.statusCode}';
 

@@ -1,7 +1,6 @@
 import 'package:bonako_demo/core/utils/mobile_number.dart';
 import '../../api/models/api_home.dart' as api_home;
 import '../../api/repositories/api_repository.dart';
-import '../../addresses/enums/address_enums.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';
 import '../../api/services/api_service.dart';
@@ -138,7 +137,7 @@ class AuthRepository {
   Future<http.Response> generateMobileVerificationCodeForSignup({ required String mobileNumber, BuildContext? context  }) async {
 
     return generateMobileVerificationCode(
-      mobileNumber: mobileNumber, 
+      mobileNumber: mobileNumber,
       purpose: 'Verify Account',
       context: context
     );
@@ -149,7 +148,7 @@ class AuthRepository {
   Future<http.Response> generateMobileVerificationCodeForResetPassword({ required String mobileNumber, BuildContext? context  }) async {
 
     return generateMobileVerificationCode(
-      mobileNumber: mobileNumber, 
+      mobileNumber: mobileNumber,
       purpose: 'Reset Password',
       context: context
     );
@@ -200,12 +199,12 @@ class AuthRepository {
     
   }
 
-  /// Show friend menus
-  Future<http.Response> showFriendMenus({ BuildContext? context }){
+  /// Show friend and friend group filters
+  Future<http.Response> showFriendAndFriendGroupFilters({ BuildContext? context }){
     
-    if(user == null) throw Exception('An authenticated user is required to show friend menus'); 
+    if(user == null) throw Exception('An authenticated user is required to show the friend and friend group filters'); 
     
-    final url =  user!.links.showFriendMenus.href;
+    final url =  user!.links.showFriendAndFriendGroupFilters.href;
 
     return apiRepository.get(url: url, context: context);
     
@@ -288,7 +287,7 @@ class AuthRepository {
 
     if(user == null) throw Exception('An authenticated user is required to logout'); 
     
-    final url =  homeApiLinks.logout;
+    final url =  user!.links.logout.href;
 
     final body = {};
     if(logoutType == LogoutType.everyone) body.addAll({'everyone': true});

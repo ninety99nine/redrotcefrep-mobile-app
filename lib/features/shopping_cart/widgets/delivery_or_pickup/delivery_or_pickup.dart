@@ -19,6 +19,7 @@ class _DeliveryOrPickupState extends State<DeliveryOrPickup> {
 
   bool get allowPickupOnly => allowPickup && !allowDelivery;
   bool get allowDeliveryOnly => allowDelivery && !allowPickup;
+  bool get allowPickupOrDelivery => allowDelivery || allowPickup;
   bool get allowPickup => store == null ? false : store!.allowPickup;
   bool get allowDelivery => store == null ? false : store!.allowDelivery;
   bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
@@ -75,7 +76,7 @@ class _DeliveryOrPickupState extends State<DeliveryOrPickup> {
         switchOutCurve: Curves.easeOut,
         duration: const Duration(milliseconds: 500),
         child: Column(
-          children: hasSelectedProducts ? [
+          children: allowPickupOrDelivery && hasSelectedProducts ? [
             
             //  Divider
             const Divider(),

@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/shared_widgets/button/add_button.dart';
 import 'package:bonako_demo/features/order_for/services/order_for_service.dart';
 
 import '../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends_modal_bottom_sheet.dart';
@@ -74,8 +75,8 @@ class _OrderForDetailsState extends State<OrderForDetails> {
     /// If ordering for "Me And Friends" or "Friends Only" and selected 1 friend group only
     }else if((isOrderingForMeAndFriends || isOrderingForFriendsOnly) && hasSelectedFriendGroupsOnly && totalFriendGroups == 1) {
 
-      /// Calculate client side
-      return true;
+      /// Calculate client side as long as the friend group's friend count is provided
+      return friendGroups.where((friendGroup) => friendGroup.friendsCount != null).isNotEmpty;
 
     /// If ordering for "Me And Friends" or "Friends Only" and we haven't selected any friends or friend groups
     }else if((isOrderingForMeAndFriends || isOrderingForFriendsOnly) && !hasSelectedFriends && !hasSelectedFriendGroups) {
@@ -113,8 +114,13 @@ class _OrderForDetailsState extends State<OrderForDetails> {
     /// Get the order for options if not already requested
     if(hasStore && hasSelectedProducts && !isLoading && orderForOptions.isEmpty) _getStoreShoppingCartOrderForOptions();
 
-    /// Reset the total people to "1" if the orderFor has been set to "Me" 
-    if(orderFor == 'Me') store!.setTotalPeople(1, canNotifyListeners: false);
+    /// If the total people that this order is for has not been calculated
+    if(hasSelectedProducts && !isLoadingTotalPeople && store!.totalPeople == null) {
+      
+      /// Calculate the total people that this order is for
+      countShoppingCartOrderForUsers(canNotifyListeners: false);
+
+    }
 
   }
 
@@ -219,7 +225,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
   }
 
   /// Count how many people we are ordering for client side
-  void countShoppingCartOrderForUsers() {
+  void countShoppingCartOrderForUsers({ canNotifyListeners = true}) {
 
     /// Check if we can count how many people we are ordering for from the client side
     if(canCountShoppingCartOrderForUsersFromClientSide) {
@@ -235,11 +241,13 @@ class _OrderForDetailsState extends State<OrderForDetails> {
 
             totalFriends = totalFriends + totalFriendsFromGroups;
 
-            store!.setTotalPeople(isOrderingForMeAndFriends ? totalFriends + 1 : totalFriends);
+            int totalPeople = isOrderingForMeAndFriends ? totalFriends + 1 : totalFriends;
+
+            store!.setTotalPeople(totalPeople, canNotifyListeners: canNotifyListeners);
 
           }else{
             
-            store!.setTotalPeople(1);
+            store!.setTotalPeople(1, canNotifyListeners: canNotifyListeners);
 
           }
 
@@ -527,7 +535,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
                     children: [
                       
                       /// Me Chip
-                      if(isOrderingForMe || isOrderingForMeAndFriends) CustomChip(
+                      if(isOrderingForMe || (isOrderingForMeAndFriends && isOrderingForFriendsOnly)) CustomChip(
                         labelWidget: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -575,22 +583,9 @@ class _OrderForDetailsState extends State<OrderForDetails> {
                       }).toList(),
                 
                       /// Button To Add More Friends
-                      AnimatedSwitcher(
-                        switchInCurve: Curves.easeIn,
-                        switchOutCurve: Curves.easeOut,
-                        duration: const Duration(milliseconds: 500),
-                        child: (isOrderingForMeAndFriends || isOrderingForFriendsOnly) ? CustomChoiceChip(
-                        onSelected: (_) => openFriendsModalBottomSheet(),
-                        selected: false,
-                        labelWidget: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.add_circle, color: Colors.grey.shade400,),
-                              const SizedBox(width: 4,),
-                              const CustomBodyText('Add'),
-                            ],
-                          ),
-                        ) : null,
+                      AddButton(
+                        onTap: openFriendsModalBottomSheet,
+                        visible: isOrderingForMeAndFriends || isOrderingForFriendsOnly,
                       ),
 
                       if((isOrderingForMeAndFriends || isOrderingForFriendsOnly) && (hasSelectedFriends || hasSelectedFriendGroups)) ...[

@@ -1,15 +1,17 @@
 import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:bonako_demo/core/utils/debouncer.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/features/addresses/enums/address_enums.dart';
+import 'package:bonako_demo/features/addresses/models/delivery_address.dart';
 import 'package:bonako_demo/features/addresses/providers/address_provider.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/features/addresses/widgets/address_card.dart';
+import 'package:bonako_demo/features/addresses/widgets/delivery_address_card.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../models/address.dart';
@@ -42,13 +44,16 @@ class CreateOrUpdateAddressForm extends StatefulWidget {
 
 class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
 
-  Map addressForm = {};
   Map serverErrors = {};
   bool isRemoving = false;
   bool isSubmitting = false;
+  Address? dummySharedAddress;
+  Map<String, dynamic> addressForm = {};
   final _formKey = GlobalKey<FormState>();
+  final DebouncerUtility debouncerUtility = DebouncerUtility(milliseconds: 1000);
   
   User get user => widget.user;
+  bool get isCreating => !isEditing;
   bool get isEditing => address != null;
   Address? get address => widget.address;
   Function(bool) get onDeleting => widget.onDeleting;
@@ -58,6 +63,7 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
   Function(Address)? get onUpdatedAddress => widget.onUpdatedAddress;
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   AddressProvider get addressProvider => Provider.of<AddressProvider>(context, listen: false);
+  bool get showDummyDeliveryAddress => addressForm.isNotEmpty && addressForm['shareAddress'] && dummySharedAddress != null;
 
   void _startDeleteLoader() => setState(() => isRemoving = true);
   void _stopDeleteLoader() => setState(() => isRemoving = false);
@@ -68,6 +74,7 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
   void initState() {
     super.initState();
     setAddressForm();
+    if(addressForm['shareAddress']) updateDeliveryAddress();
   }
 
   void setAddressForm() {
@@ -75,12 +82,52 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
     setState(() {
       
       addressForm = {
-        'type': address?.type ?? AddressType.home,
-        'addressLine': address?.addressLine
+        'name': address?.name,
+        'addressLine': address?.addressLine,
+        'shareAddress': address?.shareAddress ?? true,
       };
 
     });
 
+  }
+
+  void updateDeliveryAddress() {
+    debouncerUtility.run(() {
+
+      setState(() {
+
+        if(hasValue(addressForm['name'])) {
+
+          final Map<String, dynamic> dummySharedAddressMap = {
+            ...{
+              'id': 1,
+              'createdAt': DateTime.now().toString(),
+              'updatedAt': DateTime.now().toString()
+            },
+            ...addressForm,
+          };
+
+          //  Remove the address line
+          dummySharedAddressMap.remove('addressLine');
+
+          //  Set the dummy shared address
+          dummySharedAddress = Address.fromJson(dummySharedAddressMap);
+
+        }else{
+
+          //  Unset the dummy shared address
+          dummySharedAddress = null;
+
+
+        }
+        
+      });
+
+    });
+  }
+
+  bool hasValue(value) {
+    return value != null && value != '';
   }
 
   void submit() {
@@ -101,7 +148,7 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
       onSubmitting(true);
 
       userProvider.setUser(user).userRepository.createAddress(
-        type: addressForm['type'],
+        name: addressForm['name'],
         addressLine: addressForm['addressLine']
       ).then((response) async {
 
@@ -157,7 +204,7 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
       onSubmitting(true);
 
       addressProvider.setAddress(address!).addressRepository.updateAddress(
-        type: addressForm['type'],
+        name: addressForm['name'],
         addressLine: addressForm['addressLine']
       ).then((response) async {
 
@@ -283,43 +330,33 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: addressForm.isEmpty ? [] : [
 
-              /// Address Type Label
-              if(isEditing) CustomTitleSmallText(
-                '${address!.type.name.capitalize} address',
-                margin: const EdgeInsets.only(top: 16, left: 8, bottom: 8),
+              if(isCreating) const CustomMessageAlert(
+                'Give your address an easy name to remember like Home, Work, Grannys House, e.t.c',
+                margin: EdgeInsets.symmetric(vertical: 16),
               ),
 
-              /// Address Type Dropdown
-              if(!isEditing) Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  
-                  /// Address Type Label
-                  const CustomBodyText('Address for'),
-                  
-                  /// Spacer
-                  const SizedBox(width: 8),
+              /// Spacer
+              if(isEditing) const SizedBox(height: 16),
 
-                  /// Address Type Dropdown
-                  DropdownButton(
-                    value: addressForm['type'],
-                    items: [
-                      
-                      /// Address Type Dropdown Items
-                      ...AddressType.values.map((addressType) {
-                        return DropdownMenuItem(
-                          value: addressType,
-                          child: CustomBodyText(addressType.name),
-                        );
-                      })
-                      
-                    ],
-                    onChanged: (value) {
-                      setState(() => addressForm['type'] = value); 
-                    },
-                  ),
-
-                ],
+              /// Address Name Form Field
+              CustomTextFormField(
+                errorText: serverErrors.containsKey('name') ? serverErrors['name'] : null,
+                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                initialValue: addressForm['name'],
+                hintText: 'Grannys House',
+                enabled: !isSubmitting,
+                borderRadiusAmount: 16,
+                labelText: 'Name',
+                maxLength: 20,
+                minLines: 1,
+                onChanged: (value) {
+                  setState(() => addressForm['name'] = value);
+                  updateDeliveryAddress();
+                },
+                onSaved: (value) {
+                  setState(() => addressForm['name'] = value ?? '');
+                  updateDeliveryAddress();
+                },
               ),
                 
               /// Spacer
@@ -329,18 +366,69 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
               CustomTextFormField(
                 errorText: serverErrors.containsKey('addressLine') ? serverErrors['addressLine'] : null,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                enabled: !isSubmitting,
                 hintText: 'Block 3, Plot 1234, house with white wall and black gate',
-                borderRadiusAmount: 16,
                 initialValue: addressForm['addressLine'],
+                enabled: !isSubmitting,
+                borderRadiusAmount: 16,
                 labelText: 'Address',
+                maxLength: 200,
                 minLines: 2,
                 onChanged: (value) {
                   setState(() => addressForm['addressLine'] = value); 
+                  updateDeliveryAddress();
                 },
                 onSaved: (value) {
                   setState(() => addressForm['addressLine'] = value ?? ''); 
+                  updateDeliveryAddress();
                 },
+              ),
+              
+              /// Spacer
+              const SizedBox(height: 16),
+
+              /// Share Address Checkbox
+              CustomCheckbox(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                value: addressForm['shareAddress'],
+                disabled: isSubmitting,
+                text: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    CustomBodyText('Share this address'),
+                    SizedBox(height: 8,),
+                    CustomBodyText('This allows other people to place orders to this address for delivery purposes. For privacy reasons, we will only show the address name and hide other details.', lightShade: true,),
+                  ],
+                ),
+                onChanged: (value) {
+                  setState(() => addressForm['shareAddress'] = value ?? false);
+                }
+              ),
+
+              SizedBox(
+                width: double.infinity,
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 500),
+                  child: AnimatedSwitcher(
+                    switchInCurve: Curves.easeIn,
+                    switchOutCurve: Curves.easeOut,
+                    duration: const Duration(milliseconds: 500),
+                    child: showDummyDeliveryAddress ? Column(
+                      children: [
+                  
+                        /// Spacer
+                        const SizedBox(height: 16),
+              
+                        AddressCard(
+                          user: user,
+                          isSummarized: true,
+                          address: dummySharedAddress!,
+                        ),
+              
+                      ],
+                    ) : null
+                  
+                  )
+                ),
               ),
                 
               /// Spacer

@@ -1,10 +1,10 @@
-import 'package:bonako_demo/features/stores/services/store_services.dart';
-
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../../core/shared_models/user_and_store_association.dart';
-import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
+import '../../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../../core/shared_models/user_store_association.dart';
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -38,12 +38,13 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
   User? get user => widget.user;
   UserAssociation get userAssociation => widget.userAssociation;
   bool get isAssociatedAsCustomer => userAssociation == UserAssociation.customer;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  bool get isAssociatedAsRecentVisiter => userAssociation == UserAssociation.recentVisiter;
+  bool get isAssociatedAsRecentVisitor => userAssociation == UserAssociation.recentVisitor;
 
   /// Render each request item as an StoreItem
   Widget onRenderItem(store, int index, List stores) => StoreItem(
-    isAssociatedAsRecentVisiter: isAssociatedAsRecentVisiter,
+    isAssociatedAsRecentVisitor: isAssociatedAsRecentVisitor,
     isAssociatedAsCustomer: isAssociatedAsCustomer,
     store: (store as ShoppableStore),
     index: index,
@@ -54,8 +55,9 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
   Future<http.Response> requestStores(int page, String searchWord) {
 
-    return storeProvider.storeRepository.showStores(
+    return storeProvider.storeRepository.showUserStores(
       userAssociation: userAssociation,
+      user: authProvider.user!,
       searchWord: searchWord,
       page: page
     ).then((response) {
@@ -89,7 +91,7 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
       title = 'Support Local';
       subtitle = 'Check out local stores you support';
 
-    }else if(isAssociatedAsRecentVisiter) {
+    }else if(isAssociatedAsRecentVisitor) {
       
       title = 'Recent Visits';
       subtitle = 'Check out stores you recently visited';
@@ -154,7 +156,7 @@ class StoreItem extends StatefulWidget {
   final int index;
   final ShoppableStore store;
   final bool isAssociatedAsCustomer;
-  final bool isAssociatedAsRecentVisiter;
+  final bool isAssociatedAsRecentVisitor;
 
   const StoreItem({
     super.key,
@@ -162,7 +164,7 @@ class StoreItem extends StatefulWidget {
     required this.index,
     required this.store,
     required this.isAssociatedAsCustomer,
-    required this.isAssociatedAsRecentVisiter
+    required this.isAssociatedAsRecentVisitor
   });
 
   @override
@@ -174,9 +176,9 @@ class _StoreItemState extends State<StoreItem> {
   int get index => widget.index;
   ShoppableStore get store => widget.store;
   bool get isAssociatedAsCustomer => widget.isAssociatedAsCustomer;
-  bool get isAssociatedAsRecentVisiter => widget.isAssociatedAsRecentVisiter;
-  int get totalOrdersRequested => store.attributes.userAndStoreAssociation!.totalOrdersRequested!;
-  UserAndStoreAssociation get userAndStoreAssociation => store.attributes.userAndStoreAssociation!;
+  bool get isAssociatedAsRecentVisitor => widget.isAssociatedAsRecentVisitor;
+  int get totalOrdersRequested => store.attributes.userStoreAssociation!.totalOrdersRequested!;
+  UserStoreAssociation get userStoreAssociation => store.attributes.userStoreAssociation!;
   String get totalOrdersRequestedText => '$totalOrdersRequested ${totalOrdersRequested == 1 ? 'Order' : 'Orders'}';
 
   @override
@@ -214,7 +216,7 @@ class _StoreItemState extends State<StoreItem> {
               if(isAssociatedAsCustomer) CustomBodyText(totalOrdersRequestedText, lightShade: true,),
                       
               /// Last Seen
-              if(isAssociatedAsRecentVisiter) CustomBodyText(timeago.format(userAndStoreAssociation.lastSeenAt!), lightShade: true,),
+              if(isAssociatedAsRecentVisitor) CustomBodyText(timeago.format(userStoreAssociation.lastSeenAt!), lightShade: true,),
       
               /// Spacer
               const SizedBox(height: 4,),

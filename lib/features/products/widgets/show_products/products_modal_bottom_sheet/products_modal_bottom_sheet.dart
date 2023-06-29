@@ -1,4 +1,7 @@
 import 'package:bonako_demo/features/products/enums/product_enums.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -40,6 +43,7 @@ class _ProductsModalBottomSheetState extends State<ProductsModalBottomSheet> {
   TriggerType get triggerType => widget.triggerType;
   Widget Function(void Function())? get trigger => widget.trigger;
   String get totalProducts => widget.store.productsCount!.toString();
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   String get totalProductsText => widget.store.productsCount == 1 ? 'Product' : 'Products';
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
@@ -130,12 +134,17 @@ class _ProductsModalBottomSheetState extends State<ProductsModalBottomSheet> {
     } 
   }
 
+  /// Open the bottom modal sheet to show the new order placed
+  void onClose() => StoreServices.refreshProducts(store, storeProvider);
+
   @override
   Widget build(BuildContext context) {
     return CustomBottomModalSheet(
       key: _customBottomModalSheetState,
       /// Trigger to open the bottom modal sheet
       trigger: _trigger,
+      /// On close bottom modal sheet callback
+      onClose: onClose,
       /// Content of the bottom modal sheet
       content: ProductsContent(
         store: store,

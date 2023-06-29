@@ -2,7 +2,7 @@ import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_vie
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../../core/shared_models/user_and_store_association.dart';
+import '../../../../core/shared_models/user_store_association.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_models/mobile_number.dart';
 import '../../../stores/providers/store_provider.dart';
@@ -106,8 +106,8 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
     /// team members (team members still to create user accounts). In
     /// this case we will use the user association pivot id to make
     /// sure that this is an exact match.
-    return alreadySelectedTeamMember.attributes.userAndStoreAssociation!.id
-           == currSelectedTeamMember.attributes.userAndStoreAssociation!.id;
+    return alreadySelectedTeamMember.attributes.userStoreAssociation!.id
+           == currSelectedTeamMember.attributes.userStoreAssociation!.id;
   }
 
   Widget selectedAllAction(isLoading) {
@@ -224,14 +224,14 @@ class TeamMemberItem extends StatelessWidget {
   });
 
   String get dateType => invited ? 'invited' : 'last seen';
-  DateTime get createdAt => userAndStoreAssociation.createdAt;
-  DateTime? get lastSeenAt => userAndStoreAssociation.lastSeenAt;
-  String get teamMemberRole => userAndStoreAssociation.teamMemberRole!;
-  MobileNumber? get mobileNumber => userAndStoreAssociation.mobileNumber;
+  DateTime get createdAt => userStoreAssociation.createdAt;
+  DateTime? get lastSeenAt => userStoreAssociation.lastSeenAt;
+  String get teamMemberRole => userStoreAssociation.teamMemberRole!;
+  MobileNumber? get mobileNumber => userStoreAssociation.mobileNumber;
   String get date => invited ? timeago.format(createdAt) : timeago.format(lastSeenAt!);
-  bool get invited => userAndStoreAssociation.teamMemberStatus.toLowerCase() == 'invited';
+  bool get invited => userStoreAssociation.teamMemberStatus!.toLowerCase() == 'invited';
+  UserStoreAssociation get userStoreAssociation => user.attributes.userStoreAssociation!;
   String get title => mobileNumber == null ? user.attributes.name : mobileNumber!.withoutExtension;
-  UserAndStoreAssociation get userAndStoreAssociation => user.attributes.userAndStoreAssociation!;
   CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
 
   bool get canPerformActions {
@@ -257,7 +257,7 @@ class TeamMemberItem extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Dismissible(
-      key: ValueKey<int>(userAndStoreAssociation.id),
+      key: ValueKey<int>(userStoreAssociation.id),
       direction: DismissDirection.startToEnd,
       confirmDismiss: (DismissDirection direction) {
         

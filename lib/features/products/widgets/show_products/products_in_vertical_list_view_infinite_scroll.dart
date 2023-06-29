@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
@@ -159,7 +157,7 @@ class _ProductsInVerticalListViewInfiniteScrollState extends State<ProductsInVer
     }
   }
 
-  Widget get contentBeforeSearchBar {
+  Widget contentBeforeSearchBar(bool isLoading, int totalProducts) {
     return const CustomMessageAlert('Update your products during times when people are not shopping so that you don\'t disrupt their shopping experience.', margin: EdgeInsets.only(bottom: 16),);
   }
   

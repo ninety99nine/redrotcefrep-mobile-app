@@ -1,8 +1,10 @@
-import 'package:bonako_demo/features/products/widgets/edit_product_cards/edit_product_cards.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import '../../../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/products/widgets/edit_product_cards/edit_product_cards.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../../../shopping_cart/widgets/shopping_cart_content.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../services/store_services.dart';
 import '../../../../models/shoppable_store.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +44,7 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(widget.store);
   bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
+  bool get canShowCoverPhoto => (store.isBrandStore || store.isInfluencerStore) && store.coverPhoto != null;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +66,28 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
               }
             ),
           ),
+
+        ],
+
+        if(canShowCoverPhoto && (canAccessAsShopper || canAccessAsTeamMember)) ...[
+
+          //  Cover Image
+          Container(
+            width: double.infinity,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8)
+            ),
+            child: CachedNetworkImage(
+              placeholder: (context, url) => const CustomCircularProgressIndicator(),
+              imageUrl: store.coverPhoto!,
+              width: double.infinity,
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+
+          /// Spacer
+          const SizedBox(height: 16,),
 
         ],
 

@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user_association_as_friend_group_member.dart';
+import 'package:bonako_demo/core/shared_models/user_friend_group_association.dart';
 
 import '../../../core/shared_models/user.dart';
 import '../../../core/shared_models/link.dart';
@@ -26,17 +26,17 @@ class FriendGroup {
     friendsCount = json['friendsCount'];
     canAddFriends = json['canAddFriends'];
     links = Links.fromJson(json['links']);
-    attributes = Attributes.fromJson(json['attributes']);
+    attributes = Attributes.fromJson(json['attributes'].runtimeType == List ? {} : json['attributes']);
     relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
   }
   
 }
 
 class Attributes {
-  late UserAssociationAsFriendGroupMember? userAssociationAsFriendGroupMember;
+  late UserFriendGroupAssociation? userFriendGroupAssociation;
 
   Attributes.fromJson(Map<String, dynamic> json) {
-    userAssociationAsFriendGroupMember = json['userAssociationAsFriendGroupMember'] == null ? null : UserAssociationAsFriendGroupMember.fromJson(json['userAssociationAsFriendGroupMember']);
+    userFriendGroupAssociation = json['userFriendGroupAssociation'] == null ? null : UserFriendGroupAssociation.fromJson(json['userFriendGroupAssociation']);
   }
 }
 

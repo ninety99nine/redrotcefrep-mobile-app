@@ -2,22 +2,29 @@ import 'package:bonako_demo/features/search/widgets/search_show/searched_friend_
 import 'package:bonako_demo/features/search/widgets/search_show/searched_friends_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/search/widgets/search_show/searched_stores_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_search_text_form_field.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
-import 'package:bonako_demo/features/stores/widgets/store_page/store_page.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../enums/search_enums.dart';
 import 'search_page/search_page.dart';
+import 'package:get/get.dart';
 import 'search_menus.dart';
 
 class SearchContent extends StatefulWidget {
   
+  final bool showFilters;
   final bool showingFullPage;
+  final Filter selectedFilter;
+  final bool showExpandIconButton;
+  final Function(ShoppableStore)? onSelectedStore;
 
   const SearchContent({
     super.key,
-    this.showingFullPage = false
+    this.onSelectedStore,
+    this.showFilters = true,
+    this.showingFullPage = false,
+    this.showExpandIconButton = true,
+    this.selectedFilter = Filter.stores
   });
 
   @override
@@ -28,28 +35,37 @@ class _SearchContentState extends State<SearchContent> {
 
   String searchWord = '';
   bool isSearching = false;
-  Menu selectedMenu = Menu.stores;
+  late Filter selectedFilter;
   bool disableFloatingActionButton = false;
 
+  bool get showFilters => widget.showFilters;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
-  bool get hasSelectedStoresMenu => selectedMenu == Menu.stores;
-  bool get hasSelectedFriendsMenu => selectedMenu == Menu.friends;
-  bool get hasSelectedFriendGroupsMenu => selectedMenu == Menu.friendGroups;
+  bool get showExpandIconButton => widget.showExpandIconButton;
+  bool get hasSelectedStoresFilter => selectedFilter == Filter.stores;
+  bool get hasSelectedFriendsFilter => selectedFilter == Filter.friends;
+  Function(ShoppableStore)? get onSelectedStore => widget.onSelectedStore;
+  bool get hasSelectedFriendGroupsFilter => selectedFilter == Filter.friendGroups;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedFilter = widget.selectedFilter;
+  }
 
   /// Content to show based on the specified view
   Widget get content {
 
     /// If we want to view the store search results content
-    if(hasSelectedStoresMenu) {
+    if(hasSelectedStoresFilter) {
       
       return SearchedStoresInVerticalListViewInfiniteScroll(
-        onSelectedStore: onSelectedStore,
+        onSelectedStore: _onSelectedStore,
         onSearching: onSearching,
         searchWord: searchWord,
       );
 
-    }else if(hasSelectedFriendsMenu) {
+    }else if(hasSelectedFriendsFilter) {
       
       return SearchedFriendsInVerticalListViewInfiniteScroll(
         onSelectedFriend: (_) {},
@@ -64,9 +80,6 @@ class _SearchContentState extends State<SearchContent> {
         onSearching: onSearching,
         searchWord: searchWord,
       );
-
-      
-
 
     }
     
@@ -111,20 +124,29 @@ class _SearchContentState extends State<SearchContent> {
   }
 
   /// Called after selecting a store
-  void onSelectedStore(ShoppableStore store) {
+  void _onSelectedStore(ShoppableStore store) {
     
     /// Close the modal bottom sheet
     Get.back();
+    
+    if(onSelectedStore != null) {
 
-    /// Navigate to the store page 
-    StoreServices.navigateToStorePage(store);
+      /// Notify parent widget on the selected store
+      onSelectedStore!(store);
+
+    }else{
+
+      /// Navigate to the store page 
+      StoreServices.navigateToStorePage(store);
+    
+    }
   
   }
 
   /// Called when the primary content view has been changed,
   /// such as changing from "Stores" to "Friends"
-  void onSelectedMenu(Menu selectedMenu) {
-    setState(() => this.selectedMenu = selectedMenu);
+  void onSelectedFilter(Filter selectedFilter) {
+    setState(() => this.selectedFilter = selectedFilter);
   }
 
   @override
@@ -155,10 +177,10 @@ class _SearchContentState extends State<SearchContent> {
                       /// Search Input Field
                       searchInputField,
                       
-                      //  Menus
-                      SearchMenus(
-                        selectedMenu: selectedMenu,
-                        onSelectedMenu: onSelectedMenu
+                      //  Filters
+                      if(showFilters) SearchFilters(
+                        selectedFilter: selectedFilter,
+                        onSelectedFilter: onSelectedFilter
                       ),
                       
                     ],
@@ -181,7 +203,7 @@ class _SearchContentState extends State<SearchContent> {
           ),
   
           /// Expand Icon
-          if(!showingFullPage) Positioned(
+          if(showExpandIconButton && !showingFullPage) Positioned(
             top: 8,
             right: 50,
             child: IconButton(

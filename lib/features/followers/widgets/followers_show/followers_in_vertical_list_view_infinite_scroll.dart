@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../../core/shared_models/user_and_store_association.dart';
+import '../../../../core/shared_models/user_store_association.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_models/mobile_number.dart';
 import '../../../stores/providers/store_provider.dart';
@@ -86,13 +86,13 @@ class FollowerItem extends StatelessWidget {
   const FollowerItem({super.key, required this.user, required this.index});
 
   String get dateType => invited ? 'invited' : 'last seen';
-  DateTime get createdAt => userAndStoreAssociation.createdAt;
-  DateTime? get lastSeenAt => userAndStoreAssociation.lastSeenAt;
-  MobileNumber? get mobileNumber => userAndStoreAssociation.mobileNumber;
+  DateTime get createdAt => userStoreAssociation.createdAt;
+  DateTime? get lastSeenAt => userStoreAssociation.lastSeenAt;
+  MobileNumber? get mobileNumber => userStoreAssociation.mobileNumber;
+  bool get invited => userStoreAssociation.followerStatus!.toLowerCase() == 'invited';
   String get date => invited ? timeago.format(createdAt) : timeago.format(lastSeenAt!);
-  bool get invited => userAndStoreAssociation.followerStatus.toLowerCase() == 'invited';
+  UserStoreAssociation get userStoreAssociation => user.attributes.userStoreAssociation!;
   String get title => mobileNumber == null ? user.attributes.name : mobileNumber!.withoutExtension;
-  UserAndStoreAssociation get userAndStoreAssociation => user.attributes.userAndStoreAssociation!;
 
   @override
   Widget build(BuildContext context) {

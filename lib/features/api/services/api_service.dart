@@ -12,13 +12,13 @@ class ApiService {
   /// Save the bearer token from the request on to the device storage
   static Future<http.Response> setBearerTokenFromResponse(http.Response response, ApiProvider apiProvider) async {
 
-    if( response.statusCode == 200 ) {
+    if( response.statusCode == 200 || response.statusCode == 201 ) {
       
       /// Get the response body
       final responseBody = jsonDecode(response.body);
 
       /// Get the response body token
-      final token = responseBody['accessToken']['token'];
+      final token = responseBody['accessToken'];
 
       /// Save the bearer token on to the device storage
       saveBearerTokenOnDeviceStorage(token).then((value) {

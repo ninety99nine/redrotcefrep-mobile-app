@@ -1,5 +1,5 @@
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
-import '../../../../core/shared_models/user_and_store_association.dart';
+import '../../../../core/shared_models/user_store_association.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
@@ -29,8 +29,8 @@ class _FollowButtonState extends State<FollowStoreButton> {
   ShoppableStore get store => widget.store;
   Alignment get alignment => widget.alignment;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  bool get isFollowing => userAndStoreAssociation.followerStatus.toLowerCase() == 'following';
-  UserAndStoreAssociation get userAndStoreAssociation => store.attributes.userAndStoreAssociation!;
+  UserStoreAssociation get userStoreAssociation => store.attributes.userStoreAssociation!;
+  bool get isFollowing => userStoreAssociation.followerStatus?.toLowerCase() == 'following';
 
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
@@ -49,7 +49,7 @@ class _FollowButtonState extends State<FollowStoreButton> {
 
         setState(() {
           
-          store.attributes.userAndStoreAssociation!.followerStatus = responseBody['followerStatus'];
+          store.attributes.userStoreAssociation!.followerStatus = responseBody['followerStatus'];
 
         });
 

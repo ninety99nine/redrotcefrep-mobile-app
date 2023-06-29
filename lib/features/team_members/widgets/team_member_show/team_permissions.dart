@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
@@ -14,11 +16,13 @@ import 'dart:convert';
 class TeamPermissions extends StatefulWidget {
   
   final bool disabled;
+  final ShoppableStore store;
   final List<Permission> teamMemberPermissions;
   final void Function(List<Permission>) onTogglePermissions;
 
   const TeamPermissions({
     super.key,
+    required this.store,
     this.disabled = false,
     required this.onTogglePermissions,
     this.teamMemberPermissions = const [],
@@ -36,6 +40,7 @@ class _TeamPermissionstate extends State<TeamPermissions> {
   List<Permission> selectedPermissions = [];
 
   bool get disabled => widget.disabled;
+  ShoppableStore get store => widget.store;
   bool get hasTeamMemberPermissions => teamMemberPermissions.isNotEmpty;
   List<Permission> get teamMemberPermissions => widget.teamMemberPermissions;
   void Function(List<Permission>) get onTogglePermissions => widget.onTogglePermissions;
@@ -56,7 +61,7 @@ class _TeamPermissionstate extends State<TeamPermissions> {
 
     _startLoader();
 
-    storeProvider.storeRepository.showAllTeamMemberPermissions()
+    storeProvider.setStore(store).storeRepository.showAllTeamMemberPermissions()
     .then((response) async {
 
       final responseBody = jsonDecode(response.body);

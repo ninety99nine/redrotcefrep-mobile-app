@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
 
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -27,16 +27,15 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
   Order get order => widget.order;
   String get orderFor => order.orderFor;
   ShoppableStore? get store => widget.store;
-  String get name => order.attributes.customerName;
   int get orderForTotalUsers => order.orderForTotalUsers;
+  String get customerName => order.attributes.customerName;
   int get orderForTotalFriends => order.orderForTotalFriends;
-  String get mobileNumber => order.customerMobileNumber.withoutExtension;
-  bool get hasUserAndOrderAssociation => userAndOrderAssociation != null;
-  UserAndOrderAssociation? get userAndOrderAssociation => order.attributes.userAndOrderAssociation;
-  bool get isAssociatedAsAFriend => hasUserAndOrderAssociation && userAndOrderAssociation!.role == 'Friend';
-  bool get isAssociatedAsACustomer => hasUserAndOrderAssociation && userAndOrderAssociation!.role == 'Customer';
-  
+  String? get mobileNumber => order.customerMobileNumber?.withoutExtension;
+  bool get hasUserOrderCollectionAssociation => userOrderCollectionAssociation != null;
   bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
+  UserOrderCollectionAssociation? get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation;
+  bool get isAssociatedAsAFriend => hasUserOrderCollectionAssociation && userOrderCollectionAssociation!.role == 'Friend';
+  bool get isAssociatedAsACustomer => hasUserOrderCollectionAssociation && userOrderCollectionAssociation!.role == 'Customer';
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +62,7 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
                 if(!canManageOrders && !isAssociatedAsAFriend) const SizedBox(height: 12),
     
                 /// Name
-                CustomTitleMediumText(name),
+                CustomTitleMediumText(customerName),
 
                 /// If Associated As Customer / Friend And Order Is For More Than One Person
                 if((isAssociatedAsAFriend || isAssociatedAsACustomer) && orderForTotalUsers > 1) ...[
@@ -116,12 +115,16 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
 
                   Row( 
                     children: [
+
+                      if(mobileNumber != null) ...[
       
-                      /// Mobile Number
-                      CustomBodyText(mobileNumber, lightShade: true,),
-  
-                      /// Spacer
-                      const SizedBox(width: 8),
+                        /// Mobile Number
+                        CustomBodyText(mobileNumber, lightShade: true,),
+    
+                        /// Spacer
+                        const SizedBox(width: 8),
+
+                      ],
 
                       /// Open In New Page Icon
                       Icon(Icons.open_in_new_rounded, size: 16, color: Colors.blue.shade700,),

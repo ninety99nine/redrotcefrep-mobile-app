@@ -27,10 +27,10 @@ class FriendGroupRepository {
   /// Get the Api Repository required to make requests with the set Bearer Token
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
-  /// Show friend group menus
-  Future<http.Response> showFriendGroupMenus({ BuildContext? context }){
+  /// Show friend group filters
+  Future<http.Response> showFriendGroupFilters({ BuildContext? context }){
     
-    final url =  user.links.showFriendGroupMenus.href;
+    final url =  user.links.showFriendGroupFilters.href;
 
     return apiRepository.get(url: url, context: context);
     
@@ -123,9 +123,9 @@ class FriendGroupRepository {
   }
 
   /// Delete friend groups
-  Future<http.Response> deleteFriendGroups({ required List<FriendGroup> friendGroups, BuildContext? context }) {
+  Future<http.Response> deleteManyFriendGroups({ required List<FriendGroup> friendGroups, BuildContext? context }) {
 
-    String url = user.links.deleteFriendGroups.href;
+    String url = user.links.deleteManyFriendGroups.href;
 
     List<int> friendGroupIds = friendGroups.map((friendGroup) {
         return friendGroup.id;
@@ -201,13 +201,16 @@ class FriendGroupRepository {
   }
   
   /// Get the orders of the specified friend group
-  Future<http.Response> showFriendGroupOrders({ String searchWord = '', int page = 1 }) {
+  Future<http.Response> showFriendGroupOrders({ String searchWord = '', bool withStore = false, int page = 1 }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to show orders');
 
     String url = friendGroup!.links.showFriendGroupOrders.href;
 
     Map<String, String> queryParams = {};
+
+    /// Check if we should eager load the store
+    if(withStore) queryParams.addAll({'withStore': '1'});
 
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});

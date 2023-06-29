@@ -211,6 +211,12 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalListView
     });
 
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
   
   @override
   void didUpdateWidget(covariant CustomHorizontalListViewInfiniteScroll oldWidget) {

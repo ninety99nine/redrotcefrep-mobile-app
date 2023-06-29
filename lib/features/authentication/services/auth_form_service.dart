@@ -2,7 +2,7 @@ import '../../../core/shared_widgets/text_form_field/custom_mobile_number_text_f
 import '../../../core/shared_widgets/text_form_field/custom_password_text_form_field.dart';
 import '../../../core/shared_widgets/text_form_field/custom_one_time_pin_field.dart';
 import '../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
-import '../../../core/shared_widgets/chips/custom_avatar_and_name_chip.dart';
+import '../../../core/shared_widgets/chips/custom_mobile_number_chip.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/utils/mobile_number.dart';
@@ -133,7 +133,7 @@ class AuthFormService {
     return const CustomBodyText('Enter your account password to sign in');
   }
 
-  Widget setNewPasswordToSigninInstruction() {
+  Widget setNewPasswordInstruction() {
     return const CustomBodyText('Set a new password for your account');
   }
 
@@ -185,9 +185,9 @@ class AuthFormService {
     }
   }
 
-  Widget getAccountAvatarChip() {
-    final name = user == null ? '' : user!.attributes.name;
-    return CustomAvatarAndNameChip(name: name);
+  Widget getAccountMobileNumberChip() {
+    final mobileNumberWithoutExtension = user == null ? '' : user!.mobileNumber.withoutExtension;
+    return CustomMobileNumberChip(name: mobileNumberWithoutExtension);
   }
 
   Widget getVerificationCodeMessage(String message, String shortcode, BuildContext context) {
@@ -219,7 +219,8 @@ class AuthFormService {
       enabled: !isSubmitting,
       hintText: 'Katlego',
       onChanged: update,
-      onSaved: update
+      onSaved: update,
+      maxLength: 20,
     );
       
   }
@@ -235,7 +236,8 @@ class AuthFormService {
       labelText: 'Last Name',
       hintText: 'Warona',
       onChanged: update,
-      onSaved: update
+      onSaved: update,
+      maxLength: 20,
     );
       
   }

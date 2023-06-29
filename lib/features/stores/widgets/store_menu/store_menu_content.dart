@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/update_store/update_store_modal_bottom_sheet/update_store_modal_bottom_sheet.dart';
 
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
@@ -43,13 +44,21 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
   bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
 
+  bool get isFollowing => StoreServices.isFollowingStore(store);
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
+  bool get isSuperAdmin => authProvider.user!.isSuperAdmin ?? false;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
 
   @override
   void initState() {
     super.initState();
+    
+    menus.add({
+      'icon': Icons.directions_walk_rounded,
+      'name': isFollowing ? 'Unfollow' : 'Follow',
+    });
     
     menus.add({
       'icon': Icons.group_add_outlined,
@@ -60,6 +69,13 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       menus.add({
         'icon': Icons.group_remove_outlined,
         'name': 'Remove From Group',
+      });
+    }
+    
+    if(StoreServices.isAssociatedAsCreatorOrAdmin(store)) {
+      menus.add({
+        'icon': Icons.mode_edit_outlined,
+        'name': 'Edit Store',
       });
     }
     
@@ -75,12 +91,20 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       'name': 'Visit Store',
     });
     
-    if(StoreServices.isAssociatedAsCreator(store)) {
+    if(isSuperAdmin) {
+
       menus.add({
-        'icon': Icons.mode_edit_outlined,
-        'name': 'Edit Store',
+        'icon': store.isBrandStore ? Icons.remove_circle : Icons.add_circle,
+        'name': '${store.isBrandStore ? 'Remove from' : 'Add to'} brand stores'
       });
+      
+      menus.add({
+        'icon': store.isInfluencerStore ? Icons.remove_circle : Icons.add_circle,
+        'name': '${store.isInfluencerStore ? 'Remove from' : 'Add to'} influencer stores'
+      });
+
     }
+    
     
     if(StoreServices.isAssociatedAsCreator(store)) {
       menus.add({
@@ -170,10 +194,14 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
   }
 
   bool canTap(String name) {
-    return ['Visit Store', 'Delete Store', 'Remove From Group'].contains(name);
+    return [
+      'Visit Store', 'Delete Store', 'Remove From Group', 'Follow', 'Unfollow',
+      'Add to brand stores', 'Remove from brand stores', 'Add to influencer stores', 'Remove from influencer stores',
+    ].contains(name);
   }
 
   void onTap(String name) async {
+    
     if(name == 'Visit Store') {
       
       visitStore();
@@ -186,7 +214,153 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       
       confirmRemoveFromGroup();
     
+    }else if(name == 'Follow' || name == 'Unfollow') {
+      
+      requestUpdateFollowing();
+      
+    }else if(['Add to brand stores', 'Remove from brand stores'].contains(name)) {
+
+      addOrRemoveFromBrandStores();
+
+    }else if(['Add to influencer stores', 'Remove from influencer stores'].contains(name)) {
+
+      addOrRemoveFromInfluencerStores();
+
     }
+  }
+
+  void requestUpdateFollowing() {
+    
+    _startLoader();
+
+    storeProvider.setStore(store).storeRepository.updateFollowing().then((response) {
+
+      final responseBody = jsonDecode(response.body);
+
+      if(response.statusCode == 200) {
+
+        setState(() {
+          
+          //  Set the updated follower status
+          store.attributes.userStoreAssociation!.followerStatus = responseBody['followerStatus'];
+
+          //  Refresh the stores
+          storeProvider.refreshStores!();
+
+        });
+
+        /**
+         *  Close the modal bottom sheet
+         * 
+         *  This must be placed before the SnackbarUtility.showSuccessMessage()
+         *  since placing it after will hide the Snackbar message instead of
+         *  the modal bottom sheet
+         */
+        Get.back();
+
+        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+
+      }
+
+    }).catchError((error) {
+
+      print(error);
+
+      SnackbarUtility.showErrorMessage(message: 'Failed to ${isFollowing ? 'unfollow' : 'follow'}');
+
+    }).whenComplete((){
+
+      _stopLoader();
+
+    });
+  }
+
+  void addOrRemoveFromBrandStores() {
+    
+    _startLoader();
+
+    storeProvider.setStore(store).storeRepository.addOrRemoveFromBrandStores().then((response) {
+
+      final responseBody = jsonDecode(response.body);
+
+      if(response.statusCode == 200) {
+
+        setState(() {
+          
+          //  Set the updated brand store status
+          store.isBrandStore = responseBody['isBrandStore'];
+
+          //  Refresh the stores
+          storeProvider.refreshStores!();
+
+        });
+
+        /**
+         *  Close the modal bottom sheet
+         * 
+         *  This must be placed before the SnackbarUtility.showSuccessMessage()
+         *  since placing it after will hide the Snackbar message instead of
+         *  the modal bottom sheet
+         */
+        Get.back();
+
+        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+
+      }
+
+    }).catchError((error) {
+
+      SnackbarUtility.showErrorMessage(message: 'Failed to ${store.isBrandStore ? 'remove from brand stores' : 'add to brand stores'}');
+
+    }).whenComplete((){
+
+      _stopLoader();
+
+    });
+  }
+
+  void addOrRemoveFromInfluencerStores() {
+    
+    _startLoader();
+
+    storeProvider.setStore(store).storeRepository.addOrRemoveFromInfluencerStores().then((response) {
+
+      final responseBody = jsonDecode(response.body);
+
+      if(response.statusCode == 200) {
+
+        setState(() {
+          
+          //  Set the updated influencer store status
+          store.isInfluencerStore = responseBody['isInfluencerStore'];
+
+          //  Refresh the stores
+          storeProvider.refreshStores!();
+
+        });
+
+        /**
+         *  Close the modal bottom sheet
+         * 
+         *  This must be placed before the SnackbarUtility.showSuccessMessage()
+         *  since placing it after will hide the Snackbar message instead of
+         *  the modal bottom sheet
+         */
+        Get.back();
+
+        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+
+      }
+
+    }).catchError((error) {
+
+      SnackbarUtility.showErrorMessage(message: 'Failed to ${store.isBrandStore ? 'remove from influencer stores' : 'add to influencer stores'}');
+
+    }).whenComplete((){
+
+      _stopLoader();
+
+    });
   }
 
   void requestAddStoreToFriendGroups(List<FriendGroup> friendGroups) {
@@ -242,7 +416,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
     _startLoader();
 
     storeProvider.setStore(store).storeRepository.removeStoreFromFriendGroups(
-      friendGroup: friendGroupProvider.friendGroup!
+      friendGroupIds: [friendGroupProvider.friendGroup!.id]
     ).then((response) {
 
       final responseBody = jsonDecode(response.body);

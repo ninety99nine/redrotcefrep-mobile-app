@@ -34,7 +34,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final Function(int, int)? onReorder;
 
   /// Content to show above the search bar
-  final Widget? contentBeforeSearchBar;
+  final Widget Function(bool, int)? contentBeforeSearchBar;
 
   /// Content to show below the search bar
   final Widget? contentAfterSearchBar;
@@ -140,7 +140,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
 
   final ApiConflictResolverUtility apiConflictResolverUtility = ApiConflictResolverUtility();
   final DebouncerUtility debouncerUtility = DebouncerUtility(milliseconds: 1000);
-  final ScrollController controller = ScrollController();
+  final ScrollController scrollController = ScrollController();
   RequestType requestType = RequestType.startRequest;
   
   bool hasShownSearchBarBefore = false;
@@ -173,13 +173,13 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   String get catchErrorMessage => widget.catchErrorMessage;
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
-  Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   bool get isStartingRequest => requestType == RequestType.startRequest;
   bool get loadedLastPage => lastPage == null ? false : page > lastPage!;
   bool get isContinuingRequest => requestType == RequestType.continueRequest;
   Future<http.Response> Function(int, String) get onRequest => widget.onRequest;
   bool get isSearching => isStartingRequest && isLoading && searchWord.isNotEmpty;
   Function(bool)? get onLoadingAfterFirstRequest => widget.onLoadingAfterFirstRequest;
+  Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   Widget Function(dynamic item, int index, List<dynamic> items, bool isSelected, List<dynamic> selectedItems, bool hasSelectedItems, int totalSelectedItems) get onRenderItem => widget.onRenderItem;
 
   /// Multiple select item properties
@@ -213,19 +213,19 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     startRequest();
     
     /**
-     *  This controller is used to check if we have scrolled to the
+     *  This scrollController is used to check if we have scrolled to the
      *  bottom of the scroll view so that we can load more content 
      */
-    controller.addListener(() {
+    scrollController.addListener(() {
 
       /// Get the screen height and divide by two
       final double halfScreenHeight = MediaQuery.of(context).size.height;
 
       /// Get the available scroll height
-      final double availableScrollableHeight = controller.position.maxScrollExtent;
+      final double availableScrollableHeight = scrollController.position.maxScrollExtent;
 
       /// Check if we are half the screen height from the bottom of the scrollable area
-      final bool isHalfScreenHeightFromTheBottom = controller.offset > (availableScrollableHeight - halfScreenHeight);
+      final bool isHalfScreenHeightFromTheBottom = scrollController.offset > (availableScrollableHeight - halfScreenHeight);
       
       /// If we have scrolled half the screen size from the bottom, 
       /// then check if we can start loading more content
@@ -241,6 +241,12 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
 
     });
 
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
   }
   
   @override
@@ -631,13 +637,13 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
      * 
      * Reference: https://stackoverflow.com/questions/56131101/how-to-place-a-listview-inside-a-singlechildscrollview-but-prevent-them-from-scr
      * 
-     * The controller helps us to track the scrolling e.g how much we scrolled up or down.
+     * The scrollController helps us to track the scrolling e.g how much we scrolled up or down.
      * We can use this information to decide whether to load more content or not.
      */
     return Align(
       alignment: Alignment.topLeft,
       child: SingleChildScrollView(
-        controller: controller,
+        controller: scrollController,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,7 +673,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
                 children: [
       
                   /// Content Before Search Bar Widget
-                  if(contentBeforeSearchBar != null) contentBeforeSearchBar!,
+                  if(contentBeforeSearchBar != null) contentBeforeSearchBar!(isLoading, totalItems),
       
                   /// Search Input Field Widget
                   if(canShowSearchBar) searchInputField,
@@ -706,6 +712,25 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     );
   }
 
+  Widget singleItemAndNoMoreContent(int index) {
+    
+    return Column(
+      children: [
+
+        /// Build Custom Item Widget
+        buildItem(index),
+
+        /// No more content widget
+        CustomBodyText(
+          textAlign: TextAlign.center,
+          showNoMoreContent ? noMoreContent : '',
+          margin: const EdgeInsets.only(top: 20, bottom: 100),
+        )
+
+      ],
+    );
+  }
+
   Widget listView() {
 
     return ListView.separated(
@@ -716,22 +741,6 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
       physics: const NeverScrollableScrollPhysics(),
       separatorBuilder: (BuildContext context, int index) => showSeparater ? const Divider() : const SizedBox(),
       itemBuilder: ((context, index) {
-
-        final Widget singleItemAndNoMoreContent = Column(
-          children: [
-
-            /// Build Custom Item Widget
-            buildItem(index),
-
-            /// No more content widget
-            CustomBodyText(
-              textAlign: TextAlign.center,
-              showNoMoreContent ? noMoreContent : '',
-              margin: const EdgeInsets.only(top: 20, bottom: 100),
-            )
-
-          ],
-        );
         
         if(index == 0) {
 
@@ -739,7 +748,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
           if(totalItems == 1) {
 
             /// Return the single Item Widget
-            return singleItemAndNoMoreContent;
+            return singleItemAndNoMoreContent(index);
 
           /// If this is the first item, but not the only item
           }else{
@@ -771,7 +780,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
           }else if(loadedLastPage && (index == totalItems - 1)) {
             
             /// Return the single Item Widget
-            return singleItemAndNoMoreContent;
+            return singleItemAndNoMoreContent(index);
     
           }else{
     

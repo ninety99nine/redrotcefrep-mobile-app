@@ -5,6 +5,7 @@ class CustomTextFormField extends StatefulWidget {
   final bool enabled;
   final int? minLines;
   final int? maxLines;
+  final int? maxLength;
   final String? hintText;
   final bool obscureText;
   final String? errorText;
@@ -29,6 +30,7 @@ class CustomTextFormField extends StatefulWidget {
       this.hintText,
       this.minLines,
       this.maxLines,
+      this.maxLength,
       this.errorText,
       this.labelText,
       this.validator,
@@ -86,6 +88,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         color: widget.enabled ? Colors.black : Colors.grey.shade400,
         fontWeight: FontWeight.normal,
       ),
+      maxLength: controller.text.isNotEmpty ? widget.maxLength : null,
       obscureText: widget.obscureText,
       decoration: InputDecoration(
         filled: true,

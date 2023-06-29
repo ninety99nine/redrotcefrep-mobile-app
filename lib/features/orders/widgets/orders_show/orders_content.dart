@@ -19,8 +19,8 @@ import 'order_filters.dart';
 class OrdersContent extends StatefulWidget {
 
   final Order? order;
-  final ShoppableStore? store;
   final bool showingFullPage;
+  final ShoppableStore? store;
   final bool canShowFloatingActionButton;
 
   const OrdersContent({

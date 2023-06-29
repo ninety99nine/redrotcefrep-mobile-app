@@ -460,7 +460,7 @@ class _SigninFormState extends State<SigninForm> {
     if( enterMobileNumber ) {
 
       formFields.addAll([
-        const CustomBodyText('Enter your Orange mobile number to sign in'),
+        authForm.enterMobileNumberToSigninInstruction(),
         const SizedBox(height: 16),
         authForm.getMobileNumberField(setState),
       ]);
@@ -468,9 +468,9 @@ class _SigninFormState extends State<SigninForm> {
     }else if( enterPassword ) {
 
       formFields.addAll([
-        authForm.getAccountAvatarChip(),
+        authForm.getAccountMobileNumberChip(),
         const SizedBox(height: 16),
-        const CustomBodyText('Enter your account password to sign in'),
+        authForm.enterPasswordToSigninInstruction(),
         const SizedBox(height: 16),
         authForm.getPasswordField(setState, _onSignin),
       ]);
@@ -478,9 +478,9 @@ class _SigninFormState extends State<SigninForm> {
     }else if( setNewPassword ) {
 
       formFields.addAll([
-        authForm.getAccountAvatarChip(),
+        authForm.getAccountMobileNumberChip(),
         const SizedBox(height: 16),
-        const CustomBodyText('Set a new password for your account'),
+        authForm.setNewPasswordInstruction(),
         const SizedBox(height: 16),
         authForm.getPasswordField(setState, _onSignin),
         const SizedBox(height: 16),
@@ -490,7 +490,7 @@ class _SigninFormState extends State<SigninForm> {
     }else if( enterVerificationCode ) {
 
       formFields.addAll([
-        authForm.getAccountAvatarChip(),
+        authForm.getAccountMobileNumberChip(),
         const SizedBox(height: 16),
         authForm.getVerificationCodeMessage(authForm.verificationCodeMessage!, authForm.verificationCodeShortcode!, context),
         const SizedBox(height: 16),

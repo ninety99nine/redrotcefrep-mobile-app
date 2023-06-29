@@ -14,7 +14,7 @@ class _CommunitiesPageContentState extends State<CommunitiesPageContent> with Si
    *  Reason for using AutomaticKeepAliveClientMixin
    * 
    *  We want to preserve the state of this Widget when using the TabBarView()
-   *  to swipe between the My Stores, Following and Recent Visits. The natural
+   *  to swipe between the Profile, Following, My Stores, e.t.c. The natural
    *  Flutter behaviour when swipping between these tabs is to destroy the
    *  current tab content while switching to the new tab content. By using
    *  the AutomaticKeepAliveClientMixin, we can preserve the state so that

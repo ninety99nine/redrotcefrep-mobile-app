@@ -248,6 +248,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
     return CustomTextFormField(
       minLines: 3,
       maxLines: 4,
+      maxLength: 160,
       enabled: !isLoading,
       borderRadiusAmount: 12,
       errorText: commentError,

@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
@@ -41,7 +41,7 @@ class UserOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
 
 class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrdersInHorizontalListViewInfiniteScroll> {
 
-  bool hasOrders = false;
+  int totalOrders = 0;
   User get user => widget.user;
   ShoppableStore? get store => widget.store;
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
@@ -60,26 +60,14 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   Future<http.Response> requestUserOrders(int page, String searchWord) {
 
     Future<http.Response> request;
-    
-    if(store == null) {
 
-      /// Get the orders of the users from any store
-      request = userProvider.setUser(user).userRepository.showOrders(
-        withStore: store == null ? true : false,
-        searchWord: searchWord,
-        page: page
-      );
-
-    }else{
-
-      /// Get the orders of the users from this specified store
-      request = storeProvider.setStore(store!).storeRepository.showOrders(
-        customerUserId: user.id,
-        searchWord: searchWord,
-        page: page
-      );
-
-    }
+    /// Get the orders of the users from any store or a specific store
+    request = userProvider.setUser(user).userRepository.showOrders(
+      withStore: store == null ? true : false,
+      searchWord: searchWord,
+      storeId: store?.id,
+      page: page
+    );
 
     return request.then((response) {
 
@@ -90,8 +78,8 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
           /// Get the response body
           final responseBody = jsonDecode(response.body);
 
-          /// Determine if we have any orders
-          hasOrders = responseBody['total'] > 0;
+          /// Get the total orders
+          totalOrders = responseBody['total'];
 
         });
         
@@ -125,10 +113,15 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
           ],
         ),
 
-        /// View All Button
-        const OrdersModalBottomSheet(
-          trigger: CustomTextButton('View All', padding: EdgeInsets.all(0),),
-        ),
+        /// View All Button (Show if we have 2 or more orders)
+        AnimatedSwitcher(
+          switchInCurve: Curves.easeIn,
+          switchOutCurve: Curves.easeOut,
+          duration: const Duration(milliseconds: 500),
+          child: totalOrders > 2 ? const OrdersModalBottomSheet(
+            trigger: CustomTextButton('View All', padding: EdgeInsets.all(0),),
+          ) : null,
+        )
 
       ],
     );
@@ -202,9 +195,9 @@ class _OrderItemState extends State<OrderItem> {
   int get totalViewsByTeam => order.totalViewsByTeam;
   bool get orderForManyPeople => order.orderForTotalUsers > 1;
   ShoppableStore get store => widget.store ?? order.relationships.store!;
-  bool get isAssociatedAsFriend => userAndOrderAssociation.role == 'Friend';
-  bool get isAssociatedAsCustomer => userAndOrderAssociation.role == 'Customer';
-  UserAndOrderAssociation get userAndOrderAssociation => order.attributes.userAndOrderAssociation!;
+  bool get isAssociatedAsFriend => userOrderCollectionAssociation.role == 'Friend';
+  bool get isAssociatedAsCustomer => userOrderCollectionAssociation.role == 'Customer';
+  UserOrderCollectionAssociation get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation!;
 
   @override
   Widget build(BuildContext context) {
@@ -281,6 +274,9 @@ class _OrderItemState extends State<OrderItem> {
                     child: CustomBodyText(order.summary, maxLines: 2, overflow: TextOverflow.ellipsis)
                   ),
     
+                  /// Spacer
+                  const SizedBox(width: 4,),
+    
                   /// Seen Icon
                   if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
 
@@ -288,7 +284,7 @@ class _OrderItemState extends State<OrderItem> {
               ),
     
               /// Spacer
-              const Spacer(),
+              const SizedBox(height: 8,),
     
               GestureDetector(
                 onTap: () {

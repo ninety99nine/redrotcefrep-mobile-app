@@ -22,7 +22,7 @@ class ApiProvider with ChangeNotifier {
   /// Make the Api Call to the Api Home route to acquire the initial payload 
   /// containing guest routes and and the authenticated user provided that
   /// the Bearer Token is valid
-  Future<http.Response> setApiHome({ required BuildContext context }) async {
+  Future<http.Response> setApiHome() async {
     
     /**
      *  Get the bearer token stored on the device. This usually takes some time, which is why this method 
@@ -37,7 +37,7 @@ class ApiProvider with ChangeNotifier {
        *  using the setBearerTokenFromDeviceStorage() method, we can also derive if the user is 
        *  still logged in since this is made available by the "_apiHome.authenticated" property.
        */
-      return await setBearerToken(bearerToken).get(url: constants.apiHomeUrl, context: context)
+      return await setBearerToken(bearerToken).get(url: constants.apiHomeUrl)
         .then((response) {
 
           if( response.statusCode == 200 ) {

@@ -1,6 +1,3 @@
-import 'package:bonako_demo/features/addresses/enums/address_enums.dart';
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
-
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';
@@ -33,7 +30,7 @@ class UserRepository {
   }
 
   /// Get the orders of the specified user
-  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, bool withStore = false, bool withCustomer = false, String searchWord = '', int page = 1 }) {
+  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, int? storeId, bool withStore = false, bool withCustomer = false, String searchWord = '', int page = 1 }) {
 
     if(user == null) throw Exception('The user must be set to show orders');
 
@@ -54,8 +51,11 @@ class UserRepository {
     /// Exclude specific orders matching the specified order id
     if(exceptOrderId != null) queryParams.addAll({'except_order_id': exceptOrderId.toString()});
 
-    /// Exclude specific orders matching the specified order id
+    /// Include orders after the specified order id
     if(startAtOrderId != null) queryParams.addAll({'start_at_order_id': startAtOrderId.toString()});
+
+    /// Only orders matching the specified store id
+    if(storeId != null) queryParams.addAll({'store_id': storeId.toString()});
     
     /// Filter orders by the specified status
     if(filter != null) queryParams.addAll({'filter': filter});
@@ -68,14 +68,14 @@ class UserRepository {
   }
 
   /// Create user address
-  Future<http.Response> createAddress({ required AddressType type, required String addressLine }){
+  Future<http.Response> createAddress({ required String name, required String addressLine }){
 
     if(user == null) throw Exception('The user must be set to show addresses');
 
     String url = user!.links.createAddresses.href;
 
     Map body = {
-      'type': type.name,
+      'name': name,
       'addressLine': addressLine
     };
 
@@ -84,15 +84,15 @@ class UserRepository {
   }
 
   /// Show the user addresses
-  Future<http.Response> showAddresses({ List<AddressType> types = const [], int? page = 1 }){
+  Future<http.Response> showAddresses({ String searchWord = '', int? page = 1 }){
 
     if(user == null) throw Exception('The user must be set to show addresses');
 
     String url =  user!.links.showAddresses.href;
+    Map<String, String> queryParams = {};
 
-    Map<String, String> queryParams = {
-      'types': types.map((type) => type.name).join(',')
-    };
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
     return apiRepository.get(url: url, page: page, queryParams: queryParams);
     

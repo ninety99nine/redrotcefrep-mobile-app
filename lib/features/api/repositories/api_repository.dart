@@ -27,14 +27,18 @@ class ApiRepository {
     if(page != null) queryParams.addAll({ 'page': page.toString() });
 
     if(queryParams.isNotEmpty) {
-      
-      final String queryParamsAsStrings = queryParams.map((key, value) => MapEntry(key, '$key=$value')).values.join('&');
 
-      /// Determine whether to append the "?" symbol or not
-      url = url.contains('?') ? '$url&' : '$url?';
-      
-      /// Append the query params as strings onto the url
-      url = '$url$queryParamsAsStrings';
+      final encodedQueryParams = queryParams.entries.map((entry) {
+
+        final key = Uri.encodeQueryComponent(entry.key);
+        final value = Uri.encodeQueryComponent(entry.value);
+        return '$key=$value';
+
+      }).join('&');
+
+      final separator = url.contains('?') ? '&' : '?';
+
+      url = '$url$separator$encodedQueryParams';
 
       return url;
 
@@ -66,6 +70,7 @@ class ApiRepository {
       return response;
       
     }).catchError((error) {
+      print(error);
       ApiService.handleApplicationFailure(error);
       throw(error);
       

@@ -1,6 +1,7 @@
 import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 
 import '../../../../core/shared_models/product_line.dart';
@@ -29,7 +30,7 @@ class ShoppableStore extends Store with ChangeNotifier {
   bool get hasShoppingCart => shoppingCart != null;
   bool get hasSelectedProducts => selectedProducts.isNotEmpty;
 
-  int totalPeople = 1;
+  int? totalPeople;
   String orderFor = 'Me';
   List<User> friends = [];
   List<FriendGroup> friendGroups = [];
@@ -43,16 +44,23 @@ class ShoppableStore extends Store with ChangeNotifier {
   CollectionType? collectionType;
   PickupDestination? pickupDestination;
   DeliveryDestination? deliveryDestination;
+
+  PaymentMethod? paymentMethod;
+
+  bool? anonymous;
+
+  /// Functions
+  Function(Order)? onCreatedOrder;
   
   ShoppableStore.fromJson(super.json) : super.fromJson();
 
   /// Start loader
   resetShoppingCart({ canNotifyListeners = true }) {
     friends = [];
-    totalPeople = 1;
     orderFor = 'Me';
     isLoading = false;
     friendGroups = [];
+    totalPeople = null;
     shoppingCart = null;
     selectedProducts = [];
     productLinesNotFound = [];
@@ -69,6 +77,16 @@ class ShoppableStore extends Store with ChangeNotifier {
 
   setProducts(List<Product> products) {
     relationships.products = products;
+    notifyListeners();
+  }
+
+  updateAnonymousStatus(bool anonymous) {
+    this.anonymous = anonymous;
+    notifyListeners();
+  }
+
+  updatePaymentMethod(PaymentMethod paymentMethod) {
+    this.paymentMethod = paymentMethod;
     notifyListeners();
   }
 
@@ -113,11 +131,20 @@ class ShoppableStore extends Store with ChangeNotifier {
     notifyListeners();
   }
 
+  bool checkIfSelectedProductExists(Product selectedProduct) {
+    return selectedProducts.where((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id).isNotEmpty;
+  }
+
   /// Remove the selected product
   void addOrRemoveSelectedProduct(Product selectedProduct) {
-    final bool doesNotExist = selectedProducts.where((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id).isEmpty;
-    doesNotExist ? selectedProducts.add(selectedProduct) : selectedProducts.removeWhere((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id);
+    final bool selectedProductAlreadyExists = checkIfSelectedProductExists(selectedProduct);
+    
+    selectedProductAlreadyExists
+      ? selectedProducts.removeWhere((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id) 
+      : selectedProducts.add(selectedProduct);
+
     if(selectedProducts.isEmpty) resetShoppingCart(canNotifyListeners: false);
+    
     notifyListeners();
   }
 

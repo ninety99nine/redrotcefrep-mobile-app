@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../../../../core/shared_models/user_association_as_friend_group_member.dart';
+import '../../../../core/shared_models/user_friend_group_association.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -250,10 +250,10 @@ class FriendItem extends StatelessWidget {
   bool get hasRole => role != null;
   String get name => user.attributes.name;
   MobileNumber get mobileNumber => user.mobileNumber!; 
-  String? get role => userAssociationAsFriendGroupMember?.role;
+  String? get role => userFriendGroupAssociation?.role;
   bool get isCreator => hasRole ? role!.toLowerCase() == 'creator' : false;
   CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
-  UserAssociationAsFriendGroupMember? get userAssociationAsFriendGroupMember => user.attributes.userAssociationAsFriendGroupMember;
+  UserFriendGroupAssociation? get userFriendGroupAssociation => user.attributes.userFriendGroupAssociation;
 
   bool get canPerformActions {
 

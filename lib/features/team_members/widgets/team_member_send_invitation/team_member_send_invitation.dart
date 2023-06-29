@@ -83,6 +83,7 @@ class _TeamMemberSendInvitationState extends State<TeamMemberSendInvitation> {
 
     /// Permissions
     return TeamPermissions(
+      store: store,
       disabled: isLoading,
       onTogglePermissions: onTogglePermissions
     );

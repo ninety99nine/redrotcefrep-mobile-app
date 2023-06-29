@@ -13,7 +13,7 @@ class MobileNumberUtility {
   /// Reference: https://en.wikipedia.org/wiki/Telephone_numbers_in_Botswana
   static MobileNetworkName? getMobileNetworkName(String mobileNumber) {
 
-    mobileNumber = MobileNumberUtility.simplify(mobileNumber);
+    mobileNumber = simplify(mobileNumber);
 
     if(int.tryParse(mobileNumber) == null) return null;
 
@@ -73,42 +73,37 @@ class MobileNumberUtility {
   /// Removes mobile number extension and characters that are not digits
   static String simplify(String mobileNumber) {
     mobileNumber = StringUtility.removeNonDigits(mobileNumber);
-    return MobileNumberUtility.removeMobileNumberExtension(mobileNumber);
+    return removeMobileNumberExtension(mobileNumber);
   }
 
   /// Adds the mobile number extension
   static String addMobileNumberExtension(String mobileNumber) {
-    mobileNumber = MobileNumberUtility.simplify(mobileNumber);
+    mobileNumber = simplify(mobileNumber);
     return '${constants.mobileNumberExtension}$mobileNumber';
   }
 
   /// Removes characters that match the mobile number extension
   static String removeMobileNumberExtension(String mobileNumber) {
-    return mobileNumber.replaceAll(RegExp('^${constants.mobileNumberExtension}'), "");
-  }
-
-  /// Checks if the mobile number starts with the specified digit 
-  /// after the mobile number extension e.g the digit 7 in
-  /// Botswana for numbers like 72000000
-  static bool startsWithTheSpecifiedDigitAfterMobileNumberExtension(String mobileNumber) {
-    mobileNumber = MobileNumberUtility.simplify(mobileNumber);
-
-    /// Must start with any of the given options e.g 71, 72, 73, e.t.c
-    final String pattern = '^(${constants.mobileNumberStartsWith.join('|')})';
-
-    /// Check if the mobile number starts with any of the given starting digits
-    return mobileNumber.contains(RegExp(pattern));
+    return mobileNumber.replaceAll(RegExp('^${constants.mobileNumberExtension}'), '');
   }
 
   /// Check if the mobile number is valid
   static bool isValidMobileNumber(String mobileNumber) {
-
-    mobileNumber = MobileNumberUtility.addMobileNumberExtension(mobileNumber);
-
-    if(mobileNumber.length != 11) return false;
-
-    return startsWithTheSpecifiedDigitAfterMobileNumberExtension(mobileNumber);
-
+    return getMobileNetworkName(mobileNumber) != null;
   }
 
+  /// Check if the Orange mobile number is valid
+  static bool isValidOrangeMobileNumber(String mobileNumber) {
+    return getMobileNetworkName(mobileNumber) == MobileNetworkName.orange;
+  }
+
+  /// Check if the Mascom mobile number is valid
+  static bool isValidMascomMobileNumber(String mobileNumber) {
+    return getMobileNetworkName(mobileNumber) == MobileNetworkName.mascom;
+  }
+
+  /// Check if the Btc mobile number is valid
+  static bool isValidBtcMobileNumber(String mobileNumber) {
+    return getMobileNetworkName(mobileNumber) == MobileNetworkName.btc;
+  }
 }

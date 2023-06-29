@@ -19,9 +19,9 @@ class SearchRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Show the search filters
-  Future<http.Response> showSearchMenus() {
+  Future<http.Response> showSearchFilters() {
 
-    String url = homeApiLinks.showSearchMenus;
+    String url = homeApiLinks.showSearchFilters;
 
     return apiRepository.get(url: url);
     
@@ -37,6 +37,7 @@ class SearchRepository {
     queryParams.addAll({'withRating': '1'});
     queryParams.addAll({'withCountOrders': '1'});
     queryParams.addAll({'withCountReviews': '1'});
+    queryParams.addAll({'withUserStoreAssociation': '1'});
 
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 

@@ -147,11 +147,15 @@ class _StoreItemState extends State<StoreItem> {
                 Row(
                   children: [
 
-                    //  Rating
-                    if(hasRating) RatingShowUsingStars(rating: store.rating!),
+                    if(hasRating) ...[
+                      
+                      //  Rating
+                      RatingShowUsingStars(rating: store.rating!),
 
-                    /// Spacer
-                    const SizedBox(width: 8,),
+                      /// Spacer
+                      const SizedBox(width: 8,),
+
+                    ],
           
                     //  Total Orders
                     CustomBodyText(totalOrdersText, lightShade: true,),

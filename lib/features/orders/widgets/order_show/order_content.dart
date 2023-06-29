@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user_and_order_association.dart';
+import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
@@ -85,18 +85,18 @@ class OrderContentState extends State<OrderContent> {
   bool get hasFollowUpStatuses => followUpStatuses.isNotEmpty;
   Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   bool get isCompleted => statusName.toLowerCase() == 'completed';
-  bool get canCollect => userAndOrderAssociation?.canCollect == true;
-  String? get collectionCode => userAndOrderAssociation?.collectionCode;
   bool get hasCollectionCodeExpiresAt => collectionCodeExpiresAt != null;
-  String? get collectionQrCode => userAndOrderAssociation?.collectionQrCode;
+  bool get canCollect => userOrderCollectionAssociation?.canCollect == true;
+  String? get collectionCode => userOrderCollectionAssociation?.collectionCode;
   bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
-  bool get hasCollectionCode => userAndOrderAssociation?.collectionCode != null;
-  bool get hasCollectionQrCode => userAndOrderAssociation?.collectionQrCode != null;
+  String? get collectionQrCode => userOrderCollectionAssociation?.collectionQrCode;
   List<NameAndDescription> get followUpStatuses => order.attributes.followUpStatuses;
+  bool get hasCollectionCode => userOrderCollectionAssociation?.collectionCode != null;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
-  DateTime? get collectionCodeExpiresAt => userAndOrderAssociation?.collectionCodeExpiresAt;
+  bool get hasCollectionQrCode => userOrderCollectionAssociation?.collectionQrCode != null;
   Function(Order)? get onRequestedOrderRelationships => widget.onRequestedOrderRelationships;
-  UserAndOrderAssociation? get userAndOrderAssociation => order.attributes.userAndOrderAssociation;
+  DateTime? get collectionCodeExpiresAt => userOrderCollectionAssociation?.collectionCodeExpiresAt;
+  UserOrderCollectionAssociation? get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation;
   bool get collectionCodeHasExpired => collectionCodeExpiresAt == null ? true : collectionCodeExpiresAt!.isBefore(DateTime.now());
 
   bool get canShowEnterCollectionCode => followUpStatuses.where((followUpStatus) {
@@ -206,9 +206,9 @@ class OrderContentState extends State<OrderContent> {
 
         final responseBody = jsonDecode(response.body);
 
-        order.attributes.userAndOrderAssociation!.collectionCodeExpiresAt = DateTime.parse(responseBody['collectionCodeExpiresAt']);
-        order.attributes.userAndOrderAssociation!.collectionQrCode = responseBody['collectionQrCode'];
-        order.attributes.userAndOrderAssociation!.collectionCode = responseBody['collectionCode'];
+        order.attributes.userOrderCollectionAssociation!.collectionCodeExpiresAt = DateTime.parse(responseBody['collectionCodeExpiresAt']);
+        order.attributes.userOrderCollectionAssociation!.collectionQrCode = responseBody['collectionQrCode'];
+        order.attributes.userOrderCollectionAssociation!.collectionCode = responseBody['collectionCode'];
 
       }
 
@@ -228,9 +228,9 @@ class OrderContentState extends State<OrderContent> {
 
       if(response.statusCode == 200) {
 
-        order.attributes.userAndOrderAssociation!.collectionCodeExpiresAt = null;
-        order.attributes.userAndOrderAssociation!.collectionQrCode = null;
-        order.attributes.userAndOrderAssociation!.collectionCode = null;
+        order.attributes.userOrderCollectionAssociation!.collectionCodeExpiresAt = null;
+        order.attributes.userOrderCollectionAssociation!.collectionQrCode = null;
+        order.attributes.userOrderCollectionAssociation!.collectionCode = null;
 
       }
 
@@ -602,9 +602,9 @@ class OrderContentState extends State<OrderContent> {
     Future.delayed(Duration.zero).then((_) {
       setState(() {
         acceptToCollectOrder = false;
-        order.attributes.userAndOrderAssociation!.collectionCode = null;
-        order.attributes.userAndOrderAssociation!.collectionQrCode = null;
-        order.attributes.userAndOrderAssociation!.collectionCodeExpiresAt = null;
+        order.attributes.userOrderCollectionAssociation!.collectionCode = null;
+        order.attributes.userOrderCollectionAssociation!.collectionQrCode = null;
+        order.attributes.userOrderCollectionAssociation!.collectionCodeExpiresAt = null;
       });
     });
   }

@@ -36,7 +36,9 @@ class CustomMessageAlert extends StatelessWidget {
 
     Color color;
 
-    if(type == AlertMessageType.warning) {
+    if(type == AlertMessageType.error) {
+      color = Colors.red.shade700;
+    }else if(type == AlertMessageType.warning) {
       color = Colors.amber.shade700;
     }else if(type == AlertMessageType.success) {
       color = Colors.green.shade700;

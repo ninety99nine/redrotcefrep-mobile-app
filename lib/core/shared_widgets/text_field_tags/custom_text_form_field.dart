@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/shared_widgets/tags/custom_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
@@ -133,43 +134,22 @@ class CustomTextFieldTags extends StatelessWidget {
                   child: SingleChildScrollView(
                     controller: sc,
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                        children: tags.map((String tag) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(20.0)),
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                      
-                                /// Tag
-                                InkWell(
-                                  child: Text(tag, style: const TextStyle(color: Colors.white)),
-                                  onTap: () {
-                                    if(onSelectedTag != null) onSelectedTag!(tag);
-                                  },
-                                ),
-                      
-                                /// Spacer
-                                const SizedBox(width: 4.0),
-                      
-                                /// Delete Icon
-                                InkWell(
-                                  child: const Icon(Icons.cancel, size: 14.0, color: Color.fromARGB(255, 233, 233, 233)),
-                                  onTap: () {
-                                    onTagDelete(tag);
-                                    if(onRemovedTag != null) onRemovedTag!(tag);
-                                  },
-                                )
-                      
-                              ],
-                            ),
-                          );
-                      }).toList()),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                          children: tags.map((String tag) {
+                            return CustomTag(
+                              tag,
+                              onTap: () {
+                                if(onSelectedTag != null) onSelectedTag!(tag);
+                              },
+                              onCancel: () {
+                                onTagDelete(tag);
+                                if(onRemovedTag != null) onRemovedTag!(tag);
+                              },
+                            );
+                        }).toList()),
+                    ),
                   ),
                 )
                 : null,

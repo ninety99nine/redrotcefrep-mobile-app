@@ -1,4 +1,4 @@
-enum Menu {
+enum Filter {
   stores,
   friends,
   friendGroups,
