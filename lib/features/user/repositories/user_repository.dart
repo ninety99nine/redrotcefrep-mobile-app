@@ -98,4 +98,19 @@ class UserRepository {
     
   }
 
+  /// Join a store
+  Future<http.Response> joinStore({ required String teamMemberJoinCode }){
+
+    if(user == null) throw Exception('The user must be set to join a store');
+
+    String url = user!.links.joinStores.href;
+
+    Map body = {
+      'team_member_join_code': teamMemberJoinCode
+    };
+
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
 }

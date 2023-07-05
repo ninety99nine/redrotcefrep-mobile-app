@@ -53,15 +53,11 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
       /// If there has been a change in 'canShow', update the widget's state
       /// This will hide or show the banner content based on the canShow 
       /// updated state
-      setState(() => canShow = oldWidget.canShow);
-
-    }
-
-    /// If the banner text has not been set and we are not loading
-    if(bannerText == null && !isLoading) {
-
-      /// Request the store invitations again
-      if(bannerText == null) requestStoreInvitations();
+      setState(() {
+        if(bannerText != null) {
+          canShow = oldWidget.canShow;
+        }
+      });
 
     }
   }

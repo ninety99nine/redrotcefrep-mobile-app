@@ -62,7 +62,7 @@ class _TeamMemberInvitationsInVerticalListViewInfiniteScrollState extends State<
     
     Future<http.Response> response = storeProvider.storeRepository.showUserStores(
       /// Return stores were the user is invited to join team
-      userAssociation: UserAssociation.invitedTeamMember,
+      userAssociation: UserAssociation.teamMemberInvited,
       user: authProvider.user!,
       searchWord: searchWord,
       page: page

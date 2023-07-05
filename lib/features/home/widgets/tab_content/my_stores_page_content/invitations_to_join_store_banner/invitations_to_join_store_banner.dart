@@ -1,4 +1,5 @@
-import 'package:bonako_demo/features/followers/widgets/follower_invitations_show/follower_invitations_modal_bottom_sheet/follower_invitations_modal_bottom_sheet.dart';
+
+import 'package:bonako_demo/features/team_members/widgets/team_member_invitations_show/team_member_invitations_modal_bottom_sheet/team_member_invitations_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/models/check_store_invitations.dart';
 import 'package:bonako_demo/core/shared_widgets/banners/custom_banner.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
@@ -53,19 +54,14 @@ class InvitationsToJoinStoreBannerState extends State<InvitationsToJoinStoreBann
       /// If there has been a change in 'canShow', update the widget's state
       /// This will hide or show the banner content based on the canShow 
       /// updated state
-      setState(() => canShow = oldWidget.canShow);
-
-    }
-
-    /// If the banner text has not been set and we are not loading
-    if(bannerText == null && !isLoading) {
-
-      /// Request the store invitations again
-      if(bannerText == null) requestStoreInvitations();
+      setState(() {
+        if(bannerText != null) {
+          canShow = oldWidget.canShow;
+        }
+      });
 
     }
   }
-
 
   /// Check invitations
   void requestStoreInvitations() async {
@@ -123,7 +119,7 @@ class InvitationsToJoinStoreBannerState extends State<InvitationsToJoinStoreBann
   @override
   Widget build(BuildContext context) {
 
-    return FollowerInvitationsModalBottomSheet(
+    return TeamMemberInvitationsModalBottomSheet(
       trigger: CustomBanner(
         text: bannerText,
         canShow: canShow,

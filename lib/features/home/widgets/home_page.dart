@@ -184,11 +184,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: floatingActionButtons,
-      drawer: const HomeDrawer(),
-      appBar: appBar,
-      body: body,
+    /**
+     *  The GestureDetector is used to hide the soft input keyboard 
+     *  after clicking outside TextField or anywhere on screen
+     */
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child:  Scaffold(
+        floatingActionButton: floatingActionButtons,
+        drawer: const HomeDrawer(),
+        appBar: appBar,
+        body: body,
+      ),
     );
   }
 }

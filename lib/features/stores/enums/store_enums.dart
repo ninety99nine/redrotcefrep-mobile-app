@@ -4,8 +4,10 @@ enum UserAssociation {
   invitedToFollow,
 
   teamMember,
-  notTeamMember,
-  invitedTeamMember,
+  teamMemberLeft,
+  teamMemberJoined,
+  teamMemberInvited,
+  teamMemberDeclined,
 
   friendGroupMember,
 

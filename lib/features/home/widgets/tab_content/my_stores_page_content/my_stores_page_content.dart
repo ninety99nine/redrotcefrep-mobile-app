@@ -44,10 +44,12 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
   bool get hasStoreCardsScrollController => storeCardsScrollController != null;
   final DebouncerUtility debouncerUtility = DebouncerUtility(milliseconds: 1000);
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  
 
   final GlobalKey<CreatedStoresContentState> createdStoresContentState = GlobalKey<CreatedStoresContentState>();
   final GlobalKey<JoinedStoresContentState> joinedStoresContentState = GlobalKey<JoinedStoresContentState>();
   final GlobalKey<AssignedStoresContentState> assignedStoresContentState = GlobalKey<AssignedStoresContentState>();
+  final GlobalKey<InvitationsToJoinStoreBannerState> invitationsToJoinStoreBannerState = GlobalKey<InvitationsToJoinStoreBannerState>();
 
   /// The scroll controller used to track the scroll position on the store cards of the Created Stores Content
   ScrollController? get createdStoreCardsScrollControllerScrollController {
@@ -63,6 +65,8 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
   ScrollController? get assignedStoreCardsScrollControllerScrollController {
     return assignedStoresContentState.currentState?.storeCardsState.currentState?.customVerticalListViewInfiniteScrollState.currentState?.scrollController;
   }
+
+
 
   @override
   void initState() {
@@ -104,7 +108,34 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
 
       }
 
+      /// Always call the setStoreCardsScrollController() method whenever we are
+      /// swipping or tapping on the tab navigation
       setStoreCardsScrollController();
+
+      /// If we are animating from one tab to another e.g when swipping or tapping
+      /// on the tab navigation, then wait for the transition animation to finish
+      /// before we fire this method. This is because _tabController.addListener
+      /// fires twice, (1) Before the transition animation begins and (2) After
+      /// the transition animation ends. We want to only fire this method after
+      /// the transition animation ends. This means that we need to check if
+      /// tabController.indexIsChanging = false, which happens when the
+      /// animation has never started e.g on first page load, or when
+      /// the transition animation ends e.g after swipping or tapping
+      /// on the tab navigation.
+      if(_tabController.indexIsChanging == false) {
+
+        /// Set the scroll controller on the content of this loaded tab
+        /// This method must always be called everytime we navigate to
+        /// the content of another tab so that we can set the scroll
+        /// tracking on the content of the newly selected tab while 
+        /// also unsetting the scroll tracking on the content of 
+        /// the previously selected tab
+        setStoreCardsScrollController();
+
+        /// Check if we have any new invitations
+        requestStoreInvitations();
+
+      }
 
     });
   }
@@ -127,9 +158,21 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
 
         /// Set the HomeProvider tab to match the last selected tab
         homeProvider.setSelectedMyStoresTabIndex(lastSelectedMyStoresTabIndex, saveOnLocalStorage: false);
-
+        
         /// Automatically navigate to the last selected tab
         _tabController.animateTo(lastSelectedMyStoresTabIndex);
+
+      }else{
+
+        /// Since the tab controller listener callback i.e _tabController.addListener({ ... }),
+        /// is only fired whenever we switch between tabs and never fires otherwise, then we
+        /// know that we can never fire the setStoreCardsScrollController() located within
+        /// the _tabController.addListener({ ... }). This is because the 
+        /// _tabController.animateTo(lastSelectedMyStoresTabIndex);
+        /// has not been fired so that we can trigger this callback.
+        /// We should therefore call this method so that we can set 
+        /// the scroll tracker on the current tab content.
+        setStoreCardsScrollController();
 
       }
       
@@ -148,9 +191,9 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
 
     //  Set canShow to true by default
     setState(() => canShow = true);
-
+    
     /**
-     *  Since the my stores widgets: createdStoresContent(), joinedStoresContent() and assignedStoresContent()
+     *  Since the my stores widgets: CreatedStoresContent(), JoinedStoresContent() and AssignedStoresContent()
      *  take time to build, its not possible to immediately access the state of either one of the widgets. We
      *  need to set a delay that allows the widget so build and the state to be resolved before we can
      *  attempt to access that state. Any attempt to access the state before the widget is fully built
@@ -197,6 +240,20 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
     /// This scrollController is used to check if we are scrolling so
     /// that we can dynamically hide or show the invitation banner
     setState(() => canShow = storeCardsScrollController!.offset <= 100);
+  }
+
+  /// The method called after joining a store
+  void onJoined() {
+    requestStoreInvitations();
+  }
+
+  /// The method called to request the store invitations
+  void requestStoreInvitations() {
+    if(invitationsToJoinStoreBannerState.currentState != null) {
+      if(invitationsToJoinStoreBannerState.currentState!.isLoading == false) {
+        invitationsToJoinStoreBannerState.currentState!.requestStoreInvitations();
+      }
+    }
   }
 
   @override
@@ -248,7 +305,8 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
         key: createdStoresContentState
       ),
       JoinedStoresContent(
-        key: joinedStoresContentState
+        key: joinedStoresContentState,
+        onJoined: onJoined
       ),
       AssignedStoresContent(
         key: assignedStoresContentState
@@ -282,7 +340,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
 
                       /// Collapsable Banner To Follow Stores
                       InvitationsToJoinStoreBanner(
-                        key: ValueKey(_tabController.index),
+                        key: invitationsToJoinStoreBannerState,
                         canShow: canShow
                       ),
 

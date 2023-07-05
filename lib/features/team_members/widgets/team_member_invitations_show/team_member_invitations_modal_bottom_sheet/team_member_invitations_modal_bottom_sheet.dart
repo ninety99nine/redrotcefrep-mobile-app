@@ -11,20 +11,20 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-class TeamMemberInvitationsModalPopup extends StatefulWidget {
+class TeamMemberInvitationsModalBottomSheet extends StatefulWidget {
   
   final Widget trigger;
 
-  const TeamMemberInvitationsModalPopup({
+  const TeamMemberInvitationsModalBottomSheet({
     super.key,
     required this.trigger,
   });
 
   @override
-  State<TeamMemberInvitationsModalPopup> createState() => _TeamMemberInvitationsModalPopupState();
+  State<TeamMemberInvitationsModalBottomSheet> createState() => _TeamMemberInvitationsModalBottomSheetState();
 }
 
-class _TeamMemberInvitationsModalPopupState extends State<TeamMemberInvitationsModalPopup> {
+class _TeamMemberInvitationsModalBottomSheetState extends State<TeamMemberInvitationsModalBottomSheet> {
 
   bool respondedToAnyInvitation = false;
 

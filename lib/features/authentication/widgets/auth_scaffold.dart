@@ -30,7 +30,6 @@ class _AuthScaffoldState extends State<AuthScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    
     /**
      *  The GestureDetector is used to hide the soft input keyboard 
      *  after clicking outside TextField or anywhere on screen

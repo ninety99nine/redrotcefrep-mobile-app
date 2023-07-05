@@ -48,6 +48,7 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
   final GlobalKey<MyPlugStoresContentState> myPlugStoresContentState = GlobalKey<MyPlugStoresContentState>();
   final GlobalKey<BrandStoresContentState> brandStoresContentState = GlobalKey<BrandStoresContentState>();
   final GlobalKey<InfluencerStoresContentState> influencerStoresContentState = GlobalKey<InfluencerStoresContentState>();
+  final GlobalKey<InvitationsToFollowStoreBannerState> invitationsToFollowStoreBannerState = GlobalKey<InvitationsToFollowStoreBannerState>();
 
   /// The scroll controller used to track the scroll position on the store cards of the My Plug Stores Content
   ScrollController? get myPlugStoreCardsScrollController {
@@ -104,7 +105,34 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
 
       }
 
+      /// Always call the setStoreCardsScrollController() method whenever we are
+      /// swipping or tapping on the tab navigation
       setStoreCardsScrollController();
+
+      /// If we are animating from one tab to another e.g when swipping or tapping
+      /// on the tab navigation, then wait for the transition animation to finish
+      /// before we fire this method. This is because _tabController.addListener
+      /// fires twice, (1) Before the transition animation begins and (2) After
+      /// the transition animation ends. We want to only fire this method after
+      /// the transition animation ends. This means that we need to check if
+      /// tabController.indexIsChanging = false, which happens when the
+      /// animation has never started e.g on first page load, or when
+      /// the transition animation ends e.g after swipping or tapping
+      /// on the tab navigation.
+      if(_tabController.indexIsChanging == false) {
+
+        /// Set the scroll controller on the content of this loaded tab
+        /// This method must always be called everytime we navigate to
+        /// the content of another tab so that we can set the scroll
+        /// tracking on the content of the newly selected tab while 
+        /// also unsetting the scroll tracking on the content of 
+        /// the previously selected tab
+        setStoreCardsScrollController();
+
+        /// Check if we have any new invitations
+        requestStoreInvitations();
+
+      }
 
     });
   }
@@ -127,9 +155,21 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
 
         /// Set the HomeProvider tab to match the last selected tab
         homeProvider.setSelectedFollowingTabIndex(lastSelectedFollowingTabIndex, saveOnLocalStorage: false);
-
+        
         /// Automatically navigate to the last selected tab
         _tabController.animateTo(lastSelectedFollowingTabIndex);
+
+      }else{
+
+        /// Since the tab controller listener callback i.e _tabController.addListener({ ... }),
+        /// is only fired whenever we switch between tabs and never fires otherwise, then we
+        /// know that we can never fire the setStoreCardsScrollController() located within
+        /// the _tabController.addListener({ ... }). This is because the 
+        /// _tabController.animateTo(lastSelectedFollowingTabIndex);
+        /// has not been fired so that we can trigger this callback.
+        /// We should therefore call this method so that we can set 
+        /// the scroll tracker on the current tab content.
+        setStoreCardsScrollController();
 
       }
       
@@ -197,6 +237,15 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
     /// This scrollController is used to check if we are scrolling so
     /// that we can dynamically hide or show the invitation banner
     setState(() => canShow = storeCardsScrollController!.offset <= 100);
+  }
+
+  /// The method called to request the store invitations
+  void requestStoreInvitations() {
+    if(invitationsToFollowStoreBannerState.currentState != null) {
+      if(invitationsToFollowStoreBannerState.currentState!.isLoading == false) {
+        invitationsToFollowStoreBannerState.currentState!.requestStoreInvitations();
+      }
+    }
   }
 
   @override
@@ -280,7 +329,7 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
 
                       /// Collapsable Banner To Follow Stores
                       InvitationsToFollowStoreBanner(
-                        key: ValueKey(_tabController.index),
+                        key: invitationsToFollowStoreBannerState,
                         canShow: canShow
                       ),
 
