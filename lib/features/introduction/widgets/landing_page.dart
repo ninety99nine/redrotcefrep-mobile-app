@@ -100,7 +100,7 @@ class _LandingPageState extends State<LandingPage> {
           hasAcceptedTermsAndConditions = apiHome.acceptedTermsAndConditions;
 
           //  Subcribe to login by other devices
-          //listenToExternalLoginAlerts();
+          listenToExternalLoginAlerts();
 
         }
 
@@ -155,6 +155,10 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void onLoginAlerts(event) {
+
+    print('onLoginAlerts');
+    print(event);
+    print(event.eventName);
 
     if (event.eventName == "App\\Events\\LoginSuccess") {
 

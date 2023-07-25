@@ -49,10 +49,10 @@ class RequestPaymentForOrderFormState extends State<RequestPaymentForOrderForm> 
   final _formKey = GlobalKey<FormState>();
 
   String whoIsPaying = 'Me';
-  bool get isDeposit => whoIsPaying == 'Deposit';
   bool get payingByMyself => whoIsPaying == 'Me';
   bool get payingUsingFriend => whoIsPaying == 'Friend';
-  bool get isFullPayment => whoIsPaying == 'Full Payment';
+  bool get isDeposit => howMuchAreYouPaying == 'Deposit';
+  bool get isFullPayment => howMuchAreYouPaying == 'Full Payment';
   bool get payingUsingSplitPayment => whoIsPaying == 'Split Payment';
 
   List<String> whoIsPayingOptions = [

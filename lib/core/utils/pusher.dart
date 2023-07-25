@@ -167,11 +167,13 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
   /// Subscribe for auth login alerts
   void subscribeToAuthLogin({ String? identifier, required dynamic onEvent }) async {
+    print('**** subscribeToAuthLogin !!!!');
     subscribe(channelName: 'private-login.${authProvider.userId}', identifier: identifier, onEvent: onEvent);
   }
 
   /// Unsubscribe for auth login alerts
   void unsubscribeToAuthLogin({ String? identifier }) async {
+    print('**** un-subscribeToAuthLogin !!!!');
     unsubscribe(channelName: 'private-login.${authProvider.userId}', identifier: identifier);
   }
 
