@@ -1,7 +1,6 @@
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import '../models/order.dart';
 
 class OrderRepository {
@@ -20,7 +19,7 @@ class OrderRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Show the specified order
-  Future<http.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withTransactions = false, BuildContext? context }) {
+  Future<http.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withCountTransactions = false, bool withTransactions = false }) {
     
     if(order == null) throw Exception('The order must be set to show this order');
 
@@ -31,8 +30,9 @@ class OrderRepository {
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
     if(withTransactions) queryParams.addAll({'withTransactions': '1'});
     if(withDeliveryAddress) queryParams.addAll({'withDeliveryAddress': '1'});
+    if(withCountTransactions) queryParams.addAll({'withCountTransactions': '1'});
 
-    return apiRepository.get(url: url, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
@@ -85,7 +85,7 @@ class OrderRepository {
   }
 
   /// Show viewers of the specified order
-  Future<http.Response> showViewers({ String searchWord = '', int page = 1, BuildContext? context }) {
+  Future<http.Response> showViewers({ String searchWord = '', int page = 1 }) {
     
     if(order == null) throw Exception('The order must be set to show viewers');
 
@@ -95,7 +95,60 @@ class OrderRepository {
       
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }
+
+  /// Request payment for the specified order
+  Future<http.Response> requestPayment({ required int percentage, required paymentMethodId }) {
+
+    if(order == null) throw Exception('The order must be set to request payment');
+
+    String url = order!.links.requestPayment.href;
+    
+    Map body = {
+      'percentage': percentage,
+      'payment_method_id': paymentMethodId,
+    };
+    
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+  ///////////////////////////////////
+  ///   TRANSACTIONS                 ///
+  //////////////////////////////////
+
+  /// Get the transaction filters of the specified order
+  Future<http.Response> showTransactionFilters() {
+
+    if(order == null) throw Exception('The order must be set to show transaction filters');
+
+    String url = order!.links.showTransactionFilters.href;
+
+    return apiRepository.get(url: url);
+    
+  }
+
+  /// Get the transactions of the specified order
+  Future<http.Response> showTransactions({ String? filter, bool withRequestingUser = false, bool withPayingUser = false, String searchWord = '', int page = 1 }) {
+
+    if(order == null) throw Exception('The order must be set to show transactions');
+
+    String url = order!.links.showTransactions.href;
+
+    Map<String, String> queryParams = {};
+      
+    /// Filter transactions by the specified status
+    if(filter != null) queryParams.addAll({'filter': filter});
+
+    /// Filter by search
+    if(withRequestingUser) queryParams.addAll({'withPayingUser': '1'});
+    if(withRequestingUser) queryParams.addAll({'withRequestingUser': '1'});
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
+
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
+
 }

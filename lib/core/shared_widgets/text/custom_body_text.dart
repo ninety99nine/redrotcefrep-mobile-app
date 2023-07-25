@@ -11,6 +11,7 @@ class CustomBodyText extends StatefulWidget {
   final bool lightShade;
   final EdgeInsets? margin;
   final EdgeInsets? padding;
+  final FontStyle? fontStyle;
   final TextAlign? textAlign;
   final FontWeight fontWeight;
   final TextOverflow? overflow;
@@ -26,6 +27,7 @@ class CustomBodyText extends StatefulWidget {
       this.maxLines,
       this.overflow,
       this.textAlign,
+      this.fontStyle,
       this.isLink = false,
       this.isError = false,
       this.lightShade = false,
@@ -38,6 +40,8 @@ class CustomBodyText extends StatefulWidget {
 }
 
 class _CustomBodyTextState extends State<CustomBodyText> {
+
+  FontStyle? get fontStyle => widget.fontStyle;
 
   Color? getColor(BuildContext context) {
     if(widget.isLink) {
@@ -81,7 +85,8 @@ class _CustomBodyTextState extends State<CustomBodyText> {
       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
         height: widget.height,
         fontWeight: widget.isLink ? FontWeight.bold : widget.fontWeight,
-        color: getColor(context)
+        color: getColor(context),
+        fontStyle: fontStyle
       )
     );
   }
@@ -99,7 +104,7 @@ class _CustomBodyTextState extends State<CustomBodyText> {
           TextSpan(
             text: ' $text2',
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontWeight: FontWeight.normal
+              fontWeight: FontWeight.normal,
             )
           )
         ]

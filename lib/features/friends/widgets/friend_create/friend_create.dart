@@ -31,8 +31,7 @@ class _FriendCreateState extends State<FriendCreate> {
   Future<http.Response> _requestCreateFriends(List<String> mobileNumbers) {
 
     return authProvider.authRepository.createFriends(
-      mobileNumbers: mobileNumbers,
-      context: context,
+      mobileNumbers: mobileNumbers
     ).then((response) async {
 
       final responseBody = jsonDecode(response.body);

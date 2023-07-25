@@ -41,10 +41,10 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
   ShoppableStore get store => widget.store;
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
-  bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
+  bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
 
-  bool get isFollowing => StoreServices.isFollowingStore(store);
+  bool get isFollower => StoreServices.isFollower(store);
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
   bool get isSuperAdmin => authProvider.user!.isSuperAdmin ?? false;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
@@ -57,7 +57,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
     
     menus.add({
       'icon': Icons.directions_walk_rounded,
-      'name': isFollowing ? 'Unfollow' : 'Follow',
+      'name': isFollower ? 'Unfollow' : 'Follow',
     });
     
     menus.add({
@@ -72,14 +72,14 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       });
     }
     
-    if(StoreServices.isAssociatedAsCreatorOrAdmin(store)) {
+    if(StoreServices.isTeamMemberAsCreatorOrAdmin(store)) {
       menus.add({
         'icon': Icons.mode_edit_outlined,
         'name': 'Edit Store',
       });
     }
     
-    if(hasJoinedStoreTeam && !canAccessAsTeamMember) {
+    if(isTeamMemberWhoHasJoined && !canAccessAsTeamMember) {
       menus.add({
         'icon': Icons.sensor_door_outlined,
         'name': 'Subscribe',
@@ -106,7 +106,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
     }
     
     
-    if(StoreServices.isAssociatedAsCreator(store)) {
+    if(StoreServices.isTeamMemberAsCreator(store)) {
       menus.add({
         'icon': Icons.delete_outline_rounded,
         'name': 'Delete Store',
@@ -264,9 +264,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
 
     }).catchError((error) {
 
-      print(error);
-
-      SnackbarUtility.showErrorMessage(message: 'Failed to ${isFollowing ? 'unfollow' : 'follow'}');
+      SnackbarUtility.showErrorMessage(message: 'Failed to ${isFollower ? 'unfollow' : 'follow'}');
 
     }).whenComplete((){
 

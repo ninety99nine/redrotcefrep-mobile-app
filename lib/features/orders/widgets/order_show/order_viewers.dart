@@ -44,7 +44,6 @@ class _OrderViewersState extends State<OrderViewers> {
   Future<http.Response> requestShowViewers(int page, String searchWord) {
     return orderProvider.setOrder(order).orderRepository.showViewers(
       searchWord: searchWord,
-      context: context,
       page: page
     );
   }
@@ -104,9 +103,9 @@ class Viewer extends StatelessWidget {
   int get views => userOrderViewAssociation.views;
   DateTime get createdAt => userOrderViewAssociation.createdAt;
   DateTime get lastSeenAt => userOrderViewAssociation.lastSeenAt;
-  bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
-  bool get createdAtAndLastSeenAtIsNotTheSame => timeago.format(createdAt) != timeago.format(lastSeenAt);
+  bool get canManageOrders => store.attributes.userStoreAssociation!.canManageOrders;
   UserOrderViewAssociation get userOrderViewAssociation => user.attributes.userOrderViewAssociation!;
+  bool get createdAtAndLastSeenAtIsNotTheSame => timeago.format(createdAt) != timeago.format(lastSeenAt);
 
   @override
   Widget build(BuildContext context) {

@@ -28,14 +28,12 @@ class _HomeDrawerState extends State<HomeDrawer> {
   void _requestLogout() {
 
     //  Show logging out loader
-    DialogUtility.showLoader(message: 'Signing out', context: context);
+    DialogUtility.showLoader(message: 'Signing out');
 
-    authRepository.logout(
-      context: context,
-    ).then((response) async {
+    authRepository.logout().then((response) async {
 
       //  Hide logging out loader
-      DialogUtility.hideLoader(context);
+      DialogUtility.hideLoader();
       
       /// Get the response body
       final responseBody = jsonDecode(response.body);
@@ -66,7 +64,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
        *  that DialogUtility.hideLoader() fires first and then
        *  SnackbarUtility.showErrorMessage() fires next.
        */
-      DialogUtility.hideLoader(context);
+      DialogUtility.hideLoader();
   
       /// Show the fatal error message
       SnackbarUtility.showErrorMessage(message: 'Failed to sign out');

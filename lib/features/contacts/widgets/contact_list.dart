@@ -327,16 +327,16 @@ class _ContactListState extends State<ContactList> {
           searchInputField,
 
           if(enableBulkSelection) Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 16, left: 20, right: 32),
+            padding: const EdgeInsets.only(top: 16, bottom: 16, left: 32, right: 32),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
       
                 /// Select All Checkbox
-                selectAllCheckbox,
+                Expanded(child: selectAllCheckbox),
 
                 /// Total Contacts Selected
-                CustomBodyText(totalContactsSelectedText),
+                CustomBodyText(totalContactsSelectedText, lightShade: true,),
 
               ],
             ),

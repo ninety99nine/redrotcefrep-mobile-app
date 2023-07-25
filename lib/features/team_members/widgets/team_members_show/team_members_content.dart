@@ -51,7 +51,7 @@ class _TeamMembersContentState extends State<TeamMembersContent> {
   String get title => isViewingInvitations ? 'Invitations' : 'Team Members';
   bool get isInviting => teamMemberContentView == TeamMemberContentView.inviting;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  bool get canManageTeamMembers => StoreServices.hasPermissionsToManageTeamMembers(store);
+  bool get canManageTeamMembers => store.attributes.userStoreAssociation!.canManageTeamMembers;
   bool get isViewingTeamMember => teamMemberContentView == TeamMemberContentView.viewingTeamMember;
   bool get isViewingTeamMembers => teamMemberContentView == TeamMemberContentView.viewingTeamMembers;
   bool get isViewingInvitations => teamMemberContentView == TeamMemberContentView.viewingInvitations;

@@ -6,6 +6,8 @@ enum UserAssociation {
   teamMember,
   teamMemberLeft,
   teamMemberJoined,
+  teamMemberJoinedAsCreator,
+  teamMemberJoinedAsNonCreator,
   teamMemberInvited,
   teamMemberDeclined,
 

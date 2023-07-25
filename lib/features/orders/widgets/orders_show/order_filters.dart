@@ -41,7 +41,7 @@ class OrderFiltersState extends State<OrderFilters> {
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
+  bool get canManageOrders => store == null ? false : store!.attributes.userStoreAssociation!.canManageOrders;
   
   @override
   void initState() {

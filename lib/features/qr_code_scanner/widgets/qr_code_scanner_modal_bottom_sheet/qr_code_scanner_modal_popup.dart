@@ -28,8 +28,8 @@ class _QRCodeScannerModalBottomSheetState extends State<QRCodeScannerModalBottom
     return FloatingActionButton(
       mini: true,
       heroTag: 'qr-code-button',
-      backgroundColor: Colors.grey,
       onPressed: openBottomModalSheet,
+      backgroundColor: Colors.green,
       child: const Icon(Icons.qr_code_scanner)
     );
   }

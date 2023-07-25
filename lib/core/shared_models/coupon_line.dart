@@ -1,20 +1,19 @@
-import 'cart.dart';
 import 'percentage.dart';
 import 'currency.dart';
 import 'status.dart';
 import 'money.dart';
+import 'cart.dart';
 
 class CouponLine {
   late int? id;
   late String name;
   late String? code;
-  late int usedQuantity;
   late Currency currency;
   late Status isCancelled;
-  late int limitedQuantity;
   late String discountType;
   late String? description;
   late Status offerDiscount;
+  late int remainingQuantity;
   late DateTime? endDatetime;
   late Money minimumGrandTotal;
   late DateTime? startDatetime;
@@ -49,8 +48,6 @@ class CouponLine {
     code = json['code'];
     description = json['description'];
     discountType = json['discountType'];
-    usedQuantity = json['usedQuantity'];
-    limitedQuantity = json['limitedQuantity'];
     currency = Currency.fromJson(json['currency']);
     isCancelled = Status.fromJson(json['isCancelled']);
     hoursOfDay = List<String>.from(json['hoursOfDay']);

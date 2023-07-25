@@ -208,4 +208,9 @@ class ShoppableStore extends Store with ChangeNotifier {
     if(canNotifyListeners) notifyListeners();
   }
 
+  /// Call all the registered listeners.
+  void runNotifyListeners() {
+    notifyListeners();
+  }
+
 }

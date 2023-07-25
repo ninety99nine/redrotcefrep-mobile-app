@@ -83,11 +83,15 @@ class Links {
   late Link showStoreFilters; 
   late Link createStores; 
   late Link showStores; 
+  late Link joinStores; 
+  late Link showNotificationFilters; 
+  late Link showNotifications;
+  late Link countNotifications; 
+  late Link markNotificationsAsRead; 
   late Link? showStoreTeamMember; 
   late Link? showStoreTeamMemberPermissions; 
   late Link? updateStoreTeamMemberPermissions; 
   late Link? showStoreCustomer; 
-  late Link joinStores; 
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
@@ -120,10 +124,14 @@ class Links {
     showStoreFilters = Link.fromJson(json['showStoreFilters']);
     createStores = Link.fromJson(json['createStores']);
     showStores = Link.fromJson(json['showStores']);
+    joinStores = Link.fromJson(json['joinStores']);
+    showNotifications = Link.fromJson(json['showNotifications']);
+    countNotifications = Link.fromJson(json['countNotifications']);
+    markNotificationsAsRead = Link.fromJson(json['markNotificationsAsRead']);
+    showNotificationFilters = Link.fromJson(json['showNotificationFilters']);
     showStoreTeamMember = json['showStoreTeamMember'] == null ? null : Link.fromJson(json['showStoreTeamMember']);
     showStoreTeamMemberPermissions = json['showStoreTeamMemberPermissions'] == null ? null : Link.fromJson(json['showStoreTeamMemberPermissions']);
     updateStoreTeamMemberPermissions = json['updateStoreTeamMemberPermissions'] == null ? null : Link.fromJson(json['updateStoreTeamMemberPermissions']);
     showStoreCustomer = json['showStoreCustomer'] == null ? null : Link.fromJson(json['showStoreCustomer']);
-    joinStores = Link.fromJson(json['joinStores']);
   }
 }

@@ -111,7 +111,6 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
         name: name,
         shared: shared,
         friends: friends,
-        context: context,
         canAddFriends: canAddFriends,
       ).then((response) async {
 
@@ -167,7 +166,6 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
         name: name,
         shared: shared,
         friends: friends,
-        context: context,
         canAddFriends: canAddFriends,
       ).then((response) async {
 

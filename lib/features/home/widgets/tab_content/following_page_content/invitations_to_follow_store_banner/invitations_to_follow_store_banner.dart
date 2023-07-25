@@ -1,8 +1,11 @@
 import 'package:bonako_demo/features/followers/widgets/follower_invitations_show/follower_invitations_modal_bottom_sheet/follower_invitations_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/stores/models/check_store_invitations.dart';
 import 'package:bonako_demo/core/shared_widgets/banners/custom_banner.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/core/utils/pusher.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +27,15 @@ class InvitationsToFollowStoreBanner extends StatefulWidget {
 class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStoreBanner> {
 
   late bool canShow;
-  String? bannerText;
   bool isLoading = false;
+  int totalInvitations = 0;
+  PusherChannelsFlutter? pusher;
+  late PusherProvider pusherProvider;
   CheckStoreInvitations? checkStoreInvitations;
+  bool get hasInvitations => totalInvitations > 0;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+  String get bannerText => 'You have been invited to follow $totalInvitations ${totalInvitations == 1 ? 'store' : 'stores'}';
 
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
@@ -35,12 +43,25 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
   @override
   void initState() {
     super.initState();
+    
+    /// Set the Pusher Provider
+    pusherProvider = Provider.of<PusherProvider>(context, listen: false);
 
     /// Set the parent canShow status as the initial canShow value
     canShow = widget.canShow;
 
     /// Request the store invitations
     requestStoreInvitations();
+
+    /// Listen for new invitation alerts
+    listenForNewInvitationAlerts();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    /// Unsubscribe from this specified event on this channel
+    pusherProvider.unsubscribeToAuthNotifications(identifier: 'InvitationsToFollowStoreBanner');
   }
 
   @override
@@ -51,10 +72,9 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
     if (canShow != oldWidget.canShow) {
       
       /// If there has been a change in 'canShow', update the widget's state
-      /// This will hide or show the banner content based on the canShow 
-      /// updated state
+      /// This will show or hide the banner content based on the canShow updated state
       setState(() {
-        if(bannerText != null) {
+        if(hasInvitations) {
           canShow = oldWidget.canShow;
         }
       });
@@ -62,6 +82,47 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
     }
   }
 
+  void listenForNewInvitationAlerts() async {
+
+    print('*************** listenForNewInvitationAlerts');
+
+    /// Subscribe to notification alerts
+    pusherProvider.subscribeToAuthNotifications(
+      identifier: 'InvitationsToFollowStoreBanner', 
+      onEvent: onNotificationAlerts
+    );
+  
+  }
+
+  void onNotificationAlerts(event) {
+
+    print('*************** InvitationsToFollowStoreBanner: onNotificationAlerts');
+
+    if (event.eventName == "Illuminate\\Notifications\\Events\\BroadcastNotificationCreated") {
+
+      /// Parse event.data into a Map
+      Map<String, dynamic> eventData = jsonDecode(event.data);
+
+      //  Get the event type
+      String type = eventData['type'];
+
+      print('InvitationsToFollowStoreBanner type: $type');
+      
+      ///  Check if this is an invitation to follow store
+      if(type == 'App\\Notifications\\Users\\InvitationToFollowStoreCreated') {
+
+        print('InvitationsToFollowStoreBanner # invites before: $totalInvitations');
+
+        //// Increment the total invitations
+        setTotalInvitations(totalInvitations + 1);
+
+        print('InvitationsToFollowStoreBanner # invites after: $totalInvitations');
+        
+      }
+
+    }
+
+  }
 
   /// Check invitations
   void requestStoreInvitations() async {
@@ -75,29 +136,11 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
       if( response.statusCode == 200 ) {
 
         final responseBody = jsonDecode(response.body);
-        
-        setState(() {
           
-          checkStoreInvitations = CheckStoreInvitations.fromJson(responseBody);
-
-          if(checkStoreInvitations!.totalInvitations > 0) {
-
-            bannerText = 'You have been invited to follow ${checkStoreInvitations!.totalInvitations} ${checkStoreInvitations!.totalInvitations == 1 ? 'store' : 'stores'}';
-
-          }else{
-      
-            /// Hide the banner content since we don't have any content to show
-            setState(() {
-
-              bannerText = null;
-              canShow = false;
-
-            });
-
-          }
-
-        });
-
+        checkStoreInvitations = CheckStoreInvitations.fromJson(responseBody);
+    
+        /// Set the total invitations
+        setTotalInvitations(checkStoreInvitations!.totalInvitations);
 
       }
 
@@ -108,6 +151,8 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
       /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Can\'t check invitations');
 
+      return error;
+
     }).whenComplete(() {
 
       _stopLoader();
@@ -116,14 +161,23 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
 
   }
 
+  void setTotalInvitations(totalInvitations) {
+    if(this.totalInvitations != totalInvitations) {
+      setState(() {
+        this.totalInvitations = totalInvitations;
+        canShow = hasInvitations;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
     return FollowerInvitationsModalBottomSheet(
       trigger: CustomBanner(
         text: bannerText,
-        canShow: canShow,
         isLoading: isLoading,
+        canShow: canShow && hasInvitations,
         onRefresh: requestStoreInvitations,
       ),
     );

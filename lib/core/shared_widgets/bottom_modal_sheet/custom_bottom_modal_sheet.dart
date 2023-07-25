@@ -36,7 +36,10 @@ class CustomBottomModalSheetState extends State<CustomBottomModalSheet> {
       isScrollControlled: true,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(20.0)
+        borderRadius: widget.borderRadius ?? const BorderRadius.only(
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
+        )
       ),
       builder: ( BuildContext context ) {
 

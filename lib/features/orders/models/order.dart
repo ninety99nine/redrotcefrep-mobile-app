@@ -1,5 +1,6 @@
 import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
 import 'package:bonako_demo/features/addresses/models/delivery_address.dart';
+import 'package:bonako_demo/features/transactions/models/transaction.dart';
 
 import '../../../core/shared_models/name_and_description.dart';
 import '../../../../core/shared_models/mobile_number.dart';
@@ -25,6 +26,7 @@ class Order {
   late Money amountPending;
   late int totalViewsByTeam;
   late Attributes attributes;
+  late int? transactionsCount;
   late int orderForTotalUsers;
   late String? collectionType;
   late Money amountOutstanding;
@@ -62,6 +64,7 @@ class Order {
     destinationName = json['destinationName'];
     totalViewsByTeam = json['totalViewsByTeam'];
     customerLastName = json['customerLastName'];
+    transactionsCount = json['transactionsCount'];
     customerFirstName = json['customerFirstName'];
     createdAt = DateTime.parse(json['createdAt']);
     currency = Currency.fromJson(json['currency']);
@@ -93,6 +96,15 @@ class Order {
 
 class Attributes {
   late String number;
+  late bool isPaid;
+  late bool isUnpaid;
+  late bool isPartiallyPaid;
+  late bool isPendingPayment;
+  late bool isWaiting;
+  late bool isOnItsWay;
+  late bool isReadyForPickup;
+  late bool isCancelled;
+  late bool isCompleted;
   late String customerName;
   late String? collectionByUserName;
   late String? collectionVerifiedByUserName;
@@ -102,6 +114,15 @@ class Attributes {
 
   Attributes.fromJson(Map<String, dynamic> json) {
     number = json['number'];
+    isPaid = json['isPaid'];
+    isUnpaid = json['isUnpaid'];
+    isPartiallyPaid = json['isPartiallyPaid'];
+    isPendingPayment = json['isPendingPayment'];
+    isWaiting = json['isWaiting'];
+    isOnItsWay = json['isOnItsWay'];
+    isReadyForPickup = json['isReadyForPickup'];
+    isCancelled = json['isCancelled'];
+    isCompleted = json['isCompleted'];
     customerName = json['customerName'];
     collectionByUserName = json['collectionByUserName'];
     collectionVerifiedByUserName = json['collectionVerifiedByUserName'];
@@ -127,15 +148,15 @@ class Relationships {
   late Cart? cart;
   late User? customer;
   late ShoppableStore? store;
+  late List<Transaction>? transactions;
   late DeliveryAddress? deliveryAddress;
-  //  late List<Transaction> transactions;
 
   Relationships.fromJson(Map<String, dynamic> json) {
     cart = json['cart'] == null ? null : Cart.fromJson(json['cart']);
     customer = json['customer'] == null ? null : User.fromJson(json['customer']);
     store = json['store'] == null ? null : ShoppableStore.fromJson(json['store']);
     deliveryAddress = json['deliveryAddress'] == null ? null : DeliveryAddress.fromJson(json['deliveryAddress']);
-    //  transactions = (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
+    transactions = json['transactions'] == null ? null : (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
   }
 }
 
@@ -143,14 +164,20 @@ class Links {
   late Link self;
   late Link showViewers;
   late Link updateStatus;
+  late Link requestPayment;
+  late Link showTransactions;
   late Link revokeCollectionCode;
   late Link generateCollectionCode;
+  late Link showTransactionFilters;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     showViewers = Link.fromJson(json['showViewers']);
     updateStatus = Link.fromJson(json['updateStatus']);
+    requestPayment = Link.fromJson(json['requestPayment']);
+    showTransactions = Link.fromJson(json['showTransactions']);
     revokeCollectionCode = Link.fromJson(json['revokeCollectionCode']);
     generateCollectionCode = Link.fromJson(json['generateCollectionCode']);
+    showTransactionFilters = Link.fromJson(json['showTransactionFilters']);
   }
 }

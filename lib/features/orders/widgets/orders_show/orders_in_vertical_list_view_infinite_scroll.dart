@@ -216,7 +216,25 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
         exceptOrderId: orderId,
         searchWord: searchWord,
         page: page
-      );
+      ).then((response) {
+
+        if(response.statusCode == 200) {
+
+          final responseBody = jsonDecode(response.body);
+
+          /// If the response order count does not match the store order count
+          if(isViewingOrder == false && orderFilter == 'All' && store!.ordersCount != responseBody['total']) {
+
+            store!.ordersCount = responseBody['total'];
+            store!.runNotifyListeners();
+
+          }
+
+        }
+
+        return response;
+
+      });
       
     }
 
@@ -380,7 +398,7 @@ class _OrderItemState extends State<OrderItem> {
   String get customerName => OrderServices.getCustomerDiplayName(order);
   bool get isViewingOrder => widget.orderContentView == OrderContentView.viewingOrder;
   bool get isViewingOrders => widget.orderContentView == OrderContentView.viewingOrders;
-  bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store ?? storeFromOrder!);
+  bool get canManageOrders => (store ?? storeFromOrder!).attributes.userStoreAssociation!.canManageOrders;
   UserOrderCollectionAssociation? get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation;
   bool get isAssociatedAsFriend => userOrderCollectionAssociation != null && userOrderCollectionAssociation!.role == 'Friend';
   bool get isAssociatedAsCustomer => userOrderCollectionAssociation != null && userOrderCollectionAssociation!.role == 'Customer';

@@ -79,9 +79,7 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
     Future<http.Response> request;
 
     if(friendGroup == null) {
-      request = authProvider.authRepository.showFriends(
-        context: context,
-      );
+      request = authProvider.authRepository.showFriends();
     }else{
 
       request = friendGroupProvider.setFriendGroup(friendGroup!).friendGroupRepository.showFriendGroupMembers(
@@ -148,13 +146,11 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
 
       if(friendGroup == null) {
         request = authProvider.authRepository.removeFriends(
-          friends: selectedFriends,
-          context: context,
+          friends: selectedFriends
         );
       }else{
         request = friendGroupProvider.setFriendGroup(friendGroup!).friendGroupRepository.removeFriendGroupMembers(
           friends: selectedFriends,
-          context: context,
         );
       }
 

@@ -30,6 +30,8 @@ class Store {
   late Attributes attributes;
   late bool identifiedOrders;
   late bool isInfluencerStore;
+  late bool dpoPaymentEnabled;
+  late String? dpoCompanyToken;
   late Relationships relationships;
   late int? activeSubscriptionsCount;
 
@@ -66,8 +68,10 @@ class Store {
     links = Links.fromJson(json['links']);
     followersCount = json['followersCount'];
     offlineMessage = json['offlineMessage'];
+    dpoCompanyToken = json['dpoCompanyToken'];
     identifiedOrders = json['identifiedOrders'];
     teamMembersCount = json['teamMembersCount'];
+    dpoPaymentEnabled = json['dpoPaymentEnabled'];
     allowFreeDelivery = json['allowFreeDelivery'];
     adverts = List<String>.from(json['adverts']);
     isInfluencerStore = json['isInfluencerStore'];

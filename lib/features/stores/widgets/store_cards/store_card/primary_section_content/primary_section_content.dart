@@ -8,12 +8,14 @@ class StorePrimarySectionContent extends StatefulWidget {
   final double? logoRadius;
   final ShoppableStore store;
   final bool showProfileRightSide;
+  final Alignment subscribeButtonAlignment;
 
   const StorePrimarySectionContent({
     Key? key,
     this.logoRadius,
     required this.store, 
     this.showProfileRightSide = true,
+    this.subscribeButtonAlignment = Alignment.centerRight
   }) : super(key: key);
 
   @override
@@ -25,6 +27,7 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
   ShoppableStore get store => widget.store;
   double? get logoRadius => widget.logoRadius;
   bool get showProfileRightSide => widget.showProfileRightSide;
+  Alignment get subscribeButtonAlignment => widget.subscribeButtonAlignment;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +47,7 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
           child: StoreProfile(
             store: store, 
             showProfileRightSide: showProfileRightSide,
+            subscribeButtonAlignment: subscribeButtonAlignment
           )
         )
 

@@ -185,7 +185,6 @@ class _SigninFormState extends State<SigninForm> {
     
     await authRepository.checkIfMobileAccountExists(
       mobileNumber: authForm.mobileNumberWithExtension,
-      context: context,
     ).then((response) async {
 
       if( response.statusCode == 200 ) {
@@ -233,7 +232,6 @@ class _SigninFormState extends State<SigninForm> {
     await authRepository.validateResetPassword(
       passwordConfirmation: authForm.passwordConfirmation,
       password: authForm.password!,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {
@@ -265,7 +263,6 @@ class _SigninFormState extends State<SigninForm> {
 
     await authRepository.generateMobileVerificationCodeForSignin(
       mobileNumber: authForm.mobileNumberWithExtension,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {
@@ -307,7 +304,6 @@ class _SigninFormState extends State<SigninForm> {
       mobileNumber: authForm.mobileNumberWithExtension,
       verificationCode: authForm.verificationCode,
       password: authForm.password!,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {

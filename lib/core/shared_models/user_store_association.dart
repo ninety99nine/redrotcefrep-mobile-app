@@ -19,6 +19,23 @@ class UserStoreAssociation {
   late int? totalOrdersRequested;
   late bool? isAssociatedAsCustomer;
 
+  late bool isFollower;
+  late bool isUnfollower;
+  late bool isTeamMemberWhoHasJoined;
+  late bool isTeamMemberWhoHasLeft;
+  late bool isTeamMemberWhoIsInvited;
+  late bool isTeamMemberWhoHasDeclined;
+  late bool isTeamMemberAsCreatorOrAdmin;
+  late bool isTeamMemberAsCreator;
+  late bool isTeamMemberAsAdmin;
+  late bool canManageEverything;
+  late bool canManageOrders;
+  late bool canManageProducts;
+  late bool canManageCustomers;
+  late bool canManageTeamMembers;
+  late bool canManageInstantCarts;
+  late bool canManageSettings;
+
   late DateTime createdAt;
   late DateTime updatedAt;
   late DateTime? lastSeenAt;
@@ -41,6 +58,24 @@ class UserStoreAssociation {
 
     currency = json['currency'] == null ? null : Currency.fromJson(json['currency']);
     totalOrdersRequested = json['totalOrdersRequested'];
+
+    isFollower = json['isFollower'];
+    isUnfollower = json['isUnfollower'];
+    isTeamMemberWhoHasJoined = json['isTeamMemberWhoHasJoined'];
+    isTeamMemberWhoHasLeft = json['isTeamMemberWhoHasLeft'];
+    isTeamMemberWhoIsInvited = json['isTeamMemberWhoIsInvited'];
+    isTeamMemberWhoHasDeclined = json['isTeamMemberWhoHasDeclined'];
+    isTeamMemberAsCreatorOrAdmin = json['isTeamMemberAsCreatorOrAdmin'];
+    isTeamMemberAsCreator = json['isTeamMemberAsCreator'];
+    isTeamMemberAsAdmin = json['isTeamMemberAsAdmin'];
+    isTeamMemberWhoHasDeclined = json['isTeamMemberWhoHasDeclined'];
+    canManageEverything = json['canManageEverything'];
+    canManageOrders = json['canManageOrders'];
+    canManageProducts = json['canManageProducts'];
+    canManageCustomers = json['canManageCustomers'];
+    canManageTeamMembers = json['canManageTeamMembers'];
+    canManageInstantCarts = json['canManageInstantCarts'];
+    canManageSettings = json['canManageSettings'];
 
     /*  Timestamp Information  */
     createdAt = DateTime.parse(json['createdAt']);

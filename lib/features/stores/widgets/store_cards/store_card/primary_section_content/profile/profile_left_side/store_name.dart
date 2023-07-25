@@ -18,7 +18,12 @@ class StoreName extends StatelessWidget {
       children: [
 
         //  Store name
-        CustomTitleMediumText(store.name),
+        Flexible(
+          child: CustomTitleMediumText(
+            store.name, 
+            overflow: TextOverflow.ellipsis
+          )
+        ),
 
         //  Spacer
         const SizedBox(width: 4,),

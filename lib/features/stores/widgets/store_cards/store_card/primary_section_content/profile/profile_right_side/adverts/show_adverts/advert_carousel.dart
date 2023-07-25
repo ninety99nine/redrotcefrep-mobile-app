@@ -25,11 +25,13 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
 
   final CarouselController carouselController = CarouselController();
 
-  bool get canChangeAdvert => hasJoinedStoreTeam && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
+  bool get canAddAdvert => isTeamMemberWhoHasJoined && canAccessAsTeamMember && !hasReachedMaximumAdvertsPerStore && !teamMemberWantsToViewAsCustomer;
+  bool get canChangeAdvert => isTeamMemberWhoHasJoined && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
   bool get hasReachedMaximumAdvertsPerStore => adverts.length == constants.maximumAdvertsPerStore;
+  bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
   bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
-  bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(store);
+  bool get hasAdverts => adverts.isNotEmpty;
   List<String> get adverts => store.adverts;
   ShoppableStore get store => widget.store;
 
@@ -194,10 +196,10 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
             }
           ),
     
-          if(hasReachedMaximumAdvertsPerStore == false) ...[
+          if(canAddAdvert) ...[
     
             /// Spacer
-            const SizedBox(height: 16,),
+            if(hasAdverts) const SizedBox(height: 16,),
     
             /// Add Advert
             addAdvert()

@@ -170,7 +170,6 @@ class _SignupFormState extends State<SignupForm> {
       firstName: authForm.firstName!,
       lastName: authForm.lastName!,
       password: authForm.password!,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {
@@ -202,7 +201,6 @@ class _SignupFormState extends State<SignupForm> {
 
     await authRepository.generateMobileVerificationCodeForSignup(
       mobileNumber: authForm.mobileNumberWithExtension,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {
@@ -246,7 +244,6 @@ class _SignupFormState extends State<SignupForm> {
       firstName: authForm.firstName!,
       lastName: authForm.lastName!,
       password: authForm.password!,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 201) {

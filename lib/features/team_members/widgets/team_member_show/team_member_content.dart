@@ -102,7 +102,7 @@ class _PermissionsState extends State<Permissions> {
   bool get teamMemberIsYou => teamMember.id == authProvider.user!.id;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  bool get canManageTeamMembers => StoreServices.hasPermissionsToManageTeamMembers(store);
+  bool get canManageTeamMembers => store.attributes.userStoreAssociation!.canManageTeamMembers;
   String get permissionsError => serverErrors.containsKey('permissions') ? serverErrors['permissions'] : '';
   List<Permission> get teamMemberPermissions => teamMember.attributes.userStoreAssociation!.teamMemberPermissions;
   bool get teamMemberIsCreator => teamMember.attributes.userStoreAssociation!.teamMemberRole!.toLowerCase() == 'creator';

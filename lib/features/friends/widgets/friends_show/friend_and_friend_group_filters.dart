@@ -44,9 +44,7 @@ class FriendAndFriendGroupFiltersState extends State<FriendAndFriendGroupFilters
   /// This will allow us to show menus e.g "Friend", "Groups", "Friend Groups"
   void requestShowFriendAndFriendGroupFilters() {
     
-    authRepository.showFriendAndFriendGroupFilters(
-      context: context
-    ).then((http.Response response) {
+    authRepository.showFriendAndFriendGroupFilters().then((http.Response response) {
 
       if(!mounted) return;
 

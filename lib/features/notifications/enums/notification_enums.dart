@@ -1,0 +1,4 @@
+enum NotificationContentView {
+  viewingNotifications,
+  viewingNotification
+}

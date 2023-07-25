@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
@@ -63,7 +65,25 @@ class _ProductsInVerticalListViewInfiniteScrollState extends State<ProductsInVer
       filter: productFilter,
       searchWord: searchWord,
       page: page
-    );
+    ).then((response) {
+
+      if(response.statusCode == 200) {
+
+        final responseBody = jsonDecode(response.body);
+
+        /// If the response product count does not match the store product count
+        if(productFilter == 'All' && store.productsCount != responseBody['total']) {
+
+          store.productsCount = responseBody['total'];
+          store.runNotifyListeners();
+
+        }
+
+      }
+
+      return response;
+
+    });
   }
 
   void onReorder(int oldIndex, int newIndex) {

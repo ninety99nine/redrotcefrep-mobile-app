@@ -207,8 +207,7 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
     if(hasSelectedFriendGroups) {
       friendGroupRepository.updateLastSelectedFriendGroups(
-        friendGroups: friendGroups,
-        context: context,
+        friendGroups: friendGroups
       );
     }
 

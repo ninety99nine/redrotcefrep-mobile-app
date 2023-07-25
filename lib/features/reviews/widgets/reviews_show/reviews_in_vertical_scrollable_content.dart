@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -76,7 +78,25 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
       withUser: true,
       userId: userId,
       page: page
-    );
+    ).then((response) {
+
+      if(response.statusCode == 200) {
+
+        final responseBody = jsonDecode(response.body);
+
+        /// If the response review count does not match the store review count
+        if(reviewFilter == 'All' && store.reviewsCount != responseBody['total']) {
+
+          store.reviewsCount = responseBody['total'];
+          store.runNotifyListeners();
+
+        }
+
+      }
+
+      return response;
+
+    });
   }
 
   Widget get reviewerMessageAlert {

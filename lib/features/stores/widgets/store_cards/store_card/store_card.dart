@@ -74,8 +74,15 @@ class Content extends StatelessWidget {
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
     
+    /**
+     *  The userStoreAssociation will only be available if the user has an association with the store,
+     *  but in some cases the userStoreAssociation will be null e.g when showing a brand store or an
+     *  influencer store. The user might not necessarily have any relationship with that store e.g
+     *  as a team member, follower or recent visitor. In such cases the userStoreAssociation does
+     *  not yet exist.
+     */
+    bool isTeamMemberWhoHasJoined = StoreServices.isTeamMemberWhoHasJoined(store);
     bool canAccessAsTeamMember = StoreServices.canAccessAsTeamMember(store);
-    bool hasJoinedStoreTeam = StoreServices.hasJoinedStoreTeam(store);
     bool canAccessAsShopper = StoreServices.canAccessAsShopper(store);
     bool hasProducts = store.relationships.products.isNotEmpty;
     
@@ -97,7 +104,7 @@ class Content extends StatelessWidget {
            *  1) This is a shopper and we have products to show
            *  2) This is a team member
            */
-          if((!hasJoinedStoreTeam && canAccessAsShopper && hasProducts) || (hasJoinedStoreTeam && canAccessAsTeamMember)) const SizedBox(height: 8),
+          if((!isTeamMemberWhoHasJoined && canAccessAsShopper && hasProducts) || (isTeamMemberWhoHasJoined && canAccessAsTeamMember)) const SizedBox(height: 8),
     
           //  Store Products, Shopping Cart, Subscribe e.t.c
           StoreSecondarySectionContent(

@@ -118,8 +118,8 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
           switchInCurve: Curves.easeIn,
           switchOutCurve: Curves.easeOut,
           duration: const Duration(milliseconds: 500),
-          child: totalOrders > 2 ? const OrdersModalBottomSheet(
-            trigger: CustomTextButton('View All', padding: EdgeInsets.all(0),),
+          child: totalOrders > 2 ? OrdersModalBottomSheet(
+            trigger: (openBottomModalSheet) => const CustomTextButton('View All', padding: EdgeInsets.all(0),),
           ) : null,
         )
 
@@ -206,7 +206,7 @@ class _OrderItemState extends State<OrderItem> {
       store: store,
       order: order,
       canShowFloatingActionButton: false,
-      trigger: Container(
+      trigger: (openBottomModalSheet) => Container(
         margin: const EdgeInsets.only(right: 8),
         width: MediaQuery.of(context).size.width * 0.8,
         child: CustomCard(

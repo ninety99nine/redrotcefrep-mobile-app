@@ -33,6 +33,9 @@ class CustomHorizontalListViewInfiniteScroll extends StatefulWidget {
   /// Content to show below the search bar
   final Widget? contentAfterSearchBar;
 
+  /// Content to show before the first item
+  final Widget? contentBeforeFirstItem;
+
   /// Method to implement the Api Request
   final Future<http.Response> Function(int page, String searchWord) onRequest;
 
@@ -98,6 +101,7 @@ class CustomHorizontalListViewInfiniteScroll extends StatefulWidget {
     required this.onParseItem,
     required this.onRenderItem,
     this.contentAfterSearchBar,
+    this.contentBeforeFirstItem,
     this.contentBeforeSearchBar,
     this.debounceSearch = false,
     this.showNoMoreContent = true,
@@ -151,6 +155,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalListView
   Widget? get noMoreContentWidget => widget.noMoreContentWidget;
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
+  Widget? get contentBeforeFirstItem => widget.contentBeforeFirstItem;
   Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   bool get isStartingRequest => requestType == RequestType.startRequest;
   bool get loadedLastPage => lastPage == null ? false : page > lastPage!;
@@ -554,9 +559,23 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalListView
                   }
         
                 }else{
+
+                  if(index == 0 && contentBeforeFirstItem != null) {
                   
-                  /// Build Custom Item Widget
-                  return buildItem(index);
+                    /// Build Custom Item Widget
+                    return Row(
+                      children: [
+                        contentBeforeFirstItem!,
+                        buildItem(index)
+                      ],
+                    );
+
+                  }else{
+                  
+                    /// Build Custom Item Widget
+                    return buildItem(index);
+
+                  }
 
                 }
             

@@ -71,9 +71,7 @@ class _ContentState extends State<Content> {
 
     _startLoader();
     
-    await authRepository.showTermsAndConditions(
-      context: context,
-    ).then((response) async {
+    await authRepository.showTermsAndConditions().then((response) async {
 
       if( response.statusCode == 200 ) {
 
@@ -105,9 +103,7 @@ class _ContentState extends State<Content> {
 
     _startSubmittionLoader();
     
-    await authRepository.acceptTermsAndConditions(
-      context: context,
-    ).then((response) async {
+    await authRepository.acceptTermsAndConditions().then((response) async {
 
       if( response.statusCode == 200 ) {
         

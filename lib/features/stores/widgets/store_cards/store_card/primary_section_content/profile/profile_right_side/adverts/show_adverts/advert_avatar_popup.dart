@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:get/get.dart';
 
@@ -6,13 +10,27 @@ import '../../../../../../../../models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import 'advert_carousel.dart';
 
-class StoreAdvertAvatarPopup extends StatelessWidget {
+class StoreAdvertAvatarPopup extends StatefulWidget {
   
+  final double? radius;
   final ShoppableStore store;
 
-  const StoreAdvertAvatarPopup({required this.store, super.key});
+  const StoreAdvertAvatarPopup({
+    super.key,
+    this.radius = 24,
+    required this.store,
+  });
 
-  String get firstAdvertUrl => store.adverts[0];
+  @override
+  State<StoreAdvertAvatarPopup> createState() => _StoreAdvertAvatarPopupState();
+}
+
+class _StoreAdvertAvatarPopupState extends State<StoreAdvertAvatarPopup> {
+
+  ShoppableStore get store => widget.store;
+  bool get hasAdverts => store.adverts.isNotEmpty;
+
+  String? get firstAdvertUrl => hasAdverts ? store.adverts[0] : null;
 
   void onVisitStore() {
     
@@ -23,7 +41,6 @@ class StoreAdvertAvatarPopup extends StatelessWidget {
     StoreServices.navigateToStorePage(store);
   
   }
-
 
 Future<void> showAdvertDialog(ShoppableStore store, BuildContext context) {
     return showDialog<void>(
@@ -85,20 +102,41 @@ Future<void> showAdvertDialog(ShoppableStore store, BuildContext context) {
     );
   }
 
+  Widget get firstAdvertCircleAvatar {
+    return GestureDetector(
+      onTap: () => showAdvertDialog(store, context),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300,),
+          borderRadius: BorderRadius.circular(50)
+        ),
+        child:CircleAvatar(
+          backgroundColor: Colors.grey.shade100,
+          backgroundImage: NetworkImage(firstAdvertUrl!),
+        ),
+      )
+    );
+  }
+
+  Widget get noAdvertCircleAvatar {
+    return ImagePickerModalBottomSheet(
+      fileName: 'advert',
+      onSubmittedFile: (file, response) {
+
+        final responseBody = jsonDecode(response.body);
+        
+        /// Set the updated advert from the response
+        setState(() => store.adverts.add(responseBody['advert']));
+
+      },
+      submitMethod: SubmitMethod.post,
+      triggerIcon: Icons.photo_outlined,
+      submitUrl: store.links.createAdvert.href
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300,),
-        borderRadius: BorderRadius.circular(50)
-      ),
-      child: CircleAvatar(
-        backgroundColor: Colors.grey.shade100,
-        backgroundImage: NetworkImage(firstAdvertUrl),
-      ),
-    ),
-      onTap: () => showAdvertDialog(store, context),
-    );
+    return hasAdverts ? firstAdvertCircleAvatar : noAdvertCircleAvatar;
   }
 }

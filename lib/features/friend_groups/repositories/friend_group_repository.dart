@@ -32,12 +32,12 @@ class FriendGroupRepository {
     
     final url =  user.links.showFriendGroupFilters.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Show friend groups
-  Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, bool withCountOrders = false, String searchWord = '', int? page = 1, BuildContext? context }){
+  Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, bool withCountOrders = false, String searchWord = '', int? page = 1 }){
 
     final url =  user.links.showFriendGroups.href;
 
@@ -54,12 +54,12 @@ class FriendGroupRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
   
   }
 
   /// Remove friend groups
-  Future<http.Response> createFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends, BuildContext? context }) {
+  Future<http.Response> createFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
 
     String url = user.links.createFriendGroups.href;
 
@@ -74,12 +74,12 @@ class FriendGroupRepository {
       'can_add_friends': canAddFriends,
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Update friend group
-  Future<http.Response> updateFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends, BuildContext? context }) {
+  Future<http.Response> updateFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to update');
 
@@ -96,12 +96,12 @@ class FriendGroupRepository {
       'can_add_friends': canAddFriends,
     };
 
-    return apiRepository.put(url: url, body: body, context: context);
+    return apiRepository.put(url: url, body: body);
     
   }
 
   /// Delete friend group
-  Future<http.Response> deleteFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends, BuildContext? context }) {
+  Future<http.Response> deleteFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to delete');
 
@@ -118,12 +118,12 @@ class FriendGroupRepository {
       'can_add_friends': canAddFriends,
     };
 
-    return apiRepository.put(url: url, body: body, context: context);
+    return apiRepository.put(url: url, body: body);
     
   }
 
   /// Delete friend groups
-  Future<http.Response> deleteManyFriendGroups({ required List<FriendGroup> friendGroups, BuildContext? context }) {
+  Future<http.Response> deleteManyFriendGroups({ required List<FriendGroup> friendGroups }) {
 
     String url = user.links.deleteManyFriendGroups.href;
 
@@ -135,7 +135,7 @@ class FriendGroupRepository {
       'friend_group_ids': friendGroupIds,
     };
 
-    return apiRepository.delete(url: url, body: body, context: context);
+    return apiRepository.delete(url: url, body: body);
     
   }
 
@@ -151,12 +151,12 @@ class FriendGroupRepository {
     /// Exclude specific users matching the specified user id
     if(exceptUserId != null) queryParams.addAll({'except_user_id': exceptUserId.toString()});
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams, context: context);
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
     
   }
 
   /// Remove friend groups members
-  Future<http.Response> removeFriendGroupMembers({ required List<User> friends, BuildContext? context }) {
+  Future<http.Response> removeFriendGroupMembers({ required List<User> friends }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to remove members');
 
@@ -170,7 +170,7 @@ class FriendGroupRepository {
       'user_ids': userIds,
     };
 
-    return apiRepository.delete(url: url, body: body, context: context);
+    return apiRepository.delete(url: url, body: body);
     
   }
   
@@ -179,12 +179,12 @@ class FriendGroupRepository {
 
     final url = user.links.showLastSelectedFriendGroup.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
   
   }
 
   /// Update last selected friend groups
-  Future<http.Response> updateLastSelectedFriendGroups({ required List<FriendGroup> friendGroups, BuildContext? context }) {
+  Future<http.Response> updateLastSelectedFriendGroups({ required List<FriendGroup> friendGroups }) {
 
     final url = user.links.updateLastSelectedFriendGroups.href;
 
@@ -196,7 +196,7 @@ class FriendGroupRepository {
       'friend_group_ids': friendGroupIds,
     };
 
-    return apiRepository.put(url: url, body: body, context: context);
+    return apiRepository.put(url: url, body: body);
     
   }
   

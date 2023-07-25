@@ -26,6 +26,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final EdgeInsets? margin;
   final EdgeInsets listPadding;
   final EdgeInsets headerPadding;
+  final Widget? separator;
 
   /// Indication that we can reoder
   final bool canReorder;
@@ -103,6 +104,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   const CustomVerticalListViewInfiniteScroll({
     Key? key,
     this.margin,
+    this.separator,
     this.onReorder,
     this.onLoading,
     this.searchWord,
@@ -157,6 +159,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   bool get disabled => widget.disabled;
   String get noContent => widget.noContent;
   bool get canReorder => widget.canReorder;
+  Widget? get separator => widget.separator;
   bool get showNoContent => widget.showNoContent;
   bool get showSearchBar => widget.showSearchBar;
   bool get showSeparater => widget.showSeparater;
@@ -739,7 +742,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
       itemCount: totalItems,
       padding: widget.listPadding,
       physics: const NeverScrollableScrollPhysics(),
-      separatorBuilder: (BuildContext context, int index) => showSeparater ? const Divider() : const SizedBox(),
+      separatorBuilder: (BuildContext context, int index) => showSeparater ? (separator ?? const Divider()) : const SizedBox(),
       itemBuilder: ((context, index) {
         
         if(index == 0) {

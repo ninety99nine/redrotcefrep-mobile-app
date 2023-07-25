@@ -126,12 +126,10 @@ class StorePageContent extends StatefulWidget {
 
 class _StorePageContentState extends State<StorePageContent> {
 
+  ShoppableStore? store;
   bool isLoading = false;
 
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
-  User get user => authProvider.user!;
-  ShoppableStore? store;
 
   void _stopLoader() => setState(() => isLoading = false);
 
@@ -214,12 +212,6 @@ class _StorePageContentState extends State<StorePageContent> {
   @override
   Widget build(BuildContext context) {
 
-  bool canAccessAsTeamMember = isLoading ? false : StoreServices.canAccessAsTeamMember(store!);
-  bool canAccessAsShopper = isLoading ? false : StoreServices.canAccessAsShopper(store!);
-  bool hasJoinedStoreTeam = isLoading ? false : StoreServices.hasJoinedStoreTeam(store!);
-  bool hasDescription = store!.description != null;
-  double logoRadius = canAccessAsShopper && hasDescription ? 36 : 24;
-
     return isLoading 
       ? Column(
         children: [
@@ -238,120 +230,18 @@ class _StorePageContentState extends State<StorePageContent> {
 
         ],
       )
-      : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-      
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                              
-                      /// Back Arrow
-                      IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
-                            
-                      /// Menu Modal Bottom Sheet
-                      StoreMenuModalBottomSheet(
-                        store: store!,
-                      ),
-                            
-                    ],
-                  ),
-            
-                  /// Spacer
-                  const SizedBox(height: 16,),
-          
-                  /// Store Logo, Profile, Adverts, Rating, e.t.c
-                  StorePrimarySectionContent(
-                    store: store!,
-                    logoRadius: logoRadius, 
-                    showProfileRightSide: false,
-                  ),
-          
-                  /// Access Denied For Team Member
-                  if(hasJoinedStoreTeam && !canAccessAsTeamMember) ...[
-          
-                    /// Spacer
-                    const SizedBox(height: 20,),
-          
-                    /// Reason for denied access e.g "Subscribe to start selling"
-                    CustomMessageAlert(store!.attributes.teamMemberAccess!.description!),
-          
-                    /// Divider
-                    const Divider(height: 40,),
-                  
-                  ],
-          
-                  if(canAccessAsShopper) Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      
-                      /// Add Store To Group Button
-                      AddStoreToGroupButton(store: store!),
-            
-                      /// Spacer
-                      const SizedBox(width: 8,),
-          
-                      /// Follow / Unfollow Button
-                      FollowStoreButton(store: store!, alignment: Alignment.centerRight),
-          
-                    ],
-                  ),
-          
-                  /// Access Denied For Shopper
-                  if(!hasJoinedStoreTeam && !canAccessAsShopper) ...[
-          
-                    /// Spacer
-                    const SizedBox(height: 20,),
-          
-                    /// Reason for denied access e.g "We are currently closed"
-                    CustomMessageAlert(store!.attributes.shopperAccess!.description!),
-          
-                    /// Divider
-                    const Divider(height: 40,),
-                  
-                  ],
-            
-                ],
-              ),
-            ),
-            
-            //  Store Products, Shopping Cart, Subscribe e.t.c
-            if(hasJoinedStoreTeam || (!hasJoinedStoreTeam && canAccessAsShopper)) ...[
-              
-              ListenableProvider.value(
-                value: store,
-                child: const Content()
-              ),
-      
-              /// Divider
-              const Divider(height: 40,),
-
-            ],
-        
-            /// User Orders
-            UserOrdersInHorizontalListViewInfiniteScroll(
-              store: store,
-              user: user,
-            ),
-            
-            //  Spacer
-            const SizedBox(height: 100),
-        
-          ],
-        ),
-    );
+      : ListenableProvider.value(
+        value: store,
+        child: const Content()
+      );
   }
 }
 
 class Content extends StatelessWidget {
 
-  const Content({super.key});
+  const Content({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -366,30 +256,103 @@ class Content extends StatelessWidget {
      *  which is a descendant widget of this widget.
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
-                
-    /**
-     *  The StoreSecondarySectionContent() widgets is placed here so that they can listen 
-     *  to changes on the store and pickup those new updates e.g Whenever we toggle the 
-     *  teamMemberWantsToViewAsCustomer on the ShoppableStore model, we execute the 
-     *  notifyListeners() method so that this change and be picked up by these 
-     *  widgets and render the UI to reflect whether we want to view as a 
-     *  customer or a team member. This is not the only type of update,
-     *  but the idea applies across any update on the store model that
-     *  requires widgets to rebuild.
-     */
+    AuthProvider authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    /// Store Adverts, Products, Shopping Cart, Subscribe e.t.c
-    return Column(
-      children: [
+    User user = authProvider.user!;
+    bool hasDescription = store.description != null;
+    bool canAccessAsShopper = StoreServices.canAccessAsShopper(store);
+    double logoRadius = canAccessAsShopper && hasDescription ? 36 : 24;
+    bool isTeamMemberWhoHasJoined = StoreServices.isTeamMemberWhoHasJoined(store);
 
-        StoreSecondarySectionContent(
-          store: store,
-          subscribeButtonAlignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          shoppingCartCurrentView: ShoppingCartCurrentView.storePage
-        ),
+    print('teamMemberWantsToViewAsCustomer: ${store.teamMemberWantsToViewAsCustomer}');
+
+    return SingleChildScrollView(
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+      
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                              
+                      /// Back Arrow
+                      IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
+                            
+                      /// Menu Modal Bottom Sheet
+                      StoreMenuModalBottomSheet(
+                        store: store,
+                      ),
+                            
+                    ],
+                  ),
+          
+                  /// Store Logo, Profile, Adverts, Rating, e.t.c
+                  StorePrimarySectionContent(
+                    store: store,
+                    logoRadius: logoRadius, 
+                    showProfileRightSide: false,
+                    subscribeButtonAlignment: Alignment.topRight
+                  ),
+          
+                  if(canAccessAsShopper) Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      
+                      /// Add Store To Group Button
+                      AddStoreToGroupButton(store: store),
+            
+                      /// Spacer
+                      const SizedBox(width: 8,),
+          
+                      /// Follow / Unfollow Button
+                      FollowStoreButton(store: store, alignment: Alignment.centerRight),
+          
+                    ],
+                  ),
+            
+                ],
+              ),
+            ),
+
+            /// Store Adverts, Products, Shopping Cart e.t.c
+            if(isTeamMemberWhoHasJoined || (!isTeamMemberWhoHasJoined && canAccessAsShopper)) ...[
         
-      ],
+              /**
+               *  The StoreSecondarySectionContent() widgets is placed here so that they can listen 
+               *  to changes on the store and pickup those new updates e.g Whenever we toggle the 
+               *  teamMemberWantsToViewAsCustomer on the ShoppableStore model, we execute the 
+               *  notifyListeners() method so that this change and be picked up by these 
+               *  widgets and render the UI to reflect whether we want to view as a 
+               *  customer or a team member. This is not the only type of update,
+               *  but the idea applies across any update on the store model that
+               *  requires widgets to rebuild.
+               */
+              StoreSecondarySectionContent(
+                store: store,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                shoppingCartCurrentView: ShoppingCartCurrentView.storePage
+              ),
+          
+              /// Divider
+              const Divider(height: 40,),
+          
+            ],
+        
+            /// User Orders
+            UserOrdersInHorizontalListViewInfiniteScroll(
+              store: store,
+              user: user,
+            ),
+            
+            //  Spacer
+            const SizedBox(height: 100),
+          ]
+      )
     );
   }
 }

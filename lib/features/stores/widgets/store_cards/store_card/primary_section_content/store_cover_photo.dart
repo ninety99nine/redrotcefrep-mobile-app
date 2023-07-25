@@ -1,4 +1,5 @@
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -49,10 +50,29 @@ class _StoreCoverPhotoState extends State<StoreCoverPhoto> {
             borderRadius: BorderRadius.circular(8),
             onTap: () => openBottomModalSheet(),
             child: Ink(
-              child: SizedBox(
+              child: Container(
                 height: 100,
                 width: double.infinity,
-                child: Icon(Icons.photo, size: 32, color: Colors.grey.shade400,),
+                /// Note that we use "11px" instead of "12px" because we want 
+                /// to accomodate the 1px from the border strokeWidth
+                padding: const EdgeInsets.all(11),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      /// Icon
+                      Icon(Icons.photo_outlined, size: 32, color: Colors.grey.shade400),
+                      
+                      /// Spacer
+                      const SizedBox(width: 8),
+                      
+                      /// Text
+                      const CustomBodyText('Add Cover Photo')
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -78,48 +98,37 @@ class _StoreCoverPhotoState extends State<StoreCoverPhoto> {
           ),
           borderRadius: BorderRadius.circular(50),
         ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  clipBehavior: Clip.antiAlias,
-                  /**
-                   *  Make the image to fill the width of the screen 
-                   *  but when its more than 300px then we cut the 
-                   *  image so that it does not occupy any more 
-                   *  height
-                   */
-                  height: constraints.maxHeight > 300 ? 300 : null,
+        child: Stack(
+          children: [
+            Container(
+              width: double.infinity,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: CachedNetworkImage(
+                placeholder: (context, url) =>
+                    const CustomCircularProgressIndicator(),
+                imageUrl: store.coverPhoto!,
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+            if (canChangeCoverPhoto)
+              Positioned.fill(
+                child: Container(
                   decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: CachedNetworkImage(
-                    placeholder: (context, url) =>
-                        const CustomCircularProgressIndicator(),
-                    imageUrl: store.coverPhoto!,
-                    width: double.infinity,
-                    fit: BoxFit.fitWidth,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.mode_edit_outlined,
+                    color: Colors.white,
                   ),
                 ),
-                if (canChangeCoverPhoto)
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.mode_edit_outlined,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          },
+              ),
+          ],
         ),
       ),
     );

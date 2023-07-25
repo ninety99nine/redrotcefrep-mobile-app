@@ -27,10 +27,10 @@ class MyPlugStoresContentState extends State<MyPlugStoresContent> {
   final GlobalKey<StoreCardsState> storeCardsState = GlobalKey<StoreCardsState>();
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
-  void _requestAddStoreToFriendGroups(ShoppableStore store) {
+  void _requestUpdateFollowing(ShoppableStore store) {
     
     /// If we are already following
-    if(StoreServices.isFollowingStore(store)) {
+    if(StoreServices.isFollower(store)) {
 
       SnackbarUtility.showSuccessMessage(message: 'You are already following ${store.name}');
 
@@ -132,7 +132,7 @@ class MyPlugStoresContentState extends State<MyPlugStoresContent> {
     return SearchModalBottomSheet(
       showFilters: false,
       showExpandIconButton: false,
-      onSelectedStore: _requestAddStoreToFriendGroups,
+      onSelectedStore: _requestUpdateFollowing,
       trigger: (openBottomModalSheet) => CustomElevatedButton(
         'Add Store',
         disabled: isLoading,

@@ -8,9 +8,9 @@ import '../orders_content.dart';
 class OrdersModalBottomSheet extends StatefulWidget {
   
   final Order? order;
-  final Widget? trigger;
   final ShoppableStore? store;
   final bool canShowFloatingActionButton;
+  final Widget Function(Function())? trigger;
 
   const OrdersModalBottomSheet({
     super.key,
@@ -29,6 +29,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
   int initialOrdersCount = 0;
   Order? get order => widget.order;
   ShoppableStore? get store => widget.store;
+  Widget Function(Function())? get trigger => widget.trigger;
   String get totalOrders => (store?.ordersCount ?? 0).toString();
   bool get canShowFloatingActionButton => widget.canShowFloatingActionButton;
   String get totalOrdersText => store?.ordersCount == 1 ? 'Order' : 'Orders';
@@ -60,7 +61,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
      *  provided. In the case that an order has not been provided then the
      *  "ordersCount" will be set.
      */
-    if(widget.trigger == null && store != null) {
+    if(trigger == null && store != null) {
 
       /// Get the initial orders count before placing an order.
       /// This initial orders count will be incremented for every new order placed
@@ -75,7 +76,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
 
     /// Check if the number of orders increased.
     /// This happens if the user placed a new order.
-    if(widget.trigger == null && store != null && store!.ordersCount! > initialOrdersCount) {
+    if(trigger == null && store != null && store!.ordersCount! > initialOrdersCount) {
 
       /**
        *  Automatically open the Orders Modal Popup to show the new order placed
@@ -105,7 +106,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
     }
   }
 
-  Widget get trigger {
+  Widget get _trigger {
     /**
      *  When showing an Order Card e.g from the Profile Page or the Store Page,
      *  we want to pass the Order Card as a trigger so that when the Card is
@@ -119,7 +120,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
      *  such cases we do not need to pass any specific order. This means
      *  we only need (1) The store
      */
-    return widget.trigger ?? CustomBodyText([totalOrders, totalOrdersText]);
+    return trigger == null ? CustomBodyText([totalOrders, totalOrdersText]) : trigger!(openBottomModalSheet);
   }
 
   /// Open the bottom modal sheet to show the new order placed
@@ -134,7 +135,7 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
     return CustomBottomModalSheet(
       key: _customBottomModalSheetState,
       /// Trigger to open the bottom modal sheet
-      trigger: trigger,
+      trigger: _trigger,
       /// Content of the bottom modal sheet
       content: OrdersContent(
         canShowFloatingActionButton: canShowFloatingActionButton,

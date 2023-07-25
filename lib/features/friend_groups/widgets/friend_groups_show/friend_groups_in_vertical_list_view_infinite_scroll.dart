@@ -70,7 +70,6 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
       withCountStores: true,
       withCountOrders: true,
       withCountUsers: false,
-      context: context,
       filter: filter,
       page: page
     );
@@ -119,8 +118,7 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
       onDeletingFriendGroups(true);
 
       friendGroupRepository.deleteManyFriendGroups(
-        friendGroups: selectedFriendGroups,
-        context: context,
+        friendGroups: selectedFriendGroups
       ).then((response) async {
 
         final responseBody = jsonDecode(response.body);

@@ -6,6 +6,7 @@ import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/api/repositories/api_repository.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../shared_widgets/Loader/custom_circular_progress_indicator_with_text.dart';
@@ -454,37 +455,26 @@ class DialogUtility {
   }
 
   /// Show a dialog that displays a loading indicator
-  static void showLoader({ required BuildContext context, String message = 'Loading...' }) {
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-
-        ///  Return an alert dialog with a circular loader and loading message
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50.0))),
-          contentPadding: const EdgeInsets.all(15.0),
-          content: SizedBox(
-            height: 20,
-            child: CustomCircularProgressIndicatorWithText(
-              message,
-              mainAxisAlignment: MainAxisAlignment.center,
-            ),
-          )
-        );
-
-      }
+  static void showLoader({ String message = 'Loading...' }) {
+    Get.defaultDialog(
+      radius: 50,
+      title: '',
+      contentPadding: EdgeInsets.zero,
+      titlePadding: EdgeInsets.zero,
+      content: CustomCircularProgressIndicatorWithText(
+        message,
+        mainAxisAlignment: MainAxisAlignment.center,
+      )
     );
 
   }
 
   /// Hide the loading indicator dialog
-  static void hideLoader(BuildContext context) {
+  static void hideLoader() {
         
     ///  Hide the loading dialog
-    Navigator.of(context, rootNavigator: true).pop('dialog');
+    Get.back(closeOverlays: true);
 
   }
-
 
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
 
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
@@ -170,7 +172,25 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
         startAtOrderId: orderId,
         searchWord: searchWord,
         page: page
-      );
+      ).then((response) {
+
+        if(response.statusCode == 200) {
+
+          final responseBody = jsonDecode(response.body);
+
+          /// If the response order count does not match the store order count
+          if(isViewingOrder == false && orderFilter == 'All' && store!.ordersCount != responseBody['total']) {
+
+            store!.ordersCount = responseBody['total'];
+            store!.runNotifyListeners();
+
+          }
+
+        }
+
+        return response;
+
+      });
       
     }
     

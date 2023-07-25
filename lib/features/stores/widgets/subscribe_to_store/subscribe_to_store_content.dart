@@ -68,7 +68,6 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
      *  via USSD instead of faking the subcription
      */
     DialerUtility.dial(
-      context: context,
       number: paymentShortcode!.attributes.dial.code
     );
   }

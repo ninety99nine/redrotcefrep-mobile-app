@@ -1,11 +1,22 @@
+import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
+import 'package:bonako_demo/core/shared_widgets/cards/custom_card.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/features/addresses/widgets/delivery_address_card.dart';
+import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_dialog/qr_code_scanner_dialog.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
+import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
+import 'package:bonako_demo/features/user/widgets/customer_profile/customer_profile_avatar.dart';
+import 'package:flutter/rendering.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
@@ -81,6 +92,7 @@ class OrderContentState extends State<OrderContent> {
   bool get hasBeenSeen => totalViewsByTeam > 0;
   bool get triggerCancel => widget.triggerCancel;
   int get totalViewsByTeam => order.totalViewsByTeam;
+  bool get canPayUsingBonakoPay => store.dpoPaymentEnabled;
   String get customerName => order.attributes.customerName;
   bool get hasFollowUpStatuses => followUpStatuses.isNotEmpty;
   Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
@@ -88,8 +100,8 @@ class OrderContentState extends State<OrderContent> {
   bool get hasCollectionCodeExpiresAt => collectionCodeExpiresAt != null;
   bool get canCollect => userOrderCollectionAssociation?.canCollect == true;
   String? get collectionCode => userOrderCollectionAssociation?.collectionCode;
-  bool get canManageOrders => StoreServices.hasPermissionsToManageOrders(store);
   String? get collectionQrCode => userOrderCollectionAssociation?.collectionQrCode;
+  bool get canManageOrders => store.attributes.userStoreAssociation!.canManageOrders;
   List<NameAndDescription> get followUpStatuses => order.attributes.followUpStatuses;
   bool get hasCollectionCode => userOrderCollectionAssociation?.collectionCode != null;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
@@ -134,7 +146,7 @@ class OrderContentState extends State<OrderContent> {
     order = widget.order;
 
     /// Request the same order (with relationships such as cart, customer, transactions, e.t.c)
-    if(order.relationships.cart == null) _requestShowOrder();
+    if(order.relationships.cart == null || order.transactionsCount == null) _requestShowOrder();
 
     /// If we should immediately trigger the cancellation of this order.
     /// Future.delayed() is required so that we allow the use of
@@ -160,10 +172,10 @@ class OrderContentState extends State<OrderContent> {
     _startLoader();
 
     orderProvider.setOrder(order).orderRepository.showOrder(
+      withCountTransactions: true,
       withDeliveryAddress: true,
       withTransactions: false,
       withCustomer: false,
-      context: context,
       withCart: true,
     ).then((response) {
 
@@ -581,6 +593,99 @@ class OrderContentState extends State<OrderContent> {
     );
   }
 
+  Widget get requestPaymentForOrder {
+    return Column(
+      children: [
+        
+        if(order.amountPendingPercentage.value > 0) ...[
+          
+          /// Spacer
+          const SizedBox(height: 16.0,),
+
+          /// Paid Amount Breakdown
+          paymentProgress,
+          
+          /// Spacer
+          const SizedBox(height: 16.0,),
+
+        ],
+
+        /// Order Transaction Avatars
+        OrderTransactionsInHorizontalListViewInfiniteScroll(
+          order: order,
+          store: store,
+        ),
+          
+        /// Spacer
+        const SizedBox(height: 16.0,),
+
+        /// Divider
+        const Divider(),
+      
+      ]
+    );
+  }
+
+  Widget get paymentProgress {
+
+    final String totalRequestsAsText = '${order.transactionsCount} ${order.transactionsCount == 1 ? 'Request' : 'Requests'}';
+
+    return CustomCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              /// Title
+              const CustomTitleLargeText('Payments'),
+
+              /// Order Transactions Modal Bottom Sheet
+              if(order.transactionsCount! != 0) OrderTransactionsModalBottomSheet(
+                store: store, 
+                order: order,
+                transactionContentView: TransactionContentView.viewingTransactions,
+                trigger: (openBottomModalSheet) => CustomTextButton(
+                  totalRequestsAsText, 
+                  onPressed: openBottomModalSheet
+                ),
+              )
+
+            ],
+          ),
+
+          /// Spacer
+          const SizedBox(height: 8),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+                const CustomBodyText('Amount paid'),
+                CustomBodyText('${order.amountPaid.amountWithCurrency} (${order.amountPaidPercentage.valueSymbol})'),
+            ],
+          ),
+
+          /// Spacer
+          const SizedBox(height: 8),
+
+          /// Progress Bar
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+            child: LinearProgressIndicator(
+              minHeight: 8,
+              color: Colors.green,
+              backgroundColor: Colors.grey.shade200,
+              value: (order.amountPaidPercentage.value / 100),
+            ),
+          )
+
+        ],
+      )
+    );
+  }
+
   Widget get confirmCollectionButton{
 
     /// Confirm Collection Button
@@ -793,6 +898,9 @@ class OrderContentState extends State<OrderContent> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
+                          /// Show Request Payment Modal Bottom Sheet
+                          if(canPayUsingBonakoPay) requestPaymentForOrder,
           
                           /// Show Order Collection Code & QR Code (Customer side)
                           if(canCollect && !isCompleted) showCollectionCode,

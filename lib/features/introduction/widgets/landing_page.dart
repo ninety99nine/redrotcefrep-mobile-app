@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:bonako_demo/core/utils/pusher.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:get/get.dart';
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+
 import '../../../core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
 import '../../authentication/widgets/terms_and_conditions_page.dart';
 import '../../authentication/providers/auth_provider.dart';
@@ -27,7 +32,9 @@ class _LandingPageState extends State<LandingPage> {
   String errorMessage = '';
   bool hasSeenIntro = false;
   bool isAuthenticated = false;
+  PusherChannelsFlutter? pusher;
   bool homeApiRequestFailed = false;
+  late PusherProvider pusherProvider;
   bool hasAcceptedTermsAndConditions = false;
   final IntroductionService introductionServices = IntroductionService();
 
@@ -36,7 +43,22 @@ class _LandingPageState extends State<LandingPage> {
   void _handleHomeApiRequestFailed() => homeApiRequestFailed = true;
   
   ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
-  AuthProvider get authenticationProvider => Provider.of<AuthProvider>(context, listen: false);
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+
+  @override
+  void initState() {
+    super.initState();
+    
+    /// Set the Pusher Provider
+    pusherProvider = Provider.of<PusherProvider>(context, listen: false);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    /// Unsubscribe from this specified event on this channel
+    pusherProvider.unsubscribeToAuthLogin(identifier: 'LandingPage');
+  }
 
   @override
   void didChangeDependencies() {
@@ -72,10 +94,13 @@ class _LandingPageState extends State<LandingPage> {
           final apiHome = apiProvider.apiHome!;
 
           //  Set the authenticated user
-          authenticationProvider.setUser(apiHome.user!);
+          authProvider.setUser(apiHome.user!);
 
           //  Check if the user accepted their terms and conditions
           hasAcceptedTermsAndConditions = apiHome.acceptedTermsAndConditions;
+
+          //  Subcribe to login by other devices
+          //listenToExternalLoginAlerts();
 
         }
 
@@ -117,6 +142,43 @@ class _LandingPageState extends State<LandingPage> {
   void onTryAgain() {
     homeApiRequestFailed = false;
     startSetup();
+  }
+
+  void listenToExternalLoginAlerts() async {
+
+    /// Subscribe to login alerts
+    pusherProvider.subscribeToAuthLogin(
+      identifier: 'LandingPage', 
+      onEvent: onLoginAlerts
+    );
+
+  }
+
+  void onLoginAlerts(event) {
+
+    if (event.eventName == "App\\Events\\LoginSuccess") {
+
+      // Parse event.data into a Map
+      var eventData = jsonDecode(event.data);
+
+      //  Check if the bearer token has changed
+      if (eventData['bearerToken'] != authProvider.bearerToken) {
+
+        // Show the message that tells the user that they have been logged out
+        SnackbarUtility.showSuccessMessage(
+          message: eventData['loggingOutUsersMessage'] ?? 'Signing out',
+          duration: 6
+        );
+
+        /// Unsubscribe from this channel
+        pusher!.unsubscribe(channelName: 'private-login.${authProvider.userId}');
+
+        /// Reload
+        startSetup();
+
+      }
+    }
+
   }
 
   Widget get loader {

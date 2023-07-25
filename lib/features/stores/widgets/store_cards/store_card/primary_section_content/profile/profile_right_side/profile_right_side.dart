@@ -1,3 +1,7 @@
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:provider/provider.dart';
+
 import '../../../../../store_menu/store_menu_modal_bottom_sheet/store_menu_modal_bottom_sheet.dart';
 import '../../../../../../../rating/widgets/rating_show_using_stars.dart';
 import '../../../../../add_store_to_group/add_to_group_button.dart';
@@ -24,7 +28,14 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
   ShoppableStore get store => widget.store;
   bool get hasRating => store.rating != null;
   bool get hasAdverts => store.adverts.isNotEmpty;
+  bool get isShowingStorePage => storeProvider.isShowingStorePage;
+  bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
   bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
+  bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
+  bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
+  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +50,15 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
 
         if(canAccessAsShopper) ...[
 
-          /// Spacer
-          const SizedBox(height: 4.0,),
+          if(hasAdverts || showEditableMode) ...[
 
-          /// Store Adverts
-          if(hasAdverts) StoreAdvertAvatarPopup(store: store),
+            /// Spacer
+            const SizedBox(height: 4.0,),
+            
+            /// Store Adverts
+            StoreAdvertAvatarPopup(store: store),
+
+          ],
         
           /// Spacer
           if(hasRating) const SizedBox(height: 8.0,),

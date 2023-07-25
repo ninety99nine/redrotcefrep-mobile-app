@@ -47,6 +47,9 @@ class _CartCalculatorState extends State<CartCalculator> {
       children: [
 
         if(hasTotalUncancelledProductQuantities) ...[
+            
+          //  Spacer
+          const SizedBox(height: 8,),
 
           //  Quantities
           itemLine(

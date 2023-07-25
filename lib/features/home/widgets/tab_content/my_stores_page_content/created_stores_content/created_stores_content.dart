@@ -54,8 +54,8 @@ class CreatedStoresContentState extends State<CreatedStoresContent> {
   Widget build(BuildContext context) {
     return StoreCards(
       key: storeCardsState,
-      userAssociation: UserAssociation.teamMember,
       contentBeforeSearchBar: contentBeforeSearchBar,
+      userAssociation: UserAssociation.teamMemberJoinedAsCreator,
     );
   }
 }

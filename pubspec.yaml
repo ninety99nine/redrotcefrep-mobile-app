@@ -62,6 +62,8 @@ dependencies:
   textfield_tags: ^2.0.2
   date_time_picker: ^2.1.0
   multiselect_formfield: ^0.1.7
+  pusher_channels_flutter: ^2.1.2
+  share_plus: ^7.0.2
 
 dev_dependencies:
   flutter_test:

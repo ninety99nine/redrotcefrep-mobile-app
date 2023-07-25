@@ -20,6 +20,8 @@ class AuthProvider with ChangeNotifier {
 
   /// Return the user
   User? get user => _user;
+  int? get userId => _user?.id;
+  String? get bearerToken => apiProvider.apiRepository.bearerToken;
 
   /// Return the Auth Repository
   AuthRepository get authRepository => AuthRepository(user: user, apiProvider: apiProvider);

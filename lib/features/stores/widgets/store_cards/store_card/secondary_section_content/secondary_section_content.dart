@@ -1,4 +1,8 @@
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_cover_photo.dart';
+import 'package:provider/provider.dart';
 import '../../../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/products/widgets/edit_product_cards/edit_product_cards.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
@@ -14,8 +18,6 @@ class StoreSecondarySectionContent extends StatefulWidget {
   final bool canShowAdverts;
   final ShoppableStore store;
   final EdgeInsetsGeometry padding;
-  final bool canShowSubscribeCallToAction;
-  final Alignment subscribeButtonAlignment;
   final ShoppingCartCurrentView shoppingCartCurrentView;
 
   const StoreSecondarySectionContent({
@@ -23,9 +25,7 @@ class StoreSecondarySectionContent extends StatefulWidget {
     required this.store,
     this.canShowAdverts = true,
     required this.shoppingCartCurrentView,
-    this.padding = const EdgeInsets.all(0),
-    this.canShowSubscribeCallToAction = true,
-    this.subscribeButtonAlignment = Alignment.centerRight,
+    this.padding = const EdgeInsets.all(0)
   }) : super(key: key);
 
   @override
@@ -37,14 +37,17 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
   ShoppableStore get store => widget.store;
   EdgeInsetsGeometry get padding => widget.padding;
   bool get canShowAdverts => widget.canShowAdverts;
+  bool get hasCoverPhoto => store.coverPhoto != null;
   bool get hasProducts => store.relationships.products.isNotEmpty;
+  bool get isShowingStorePage => storeProvider.isShowingStorePage;
+  bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
   bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
-  Alignment get subscribeButtonAlignment => widget.subscribeButtonAlignment;
-  bool get canShowSubscribeCallToAction => widget.canShowSubscribeCallToAction;
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
-  bool get hasJoinedStoreTeam => StoreServices.hasJoinedStoreTeam(widget.store);
   bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
-  bool get canShowCoverPhoto => (store.isBrandStore || store.isInfluencerStore) && store.coverPhoto != null;
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
+  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +56,11 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
       children: [
 
         /// View As Customer Checkbox
-        if(canAccessAsTeamMember && hasProducts) ...[
+        if((isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember) ...[
 
           Container(
             padding: padding,
-            margin: const EdgeInsets.only(bottom: 8, left: 8),
+            margin: const EdgeInsets.only(bottom: 16, left: 8),
             child: CustomCheckbox(
               value: teamMemberWantsToViewAsCustomer,
               text: 'View as customer',
@@ -68,28 +71,61 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
           ),
 
         ],
+          
+        AnimatedSize(
+          clipBehavior: Clip.none,
+          duration: const Duration(milliseconds: 500),
+          child: AnimatedSwitcher(
+            switchInCurve: Curves.easeIn,
+            switchOutCurve: Curves.easeOut,
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              key: ValueKey(showEditableMode),
+              children: <Widget>[
 
-        if(canShowCoverPhoto && (canAccessAsShopper || canAccessAsTeamMember)) ...[
+                /// Store Cover Photo (Editable)
+                if(showEditableMode) ...[
 
-          //  Cover Image
-          Container(
-            width: double.infinity,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8)
-            ),
-            child: CachedNetworkImage(
-              placeholder: (context, url) => const CustomCircularProgressIndicator(),
-              imageUrl: store.coverPhoto!,
-              width: double.infinity,
-              fit: BoxFit.fitWidth,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isShowingStorePage ? 16.0 : 0),
+                    child: StoreCoverPhoto(
+                      store: store,
+                      canChangeCoverPhoto: true,
+                    ),
+                  ),
+
+                  /// Spacer
+                  const SizedBox(height: 16,),
+
+                ],
+
+                /// Store Cover Photo (Uneditable)
+                if(!showEditableMode && hasCoverPhoto && canAccessAsShopper) ...[
+                  
+                  Container(
+                    width: double.infinity,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: CachedNetworkImage(
+                      placeholder: (context, url) => const CustomCircularProgressIndicator(),
+                      imageUrl: store.coverPhoto!,
+                      width: double.infinity,
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+
+                  /// Spacer
+                  const SizedBox(height: 16,),
+
+                ],
+
+              ],
             ),
           ),
-
-          /// Spacer
-          const SizedBox(height: 16,),
-
-        ],
+        ),
 
         if(canShowAdverts && (canAccessAsShopper || canAccessAsTeamMember)) ...[
         
@@ -106,13 +142,8 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
           child: Column(
             children: [
 
-              /// Shopping Cart
-              if((!hasJoinedStoreTeam && canAccessAsShopper) || (hasJoinedStoreTeam && canAccessAsTeamMember && teamMemberWantsToViewAsCustomer)) ShoppingCartContent(
-                shoppingCartCurrentView: widget.shoppingCartCurrentView
-              ),
-
               /// Edit Product Cards
-              if(hasJoinedStoreTeam && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer)  ...[
+              if(showEditableMode)  ...[
 
                 EditProductCards(
                   shoppingCartCurrentView: widget.shoppingCartCurrentView
@@ -120,19 +151,14 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
 
               ],
 
+              /// Shopping Cart
+              if(!showEditableMode && canAccessAsShopper) ShoppingCartContent(
+                shoppingCartCurrentView: widget.shoppingCartCurrentView
+              ),
+
             ],
           ),
         ),
-
-        /// Subscribe Modal Bottom Sheet
-        if(hasJoinedStoreTeam && !canAccessAsTeamMember && canShowSubscribeCallToAction) ...[
-
-          SubscribeToStoreModalBottomSheet(
-            store: widget.store,
-            subscribeButtonAlignment: subscribeButtonAlignment,
-          )
-
-        ],
 
       ],
     );

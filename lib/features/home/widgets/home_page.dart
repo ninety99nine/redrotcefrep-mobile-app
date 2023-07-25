@@ -1,14 +1,19 @@
-import 'package:bonako_demo/features/home/widgets/tab_content/chat_page_content.dart';
+import 'package:bonako_demo/core/utils/pusher.dart';
+import 'package:bonako_demo/features/notifications/widgets/show_notifications/notifications_modal_bottom_sheet/notifications_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
+import 'package:get/get.dart';
 import '../../search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/home/widgets/tab_content/chat_page_content.dart';
+import 'tab_content/following_page_content/following_page_content.dart';
+import 'tab_content/my_stores_page_content/my_stores_page_content.dart';
 import '../../../features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/home/services/home_service.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../features/home/providers/home_provider.dart';
 import 'tab_content/communities_page_content.dart';
 import '../../../../core/shared_models/user.dart';
-import 'tab_content/following_page_content/following_page_content.dart';
-import 'tab_content/my_stores_page_content/my_stores_page_content.dart';
 import 'tab_content/profile_page_content.dart';
 import 'tab_content/groups_page_content.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +37,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   int get selectedHomeTabIndex => homeProvider.selectedHomeTabIndex;
   bool get canShowFloatingActionButtons => selectedHomeTabIndex != 4;
+  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
@@ -41,7 +47,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
     
     _tabController = TabController(initialIndex: selectedHomeTabIndex, length: totalTabs, vsync: this);
-    
+
     /**
      *  This _tabController is used to check if we have navigated to the next or previous tab
      *  by swipping between the navigation content instead of tapping on the navigation tabs
@@ -59,14 +65,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
 
     Future.delayed(Duration.zero).then((value) async {
-      await HomeService.getSelectedHomeTabIndexFromDeviceStorage().then((selectedHomeTabIndex) {
+
+      HomeService.getSelectedHomeTabIndexFromDeviceStorage().then((selectedHomeTabIndex) {
 
         isGettingSelectedHomeTabIndexFromDeviceStorage = false;
         changeNavigationTab(selectedHomeTabIndex);
 
       });
-    });
 
+    });
   }
 
   @override
@@ -162,9 +169,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: canShowFloatingActionButtons ? [
+
+        /// Notifications Modal Bottom Sheet
+        notificationModalBottomSheet,
         
         /// QR Code Scanner Modal Bottom Sheet
         qrCodeScannerModalBottomSheet,
+
+        /// Orders Modal Bottom Sheet
+        ordersModalBottomSheet,
 
         /// Search Modal Bottom Sheet
         searchModalBottomSheet,
@@ -180,6 +193,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget get searchModalBottomSheet {
     return const SearchModalBottomSheet();
+  }
+
+  Widget get ordersModalBottomSheet {
+    return OrdersModalBottomSheet(
+      trigger: (openBottomModalSheet) => FloatingActionButton(
+        mini: true,
+        heroTag: 'orders-button',
+        onPressed: openBottomModalSheet,
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.shopping_bag_outlined)
+      )
+    );
+  }
+
+  Widget get notificationModalBottomSheet {
+    return const NotificationsModalBottomSheet();
   }
 
   @override

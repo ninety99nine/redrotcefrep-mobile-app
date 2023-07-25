@@ -274,8 +274,7 @@ class _FriendsContentState extends State<FriendsContent> {
     if(hasSelectedFriends) {
 
       await authRepository.updateLastSelectedFriends(
-        friends: friends,
-        context: context,
+        friends: friends
       );
 
     }
@@ -304,8 +303,7 @@ class _FriendsContentState extends State<FriendsContent> {
 
     if(hasSelectedFriendGroups) {
       friendGroupRepository.updateLastSelectedFriendGroups(
-        friendGroups: friendGroups,
-        context: context,
+        friendGroups: friendGroups
       );
     }
 

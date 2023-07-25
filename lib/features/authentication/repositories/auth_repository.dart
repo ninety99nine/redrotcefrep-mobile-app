@@ -29,7 +29,7 @@ class AuthRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Signin using the provided inputs
-  Future<http.Response> signin({ required String mobileNumber, required String password, String? passwordConfirmation, String? verificationCode, BuildContext? context }) async {
+  Future<http.Response> signin({ required String mobileNumber, required String password, String? passwordConfirmation, String? verificationCode }) async {
 
     final url = homeApiLinks.login;
 
@@ -41,7 +41,7 @@ class AuthRepository {
     if(passwordConfirmation != null) body['password_confirmation'] = passwordConfirmation;
     if(verificationCode != null) body['verification_code'] = verificationCode;
 
-    return apiRepository.post(url: url, body: body, context: context)
+    return apiRepository.post(url: url, body: body)
       .then((response) async {
         await ApiService.setBearerTokenFromResponse(response, apiProvider);
         return response;
@@ -50,7 +50,7 @@ class AuthRepository {
   }
 
   /// Validate the signup inputs 
-  Future<http.Response> validateSignup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation, BuildContext? context }) async {
+  Future<http.Response> validateSignup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation }) async {
 
     final url = homeApiLinks.validateRegister;
 
@@ -62,12 +62,12 @@ class AuthRepository {
       'password': password,
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Signup using the provided inputs
-  Future<http.Response> signup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation, required String verificationCode, BuildContext? context }) async {
+  Future<http.Response> signup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation, required String verificationCode }) async {
 
     final url = homeApiLinks.register;
 
@@ -80,7 +80,7 @@ class AuthRepository {
       'password': password,
     };
 
-    return apiRepository.post(url: url, body: body, context: context)
+    return apiRepository.post(url: url, body: body)
       .then((response) async {
         await ApiService.setBearerTokenFromResponse(response, apiProvider);
         return response;
@@ -89,7 +89,7 @@ class AuthRepository {
   }
 
   /// Validate the reset password inputs 
-  Future<http.Response> validateResetPassword({ required String password, String? passwordConfirmation, BuildContext? context }) async {
+  Future<http.Response> validateResetPassword({ required String password, String? passwordConfirmation }) async {
 
     final url = homeApiLinks.validateResetPassword;
 
@@ -98,12 +98,12 @@ class AuthRepository {
       'password': password,
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Reset password using the provided inputs
-  Future<http.Response> resetPassword({ required String mobileNumber, required String password, required String passwordConfirmation, required String verificationCode, BuildContext? context }) async {
+  Future<http.Response> resetPassword({ required String mobileNumber, required String password, required String passwordConfirmation, required String verificationCode }) async {
 
     final url = homeApiLinks.resetPassword;
 
@@ -114,7 +114,7 @@ class AuthRepository {
       'password': password,
     };
 
-    return apiRepository.post(url: url, body: body, context: context)
+    return apiRepository.post(url: url, body: body)
       .then((response) async {
         await ApiService.setBearerTokenFromResponse(response, apiProvider);
         return response;
@@ -123,40 +123,37 @@ class AuthRepository {
   }
 
   /// Generate the mobile verification code to use for signin
-  Future<http.Response> generateMobileVerificationCodeForSignin({ required String mobileNumber, BuildContext? context  }) async {
+  Future<http.Response> generateMobileVerificationCodeForSignin({ required String mobileNumber  }) async {
 
     return generateMobileVerificationCode(
       mobileNumber: mobileNumber, 
-      purpose: 'Verify Account',
-      context: context
+      purpose: 'Verify Account'
     );
     
   }
 
   /// Generate the mobile verification code to use for signup
-  Future<http.Response> generateMobileVerificationCodeForSignup({ required String mobileNumber, BuildContext? context  }) async {
+  Future<http.Response> generateMobileVerificationCodeForSignup({ required String mobileNumber  }) async {
 
     return generateMobileVerificationCode(
       mobileNumber: mobileNumber,
-      purpose: 'Verify Account',
-      context: context
+      purpose: 'Verify Account'
     );
     
   }
 
   /// Generate the mobile verification code to use for reset password
-  Future<http.Response> generateMobileVerificationCodeForResetPassword({ required String mobileNumber, BuildContext? context  }) async {
+  Future<http.Response> generateMobileVerificationCodeForResetPassword({ required String mobileNumber  }) async {
 
     return generateMobileVerificationCode(
       mobileNumber: mobileNumber,
-      purpose: 'Reset Password',
-      context: context
+      purpose: 'Reset Password'
     );
     
   }
 
   /// Generate the mobile verification code
-  Future<http.Response> generateMobileVerificationCode({ required String mobileNumber, required String purpose, BuildContext? context }) async {
+  Future<http.Response> generateMobileVerificationCode({ required String mobileNumber, required String purpose }) async {
 
     final url = homeApiLinks.generateMobileVerificationCode;
 
@@ -165,12 +162,12 @@ class AuthRepository {
       'purpose': purpose,
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Check if an account matching the provided mobile number exists
-  Future<http.Response> checkIfMobileAccountExists({ required String? mobileNumber, BuildContext? context }){
+  Future<http.Response> checkIfMobileAccountExists({ required String? mobileNumber }){
     
     final url = homeApiLinks.accountExists;
 
@@ -178,7 +175,7 @@ class AuthRepository {
       'mobile_number': mobileNumber
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
@@ -200,29 +197,29 @@ class AuthRepository {
   }
 
   /// Show friend and friend group filters
-  Future<http.Response> showFriendAndFriendGroupFilters({ BuildContext? context }){
+  Future<http.Response> showFriendAndFriendGroupFilters(){
     
     if(user == null) throw Exception('An authenticated user is required to show the friend and friend group filters'); 
     
     final url =  user!.links.showFriendAndFriendGroupFilters.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Show friends
-  Future<http.Response> showFriends({ int? page = 1, BuildContext? context }){
+  Future<http.Response> showFriends({ int? page = 1 }){
     
     if(user == null) throw Exception('An authenticated user is required to show friends'); 
     
     final url =  user!.links.showFriends.href;
 
-    return apiRepository.get(url: url, page: page, context: context);
+    return apiRepository.get(url: url, page: page);
     
   }
 
   /// Create friends
-  Future<http.Response> createFriends({ required List<String> mobileNumbers, BuildContext? context }) {
+  Future<http.Response> createFriends({ required List<String> mobileNumbers }) {
 
     if(user == null) throw Exception('An authenticated user is required to show friends'); 
     
@@ -233,12 +230,12 @@ class AuthRepository {
       'mobile_numbers': mobileNumbers.map((mobileNumber) => MobileNumberUtility.addMobileNumberExtension(mobileNumber)).toList()
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Remove friends
-  Future<http.Response> removeFriends({ required List<User> friends, BuildContext? context }) {
+  Future<http.Response> removeFriends({ required List<User> friends }) {
 
     if(user == null) throw Exception('An authenticated user is required to remove the friends');
 
@@ -252,21 +249,21 @@ class AuthRepository {
       'mobile_numbers': mobileNumbers,
     };
 
-    return apiRepository.delete(url: url, body: body, context: context);
+    return apiRepository.delete(url: url, body: body);
     
   }
   
   /// Show last selected friend
-  Future<http.Response> showLastSelectedFriend({ BuildContext? context }) {
+  Future<http.Response> showLastSelectedFriend() {
 
     final url = user!.links.showLastSelectedFriend.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
   
   }
 
   /// Update last selected friend groups
-  Future<http.Response> updateLastSelectedFriends({ required List<User> friends, BuildContext? context }) {
+  Future<http.Response> updateLastSelectedFriends({ required List<User> friends }) {
 
     final url = user!.links.updateLastSelectedFriends.href;
 
@@ -278,12 +275,12 @@ class AuthRepository {
       'friend_user_ids': friendUserIds,
     };
 
-    return apiRepository.put(url: url, body: body, context: context);
+    return apiRepository.put(url: url, body: body);
     
   }
 
   /// Logout
-  Future<http.Response> logout({ LogoutType logoutType = LogoutType.everyone, BuildContext? context }) {
+  Future<http.Response> logout({ LogoutType logoutType = LogoutType.everyone }) {
 
     if(user == null) throw Exception('An authenticated user is required to logout'); 
     
@@ -293,23 +290,23 @@ class AuthRepository {
     if(logoutType == LogoutType.everyone) body.addAll({'everyone': true});
     if(logoutType == LogoutType.others) body.addAll({'others': true});
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
     
   }
 
   /// Show the terms and conditions
-  Future<http.Response> showTermsAndConditions({ BuildContext? context }) {
+  Future<http.Response> showTermsAndConditions() {
 
     if(user == null) throw Exception('An authenticated user is required to show the terms and conditions'); 
     
     final url =  user!.links.showTermsAndConditions.href;
 
-    return apiRepository.get(url: url, context: context);
+    return apiRepository.get(url: url);
     
   }
 
   /// Accept the terms and conditions
-  Future<http.Response> acceptTermsAndConditions({ BuildContext? context }) {
+  Future<http.Response> acceptTermsAndConditions() {
 
     if(user == null) throw Exception('An authenticated user is required to accept the terms and conditions'); 
     
@@ -319,7 +316,61 @@ class AuthRepository {
       'accept': true
     };
 
-    return apiRepository.post(url: url, body: body, context: context);
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+  /// Show notification filters
+  Future<http.Response> showNotificationFilters() {
+    
+    if(user == null) throw Exception('An authenticated user is required to show the notification filters'); 
+    
+    final url =  user!.links.showNotificationFilters.href;
+
+    return apiRepository.get(url: url);
+    
+  }
+
+  /// Show notifications
+  Future<http.Response> showNotifications({ String? filter, int? page = 1 }) {
+    
+    if(user == null) throw Exception('An authenticated user is required to show the notifications'); 
+    
+    final url =  user!.links.showNotifications.href;
+
+    Map<String, String> queryParams = {};
+
+    /// Filter notifications by the specified status
+    if(filter != null) queryParams.addAll({'filter': filter});
+
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
+
+  /// Show notification filters
+  Future<http.Response> countNotifications() {
+    
+    if(user == null) throw Exception('An authenticated user is required to count the notifications'); 
+    
+    final url =  user!.links.countNotifications.href;
+
+    return apiRepository.get(url: url);
+    
+  }
+
+  /// Mark notifications as read
+  Future<http.Response> markNotificationsAsRead({ required List<String> mobileNumbers }) {
+
+    if(user == null) throw Exception('An authenticated user is required to mark the notifications as read');
+    
+    final url =  user!.links.markNotificationsAsRead.href;
+
+    Map body = {
+      /// Add the mobile number extension to each mobile number
+      'mobile_numbers': mobileNumbers.map((mobileNumber) => MobileNumberUtility.addMobileNumberExtension(mobileNumber)).toList()
+    };
+
+    return apiRepository.post(url: url, body: body);
     
   }
 }

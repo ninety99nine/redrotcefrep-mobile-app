@@ -236,7 +236,7 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
   void updateCanShow() {
     /// This scrollController is used to check if we are scrolling so
     /// that we can dynamically hide or show the invitation banner
-    setState(() => canShow = storeCardsScrollController!.offset <= 100);
+    setState(() => canShow = storeCardsScrollController!.offset <= 300);
   }
 
   /// The method called to request the store invitations
@@ -252,7 +252,20 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
   void dispose() {
     super.dispose();
     _tabController.dispose();
-    storeCardsScrollController?.dispose();
+    /**
+     *  Attempting to run storeCardsScrollController?.dispose();
+     *  causes the following error:
+     * 
+     *  The following assertion was thrown while finalizing the widget tree:
+     *  A ScrollController was used after being disposed. Once you have 
+     *  called dispose() on a ScrollController, it can no longer be 
+     *  used.
+     * 
+     *  Just so that we make sure we don't have any listeners even after
+     *  this widget is destroyed, we can make a final check by using the
+     *  storeCardsScrollController?.removeListener(updateCanShow);
+     */
+    storeCardsScrollController?.removeListener(updateCanShow);
   }
   
   Widget get followingNavigationTabs => TabBar(
@@ -261,7 +274,7 @@ class _FollowingPageContentState extends State<FollowingPageContent> with Single
     labelColor: Theme.of(context).primaryColor,
     indicatorColor: Theme.of(context).primaryColor,
     labelStyle: Theme.of(context).textTheme.titleSmall,
-    padding: const EdgeInsets.only(top: 20, left: 40, right: 40),
+    padding: const EdgeInsets.only(top: 16, left: 20, right: 16),
     tabs: [
 
       /// My Plugs
@@ -377,7 +390,7 @@ class _CircleAvatarTabState extends State<CircleAvatarTab> with SingleTickerProv
 
   bool get canShow => widget.canShow;
   late AnimationController _animationController;
-  final Tween<double> _radiusTween = Tween<double>(begin: 0, end: 20);
+  final Tween<double> _radiusTween = Tween<double>(begin: 0, end: 16);
 
   @override
   void initState() {
@@ -434,7 +447,7 @@ class _CircleAvatarTabState extends State<CircleAvatarTab> with SingleTickerProv
         ),
       
         /// Title
-        CustomBodyText(widget.title, margin: EdgeInsets.only(top: widget.canShow ? 16 : 0, bottom: 16),),
+        CustomBodyText(widget.title, margin: EdgeInsets.only(top: widget.canShow ? 8 : 0, bottom: 8),),
       
       ],
     );

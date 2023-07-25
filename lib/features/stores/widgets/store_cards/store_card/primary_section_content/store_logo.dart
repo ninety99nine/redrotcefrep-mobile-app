@@ -1,12 +1,13 @@
-import 'dart:convert';
-
 import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:get/instance_manager.dart';
 import '../../../../services/store_services.dart';
 import '../../../../models/shoppable_store.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class StoreLogo extends StatefulWidget {
 
@@ -27,19 +28,31 @@ class StoreLogo extends StatefulWidget {
 
 class _StoreLogoState extends State<StoreLogo> {
 
+  double? get radius => widget.radius;
   bool get hasLogo => store.logo != null;
   ShoppableStore get store => widget.store;
-  bool get canChangeLogo => widget.canChangeLogo;
   bool get doesNothaveLogo => store.logo == null;
+  bool get canChangeLogo => widget.canChangeLogo;
 
-  @override
-  Widget build(BuildContext context) {
+  bool get isShowingStorePage => storeProvider.isShowingStorePage;
+  bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
+  bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
+  bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
+  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
 
-    /**
-     * The onTap() method can be used with an Enum to decide
-     * the type of callback that should be executed. For now
-     * we just want to navigate to show the store
-     */
+  Widget get placeholderLogo {
+
+    return CircleAvatar(
+      radius:  radius,
+      backgroundColor: Colors.grey.shade100,
+      child: Icon(Icons.store_mall_directory_outlined, size: 16, color: Colors.grey.shade400,)
+    );
+
+  }
+
+  Widget get editableLogo {
     return ImagePickerModalBottomSheet(
       fileName: 'logo',
       onSubmittedFile: (file, response) {
@@ -70,7 +83,7 @@ class _StoreLogoState extends State<StoreLogo> {
             openBottomModalSheet();
 
           /// If we cannot change the logo
-          }else{
+          }else if(!isShowingStorePage) {
             
             StoreServices.navigateToStorePage(store);
 
@@ -99,7 +112,7 @@ class _StoreLogoState extends State<StoreLogo> {
                     borderRadius: BorderRadius.circular(50)
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.mode_edit_outlined, color: Colors.white,)     
+                  child: const Icon(Icons.mode_edit_outlined, color: Colors.white)    
                 ),
               )
               
@@ -108,5 +121,10 @@ class _StoreLogoState extends State<StoreLogo> {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return hasLogo || showEditableMode ? editableLogo : placeholderLogo;
   }
 }

@@ -170,8 +170,8 @@ class JoinedStoresContentState extends State<JoinedStoresContent> {
   Widget build(BuildContext context) {
     return StoreCards(
       key: storeCardsState,
-      userAssociation: UserAssociation.teamMember,
       contentBeforeSearchBar: contentBeforeSearchBar,
+      userAssociation: UserAssociation.teamMemberJoinedAsNonCreator,
     );
   }
 }

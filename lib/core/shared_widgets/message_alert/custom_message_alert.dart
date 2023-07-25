@@ -16,6 +16,7 @@ class CustomMessageAlert extends StatelessWidget {
   final IconData? icon;
   final EdgeInsets margin;
   final EdgeInsets padding;
+  final TextAlign? textAlign;
   final AlertMessageType type;
 
   const CustomMessageAlert(
@@ -24,6 +25,7 @@ class CustomMessageAlert extends StatelessWidget {
       super.key,  
       this.icon,
       this.size,
+      this.textAlign,
       this.showIcon = true,
       this.type = AlertMessageType.info,
       this.margin = const EdgeInsets.all(0),
@@ -67,7 +69,7 @@ class CustomMessageAlert extends StatelessWidget {
           ],
     
           /// Text
-          Expanded(child: CustomBodyText(text),)
+          Expanded(child: CustomBodyText(text, textAlign: textAlign),)
     
         ],
       ),

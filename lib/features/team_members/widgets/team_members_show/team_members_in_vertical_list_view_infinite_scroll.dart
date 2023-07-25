@@ -48,7 +48,7 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
   Function get onRemovedTeamMembers => widget.onRemovedTeamMembers;
   Function(bool) get onRemovingTeamMembers => widget.onRemovingTeamMembers;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  bool get canManageTeamMembers => StoreServices.hasPermissionsToManageTeamMembers(store);
+  bool get canManageTeamMembers => store.attributes.userStoreAssociation!.canManageTeamMembers;
 
   /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -90,7 +90,25 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
       filter: teamMemberFilter,
       searchWord: searchWord,
       page: page
-    );
+    ).then((response) {
+
+      if(response.statusCode == 200) {
+
+        final responseBody = jsonDecode(response.body);
+
+        /// If the response team member count does not match the store team member count
+        if(teamMemberFilter == 'Joined' && store.teamMembersCount != responseBody['total']) {
+
+          store.teamMembersCount = responseBody['total'];
+          store.runNotifyListeners();
+
+        }
+
+      }
+
+      return response;
+
+    });
   }
 
   /// Condition to determine whether to add or remove the specified

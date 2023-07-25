@@ -32,7 +32,7 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
   int get orderForTotalFriends => order.orderForTotalFriends;
   String? get mobileNumber => order.customerMobileNumber?.withoutExtension;
   bool get hasUserOrderCollectionAssociation => userOrderCollectionAssociation != null;
-  bool get canManageOrders => store == null ? false : StoreServices.hasPermissionsToManageOrders(store!);
+  bool get canManageOrders => store == null ? false : store!.attributes.userStoreAssociation!.canManageOrders;
   UserOrderCollectionAssociation? get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation;
   bool get isAssociatedAsAFriend => hasUserOrderCollectionAssociation && userOrderCollectionAssociation!.role == 'Friend';
   bool get isAssociatedAsACustomer => hasUserOrderCollectionAssociation && userOrderCollectionAssociation!.role == 'Customer';

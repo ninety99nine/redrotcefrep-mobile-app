@@ -1,5 +1,4 @@
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'dart:convert';
 
@@ -7,7 +6,7 @@ class ApiRepository {
 
   String? bearerToken;
 
-  Map<String, String> get _apiHeaders => {
+  Map<String, String> get apiHeaders => {
     'Authorization': 'Bearer $bearerToken',
     'Content-Type': 'application/json'
   };
@@ -51,7 +50,7 @@ class ApiRepository {
   }
 
   /// Make GET Request
-  Future<http.Response> get({ required String url, Map<String, String>? queryParams, int? page, BuildContext? context }) async {
+  Future<http.Response> get({ required String url, Map<String, String>? queryParams, int? page, handleRequestFailure = true }) async {
     
     await Future.delayed(const Duration(seconds: 0));
 
@@ -63,10 +62,10 @@ class ApiRepository {
 
     return http.get(
       Uri.parse(url),
-      headers: _apiHeaders,
+      headers: apiHeaders,
     ).then((response) {
 
-      ApiService.handleRequestFailure(response: response);
+      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
@@ -78,7 +77,7 @@ class ApiRepository {
   }
 
   /// Make POST Request
-  Future<http.Response> post({ required String url, body = const {}, Map<String, String>? queryParams, int? page, BuildContext? context }) async {
+  Future<http.Response> post({ required String url, body = const {}, Map<String, String>? queryParams, int? page, handleRequestFailure = true }) async {
     
     await Future.delayed(const Duration(seconds: 0));
 
@@ -92,11 +91,11 @@ class ApiRepository {
 
     return http.post(
       Uri.parse(url),
-      headers: _apiHeaders,
+      headers: apiHeaders,
       body: jsonEncode(body),
     ).then((response) {
 
-      ApiService.handleRequestFailure(response: response);
+      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
@@ -109,7 +108,7 @@ class ApiRepository {
   }
 
   /// Make PUT Request
-  Future<http.Response> put({ required String url, Map<String, String>? queryParams, body = const {}, BuildContext? context }) async {
+  Future<http.Response> put({ required String url, Map<String, String>? queryParams, body = const {}, handleRequestFailure = true }) async {
     
     await Future.delayed(const Duration(seconds: 0));
 
@@ -122,11 +121,11 @@ class ApiRepository {
 
     return http.put(
       Uri.parse(url),
-      headers: _apiHeaders,
+      headers: apiHeaders,
       body: jsonEncode(body),
     ).then((response) {
       
-      ApiService.handleRequestFailure(response: response);
+      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
@@ -138,7 +137,7 @@ class ApiRepository {
   }
 
   /// Make PATCH Request
-  Future<http.Response> patch({ required String url, Map<String, String>? queryParams, body = const {}, BuildContext? context }) async {
+  Future<http.Response> patch({ required String url, Map<String, String>? queryParams, body = const {}, handleRequestFailure = true }) async {
     
     await Future.delayed(const Duration(seconds: 0));
 
@@ -151,11 +150,11 @@ class ApiRepository {
 
     return http.patch(
       Uri.parse(url),
-      headers: _apiHeaders,
+      headers: apiHeaders,
       body: jsonEncode(body),
     ).then((response) {
 
-      ApiService.handleRequestFailure(response: response);
+      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {
@@ -167,7 +166,7 @@ class ApiRepository {
   }
 
   /// Make DELETE Request
-  Future<http.Response> delete({ required String url, Map<String, String>? queryParams, body = const {}, BuildContext? context }) async {
+  Future<http.Response> delete({ required String url, Map<String, String>? queryParams, body = const {}, handleRequestFailure = true }) async {
     
     await Future.delayed(const Duration(seconds: 0));
 
@@ -180,11 +179,11 @@ class ApiRepository {
 
     return http.delete(
       Uri.parse(url),
-      headers: _apiHeaders,
+      headers: apiHeaders,
       body: jsonEncode(body),
     ).then((response) {
 
-      ApiService.handleRequestFailure(response: response);
+      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
       return response;
       
     }).catchError((error) {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_models/user_store_association.dart';
@@ -48,7 +50,25 @@ class _FollowersInVerticalListViewInfiniteScrollState extends State<FollowersInV
       filter: followerFilter,
       searchWord: searchWord,
       page: page
-    );
+    ).then((response) {
+
+      if(response.statusCode == 200) {
+
+        final responseBody = jsonDecode(response.body);
+
+        /// If the response follower count does not match the store follower count
+        if(followerFilter == 'Following' && store.followersCount != responseBody['total']) {
+
+          store.followersCount = responseBody['total'];
+          store.runNotifyListeners();
+
+        }
+
+      }
+
+      return response;
+
+    });
   }
 
   @override

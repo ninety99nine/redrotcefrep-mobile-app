@@ -177,7 +177,6 @@ class AuthFormService {
          */
         floatingButtonAction = shortcode == null ? null : () {
           DialerUtility.dial(
-            context: context,
             number: shortcode
           );
         };

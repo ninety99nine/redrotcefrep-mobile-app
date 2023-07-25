@@ -210,7 +210,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
     await authRepository.validateResetPassword(
       passwordConfirmation: authForm.passwordConfirmation,
       password: authForm.password!,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {
@@ -242,7 +241,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
 
     await authRepository.generateMobileVerificationCodeForResetPassword(
       mobileNumber: authForm.mobileNumberWithExtension,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {
@@ -284,7 +282,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
       mobileNumber: authForm.mobileNumberWithExtension,
       verificationCode: authForm.verificationCode!,
       password: authForm.password!,
-      context: context,
     ).then((response) async {
 
       if(response.statusCode == 200) {
