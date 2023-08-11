@@ -1,6 +1,8 @@
+import 'package:bonako_demo/features/api/models/api_home.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
+
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/button/previous_text_button.dart';
-import '../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../introduction/widgets/landing_page.dart';
 import '../models/account_existence_user.dart';
 import '../repositories/auth_repository.dart';
@@ -75,8 +77,10 @@ class ForgotPasswordForm extends StatefulWidget {
 class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
 
   int _animatedSwitcherKey = 1;
+  ApiHome get apiHome => apiProvider.apiHome!;
   AuthFormService get authForm => widget.authForm;
   AuthRepository get authRepository => authProvider.authRepository;
+  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   
   void _startSubmittionLoader() => setState(() => authForm.isSubmitting = true);
@@ -129,20 +133,20 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
               /// Check if the last recorded ForgotPasswordStage index is set
               if( authForm.lastRecordedStageIndex != null ) {
 
-                /// If the last recorded ForgotPasswordStage was the verification code stage
-                if( ForgotPasswordStage.values[authForm.lastRecordedStageIndex!] == ForgotPasswordStage.enterVerificationCode ) {
-
-                  /// Show the floating action button
-                  authForm.toggleShowFloatingButton(authForm.verificationCodeShortcode, context);
-
-                }
-
                 /**
                  *  Set the last recorded ForgotPasswordStage.
                  *  This will change the UI to the matching stage so
                  *  that the user can continue from where they left of 
                  */
                 _changeForgotPasswordStage(ForgotPasswordStage.values[authForm.lastRecordedStageIndex!]);
+
+                /// If the last recorded ForgotPasswordStage was the verification code stage
+                if( ForgotPasswordStage.values[authForm.lastRecordedStageIndex!] == ForgotPasswordStage.enterVerificationCode ) {
+
+                  /// Show the floating action button
+                  authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
+
+                }
 
               }else{
                 
@@ -169,7 +173,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
 
     authForm.resetServerValidationErrors(setState: setState);
 
-    authForm.validateForm(context).then((status) async {
+    authForm.validateForm(context).then((status) {
 
       if( status ) {
 
@@ -177,20 +181,13 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
 
         if (authForm.lastRecordedStage == ForgotPasswordStage.setNewPassword) {
 
-          await _requestValidateResetPassword();
+          _requestValidateResetPassword();
 
         }else if (authForm.lastRecordedStage == ForgotPasswordStage.enterVerificationCode) {
           
-          await _requestResetPassword();
-          return;
+          _requestResetPassword();
 
         }
-
-        /// Save the form on the device - We must save after the _changeForgotPasswordStage.
-        /// Only save after the _requestValidateResetPassword() since the 
-        /// _requestResetPassword() will unsave the form once the 
-        /// reset password is successful.
-        authForm.saveFormOnDevice();
 
       }
 
@@ -214,45 +211,13 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
 
       if(response.statusCode == 200) {
 
-        await _generateMobileVerificationCodeForResetPassword();
+        _changeForgotPasswordStage(ForgotPasswordStage.enterVerificationCode);
 
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
-      }
-
-    }).catchError((error) {
-
-      authForm.showSnackbarUnknownError(context);
-
-    }).whenComplete((){
-
-      _stopSubmittionLoader();
-
-    });
-    
-
-  }
-
-  Future<void> _generateMobileVerificationCodeForResetPassword() async {
-
-    _startSubmittionLoader();
-
-    await authRepository.generateMobileVerificationCodeForResetPassword(
-      mobileNumber: authForm.mobileNumberWithExtension,
-    ).then((response) async {
-
-      if(response.statusCode == 200) {
-
-        final responseBody = jsonDecode(response.body);
-        authForm.verificationCodeMessage = responseBody['message'];
-        authForm.verificationCodeShortcode = responseBody['shortcode'];
+        /// Save the form on the device - We must save after the _changeForgotPasswordStage.
+        authForm.saveFormOnDevice();
 
         /// Show the floating action button
-        authForm.toggleShowFloatingButton(authForm.verificationCodeShortcode, context);
-
-        _changeForgotPasswordStage(ForgotPasswordStage.enterVerificationCode);
+        authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
 
       }else if(response.statusCode == 422) {
 
@@ -317,7 +282,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
   void _changeForgotPasswordStage(ForgotPasswordStage currForgotPasswordStage) {
     setState(() {
       authForm.lastRecordedStage = currForgotPasswordStage;
-      authForm.lastRecordedStage = currForgotPasswordStage;
       _animatedSwitcherKey += 1;
     });
   }
@@ -349,11 +313,11 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
           
           _changeForgotPasswordStage(ForgotPasswordStage.setNewPassword);
 
-          /// Hide the floating action button
-          authForm.toggleShowFloatingButton(null, context);
-
           /// Save the form on the device
           authForm.saveFormOnDevice();
+
+          /// Hide the floating action button
+          authForm.toggleShowFloatingButton(null, context);
 
         }
 
@@ -404,7 +368,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
       formFields.addAll([
         authForm.getAccountMobileNumberChip(),
         const SizedBox(height: 16),
-        authForm.getVerificationCodeMessage(authForm.verificationCodeMessage!, authForm.verificationCodeShortcode!, context),
+        authForm.getVerificationCodeMessage(apiHome.mobileVerificationShortcode, authForm.mobileNumber!, context),
         const SizedBox(height: 16),
         authForm.getMobileVerificationField(setState)
       ]);

@@ -9,6 +9,7 @@ import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/constants/constants.dart' as constants;
 import 'package:bonako_demo/features/orders/models/order.dart';
@@ -102,7 +103,9 @@ class OrderServices {
     final bool isPendingPayment = transaction.attributes.isPendingPayment;
     final User requestingUser = transaction.relationships.requestingUser!;
     final User payingUser = transaction.relationships.payingUser!;
+    final bool requesterIsNotPayer = payingUser.id != requestingUser.id;
     final bool isPayingUser = payingUser.id == requestingUser.id;
+    final bool isPaid = transaction.attributes.isPaid;
 
     DialogUtility.showContentDialog(
       context: context,
@@ -115,12 +118,20 @@ class OrderServices {
               CustomBodyText(payingUser.attributes.name)
             ],
           ),
-          Row(
+          if(requesterIsNotPayer) Row(
             children: [
               const CustomBodyText('Requester:', margin: EdgeInsets.only(right: 8),),
               CustomBodyText(requestingUser.attributes.name)
             ],
           ),
+          if(isPaid) ...[
+            Row(
+              children: [
+                const CustomBodyText('Paid Date:', margin: EdgeInsets.only(right: 8),),
+                CustomBodyText(DateFormat('dd MMM yyyy HH:mm').format(transaction.updatedAt))
+              ],
+            ),
+          ],
           Row(
             children: [
               const CustomBodyText('Status:', margin: EdgeInsets.only(right: 8),),

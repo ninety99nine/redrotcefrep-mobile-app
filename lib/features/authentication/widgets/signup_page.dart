@@ -1,3 +1,6 @@
+import 'package:bonako_demo/features/api/models/api_home.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
+
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/button/previous_text_button.dart';
 import '../../introduction/widgets/landing_page.dart';
@@ -77,8 +80,10 @@ class _SignupFormState extends State<SignupForm> {
   void _startSubmittionLoader() => setState(() => authForm.isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => authForm.isSubmitting = false);
 
+  ApiHome get apiHome => apiProvider.apiHome!;
   AuthFormService get authForm => widget.authForm;
   AuthRepository get authRepository => authProvider.authRepository;
+  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
   @override
@@ -95,20 +100,20 @@ class _SignupFormState extends State<SignupForm> {
       /// Check if the last recorded SignupStage index is set
       if( authForm.lastRecordedStageIndex != null ) {
 
-        /// If the last recorded SignupStage was the verification code stage
-        if( SignupStage.values[authForm.lastRecordedStageIndex!] == SignupStage.enterVerificationCode ) {
-
-          /// Show the floating action button
-          authForm.toggleShowFloatingButton(authForm.verificationCodeShortcode, context);
-
-        }
-
         /**
          *  Set the last recorded SignupStage.
          *  This will change the UI to the matching stage so
          *  that the user can continue from where they left of 
          */
         _changeSignupStage(SignupStage.values[authForm.lastRecordedStageIndex!]);
+
+        /// If the last recorded SignupStage was the verification code stage
+        if( SignupStage.values[authForm.lastRecordedStageIndex!] == SignupStage.enterVerificationCode ) {
+
+          /// Show the floating action button
+          authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
+
+        }
 
       }else{
         
@@ -174,46 +179,14 @@ class _SignupFormState extends State<SignupForm> {
 
       if(response.statusCode == 200) {
 
-        await _generateMobileVerificationCodeForSignup();
-
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
-      }
-
-    }).catchError((error) {
-
-      authForm.showSnackbarUnknownError(context);
-
-    }).whenComplete((){
-
-      _stopSubmittionLoader();
-
-    });
-    
-
-  }
-
-  Future<void> _generateMobileVerificationCodeForSignup() async {
-
-    _startSubmittionLoader();
-
-    await authRepository.generateMobileVerificationCodeForSignup(
-      mobileNumber: authForm.mobileNumberWithExtension,
-    ).then((response) async {
-
-      if(response.statusCode == 200) {
-
-        final responseBody = jsonDecode(response.body);
-        authForm.verificationCodeMessage = responseBody['message'];
-        authForm.verificationCodeShortcode = responseBody['shortcode'];
-
-        /// Show the floating action button
-        authForm.toggleShowFloatingButton(authForm.verificationCodeShortcode, context);
-
         _changeSignupStage(SignupStage.enterVerificationCode);
 
+        /// Save the form on the device
+        authForm.saveFormOnDevice();
+
+        /// Show the floating action button
+        authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
+
       }else if(response.statusCode == 422) {
 
         await authForm.handleServerValidation(response, context);
@@ -230,7 +203,6 @@ class _SignupFormState extends State<SignupForm> {
 
     });
     
-
   }
 
   Future<void> _requestSignup() async {
@@ -278,7 +250,6 @@ class _SignupFormState extends State<SignupForm> {
 
   void _changeSignupStage(SignupStage currSignupStage) {
     setState(() {
-      authForm.lastRecordedStage = currSignupStage;
       authForm.lastRecordedStage = currSignupStage;
       _animatedSwitcherKey += 1;
     });
@@ -364,7 +335,7 @@ class _SignupFormState extends State<SignupForm> {
     }else if( enterVerificationCode ) {
 
       formFields.addAll([
-        authForm.getVerificationCodeMessage(authForm.verificationCodeMessage!, authForm.verificationCodeShortcode!, context),
+        authForm.getVerificationCodeMessage(apiHome.mobileVerificationShortcode, authForm.mobileNumber!, context),
         const SizedBox(height: 16),
         authForm.getMobileVerificationField(setState)
       ]);

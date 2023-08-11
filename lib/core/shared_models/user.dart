@@ -61,9 +61,6 @@ class Links {
   late Link showTokens; 
   late Link showTermsAndConditions; 
   late Link acceptTermsAndConditions; 
-  late Link showMobileVerificationCode; 
-  late Link verifyMobileVerificationCode; 
-  late Link generateMobileVerificationCode; 
   late Link showAddresses; 
   late Link createAddresses; 
   late Link showFriends; 
@@ -102,9 +99,6 @@ class Links {
     showTokens = Link.fromJson(json['showTokens']);
     showTermsAndConditions = Link.fromJson(json['showTermsAndConditions']);
     acceptTermsAndConditions = Link.fromJson(json['acceptTermsAndConditions']);
-    showMobileVerificationCode = Link.fromJson(json['showMobileVerificationCode']);
-    verifyMobileVerificationCode = Link.fromJson(json['verifyMobileVerificationCode']);
-    generateMobileVerificationCode = Link.fromJson(json['generateMobileVerificationCode']);
     showAddresses = Link.fromJson(json['showAddresses']);
     createAddresses = Link.fromJson(json['createAddresses']);
     showFriends = Link.fromJson(json['showFriends']);

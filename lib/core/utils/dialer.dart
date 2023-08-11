@@ -1,12 +1,15 @@
 import 'package:url_launcher/url_launcher.dart';
-import 'dialog.dart';
 
 class DialerUtility {
   
-  static Future<void> dial({ required String number, String message = 'Dialing...' }) async {
+  static Future<void> dial({ required String number }) async {
 
-    ///  Start dialog loader
-    DialogUtility.showLoader(message: message);
+    /**
+     *  We need to use URL encoding for converting special characters within our number.
+     *  This will convert special characters such as "#" to "%23". This will allow us
+     *  to properly dial shortcodes e.g *123#
+     */
+    number = Uri.encodeComponent(number);
     
     ///  Parse the number or shortcode
     final Uri parsedNumber = Uri.parse('tel:$number');
@@ -16,9 +19,8 @@ class DialerUtility {
 
       ///  Launch the number on to the device dialer keypad
       await launchUrl(parsedNumber).whenComplete(() {
-        
-        ///  Stop dialog loader
-        DialogUtility.hideLoader();
+
+          /// Do something else ...
 
       });
 

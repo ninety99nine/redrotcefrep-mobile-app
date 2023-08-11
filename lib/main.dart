@@ -69,6 +69,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ApiProvider()
         ),
+        ChangeNotifierProvider(
+          create: (_) => PusherProvider.getInstance(),
+        ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 
          *  ChangeNotifierProvider because the SearchProvider requires the
@@ -88,16 +91,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<ApiProvider, AuthProvider>(
           create: (_) => AuthProvider(apiProvider: ApiProvider()),
           update: (ctx, apiProvider, previousAuthProvider) => AuthProvider(apiProvider: apiProvider)
-        ),
-        /**
-         *  Note: We have to use the ChangeNotifierProxyProvider instead of 
-         *  ChangeNotifierProvider because the PusherProvider requires the
-         *  ApiProvider as a dependency. When the ApiProvider changes,
-         *  then the PusherProvider will also rebuild.
-         */
-        ChangeNotifierProxyProvider<AuthProvider, PusherProvider>(
-          create: (_) => PusherProvider(authProvider: AuthProvider(apiProvider: ApiProvider())),
-          update: (ctx, authProvider, previousPusherProvider) => PusherProvider(authProvider: authProvider)
         ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 

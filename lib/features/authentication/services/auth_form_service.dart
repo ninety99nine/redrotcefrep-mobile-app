@@ -24,19 +24,10 @@ class AuthFormService {
   Map<String, String> serverErrors = {};
 
   /// floatingButtonAction - Floating action button Function that
-  /// launches the verificationCodeShortcode on the device keypad 
-  /// so that the user can conveniently dial and view the 
-  /// verification code on their mobile device
+  /// launches the mobile verification shortcode on the device 
+  /// keypad so that the user can conveniently dial and view 
+  /// the verification code on their mobile device
   void Function()? floatingButtonAction;
-
-  /// verificationCodeShortcode - Shortcode that must be dialed
-  /// to view the verification code on a mobile device
-  String? verificationCodeShortcode;
-
-  /// verificationCodeMessage - Message explaing the process of
-  /// dialing the shortcode to view the verification code on a 
-  /// mobile device
-  String? verificationCodeMessage;
 
   /// scaffoldSetState - Reference to the setState function on the
   /// SigninPage, SignupPage and the ResetPasswordPage. This allows
@@ -103,8 +94,6 @@ class AuthFormService {
       'last_name': lastName,
       'password': password,
 
-      'verificationCodeShortcode': verificationCodeShortcode,
-      'verificationCodeMessage': verificationCodeMessage,
       'lastRecordedStageIndex': lastRecordedStage.index,
       'user': user == null ? null : user!.toJson(),
     };
@@ -189,7 +178,7 @@ class AuthFormService {
     return CustomMobileNumberChip(name: mobileNumberWithoutExtension);
   }
 
-  Widget getVerificationCodeMessage(String message, String shortcode, BuildContext context) {
+  Widget getVerificationCodeMessage(String shortcode, String $mobileNumber, BuildContext context) {
     final bodyMedium = Theme.of(context).textTheme.bodyMedium!;
 
     return Row(
@@ -197,7 +186,7 @@ class AuthFormService {
         SizedBox(
           width: 300,
           child: Text(
-            message,
+            'Dial $shortcode on $mobileNumber to verify that you own this mobile',
             style: bodyMedium.copyWith(
               height: 1.6
             )
@@ -506,9 +495,6 @@ class AuthFormService {
 
     if(data.containsKey('user')) user = (data['user'] == null ? null : AccountExistenceUser.fromJson(data['user']));
     if(data.containsKey('lastRecordedStageIndex')) lastRecordedStageIndex = data['lastRecordedStageIndex'];
-
-    if(data.containsKey('verificationCodeShortcode')) verificationCodeShortcode = data['verificationCodeShortcode'];
-    if(data.containsKey('verificationCodeMessage')) verificationCodeMessage = data['verificationCodeMessage'];
   }
 
 }

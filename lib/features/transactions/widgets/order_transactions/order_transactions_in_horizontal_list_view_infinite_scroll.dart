@@ -23,6 +23,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import './order_transactions_dialog/order_transactions_dialog.dart';
 
 class OrderTransactionsInHorizontalListViewInfiniteScroll extends StatefulWidget {
 
@@ -115,7 +116,7 @@ class OrderTransactionsInHorizontalListViewInfiniteScrollState extends State<Ord
 
     }else{
 
-      return OrderTransactionsModalBottomSheet(
+      return OrderTransactionsDialog(
         store: store, 
         order: order,
         transactionContentView: TransactionContentView.requestPayment,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:bonako_demo/core/utils/loader.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/api/repositories/api_repository.dart';
@@ -30,7 +31,7 @@ class DialogUtility {
   }
 
   /// Show a dialog that supports the dynamic infinite scroll content
-  static Future<bool?> showInfiniteScrollContentDialog({ required content, required BuildContext context }) {
+  static Future<bool?> showInfiniteScrollContentDialog({ required content, bool showCloseIcon = true, double heightRatio = 0.6, required BuildContext context }) {
 
     Widget dialogContent() {
       return Stack(
@@ -41,7 +42,7 @@ class DialogUtility {
           content,
   
           /// Cancel Icon
-          Positioned(
+          if(showCloseIcon) Positioned(
             top: 0,
             right: 0,
             child: GestureDetector(
@@ -82,7 +83,7 @@ class DialogUtility {
                 /// On scrollable content such as using CustomVerticalListViewInfiniteScroll(),
                 /// set the width and height dynamically based on the given
                 /// constraints
-                height: constraints.maxHeight * 0.6,
+                height: constraints.maxHeight * heightRatio,
                 width: constraints.maxWidth,
                 child: dialogContent()
               ),
@@ -96,6 +97,7 @@ class DialogUtility {
               /// on smaller devices.
               insetPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 24.0),
               shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+              clipBehavior: Clip.antiAlias,
             );
           }
         );
@@ -456,24 +458,14 @@ class DialogUtility {
 
   /// Show a dialog that displays a loading indicator
   static void showLoader({ String message = 'Loading...' }) {
-    Get.defaultDialog(
-      radius: 50,
-      title: '',
-      contentPadding: EdgeInsets.zero,
-      titlePadding: EdgeInsets.zero,
-      content: CustomCircularProgressIndicatorWithText(
-        message,
-        mainAxisAlignment: MainAxisAlignment.center,
-      )
-    );
-
+    LoaderUtility.showLoader(Get.overlayContext!, hideOnTap: false);
   }
 
   /// Hide the loading indicator dialog
   static void hideLoader() {
         
     ///  Hide the loading dialog
-    Get.back(closeOverlays: true);
+    LoaderUtility.hideLoader();
 
   }
 

@@ -1,5 +1,6 @@
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:bonako_demo/features/api/repositories/api_repository.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../../../../core/constants/constants.dart' as constants;
 import 'package:flutter/material.dart';
@@ -8,8 +9,13 @@ import 'dart:convert';
 
 class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
-  bool _initialized = false;
-  final AuthProvider authProvider;
+  AuthProvider? authProvider;
+
+  //  The pusher channels instance
+  PusherChannelsFlutter? _pusherInstance;
+
+  // The single instance of PusherProvider (singleton)
+  static PusherProvider? _pusherProviderInstance;
 
   /// Pusher does not allow a user to subscribe more that once to the same private-channel.
   /// This is a limitation because sometimes we want to subscribe to the same private-channel
@@ -19,25 +25,58 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
   /// whenever that channel receives updates, and then fire every one of those events all at one time.
   Map<String, Map<String, Function(dynamic event)>> _subscribedChannelEvents = {};
 
-  ApiProvider get apiProvider => authProvider.apiProvider;
+  ApiRepository? get apiRepository => apiProvider?.apiRepository;
+  ApiProvider? get apiProvider => authProvider?.apiProvider;
 
-  PusherProvider({ required this.authProvider }) {
+  /// Private constructor to prevent direct instantiation
+  /// This ensures that we can only have one instance of
+  /// this PusherProvider class that will have the same
+  /// properties shared throughtout the App.
+  PusherProvider._({ AuthProvider? authProvider }) {
     
-    /// Register the WidgetsBindingObserver
+    /// Register the WidgetsBindingObserver.
+    /// This is used to track the App lifecycle changes so that we can use 
+    /// the didChangeAppLifecycleState() to reconnect Pusher incase we 
+    /// navigated to another App causing a disconnection. This can
+    /// be remedied by tracking these lifecycle changes so that
+    /// we can reconnect Pusher as soon as we have resumed 
+    /// using the App.
     WidgetsBinding.instance.addObserver(this);
+    
+    /// Start connecting to Pusher
+    startPusherConnection();
 
+  }
+
+  /// Set the AuthProvider so that you can authourize subscriptions that require
+  /// an authenticated user. Its not necessary to set the AuthProvider when
+  /// subscribing to public channels since they do not require any
+  /// authentication.
+  static void setAuthProvider(PusherProvider pusherProvider, AuthProvider newAuthProvider) {
+    pusherProvider.authProvider = newAuthProvider;
+  }
+
+  /// Factory method to get the single instance of PusherProvider (singleton)
+  /// Note: The AuthProvider is optional since its only required for making
+  /// subscriptions to private or presence channels
+  static PusherProvider getInstance({ AuthProvider? authProvider }) {
+    _pusherProviderInstance ??= PusherProvider._(authProvider: authProvider);
+    return _pusherProviderInstance!;
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
 
-    print('AppLifecycleState: $state');
-
     /// Handle app lifecycle state changes here
     if (state == AppLifecycleState.resumed) {
       
       /// App is back to the foreground, reconnect to Pusher
-      reconnectToPusher();
+      startPusherConnection();
+    
+    }else if (state == AppLifecycleState.paused) {
+      
+      /// App is back to the background, disconnect from Pusher
+      stopPusherConnection();
     
     }
 
@@ -53,75 +92,35 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
   }
 
-  void reconnectToPusher() async {
-
-    final PusherChannelsFlutter pusherInstance = await getInstance();
-
-    print('reconnectToPusher');
-
-    print('pusherInstance.connectionState before: ${pusherInstance.connectionState}');
-    
-    if (pusherInstance.connectionState == 'DISCONNECTED') {
-
-      /// Reset
-      _initialized = false;
-      
-      /// Reconnect
-      await pusherInstance.connect();
-
-      final PusherChannelsFlutter pusherInstance2 = await getInstance();
-
-      print('pusherInstance.connectionState after: ${pusherInstance2.connectionState}');
-   
-    }
-
-  }
-
-  Future<PusherChannelsFlutter> getInstance({ AuthProvider? authProvider }) async {
+  Future<PusherChannelsFlutter> startPusherConnection() async {
     
     try {
 
-      print('*************** _initialized: $_initialized');
-      
-      PusherChannelsFlutter pusher = PusherChannelsFlutter.getInstance();
+      if(_pusherInstance == null || _pusherInstance?.connectionState == 'DISCONNECTED') {
 
-      /**
-       *  Reference 1: https://pub.dev/packages/pusher_channels_flutter 
-       *  Reference 2: https://pusher.com/docs/channels/getting_started/flutter/
-       *  Reference 3: https://stackoverflow.com/questions/73783564/how-to-use-private-channel-of-pusher-in-flutter
-       */
-      if(_initialized == false) {
+        _pusherInstance = PusherChannelsFlutter.getInstance();
 
         /**
-         *  Do not place the _initialized = true; after the pusher.init(),
-         *  because the await implementation would delay the updating of
-         *  the _initialized variable which would be an issue since this
-         *  would cause multiple pusher.init() calls if this Provider
-         *  is initialized in multiple places of the App at the same 
-         *  time. This would cause conflictions when onAuthorizer()
-         *  is called multiple times creating multiple pusher auth
-         *  tokens, there by invalidating the other tokens.
+         *  Reference 1: https://pub.dev/packages/pusher_channels_flutter 
+         *  Reference 2: https://pusher.com/docs/channels/getting_started/flutter/
+         *  Reference 3: https://stackoverflow.com/questions/73783564/how-to-use-private-channel-of-pusher-in-flutter
          */
-        _initialized = true;
-      
-        await pusher.init(
+        await _pusherInstance!.init(
           useTLS: true,
           onAuthorizer: onAuthorizer,
           apiKey: constants.pusherKey,
           cluster: constants.pusherCluster,
         );
 
-        await pusher.connect();
-
-        print('pusher connectionState: ${pusher.connectionState}');
-
+        await _pusherInstance!.connect();
+        
       }
-
-      return pusher;
+        
+      return _pusherInstance!;
     
     } catch (e) {
        
-      printError(info: "Pusher error detected on PusherProvider class located in the lib/core/utils/pusher.dart file");
+      printError(info: "Pusher error detected on PusherProvider class located in the lib/core/utils/pusher.dart file while running startPusherConnection()");
       printError(info: "$e");
       rethrow;
     
@@ -129,9 +128,34 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
   }
 
-  /// Your remaining Pusher utility code...
+  Future<PusherChannelsFlutter> stopPusherConnection() async {
+    
+    try {
+
+      if(_pusherInstance != null && _pusherInstance?.connectionState == 'CONNECTED') {
+
+        await _pusherInstance!.disconnect();
+        
+      }
+        
+      return _pusherInstance!;
+    
+    } catch (e) {
+       
+      printError(info: "Pusher error detected on PusherProvider class located in the lib/core/utils/pusher.dart file while running stopPusherConnection()");
+      printError(info: "$e");
+      rethrow;
+    
+    }
+
+  }
 
   /// Authenticate the Private Pusher Channels
+  /// The onAuthorizer() is called when attempting to subscribe to private or presence channels.
+  /// This method is not called when attempting to subscribe to public channels. In order to
+  /// authorize these subscriptions, a valid bearer token must be set. This is accomplished
+  /// by using the bearer token provided by the ApiRepository.
+  /// 
   /// Reference 1: https://laravel.com/docs/10.x/broadcasting#customizing-the-authorization-request
   /// Reference 2: https://stackoverflow.com/questions/73783564/how-to-use-private-channel-of-pusher-in-flutter
   dynamic onAuthorizer(String channelName, String socketId, dynamic options) async {
@@ -144,7 +168,7 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
         'channel_name': channelName
       };
 
-      var response = await apiProvider.apiRepository.post(
+      var response = await apiProvider!.apiRepository.post(
           handleRequestFailure: false,
           url: pusherAuthHostName,
           body: body
@@ -152,46 +176,55 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
       Map json = jsonDecode(response.body);
 
-      print('*************** onAuthorizer()');
-      print(json);
-
       if (json.containsKey('auth')) {
+      
         return json;
+      
       } else {
+        
         return {"auth": ""};
+
       }
+
     } catch (e) {
-      print("ERROR 2: $e");
+       
+      printError(info: "Pusher Authourization error detected on PusherProvider class located in the lib/core/utils/pusher.dart file");
+      printError(info: "$e");
+
     }
   }
 
   /// Subscribe for auth login alerts
-  void subscribeToAuthLogin({ String? identifier, required dynamic onEvent }) async {
-    print('**** subscribeToAuthLogin !!!!');
-    subscribe(channelName: 'private-login.${authProvider.userId}', identifier: identifier, onEvent: onEvent);
+  void subscribeToAuthLogin({ required String identifier, required dynamic onEvent }) async {
+    if(authProvider == null) throw Exception("Pusher subscription error detected on PusherProvider class located in the lib/core/utils/pusher.dart file: The authProvider has not been provided");
+    subscribe(channelName: 'private-login.${authProvider!.userId}', identifier: identifier, onEvent: onEvent);
   }
 
   /// Unsubscribe for auth login alerts
-  void unsubscribeToAuthLogin({ String? identifier }) async {
-    print('**** un-subscribeToAuthLogin !!!!');
-    unsubscribe(channelName: 'private-login.${authProvider.userId}', identifier: identifier);
+  void unsubscribeToAuthLogin({ required String identifier }) async {
+    if(authProvider == null) throw Exception("Pusher unsubscribe error detected on PusherProvider class located in the lib/core/utils/pusher.dart file: The authProvider has not been provided");
+    unsubscribe(channelName: 'private-login.${authProvider!.userId}', identifier: identifier);
   }
 
   /// Subscribe for auth notification alerts
-  void subscribeToAuthNotifications({ String? identifier, required dynamic onEvent }) async {
-    subscribe(channelName: 'private-user.notifications.${authProvider.userId}', identifier: identifier, onEvent: onEvent);
+  void subscribeToAuthNotifications({ required String identifier, required dynamic onEvent }) async {
+    if(authProvider == null) throw Exception("Pusher subscription error detected on PusherProvider class located in the lib/core/utils/pusher.dart file: The authProvider has not been provided");
+    subscribe(channelName: 'private-user.notifications.${authProvider!.userId}', identifier: identifier, onEvent: onEvent);
   }
 
   /// Unsubscribe for auth notification alerts
-  void unsubscribeToAuthNotifications({ String? identifier }) async {
-    unsubscribe(channelName: 'private-user.notifications.${authProvider.userId}', identifier: identifier);
+  void unsubscribeToAuthNotifications({ required String identifier }) async {
+    if(authProvider == null) throw Exception("Pusher unsubscribe error detected on PusherProvider class located in the lib/core/utils/pusher.dart file: The authProvider has not been provided");
+    unsubscribe(channelName: 'private-user.notifications.${authProvider!.userId}', identifier: identifier);
   }
 
   /// Subscribe
   /// Use the identifier to differentiate between events if you decide to
   /// call this subscribe method multiple times on the same channel name.
-  void subscribe({required String channelName, required String? identifier, required dynamic onEvent}) async {
-
+  void subscribe({required String channelName, required String identifier, required dynamic onEvent}) async {
+    
+    if(_pusherInstance == null) throw Exception("Pusher subscription error detected on PusherProvider class located in the lib/core/utils/pusher.dart file: The pusher instance has not been provided. Please run getInstance() before attempting to subscribe");
+    
     /**
      *  The identifier is used to make sure that we can never have duplicate events on the same subscribed channel e.g
      *  Suppose that we subscribe to an channel such as subscribe('private-example.1', onEventLogicOne). The event
@@ -206,7 +239,6 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
      * 
      *  _subscribedChannelEvents: {
      *    'private-example.1': {          <--- The "1" would represent the user's ID
-     *      'default': () { ... },        <--- The default identifier for the first event (can be changed e.g identifier1)
      *      'identifier2': () { ... },    <--- You can specify a name for your other events so that we never saved it twice
      *      'identifier2': () { ... },    <--- You can specify a name for your other events so that we never saved it twice
      *      ...
@@ -234,7 +266,6 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
      *  extend this limitation and allow us to be able to subcribe to the same channel but also call
      *  the different events necessary to be called in different widgets.
      */
-    identifier ??= "default";
 
     /// If we have already subscribed to this channel
     if (_subscribedChannelEvents.containsKey(channelName)) {
@@ -244,6 +275,10 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
           
         /// Add this event to the list of subscribed channel events
         _subscribedChannelEvents[channelName]![identifier] = onEvent;
+
+      }else{
+
+        printError(info: 'The pusher identifier "$identifier" already exists. You can only have one unique event identifier per channel subscription');
 
       }
 
@@ -255,24 +290,20 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
         identifier: onEvent
       };
 
-      (await getInstance()).subscribe(
+       _pusherInstance!.subscribe(
         channelName: channelName,
+        onMemberAdded: (_) {},
+        onMemberRemoved: (_) {},
+        onSubscriptionCount: (_) {},
+        onSubscriptionError: (_) {},
+        onSubscriptionSucceeded: (_) {},
         onEvent: (event) {
 
-          print('^^^^ FIRE EVENTS ^^^^');
-          print(_subscribedChannelEvents[channelName]);
-
           ///  Foreach of this channel events
-          for (var capturedOnEvent in _subscribedChannelEvents[channelName]!.values) {
-            
-            print(capturedOnEvent);
+          for (var subscriptionEvent in _subscribedChannelEvents[channelName]!.values) {
 
-            /// Fire each event using a new function that captures the onEvent callback
-            // Create a new function with a new context that captures the onEvent callback
-            newCallback() => capturedOnEvent(event);
-            
-            // Call the new function
-            newCallback();
+            /// Fire this event
+            subscriptionEvent(event);
 
           }
 
@@ -283,41 +314,51 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
   }
 
   /// Unsubscribe
-  void unsubscribe({ required String channelName, required String? identifier }) async {
-      
-    print('@@ removeEvent - stage 1');
+  void unsubscribe({ required String channelName, required String identifier }) async {
+    
+    if(_pusherInstance == null) throw Exception("Pusher unsubscribe error detected on PusherProvider class located in the lib/core/utils/pusher.dart file: The pusher instance has not been provided. Please run getInstance() before attempting to unsubscribe");
 
     /// If we have already subscribed to this channel
     if (_subscribedChannelEvents.containsKey(channelName)) {
-      
-      print('@@ removeEvent - stage 2');
 
-      identifier ??= "default";
-
-      /// If we have already subscribed to this channel with the default or specified identifier
+      /// If we have already subscribed to this channel with the specified identifier
       if (!_subscribedChannelEvents[channelName]!.containsKey(identifier)) {
-      
-        print('@@ removeEvent - stage 3');
           
         /// Remove this identifier and its associated event from this subscribed channel
         _subscribedChannelEvents[channelName]!.remove(identifier);
 
         /// If this subscribed channel does not have any identifiers and their associated events
         if (_subscribedChannelEvents[channelName]!.isEmpty) {
-      
-        print('@@ removeEvent - stage 4');
 
           /// Remove the channel name reference
           _subscribedChannelEvents.remove(channelName);
 
           /// Unsubscribe from this channel
-          (await getInstance()).unsubscribe(channelName: channelName);
+           _pusherInstance!.unsubscribe(channelName: channelName);
 
         }
 
       }
 
     } 
+
+  }
+
+  /// Unsubscribe from everything
+  void unsubscribeFromEverything() async {
+    
+    if(_pusherInstance == null) throw Exception("Pusher unsubscribe from everything error detected on PusherProvider class located in the lib/core/utils/pusher.dart file: The pusher instance has not been provided. Please run getInstance() before attempting to unsubscribe from everything");
+
+    /// Foreach subscribed channel
+    _subscribedChannelEvents.forEach((channelName, events) async {
+
+      /// Unsubscribe from this channel
+      _pusherInstance!.unsubscribe(channelName: channelName);
+      
+    });
+
+    /// Reset the _subscribedChannelEvents
+    _subscribedChannelEvents = {};
 
   }
 

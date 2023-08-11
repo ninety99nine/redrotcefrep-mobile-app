@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_models/money.dart';
+import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_paid_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_created_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_seen_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_status_updated_notification.dart';
@@ -113,12 +115,13 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
       String type = eventData['type'];
 
       ///  Check if this is an order created notification
-      if(type == 'App\\Notifications\\Users\\InvitationToFollowStoreCreated') {
+      if(type == 'App\\Notifications\\Orders\\OrderCreated') {
         
         final OrderCreatedNotification notification = OrderCreatedNotification.fromJson(eventData);
         final String customerFirstName = notification.orderProperties.customerProperties.name;
         final bool isAssociatedAsFriend = notification.orderProperties.isAssociatedAsFriend;
         final int orderForTotalFriends = notification.orderProperties.orderForTotalFriends;
+        final String amount = notification.orderProperties.amount.amountWithCurrency;
         final String storeName = notification.storeProperties.name;
         final int otherTotalFriends = orderForTotalFriends - 1;
 
@@ -139,7 +142,7 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
         }else{
 
           /// Show the message that informs the team member of a new order
-          SnackbarUtility.showSuccessMessage(message: 'New order placed @$storeName', duration: 4);
+          SnackbarUtility.showSuccessMessage(message: 'New order placed @$storeName - $amount', duration: 4);
           
         }
         
@@ -178,6 +181,27 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
 
           /// Show the message that informs the customer that their order status has changed
           SnackbarUtility.showSuccessMessage(message: 'Your order is $status @$storeName', duration: 4);
+          
+        }
+        
+      }else if(type == 'App\\Notifications\\Orders\\OrderPaid') {
+
+        final OrderPaidNotification notification = OrderPaidNotification.fromJson(eventData);
+        final bool isAssociatedAsFriend = notification.orderProperties.isAssociatedAsFriend;
+        final String payerName = notification.transactionProperties.payerName;
+        final Money amount = notification.transactionProperties.amount;
+        final String storeName = notification.storeProperties.name;
+        final String number = notification.orderProperties.number;
+
+        if(isAssociatedAsFriend) {
+
+          /// Show the message that informs the friend that this order has been paid
+          SnackbarUtility.showSuccessMessage(message: 'Tagged order has been paid @$storeName - ${amount.amountWithCurrency} by $payerName', duration: 4);
+
+        }else{
+
+          /// Show the message that informs the everyone else that this order has been paid
+          SnackbarUtility.showSuccessMessage(message: 'Order #$number paid @$storeName - ${amount.amountWithCurrency} by $payerName', duration: 4);
           
         }
         

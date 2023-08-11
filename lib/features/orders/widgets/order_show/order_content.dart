@@ -11,6 +11,7 @@ import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_dia
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_dialog/order_transactions_dialog.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_in_horizontal_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
@@ -54,6 +55,9 @@ class OrderContent extends StatefulWidget {
   final Order order;
   final Color? color;
   final bool showLogo;
+
+  /// showSummary: Show minimum information (Usually the order details without actions such as BonakoPay,)
+  final bool showSummary;
   final bool triggerCancel;
   final ShoppableStore store;
   final Function(Order)? onUpdatedOrder;
@@ -66,6 +70,7 @@ class OrderContent extends StatefulWidget {
     required this.order,
     this.onUpdatedOrder,
     this.showLogo = false,
+    this.showSummary = false,
     this.triggerCancel = false,
     this.onRequestedOrderRelationships,
   }) : super(key: key);
@@ -596,19 +601,15 @@ class OrderContentState extends State<OrderContent> {
   Widget get requestPaymentForOrder {
     return Column(
       children: [
+          
+        /// Spacer
+        const SizedBox(height: 16.0,),
+
+        /// Paid Amount Breakdown
+        paymentProgress,
         
-        if(order.amountPendingPercentage.value > 0) ...[
-          
-          /// Spacer
-          const SizedBox(height: 16.0,),
-
-          /// Paid Amount Breakdown
-          paymentProgress,
-          
-          /// Spacer
-          const SizedBox(height: 16.0,),
-
-        ],
+        /// Spacer
+        const SizedBox(height: 16.0,),
 
         /// Order Transaction Avatars
         OrderTransactionsInHorizontalListViewInfiniteScroll(
@@ -643,7 +644,7 @@ class OrderContentState extends State<OrderContent> {
               const CustomTitleLargeText('Payments'),
 
               /// Order Transactions Modal Bottom Sheet
-              if(order.transactionsCount! != 0) OrderTransactionsModalBottomSheet(
+              if(order.transactionsCount! != 0) OrderTransactionsDialog(
                 store: store, 
                 order: order,
                 transactionContentView: TransactionContentView.viewingTransactions,

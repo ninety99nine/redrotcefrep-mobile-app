@@ -1,3 +1,6 @@
+import 'package:bonako_demo/features/api/models/api_home.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
+
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/button/previous_text_button.dart';
 import '../../../core/shared_widgets/button/custom_text_button.dart';
@@ -82,8 +85,10 @@ class _SigninFormState extends State<SigninForm> {
   void _startSubmittionLoader() => setState(() => authForm.isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => authForm.isSubmitting = false);
 
+  ApiHome get apiHome => apiProvider.apiHome!;
   AuthFormService get authForm => widget.authForm;
   AuthRepository get authRepository => authProvider.authRepository;
+  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
   @override
@@ -100,20 +105,20 @@ class _SigninFormState extends State<SigninForm> {
       /// Check if the last recorded SigninStage index is set
       if( authForm.lastRecordedStageIndex != null ) {
 
-        /// If the last recorded SigninStage was the verification code stage
-        if( SigninStage.values[authForm.lastRecordedStageIndex!] == SigninStage.enterVerificationCode ) {
-
-          /// Show the floating action button
-          authForm.toggleShowFloatingButton(authForm.verificationCodeShortcode, context);
-
-        }
-
         /**
          *  Set the last recorded SigninStage.
          *  This will change the UI to the matching stage so
          *  that the user can continue from where they left of 
          */
         _changeSigninStage(SigninStage.values[authForm.lastRecordedStageIndex!]);
+
+        /// If the last recorded SigninStage was the verification code stage
+        if( SigninStage.values[authForm.lastRecordedStageIndex!] == SigninStage.enterVerificationCode ) {
+
+          /// Show the floating action button
+          authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
+
+        }
 
       }
 
@@ -236,45 +241,13 @@ class _SigninFormState extends State<SigninForm> {
 
       if(response.statusCode == 200) {
 
-        await _generateMobileVerificationCodeForSignin();
+        _changeSigninStage(SigninStage.enterVerificationCode);
 
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
-      }
-
-    }).catchError((error) {
-
-      authForm.showSnackbarUnknownError(context);
-
-    }).whenComplete((){
-
-      _stopSubmittionLoader();
-
-    });
-    
-
-  }
-
-  Future<void> _generateMobileVerificationCodeForSignin() async {
-
-    _startSubmittionLoader();
-
-    await authRepository.generateMobileVerificationCodeForSignin(
-      mobileNumber: authForm.mobileNumberWithExtension,
-    ).then((response) async {
-
-      if(response.statusCode == 200) {
-
-        final responseBody = jsonDecode(response.body);
-        authForm.verificationCodeMessage = responseBody['message'];
-        authForm.verificationCodeShortcode = responseBody['shortcode'];
+        /// Save the form on the device
+        authForm.saveFormOnDevice();
 
         /// Show the floating action button
-        authForm.toggleShowFloatingButton(authForm.verificationCodeShortcode, context);
-
-        _changeSigninStage(SigninStage.enterVerificationCode);
+        authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
 
       }else if(response.statusCode == 422) {
 
@@ -348,22 +321,28 @@ class _SigninFormState extends State<SigninForm> {
         if( authForm.lastRecordedStage == SigninStage.enterPassword ) {
 
           _changeSigninStage(SigninStage.enterMobileNumber);
+
+          /// Save the form on the device
+          authForm.saveFormOnDevice();
           
         }else if( authForm.lastRecordedStage == SigninStage.setNewPassword ) {
 
           _changeSigninStage(SigninStage.enterMobileNumber);
 
+          /// Save the form on the device
+          authForm.saveFormOnDevice();
+
         }else if( authForm.lastRecordedStage == SigninStage.enterVerificationCode ) {
 
           _changeSigninStage(SigninStage.setNewPassword);
+
+          /// Save the form on the device
+          authForm.saveFormOnDevice();
 
           /// Hide the floating action button
           authForm.toggleShowFloatingButton(null, context);
 
         }
-
-        /// Save the form on the device
-        authForm.saveFormOnDevice();
 
       },
     );
@@ -488,7 +467,7 @@ class _SigninFormState extends State<SigninForm> {
       formFields.addAll([
         authForm.getAccountMobileNumberChip(),
         const SizedBox(height: 16),
-        authForm.getVerificationCodeMessage(authForm.verificationCodeMessage!, authForm.verificationCodeShortcode!, context),
+        authForm.getVerificationCodeMessage(apiHome.mobileVerificationShortcode, authForm.mobileNumber!, context),
         const SizedBox(height: 16),
         authForm.getMobileVerificationField(setState)
       ]);

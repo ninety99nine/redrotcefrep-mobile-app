@@ -5,11 +5,23 @@ import 'dart:convert';
 class ApiRepository {
 
   String? bearerToken;
+  late Future<String?> bearerTokenFuture;
 
   Map<String, String> get apiHeaders => {
     'Authorization': 'Bearer $bearerToken',
     'Content-Type': 'application/json'
   };
+
+  ApiRepository() {
+
+    /// Automatically acquire the bearer token stored on the device
+    bearerTokenFuture = ApiService.getBearerTokenFromDeviceStorage().then((bearerToken) {
+
+      setBearerToken(bearerToken);
+
+    });
+
+  }
 
   /// Set the bearer token
   ApiRepository setBearerToken(String? bearerToken) {

@@ -9,12 +9,14 @@ class CartDetails extends StatelessWidget {
 
   final Cart cart;
   final bool boldTotal;
+  final bool showTopDivider;
   final bool showProductLines;
 
   const CartDetails({
     super.key,
     required this.cart,
     this.boldTotal = false,
+    this.showTopDivider = true,
     this.showProductLines = true
   });
 
@@ -56,7 +58,7 @@ class CartDetails extends StatelessWidget {
       children: [
 
         /// Divider
-        const Divider(),
+        if(showTopDivider) const Divider(),
 
         /// Product Line Title
         if(hasCouponLines && showProductLines && hasProductLines) ...[

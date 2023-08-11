@@ -1,7 +1,10 @@
+import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/anonymous/anonymous_details.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/delivery_or_pickup/delivery_or_pickup.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/payment/payment_details.dart';
+import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_content.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
 import '../../order_for/widgets/order_for_details.dart';
@@ -306,6 +309,9 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
       if( response.statusCode == 201 ) {
 
+        final responseBody = jsonDecode(response.body);
+        final Order createdOrder = Order.fromJson(responseBody);
+
         setState(() {
               
           /// Increment the number of orders placed
@@ -319,9 +325,6 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
           /// If the store has the onCreatedOrder method
           if(store!.onCreatedOrder != null) {
 
-            final responseBody = jsonDecode(response.body);
-            final Order createdOrder = Order.fromJson(responseBody);
-
             /// Trigger this onCreatedOrder method and pass this order
             store!.onCreatedOrder!(createdOrder);
 
@@ -330,6 +333,23 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
         });
         
         SnackbarUtility.showSuccessMessage(message: 'Your order has been sent.\nOpen orders to stay up to date', duration: 6);
+
+        if(store!.dpoPaymentEnabled) {
+
+          Future.delayed(const Duration(seconds: 1)).then((value) {
+            DialogUtility.showInfiniteScrollContentDialog(
+              context: context,
+              heightRatio: 0.9,
+              showCloseIcon: false,
+              content: OrderTransactionsContent(
+                store: store!,
+                order: createdOrder,
+                transactionContentView: TransactionContentView.requestPayment
+              )
+            );
+          });
+
+        }
 
       }
 

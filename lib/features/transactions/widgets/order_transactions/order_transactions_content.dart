@@ -57,6 +57,7 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
 
   Order get order => widget.order;
   ShoppableStore get store => widget.store;
+  bool get isPaid => order.attributes.isPaid;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
   bool get hasTransactions => order.transactionsCount != 0;
@@ -158,14 +159,14 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
 
         ],
 
-        if( isViewingTransactions ) ...[
+        if( isViewingTransactions && !isPaid ) ...[
 
           const SizedBox(width: 8),
 
           /// Request Payment button
           CustomElevatedButton(
-            'Request Payment',
-            width: 160,
+            'Add Payment',
+            width: 120,
             prefixIcon: Icons.add,
             isLoading: isSubmitting,
             onPressed: floatingActionButtonOnPressed,

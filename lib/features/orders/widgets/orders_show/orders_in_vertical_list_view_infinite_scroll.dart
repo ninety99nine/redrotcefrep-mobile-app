@@ -12,6 +12,7 @@ import '../../../stores/providers/store_provider.dart';
 import '../../../stores/services/store_services.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'orders_in_horizontal_infinite_scroll.dart';
+import '../order_show/order_payment_status.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../../../core/utils/dialog.dart';
 import '../order_show/order_content.dart';
@@ -404,8 +405,11 @@ class _OrderItemState extends State<OrderItem> {
   bool get isAssociatedAsCustomer => userOrderCollectionAssociation != null && userOrderCollectionAssociation!.role == 'Customer';
 
   String get orderFor => order.orderFor;
+  bool get isPaid => order.attributes.isPaid;
   bool get isOrderingForMe => orderFor == 'Me';
   int get orderForTotalFriends => order.orderForTotalFriends;
+  bool get isPartiallyPaid => order.attributes.isPartiallyPaid;
+  bool get isPendingPayment => order.attributes.isPendingPayment;
   bool get isOrderingForFriendsOnly => orderFor == 'Friends Only';
   bool get isOrderingForMeAndFriends => orderFor == 'Me And Friends';
 
@@ -692,11 +696,31 @@ class _OrderItemState extends State<OrderItem> {
               
                     /// Spacer
                     const SizedBox(height:  4,),
+
+                    Row(
+                      children: [
               
-                    /// Status
-                    OrderStatus(
-                      lightShade: true,
-                      status: widget.order.status.name,
+                        /// Status
+                        OrderStatus(
+                          lightShade: true,
+                          status: widget.order.status.name,
+                        ),
+
+                        /// If Paid, Partially Paid or Pending Payment
+                        if(isPaid || isPartiallyPaid || isPendingPayment) ...[
+              
+                          /// Spacer
+                          const SizedBox(width: 8),
+                    
+                          /// Payment Status
+                          OrderPaymentStatus(
+                            lightShade: true,
+                            status: widget.order.paymentStatus.name,
+                          ),
+
+                        ],
+
+                      ],
                     ),
               
                     /// Summary

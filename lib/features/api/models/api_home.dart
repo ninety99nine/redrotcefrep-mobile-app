@@ -6,12 +6,14 @@ class ApiHome {
   late Links links;
   late bool authenticated;
   late bool acceptedTermsAndConditions;
+  late String mobileVerificationShortcode;
 
   ApiHome.fromJson(Map<String, dynamic> json) {
     authenticated = json['authenticated'];
     links = Links.fromJson(json['links']);
     acceptedTermsAndConditions = json['acceptedTermsAndConditions'];
     user = json['user'] == null ? null : User.fromJson(json['user']);
+    mobileVerificationShortcode = json['mobileVerificationShortcode'];
   }
   
 }
@@ -23,7 +25,7 @@ class Links {
   late String createStores;
   late String accountExists;
   late String resetPassword;
-  late String paymentMethods;
+  late String showPaymentMethods;
   late String showBrandStores;
   late String showSearchStores;
   late String validateRegister;
@@ -33,8 +35,6 @@ class Links {
   late String showStoreGoldenRules;
   late String validateResetPassword;
   late String showSearchFriendGroups;
-  late String verifyMobileVerificationCode;
-  late String generateMobileVerificationCode;
   late String checkInvitationsToFollowStores;
   late String checkInvitationsToJoinTeamStores;
   late String acceptAllInvitationsToFollowStores;
@@ -49,7 +49,7 @@ class Links {
     createStores = json['createStores'];
     accountExists = json['accountExists'];
     resetPassword = json['resetPassword'];
-    paymentMethods = json['paymentMethods'];
+    showPaymentMethods = json['showPaymentMethods'];
     showBrandStores = json['showBrandStores'];
     showSearchStores = json['showSearchStores'];
     validateRegister = json['validateRegister'];
@@ -59,8 +59,6 @@ class Links {
     showStoreGoldenRules = json['showStoreGoldenRules'];
     validateResetPassword = json['validateResetPassword'];
     showSearchFriendGroups = json['showSearchFriendGroups'];
-    verifyMobileVerificationCode = json['verifyMobileVerificationCode'];
-    generateMobileVerificationCode = json['generateMobileVerificationCode'];
     checkInvitationsToFollowStores = json['checkInvitationsToFollowStores'];
     checkInvitationsToJoinTeamStores = json['checkInvitationsToJoinTeamStores'];
     acceptAllInvitationsToFollowStores = json['acceptAllInvitationsToFollowStores'];

@@ -54,9 +54,8 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
     /**
      *  The following is to fake a subscription
      */
-    requestCreateFakeSubscription();
-
-    return;
+    //  requestCreateFakeSubscription();
+    //  return;
 
     /// Notify parent that we are dialing
     if(onDial != null) onDial!();

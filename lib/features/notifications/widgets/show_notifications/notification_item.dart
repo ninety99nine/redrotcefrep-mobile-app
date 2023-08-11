@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/notifications/widgets/show_notifications/notification_types/orders/order_paid_notification.dart';
 import 'package:bonako_demo/features/notifications/widgets/show_notifications/notification_types/subscriptions/subscription_created_notification.dart';
 
 import 'notification_types/friend_groups/friend_group_store_removed_notification.dart';
@@ -49,6 +50,11 @@ class NotificationItem extends StatelessWidget {
     }else if (notification.type == "App\\Notifications\\Orders\\OrderStatusUpdated") {
       
       return OrderStatusUpdatedNotificationContent(notification: notification);
+
+    /// Order paid
+    }else if (notification.type == "App\\Notifications\\Orders\\OrderPaid") {
+      
+      return OrderPaidNotificationContent(notification: notification);
 
     /// Friend group user added
     }else if (notification.type == "App\\Notifications\\FriendGroups\\FriendGroupUserAdded") {

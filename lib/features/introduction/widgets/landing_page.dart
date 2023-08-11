@@ -5,6 +5,7 @@ import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:get/get.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
+import 'package:http/http.dart' as http;
 import '../../../core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
 import '../../authentication/widgets/terms_and_conditions_page.dart';
 import '../../authentication/providers/auth_provider.dart';
@@ -33,8 +34,8 @@ class _LandingPageState extends State<LandingPage> {
   bool hasSeenIntro = false;
   bool isAuthenticated = false;
   PusherChannelsFlutter? pusher;
+  PusherProvider? pusherProvider;
   bool homeApiRequestFailed = false;
-  late PusherProvider pusherProvider;
   bool hasAcceptedTermsAndConditions = false;
   final IntroductionService introductionServices = IntroductionService();
 
@@ -48,25 +49,29 @@ class _LandingPageState extends State<LandingPage> {
   @override
   void initState() {
     super.initState();
-    
-    /// Set the Pusher Provider
-    pusherProvider = Provider.of<PusherProvider>(context, listen: false);
+    startSetup();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    /// Re-run the startSetup() in cases such as after
+    /// user signin, signup or password reset success
+    if(!isLoading) startSetup();
+
   }
 
   @override
   void dispose() {
     super.dispose();
     /// Unsubscribe from this specified event on this channel
-    pusherProvider.unsubscribeToAuthLogin(identifier: 'LandingPage');
+    if(pusherProvider != null) pusherProvider!.unsubscribeToAuthLogin(identifier: 'LandingPage');
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    startSetup();
-  }
+  Future<http.Response>? startSetup() async {
 
-  void startSetup() async {
+    print('Running startSetup()');
 
     _startLoader();
 
@@ -77,7 +82,7 @@ class _LandingPageState extends State<LandingPage> {
     hasSeenIntro = await introductionServices.checkIfHasSeenAnyIntroFromDeviceStorage();
 
     //  Set the Api Home
-    await apiProvider.setApiHome().then((response) async {
+    return await apiProvider.setApiHome().then((response) async {
 
       errorMessage += '\n\nStatus Code: ${response.statusCode}';
 
@@ -98,6 +103,14 @@ class _LandingPageState extends State<LandingPage> {
 
           //  Check if the user accepted their terms and conditions
           hasAcceptedTermsAndConditions = apiHome.acceptedTermsAndConditions;
+    
+          /// Set the Pusher Provider
+          pusherProvider = Provider.of<PusherProvider>(context, listen: false);
+
+          /// Update the Auth Provider on this Pusher Provider
+          /// This is important so that we can authorize private or presence
+          /// channels that require the authenticated user id and bearer token
+          PusherProvider.setAuthProvider(pusherProvider!, authProvider);
 
           //  Subcribe to login by other devices
           listenToExternalLoginAlerts();
@@ -126,6 +139,8 @@ class _LandingPageState extends State<LandingPage> {
 
       }
 
+      return response;
+
     }).catchError((error) {
 
       errorMessage = error.toString();
@@ -147,18 +162,14 @@ class _LandingPageState extends State<LandingPage> {
   void listenToExternalLoginAlerts() async {
 
     /// Subscribe to login alerts
-    pusherProvider.subscribeToAuthLogin(
+    pusherProvider!.subscribeToAuthLogin(
       identifier: 'LandingPage', 
       onEvent: onLoginAlerts
     );
 
   }
 
-  void onLoginAlerts(event) {
-
-    print('onLoginAlerts');
-    print(event);
-    print(event.eventName);
+  void onLoginAlerts(event) async {
 
     if (event.eventName == "App\\Events\\LoginSuccess") {
 
@@ -174,11 +185,16 @@ class _LandingPageState extends State<LandingPage> {
           duration: 6
         );
 
-        /// Unsubscribe from this channel
-        pusher!.unsubscribe(channelName: 'private-login.${authProvider.userId}');
+        /// Reload to verify unauthentication and show the signin page
+        await startSetup();
 
-        /// Reload
-        startSetup();
+        /// Unsubscribe from everything
+        /// Execute this unsubscribeFromEverything() method after the startSetup()
+        /// otherwise running unsubscribeFromEverything() will delete this onLoginAlerts() 
+        /// event handler before it can execute the startSetup() method. In such a scenerio,
+        /// we will not be able to re-run the setApiHome() which should make the API call to
+        /// verify that this user is indeed unauthenticated thereby showing the signin page.
+        pusherProvider!.unsubscribeFromEverything();
 
       }
     }
@@ -193,7 +209,6 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
-
     /// Set this listener on the ApiProvider so that we are notified of any changes 
     /// on the ApiProvider state. Any changes will fire the didChangeDependencies()
     /// method which allows us to run our startSetup() method. This is important if

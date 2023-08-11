@@ -45,6 +45,7 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
   final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
   Order get order => widget.order;
+  bool get isPaid => order.attributes.isPaid;
   String get transactionFilter => widget.transactionFilter;
   Function(Transaction) get onSelectedTransaction => widget.onSelectedTransaction;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
@@ -106,7 +107,11 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
   }
 
   Widget contentBeforeSearchBar(bool isLoading, int totalTransactions) {
-    return const CustomMessageAlert('Tap on any transaction to pay or share the payment link with your friend, family or co-workers', margin: EdgeInsets.only(bottom: 16),);
+    return CustomMessageAlert(
+      isPaid ? 'Tap transaction for more information'
+             : 'Tap on any transaction to pay or share the payment link with your friend, family or co-workers',
+      margin: const EdgeInsets.only(bottom: 16),
+    );
   }
   
   @override
@@ -120,7 +125,7 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
       contentBeforeSearchBar: contentBeforeSearchBar,
       key: _customVerticalListViewInfiniteScrollState,
       onRequest: (page, searchWord) => requestStoreTransactions(page, searchWord),
-      headerPadding: const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16),
+      headerPadding: EdgeInsets.only(top: isPaid ? 20 : 40, bottom: 0, left: 16, right: 16),
     );
   }
 }

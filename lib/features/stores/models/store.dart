@@ -212,6 +212,7 @@ class Links {
   late Link showMyPermissions;
   late Link showCustomerFilters;
   late Link showCustomers;
+  late Link showAvailablePaymentMethods;
   late Link showMySubscriptions;
   late Link createSubscriptions;
   late Link createFakeSubscriptions;
@@ -276,6 +277,7 @@ class Links {
     showMyPermissions = Link.fromJson(json['showMyPermissions']);
     showCustomerFilters = Link.fromJson(json['showCustomerFilters']);
     showCustomers = Link.fromJson(json['showCustomers']);
+    showAvailablePaymentMethods = Link.fromJson(json['showAvailablePaymentMethods']);
     showMySubscriptions = Link.fromJson(json['showMySubscriptions']);
     createSubscriptions = Link.fromJson(json['createSubscriptions']);
     createFakeSubscriptions = Link.fromJson(json['createFakeSubscriptions']);

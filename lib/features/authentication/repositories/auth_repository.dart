@@ -122,50 +122,6 @@ class AuthRepository {
     
   }
 
-  /// Generate the mobile verification code to use for signin
-  Future<http.Response> generateMobileVerificationCodeForSignin({ required String mobileNumber  }) async {
-
-    return generateMobileVerificationCode(
-      mobileNumber: mobileNumber, 
-      purpose: 'Verify Account'
-    );
-    
-  }
-
-  /// Generate the mobile verification code to use for signup
-  Future<http.Response> generateMobileVerificationCodeForSignup({ required String mobileNumber  }) async {
-
-    return generateMobileVerificationCode(
-      mobileNumber: mobileNumber,
-      purpose: 'Verify Account'
-    );
-    
-  }
-
-  /// Generate the mobile verification code to use for reset password
-  Future<http.Response> generateMobileVerificationCodeForResetPassword({ required String mobileNumber  }) async {
-
-    return generateMobileVerificationCode(
-      mobileNumber: mobileNumber,
-      purpose: 'Reset Password'
-    );
-    
-  }
-
-  /// Generate the mobile verification code
-  Future<http.Response> generateMobileVerificationCode({ required String mobileNumber, required String purpose }) async {
-
-    final url = homeApiLinks.generateMobileVerificationCode;
-
-    final Map<String, String?> body = {
-      'mobile_number': mobileNumber,
-      'purpose': purpose,
-    };
-
-    return apiRepository.post(url: url, body: body);
-    
-  }
-
   /// Check if an account matching the provided mobile number exists
   Future<http.Response> checkIfMobileAccountExists({ required String? mobileNumber }){
     

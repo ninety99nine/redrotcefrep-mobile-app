@@ -13,6 +13,7 @@ class CustomMessageAlert extends StatelessWidget {
   final String text;
   final double? size;
   final bool showIcon;
+  final Color? bgColor;
   final IconData? icon;
   final EdgeInsets margin;
   final EdgeInsets padding;
@@ -25,6 +26,7 @@ class CustomMessageAlert extends StatelessWidget {
       super.key,  
       this.icon,
       this.size,
+      this.bgColor,
       this.textAlign,
       this.showIcon = true,
       this.type = AlertMessageType.info,
@@ -37,6 +39,7 @@ class CustomMessageAlert extends StatelessWidget {
   Widget build(BuildContext context) {
 
     Color color;
+    Color backgroundColor = bgColor ?? Colors.grey.shade200;
 
     if(type == AlertMessageType.error) {
       color = Colors.red.shade700;
@@ -52,7 +55,7 @@ class CustomMessageAlert extends StatelessWidget {
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(16.0)
       ),
       child: Row(

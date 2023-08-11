@@ -131,7 +131,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
       _startPaymentMethodsLoader();
 
-      apiProvider.apiRepository.get(url: apiProvider.apiHome!.links.paymentMethods).then((response) async {
+      apiProvider.apiRepository.get(url: store.links.showAvailablePaymentMethods.href).then((response) async {
 
         if(response.statusCode == 200) {
           
