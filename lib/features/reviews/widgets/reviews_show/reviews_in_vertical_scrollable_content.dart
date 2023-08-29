@@ -85,7 +85,7 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
         final responseBody = jsonDecode(response.body);
 
         /// If the response review count does not match the store review count
-        if(reviewFilter == 'All' && store.reviewsCount != responseBody['total']) {
+        if(searchWord.isEmpty && reviewFilter == 'All' && store.reviewsCount != responseBody['total']) {
 
           store.reviewsCount = responseBody['total'];
           store.runNotifyListeners();

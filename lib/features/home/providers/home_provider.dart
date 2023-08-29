@@ -63,31 +63,4 @@ class HomeProvider with ChangeNotifier {
 
   /// Check if we have selected the influencer stores tab
   bool get hasSelectedInfluencerStores => selectedFollowingTabIndex == 2;
-
-  //////////////////////////////
-  /// MY STORES TAB SETTINGS ///
-  //////////////////////////////
-  
-  /// The selected tab index of the following tabs e.g
-  /// Index 0 = My Plugs, Index 1 = Brands, Index 2 = Influencers
-  int _selectedMyStoresTabIndex = 0;
-
-  /// Get the selected tab index
-  int get selectedMyStoresTabIndex => _selectedMyStoresTabIndex;
-
-  /// Set the selected tab index
-  void setSelectedMyStoresTabIndex(int selectedMyStoresTabIndex, { saveOnLocalStorage = true }) {
-    _selectedMyStoresTabIndex = selectedMyStoresTabIndex;
-    if(saveOnLocalStorage) HomeService.saveSelectedMyStoresTabIndexOnDeviceStorage(selectedMyStoresTabIndex);
-  }
-
-  /// Check if we have selected the created stores tab
-  bool get hasSelectedCreatedStores => selectedMyStoresTabIndex == 0;
-
-  /// Check if we have selected the joined stores tab
-  bool get hasSelectedJoinedStores=> selectedMyStoresTabIndex == 1;
-
-  /// Check if we have selected the assigned stores tab
-  bool get hasSelectedAssignedStores=> selectedMyStoresTabIndex == 2;
-
 }

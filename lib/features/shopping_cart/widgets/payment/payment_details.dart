@@ -1,10 +1,12 @@
-import 'package:bonako_demo/core/shared_widgets/chips/custom_choice_chip.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/stores/models/store.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
+import 'package:bonako_demo/core/shared_widgets/chips/custom_choice_chip.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class PaymentDetails extends StatefulWidget {
   const PaymentDetails({super.key});
@@ -16,12 +18,20 @@ class PaymentDetails extends StatefulWidget {
 class _PaymentDetailsState extends State<PaymentDetails> {
   
   ShoppableStore? store;
+  bool isLoading = false;
+  List<PaymentMethod> supportedPaymentMethods = [];
+  void _startLoader() => setState(() => isLoading = true);
+  void _stopLoader() => setState(() => isLoading = false);
 
+  bool get hasPaymentMethods => supportedPaymentMethods.isNotEmpty;
+  bool get hasSelectedPaymentMethod => store!.paymentMethod != null;
+  bool get hasMultiplePaymentMethods => supportedPaymentMethods.length > 1;
   bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
-  bool get hasPaymentMethodInstruction => store!.paymentMethod != null && store!.paymentMethod!.instruction != null && store!.paymentMethod!.instruction!.isNotEmpty;
-  bool get hasActiveSupportedPaymentMethods => store == null ? false : store!.supportedPaymentMethods.where((supportedPaymentMethod) => supportedPaymentMethod.active).isNotEmpty;
-  List<PaymentMethod> get activeSupportedPaymentMethods => hasActiveSupportedPaymentMethods ? store!.supportedPaymentMethods.where((supportedPaymentMethod) => supportedPaymentMethod.active).toList() : [];
-
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+  bool get hasPaymentMethodInstruction => hasSelectedPaymentMethod && 
+    store!.paymentMethod!.attributes.storePaymentMethodAssociation!.instruction != null &&
+    store!.paymentMethod!.attributes.storePaymentMethodAssociation!.instruction!.isNotEmpty;
+  
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -29,18 +39,45 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     /// Get the updated Shoppable Store Model
     store = Provider.of<ShoppableStore>(context, listen: false);
 
-    /// If the payment method is null or the selected payment method does not exist in the list of active supported payment methods
-    if(hasActiveSupportedPaymentMethods && (store!.paymentMethod == null || selectedPaymentMethodExists() == false)) {
-
-      /// Set the payment method to the first active payment method
-      setState(() => store!.paymentMethod = activeSupportedPaymentMethods.first);
-
+    /// If we have selected products and we don't have payment methods and we are not loading
+    if(hasSelectedProducts && !hasPaymentMethods && !isLoading) {
+      _requestSupportedPaymentMethods();
     }
-
   }
 
-  bool selectedPaymentMethodExists() {
-    return activeSupportedPaymentMethods.any((paymentMethod) => paymentMethod.name == store!.paymentMethod!.name);
+  void _requestSupportedPaymentMethods() async {
+
+    _startLoader();
+
+    storeProvider.setStore(store!).storeRepository.showSupportedPaymentMethods().then((response) {
+
+      final responseBody = jsonDecode(response.body);
+
+      if(response.statusCode == 200) {
+        setState(() {
+
+          supportedPaymentMethods = (responseBody['data'] as List).map((paymentMethod) {
+            return PaymentMethod.fromJson(paymentMethod);
+          }).where((paymentMethod) {
+            return paymentMethod.attributes.storePaymentMethodAssociation!.active;
+          }).toList();
+
+          /// If we only have payment methods
+          if(hasPaymentMethods) {
+
+            /// Set the first payment method as the selected payment method
+            store!.updatePaymentMethod(supportedPaymentMethods.first);
+
+          }
+        });
+      }
+
+    }).whenComplete(() {
+
+      _stopLoader();
+    
+    });
+
   }
 
   @override
@@ -60,65 +97,69 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         switchOutCurve: Curves.easeOut,
         duration: const Duration(milliseconds: 500),
         child: Column(
-          children: hasSelectedProducts && hasActiveSupportedPaymentMethods ? [
+          children: hasSelectedProducts && hasPaymentMethods ? [
             
             //  Divider
             const Divider(),
 
-            /// Spacer
-            const SizedBox(height: 8),
-            
-            /// Title
-            const CustomTitleSmallText('How are you paying?'),
-
-            /// Spacer
-            const SizedBox(height: 8),
-
-            /// Payment Options (Cash | Credit/Debit Card | Ewallet)
-            ClipRRect(
-              clipBehavior: Clip.antiAlias,
-              borderRadius: BorderRadius.circular(24),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  alignment: WrapAlignment.start,
-                  spacing: 8,
-                  children: [
-
-                    ...activeSupportedPaymentMethods.map((paymentMethod) {
+            if(hasMultiplePaymentMethods) ...[
+    
+              /// Spacer
+              const SizedBox(height: 8),
               
-                      final selected = store!.paymentMethod?.name == paymentMethod.name;
-
-                        /// Return this choice chip option
-                        return CustomChoiceChip(
-                          selected: selected,
-                          label: paymentMethod.name,
-                          selectedColor: Colors.green.shade700,
-                          onSelected: (bool isSelected) => store!.updatePaymentMethod(paymentMethod),
-                        );
-              
-                    })
-
-                  ],
+              /// Title
+              const CustomTitleSmallText('How are you paying?'),
+    
+              /// Spacer
+              const SizedBox(height: 8),
+    
+              /// Payment Options (Cash | Credit/Debit Card | Ewallet)
+              ClipRRect(
+                clipBehavior: Clip.antiAlias,
+                borderRadius: BorderRadius.circular(24),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    alignment: WrapAlignment.start,
+                    spacing: 8,
+                    children: [
+                    
+                      ...supportedPaymentMethods.map((paymentMethod) {
+                                
+                        final selected = store!.paymentMethod?.name == paymentMethod.name;
+                    
+                          /// Return this choice chip option
+                          return CustomChoiceChip(
+                            selected: selected,
+                            label: paymentMethod.name,
+                            selectedColor: Colors.green.shade700,
+                            onSelected: (bool isSelected) => store!.updatePaymentMethod(paymentMethod),
+                          );
+                                
+                      })
+                    
+                    ],
+                  ),
                 ),
               ),
-            ),
+              
+              /// Spacer
+              if(hasPaymentMethodInstruction) const SizedBox(height: 16),
+
+            ],
             
             /// If the payment method has an instruction, display it
             if(hasPaymentMethodInstruction) ...[
               
+              /// Payment Method Instruction
+              CustomMessageAlert(store!.paymentMethod!.attributes.storePaymentMethodAssociation!.instruction!, icon: Icons.attach_money_rounded),
+              
               /// Spacer
               const SizedBox(height: 16),
-              
-              /// Payment Method Instruction
-              CustomMessageAlert(store!.paymentMethod!.instruction!),
-
+    
             ],
-
-            /// Spacer
-            const SizedBox(height: 8),
-
+    
           ] : [],
         )
       ),

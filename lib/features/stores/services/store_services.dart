@@ -34,6 +34,11 @@ class StoreServices {
 
   }
 
+  /// Check if the specfied store is assigned to this user as mobile store
+  static bool isAssigned(ShoppableStore store) {
+    return getUserStoreAssociation(store)?.isAssigned ?? false;
+  }
+
   /// Check if the user is a follower to the specified store
   static bool isFollower(ShoppableStore store) {
     return getUserStoreAssociation(store)?.isFollower ?? false;
@@ -85,7 +90,7 @@ class StoreServices {
   /// This means that the user has an active subscription to access this
   /// specified store
   static bool canAccessAsTeamMember(ShoppableStore store) {
-    return store.attributes.teamMemberAccess!.status;
+    return store.attributes.teamMemberAccess?.status ?? false;
   }
 
 }

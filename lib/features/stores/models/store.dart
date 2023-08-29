@@ -1,7 +1,10 @@
-import 'package:bonako_demo/core/shared_models/money.dart';
-import 'package:bonako_demo/features/stores/models/shopper_access.dart';
+import 'package:bonako_demo/core/shared_models/store_payment_method_association.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
 import 'package:bonako_demo/features/stores/models/team_member_access.dart';
+import 'package:bonako_demo/features/stores/models/shopper_access.dart';
+import 'package:bonako_demo/core/shared_models/mobile_number.dart';
 import '../../../core/shared_models/user_store_association.dart';
+import 'package:bonako_demo/core/shared_models/money.dart';
 import '../../../../core/shared_models/shortcode.dart';
 import '../../../../core/shared_models/link.dart';
 import '../../products/models/product.dart';
@@ -28,12 +31,16 @@ class Store {
   late int? teamMembersCount;
   late String offlineMessage;
   late Attributes attributes;
-  late bool identifiedOrders;
   late bool isInfluencerStore;
   late bool dpoPaymentEnabled;
   late String? dpoCompanyToken;
+  late bool allowDepositPayments;
+  late MobileNumber mobileNumber;
   late Relationships relationships;
+  late List<int> depositPercentages;
+  late bool allowInstallmentPayments;
   late int? activeSubscriptionsCount;
+  late List<int> installmentPercentages;
 
   late bool allowDelivery;
   late String? deliveryNote;
@@ -44,8 +51,6 @@ class Store {
   late bool allowPickup;
   late String? pickupNote;
   late List<PickupDestination> pickupDestinations;
-
-  late List<PaymentMethod> supportedPaymentMethods;
 
   Store.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -69,7 +74,6 @@ class Store {
     followersCount = json['followersCount'];
     offlineMessage = json['offlineMessage'];
     dpoCompanyToken = json['dpoCompanyToken'];
-    identifiedOrders = json['identifiedOrders'];
     teamMembersCount = json['teamMembersCount'];
     dpoPaymentEnabled = json['dpoPaymentEnabled'];
     allowFreeDelivery = json['allowFreeDelivery'];
@@ -77,13 +81,17 @@ class Store {
     isInfluencerStore = json['isInfluencerStore'];
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
+    allowDepositPayments = json['allowDepositPayments'];
     deliveryFlatFee = Money.fromJson(json['deliveryFlatFee']);
+    mobileNumber = MobileNumber.fromJson(json['mobileNumber']);
     activeSubscriptionsCount = json['activeSubscriptionsCount'];
+    allowInstallmentPayments = json['allowInstallmentPayments'];
     attributes = Attributes.fromJson(json['attributes'].runtimeType == List ? {} : json['attributes']);
     relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
+    depositPercentages = (json['depositPercentages'] as List<dynamic>).map((percentage) => int.parse(percentage.toString())).toList();
+    installmentPercentages = (json['installmentPercentages'] as List<dynamic>).map((percentage) => int.parse(percentage.toString())).toList();
     pickupDestinations = json['pickupDestinations'] == null ? [] : (json['pickupDestinations'] as List).map((destination) => PickupDestination.fromJson(destination)).toList();
     deliveryDestinations = json['deliveryDestinations'] == null ? [] : (json['deliveryDestinations'] as List).map((destination) => DeliveryDestination.fromJson(destination)).toList();
-    supportedPaymentMethods = json['supportedPaymentMethods'] == null ? [] : (json['supportedPaymentMethods'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
   }
   
 }
@@ -92,21 +100,25 @@ class Attributes {
   late ShopperAccess? shopperAccess;
   late TeamMemberAccess? teamMemberAccess;
   late UserStoreAssociation? userStoreAssociation;
+  late StorePaymentMethodAssociation? storePaymentMethodAssociation;
 
   Attributes.fromJson(Map<String, dynamic> json) {
     shopperAccess = json['shopperAccess'] == null ? null : ShopperAccess.fromJson(json['shopperAccess']);
     teamMemberAccess = json['teamMemberAccess'] == null ? null : TeamMemberAccess.fromJson(json['teamMemberAccess']);
     userStoreAssociation = json['userStoreAssociation'] == null ? null : UserStoreAssociation.fromJson(json['userStoreAssociation']);
+    storePaymentMethodAssociation = json['storePaymentMethodAssociation'] == null ? null : StorePaymentMethodAssociation.fromJson(json['storePaymentMethodAssociation']);
   }
 }
 
 class Relationships {
   late List<Product> products;
   late Shortcode? visitShortcode;
+  late List<PaymentMethod> paymentMethods;
 
   Relationships.fromJson(Map<String, dynamic> json) {
     visitShortcode = json['visitShortcode'] == null ? null : Shortcode.fromJson(json['visitShortcode']);
     products = json['products'] == null ? [] : (json['products'] as List).map((product) => Product.fromJson(product)).toList();
+    paymentMethods = json['paymentMethods'] == null ? [] : (json['paymentMethods'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
   }
 }
 
@@ -143,26 +155,6 @@ class PickupDestination {
     return {
       'name': name,
       'address': address,
-    };
-  }
-}
-
-class PaymentMethod {
-  late String name;
-  late bool active;
-  late String? instruction;
-
-  PaymentMethod.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    active = json['active'];
-    instruction = json['instruction'];
-  }
-
-  Map toJson() {
-    return {
-      'name': name,
-      'active': active,
-      'instruction': instruction ?? '',
     };
   }
 }
@@ -212,6 +204,7 @@ class Links {
   late Link showMyPermissions;
   late Link showCustomerFilters;
   late Link showCustomers;
+  late Link showSupportedPaymentMethods;
   late Link showAvailablePaymentMethods;
   late Link showMySubscriptions;
   late Link createSubscriptions;
@@ -224,6 +217,9 @@ class Links {
   late Link addToInfluencerStores;
   late Link removeFromInfluencerStores;
   late Link addOrRemoveFromInfluencerStores;
+  late Link addToAssignedStores;
+  late Link removeFromAssignedStores;
+  late Link addOrRemoveFromAssignedStores;
   late Link showVisitShortcode;
   late Link generatePaymentShortcode;
   late Link countShoppingCartOrderForUsers;
@@ -231,6 +227,8 @@ class Links {
   late Link showShoppingCartOrderForUsers;
   late Link inspectShoppingCart;
   late Link convertShoppingCart;
+  late Link showSharableContent;
+  late Link showSharableContentChoices;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
@@ -277,6 +275,7 @@ class Links {
     showMyPermissions = Link.fromJson(json['showMyPermissions']);
     showCustomerFilters = Link.fromJson(json['showCustomerFilters']);
     showCustomers = Link.fromJson(json['showCustomers']);
+    showSupportedPaymentMethods = Link.fromJson(json['showSupportedPaymentMethods']);
     showAvailablePaymentMethods = Link.fromJson(json['showAvailablePaymentMethods']);
     showMySubscriptions = Link.fromJson(json['showMySubscriptions']);
     createSubscriptions = Link.fromJson(json['createSubscriptions']);
@@ -289,6 +288,9 @@ class Links {
     addToInfluencerStores = Link.fromJson(json['addToInfluencerStores']);
     removeFromInfluencerStores = Link.fromJson(json['removeFromInfluencerStores']);
     addOrRemoveFromInfluencerStores = Link.fromJson(json['addOrRemoveFromInfluencerStores']);
+    addToAssignedStores = Link.fromJson(json['addToAssignedStores']);
+    removeFromAssignedStores = Link.fromJson(json['removeFromAssignedStores']);
+    addOrRemoveFromAssignedStores = Link.fromJson(json['addOrRemoveFromAssignedStores']);
     showVisitShortcode = Link.fromJson(json['showVisitShortcode']);
     generatePaymentShortcode = Link.fromJson(json['generatePaymentShortcode']);
     countShoppingCartOrderForUsers = Link.fromJson(json['countShoppingCartOrderForUsers']);
@@ -296,6 +298,8 @@ class Links {
     showShoppingCartOrderForUsers = Link.fromJson(json['showShoppingCartOrderForUsers']);
     inspectShoppingCart = Link.fromJson(json['inspectShoppingCart']);
     convertShoppingCart = Link.fromJson(json['convertShoppingCart']);
+    showSharableContent = Link.fromJson(json['showSharableContent']);
+    showSharableContentChoices = Link.fromJson(json['showSharableContentChoices']);
   }
 
 }

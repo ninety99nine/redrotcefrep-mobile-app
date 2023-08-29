@@ -30,7 +30,7 @@ class UserRepository {
   }
 
   /// Get the orders of the specified user
-  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, int? storeId, bool withStore = false, bool withCustomer = false, String searchWord = '', int page = 1 }) {
+  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, int? storeId, bool withStore = false, bool withCustomer = false, bool withOccasion = false, String searchWord = '', int page = 1 }) {
 
     if(user == null) throw Exception('The user must be set to show orders');
 
@@ -41,6 +41,8 @@ class UserRepository {
     if(withStore) queryParams.addAll({'withStore': '1'});
 
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
+
+    if(withOccasion) queryParams.addAll({'withOccasion': '1'});
 
     /// Filter orders by the specified friend user id
     if(friendUserId != null) queryParams.addAll({'friend_user_id': friendUserId.toString()});

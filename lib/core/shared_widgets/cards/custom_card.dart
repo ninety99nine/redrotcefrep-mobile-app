@@ -9,10 +9,12 @@ class CustomCard extends StatelessWidget {
   final EdgeInsets padding;
   final Color? borderColor;
   final Color? backgroundColor;
+  final BorderRadius? borderRadius;
 
   const CustomCard({
     Key? key,
     this.borderColor,
+    this.borderRadius,
     required this.child,
     this.elevation = 2.0,
     this.backgroundColor,
@@ -29,7 +31,7 @@ class CustomCard extends StatelessWidget {
       elevation: elevation,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: borderRadius ?? BorderRadius.circular(16.0),
         side: BorderSide(
           color: borderColor ?? Colors.grey.shade200,
         ),

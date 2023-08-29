@@ -34,7 +34,7 @@
     </queries>
     
     <application
-        android:label="bonako_demo"
+        android:label="Bonako"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

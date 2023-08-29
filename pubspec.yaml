@@ -64,6 +64,8 @@ dependencies:
   multiselect_formfield: ^0.1.7
   share_plus: ^7.0.2
   pusher_channels_flutter: ^2.2.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.2.19
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +81,17 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
+flutter_launcher_icons:
+  image_path: "assets/launcher_icon/launcher_icon.png"
+  android: true
+  ios: true
+
+flutter_native_splash:
+  color: '#ffffff'
+  image: "assets/splash_screen/image.png"
+  branding: "assets/splash_screen/branding.png"
+  #background_image: "assets/splash_screen/splash_screen_background.png"
+
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -92,10 +105,12 @@ flutter:
     - assets/sounds/
     - assets/images/
     - assets/images/auth/
+    - assets/images/orders/
     - assets/images/groups/
     - assets/images/welcome/
     - assets/images/following/
     - assets/images/my_stores/
+    - assets/images/bank_cards/
     - assets/images/intro_slides/
     
   #  - assets/icons/ecommerce_pack_1/

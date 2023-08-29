@@ -5,14 +5,12 @@ import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.da
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
-import '../../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class OrderTransactionsModalBottomSheet extends StatefulWidget {
   
   final Order order;
-  final ShoppableStore store;
   final Transaction? transaction;
   final Widget Function(void Function())? trigger;
   final TransactionContentView? transactionContentView;
@@ -21,7 +19,6 @@ class OrderTransactionsModalBottomSheet extends StatefulWidget {
     super.key,
     this.trigger,
     this.transaction,
-    required this.store,
     required this.order,
     this.transactionContentView
   });
@@ -33,7 +30,6 @@ class OrderTransactionsModalBottomSheet extends StatefulWidget {
 class _OrderTransactionsModalBottomSheetState extends State<OrderTransactionsModalBottomSheet> {
 
   Order get order => widget.order;
-  ShoppableStore get store => widget.store;
   Transaction? get transaction => widget.transaction;
   Widget Function(void Function())? get trigger => widget.trigger;
   TransactionContentView? get transactionContentView => widget.transactionContentView;
@@ -55,7 +51,7 @@ class _OrderTransactionsModalBottomSheetState extends State<OrderTransactionsMod
 
       /// Return the total transactions and total transactions text
       return CustomElevatedButton(
-        'BonakoPay',
+        'Pay Now',
         width: 120,
         prefixIcon: Icons.payment,
         alignment: Alignment.center,
@@ -82,7 +78,6 @@ class _OrderTransactionsModalBottomSheetState extends State<OrderTransactionsMod
       /// Content of the bottom modal sheet
       content: OrderTransactionsContent(
         order: order,
-        store: store,
         transaction: transaction,
         transactionContentView: transactionContentView
       ),

@@ -12,12 +12,14 @@ class CustomElevatedButton extends StatelessWidget {
   final bool disabled;
   final bool isLoading;
   final bool isSuccess;
+  final double? fontSize;
   final EdgeInsets padding;
   final Alignment alignment;
   final IconData? suffixIcon;
   final IconData? prefixIcon;
   final double? prefixIconSize;
   final double? suffixIconSize;
+  final BorderRadius? borderRadius;
   final void Function()? onPressed;
 
   const CustomElevatedButton(
@@ -25,11 +27,13 @@ class CustomElevatedButton extends StatelessWidget {
     {
       super.key,
       this.color,
+      this.fontSize,
       this.onPressed,
       this.suffixIcon,
       this.prefixIcon,
       this.height = 36,
       this.width = 100,
+      this.borderRadius,
       this.isError = false,
       this.disabled = false,
       this.isSuccess = false,
@@ -69,7 +73,7 @@ class CustomElevatedButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0)
+            borderRadius: borderRadius ?? BorderRadius.circular(18.0)
           ),
           textStyle: const TextStyle(fontWeight: FontWeight.bold)
         ),
@@ -108,7 +112,8 @@ class CustomElevatedButton extends StatelessWidget {
                     if(prefixIcon != null) Icon(prefixIcon, size: prefixIconSize, color: disabled ? Colors.white : null,),
                     if(text.isNotEmpty && prefixIcon != null) const SizedBox(width: 5),
                     CustomBodyText(
-                      text, 
+                      text,
+                      fontSize: fontSize,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),

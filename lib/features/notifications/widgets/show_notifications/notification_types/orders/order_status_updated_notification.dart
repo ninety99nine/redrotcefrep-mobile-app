@@ -18,9 +18,9 @@ class OrderStatusUpdatedNotificationContent extends StatelessWidget {
   String get status => orderProperties.status;
   DateTime get createdAt => notification.createdAt;
   String get orderNumber => orderProperties.number;
-  String get customerName => orderProperties.customerProperties.name;
   bool get isAssociatedAsFriend => orderProperties.isAssociatedAsFriend;
   String get changedByUserName => orderProperties.changedByUserProperties.name;
+  String get customerFirstName => orderProperties.customerProperties.firstName;
   StoreProperties get storeProperties => orderStatusUpdatedNotification.storeProperties;
   OrderProperties get orderProperties => orderStatusUpdatedNotification.orderProperties;
   OrderStatusUpdatedNotification get orderStatusUpdatedNotification => OrderStatusUpdatedNotification.fromJson(notification.data);
@@ -51,7 +51,7 @@ class OrderStatusUpdatedNotificationContent extends StatelessWidget {
                 children: [
                   TextSpan(
                     /// Activity
-                    text: customerName,
+                    text: customerFirstName,
                     style: style(context),
                   ),
                   TextSpan(

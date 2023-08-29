@@ -1,22 +1,18 @@
 enum UserAssociation {
-  follower,
-  unfollower,
-  invitedToFollow,
-
-  teamMember,
-  teamMemberLeft,
-  teamMemberJoined,
-  teamMemberJoinedAsCreator,
+  teamMember, teamMemberLeft, teamMemberJoined,
+  teamMemberInvited, teamMemberDeclined,
   teamMemberJoinedAsNonCreator,
-  teamMemberInvited,
-  teamMemberDeclined,
-
+  teamMemberJoinedAsCreator,
+  
+  follower, unfollower, invitedToFollow,
+  
   friendGroupMember,
-
+  
   customer,
-  recentVisitor,
-
-  brands
+  
+  assigned,
+  
+  recentVisitor
 }
 
 enum CollectionType {

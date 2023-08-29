@@ -1,42 +1,45 @@
-import 'dart:convert';
-
-import 'package:bonako_demo/features/user/providers/user_provider.dart';
-
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog_content.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/order_collection_content/order_collection_content.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
-import '../../../user/widgets/customer_profile/customer_profile_avatar.dart';
-import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/icon_button/close_modal_icon_button.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/features/stores/widgets/store_dialog_header.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:bonako_demo/features/user/providers/user_provider.dart';
+import '../order_show/full_order_content/full_order_content.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
-import '../../services/order_services.dart';
-import '../../models/order.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import '../../enums/order_enums.dart';
-import '../order_show/order_content.dart';
+import '../../models/order.dart';
+import 'dart:convert';
+
+enum OrderContentType {
+  orderFullContent,
+  orderPaymentContent,
+  orderCollectionContent,
+}
 
 class OrdersInHorizontalInfiniteScroll extends StatefulWidget {
   
-  final Order order;
-  final bool triggerCancel;
+  final Order? order;
   final String? orderFilter;
-  final bool isViewingOrder;
   final ShoppableStore? store;
-  final Function(Order) onUpdatedOnMultipleOrders;
-  final Function(Order) onUpdatedPreviewSingleOrder;
-  final void Function(Order) onRequestedOrderRelationships;
+  final Function()? onPlaceOrder;
+  final OrderContentType orderContentType;
+  final void Function(Order)? onUpdatedOrder;
 
   const OrdersInHorizontalInfiniteScroll({
     Key? key,
     this.store,
+    this.onPlaceOrder,
     required this.order,
     required this.orderFilter,
-    this.triggerCancel = false,
-    required this.isViewingOrder,
-    required this.onUpdatedOnMultipleOrders,
-    required this.onUpdatedPreviewSingleOrder,
-    required this.onRequestedOrderRelationships,
+    required this.onUpdatedOrder,
+    required this.orderContentType,
   }) : super(key: key);
 
   @override
@@ -51,87 +54,49 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
   final GlobalKey<CustomHorizontalPageViewInfiniteScrollState> _customHorizontalPageViewInfiniteScrollState = GlobalKey<CustomHorizontalPageViewInfiniteScrollState>();
 
   int? orderId;
-  int? customerUserId;
-  PreviewOrderMode? previewOrderMode;
-  bool canShowTogglePreviewMode = true;
+  bool canShowSwipeLeftOrRightInstruction = true;
 
-  Order get order => widget.order;
+  Order? get order => widget.order;
   ShoppableStore? get store => widget.store;
   String? get orderFilter => widget.orderFilter;
-  bool get triggerCancel => widget.triggerCancel;
-  bool get isViewingOrder => widget.isViewingOrder;
-  Function(Order) get onUpdatedOnMultipleOrders => widget.onUpdatedOnMultipleOrders;
+  Function()? get onPlaceOrder => widget.onPlaceOrder;
+  OrderContentType get orderContentType => widget.orderContentType;
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  Function(Order) get onUpdatedPreviewSingleOrder => widget.onUpdatedPreviewSingleOrder;
-  void Function(Order) get onRequestedOrderRelationships => widget.onRequestedOrderRelationships;
 
   @override
   void initState() {
 
     super.initState();
-    setPreviewOrderMode();
 
-    /// Show the toggle preview mode checkbox as long as we are 
-    /// triggering an automatic cancellation of this order
-    canShowTogglePreviewMode = (triggerCancel == false);
-
-    /// If we are viewing a specific order
-    if(isViewingOrder) {
-
-      /// Set the order id (This will exclude this order from the list of orders returned)
-      orderId = order.id;
-
-      /// Set the order customer user id as the customer user id
-      customerUserId = order.customerUserId;
-    
-    }
+    /// Set the order id (This will exclude this order from the list of orders returned)
+    orderId = order?.id;
 
   }
 
-  /// Set on the "previewOrderMode" property, the last selected preview order mode 
-  /// that was saved on the device. This helps us to know whether we want to show 
-  /// the initial order alone (PreviewOrderMode.singleOrder) or the initial order
-  /// along side a list of follow up orders (PreviewOrderMode.multipleOrders)
-  /// 
-  /// If we are triggering an automatic cancellation of this order (the initial order that 
-  /// was passed as an argument of the OrdersInHorizontalInfiniteScroll widget), then we 
-  /// should always set the "previewOrderMode" to "PreviewOrderMode.singleOrder" so that
-  /// we can enable cancellation on the initial order alone without requesting other 
-  /// orders
-  void setPreviewOrderMode() async {
-    if(triggerCancel == true) {
-
-      setState(() => previewOrderMode = PreviewOrderMode.singleOrder);
-
-    }else{
-
-      OrderServices.getSelectedPreviewOrderModeOnDevice().then((previewOrderMode) {
-        setState(() => this.previewOrderMode = previewOrderMode);
-      });
-
-    }
-  }
-
-  /// Called to change determine whether we can show the toggle preview mode checkbox
+  /// Called to determine whether we can show the swipe left or right instructions
   /// each time the user swipes from one page to another
   void onPageChanged(int page) {
-    setState(() => canShowTogglePreviewMode = page == 0);
+    setState(() => canShowSwipeLeftOrRightInstruction = page == 0);
   }
 
   /// Render each request item as an OrderItem
-  Widget onRenderItem(order, int index, List orders) => OrderItem(
-    customHorizontalPageViewInfiniteScrollState: _customHorizontalPageViewInfiniteScrollState,
-    onRequestedOrderRelationships: onRequestedOrderRelationships,
-    onUpdatedPreviewSingleOrder: onUpdatedPreviewSingleOrder,
-    onUpdatedOnMultipleOrders: onUpdatedOnMultipleOrders,
-    previewOrderMode: previewOrderMode,
-    triggerCancel: triggerCancel,
-    order: (order as Order),
-    store: store,
-    index: index,
-  );
+  Widget onRenderItem(order, int index, List orders) {
+    
+    /// If this order does not have a store set on its relationship,
+    /// then set this store to be part of the order relationships
+    order.relationships.store ??= widget.store;
+
+    return OrderItem(
+      customHorizontalPageViewInfiniteScrollState: _customHorizontalPageViewInfiniteScrollState,
+      orderContentType: orderContentType,
+      onUpdatedOrder: onUpdatedOrder,
+      order: (order as Order),
+      index: index,
+    );
+  }
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
@@ -144,10 +109,13 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
       /// Request the user orders
       request = userProvider.setUser(authProvider.user!).userRepository.showOrders(
-        filter: isViewingOrder ? null : orderFilter,
-        withStore: store == null ? true : false,
+        /// Since we don't have the store, we can eager load the store on each order.
+        /// Since these orders are acquired through a user and order relationship,
+        /// the user and order collection association is included by default.
         startAtOrderId: orderId,
         searchWord: searchWord,
+        filter: orderFilter,
+        withStore: true,
         page: page
       );
 
@@ -156,21 +124,13 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
       /// Request the store orders
       request = storeProvider.setStore(store!).storeRepository.showOrders(
-        /**
-         *  If we are viewing a specific order of a customer, then do not
-         *  filter by the order filter so that we can fetch all their 
-         *  orders. If we are showing different customer orders, then
-         *  we can filter by the order filter (orderFilter).
-         * 
-         *  We can also indicate that the request must return orders
-         *  including the selected order that we are currently 
-         *  viewing, that is show all other orders including 
-         *  this one (exceptOrderId = null).
-         */
-        filter: isViewingOrder ? null : orderFilter,
-        customerUserId: customerUserId,
+        /// Since these orders are not acquired through a user and order relationship,
+        /// we need to indicate that we cant to also eager load the user and order
+        /// collection association
+        withUserOrderCollectionAssociation: true,
         startAtOrderId: orderId,
         searchWord: searchWord,
+        filter: orderFilter,
         page: page
       ).then((response) {
 
@@ -179,7 +139,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
           final responseBody = jsonDecode(response.body);
 
           /// If the response order count does not match the store order count
-          if(isViewingOrder == false && orderFilter == 'All' && store!.ordersCount != responseBody['total']) {
+          if(orderId == null && searchWord.isEmpty && orderFilter == 'All' && store!.ordersCount != responseBody['total']) {
 
             store!.ordersCount = responseBody['total'];
             store!.runNotifyListeners();
@@ -198,8 +158,8 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
   }
 
-  /// Show the preview order mode checkbox
-  Widget get previewOrderModeCheckbox {
+  /// Show the swipe left or right instruction
+  Widget get swipeLeftOrRightInstruction {
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 500),
@@ -207,62 +167,52 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
         switchInCurve: Curves.easeIn,
         switchOutCurve: Curves.easeOut,
         duration: const Duration(milliseconds: 500),
-        child: canShowTogglePreviewMode ? Container(
+        child: canShowSwipeLeftOrRightInstruction ? Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24.0)
           ),
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: CustomCheckbox(
-            disabled: previewOrderMode == null,
-            text: 'Show multiple orders and swipe left/right',
-            value: previewOrderMode == PreviewOrderMode.multipleOrders,
-            onChanged: (value) {
-              setState(() {
-                if(value == true) {
-                  previewOrderMode = PreviewOrderMode.multipleOrders;
-                }else{
-                  previewOrderMode = PreviewOrderMode.singleOrder;
-                }
-                OrderServices.saveSelectedPreviewOrderModeOnDevice(previewOrderMode!);
-              }); 
-            }
-          ),
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: const CustomBodyText('Swipe left or right to see other orders'),
         ) : null,
       ),
     );
     
   }
 
-  /// Show a single order item (the initial order item)
-  Widget get singleOrderWidget {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: OrderItem(
-        onRequestedOrderRelationships: onRequestedOrderRelationships,
-        onUpdatedPreviewSingleOrder: onUpdatedPreviewSingleOrder,
-        previewOrderMode: previewOrderMode,
-        triggerCancel: triggerCancel,
-        order: order,
-        store: store
+  Widget get noMoreContentWidget {
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18.0),
       ),
-    );
-  }
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      child: Card(
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0)
+        ),
+        margin: EdgeInsets.zero,
+        child: Column(
+          children: [
 
-  /// Show multiple order items (the initial order item along side other orders)
-  Widget get multipleOrdersWidget {
-    return CustomHorizontalPageViewInfiniteScroll(
-      showSearchBar: false,
-      debounceSearch: false,
-      onParseItem: onParseItem, 
-      onRenderItem: onRenderItem,
-      showFirstRequestLoader: true,
-      onPageChanged: onPageChanged,
-      catchErrorMessage: 'Can\'t show orders',
-      headerPadding: const EdgeInsets.only(top: 0),
-      key: _customHorizontalPageViewInfiniteScrollState,
-      onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
+            SizedBox(
+              width: 400,
+              child: Image.asset('assets/images/welcome/6.png'),
+            ),
+
+            const CustomBodyText('No more orders', margin: EdgeInsets.only(bottom: 32),),
+
+            if(onPlaceOrder != null) CustomElevatedButton(
+              'Place Order',
+              onPressed: onPlaceOrder,
+              alignment: Alignment.center,
+            )
+
+          ]
+        )
+      )
     );
   }
 
@@ -277,40 +227,31 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
       body: Column(
         children: [
           
-          /// Checkbox to toggle previewing of orders as single order or multiple orders
-          previewOrderModeCheckbox,
+          /// Swipe left or right instructions
+          swipeLeftOrRightInstruction,
     
           /// Spacer
           const SizedBox(height: 16),
     
-          /// Single Order / Multiple list of scrollable Orders
+          /// Scrollable Orders
           Expanded(
-            child: previewOrderMode == PreviewOrderMode.singleOrder
-              ? singleOrderWidget 
-              : multipleOrdersWidget,
+            child: CustomHorizontalPageViewInfiniteScroll(
+              showSearchBar: false,
+              debounceSearch: false,
+              onParseItem: onParseItem, 
+              onRenderItem: onRenderItem,
+              showFirstRequestLoader: true,
+              onPageChanged: onPageChanged,
+              catchErrorMessage: 'Can\'t show orders',
+              noMoreContentWidget: noMoreContentWidget,
+              headerPadding: const EdgeInsets.only(top: 0),
+              key: _customHorizontalPageViewInfiniteScrollState,
+              onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
+            )
           ),
 
-          /// Cancel Icon
-          Align(
-            alignment: Alignment.center,
-            child: GestureDetector(
-              /// This padding is to increase the surface area for the gesture detector
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                /// This container is to provide a white background around the cancel icon
-                /// so that as we scoll and the content passes underneath the icon we do
-                /// not see the content showing up on the transparent parts of the icon
-                child: Container(
-                  decoration: BoxDecoration(
-                  color: Colors.white,
-                    borderRadius: BorderRadius.circular(20)
-                  ),
-                  child: Icon(Icons.cancel, size: 40, color: Theme.of(context).primaryColor,)
-                ),
-              ),
-              onTap: () => Navigator.of(context).pop(),
-            ),
-          ),
+          /// Close Modal Icon Button
+          const CloseModalIconButton(),
     
         ],
       ),
@@ -325,27 +266,19 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
 class OrderItem extends StatefulWidget {
   
-  final int? index;
+  final int index;
   final Order order;
-  final bool triggerCancel;
-  final ShoppableStore? store;
-  final PreviewOrderMode? previewOrderMode;
-  final Function(Order)? onUpdatedOnMultipleOrders;
-  final Function(Order) onUpdatedPreviewSingleOrder;
-  final void Function(Order) onRequestedOrderRelationships;
+  final OrderContentType orderContentType;
+  final void Function(Order)? onUpdatedOrder;
   final GlobalKey<CustomHorizontalPageViewInfiniteScrollState>? customHorizontalPageViewInfiniteScrollState;
 
   const OrderItem({
     super.key,
-    this.index,
-    this.store,
+    required this.index,
     required this.order,
-    required this.triggerCancel,
-    required this.previewOrderMode,
-    this.onUpdatedOnMultipleOrders,
+    required this.onUpdatedOrder,
+    required this.orderContentType,
     this.customHorizontalPageViewInfiniteScrollState,
-    required this.onUpdatedPreviewSingleOrder,
-    required this.onRequestedOrderRelationships,
   });
 
   @override
@@ -354,103 +287,116 @@ class OrderItem extends StatefulWidget {
 
 class _OrderItemState extends State<OrderItem> {
 
-  int? get index => widget.index;
-  Order get order => widget.order;
-  bool get triggerCancel => widget.triggerCancel;
-  bool get hasStoreFromOrder => storeFromOrder != null;
-  ShoppableStore get store => widget.store ?? storeFromOrder!;
-  ShoppableStore? get storeFromOrder => order.relationships.store;
-  PreviewOrderMode? get previewOrderMode => widget.previewOrderMode;
-  Function(Order)? get onUpdatedOnMultipleOrders => widget.onUpdatedOnMultipleOrders;
-  Function(Order) get onUpdatedPreviewSingleOrder => widget.onUpdatedPreviewSingleOrder;
-  void Function(Order) get onRequestedOrderRelationships => widget.onRequestedOrderRelationships;
+  late Order order;
+  late bool hasStoreFromOrder;
+  late ShoppableStore? storeFromOrder;
+
+  int get index => widget.index;
+  ShoppableStore get store => order.relationships.store!;
+  OrderContentType get orderContentType => widget.orderContentType;
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   GlobalKey<CustomHorizontalPageViewInfiniteScrollState>? get customHorizontalPageViewInfiniteScrollState => widget.customHorizontalPageViewInfiniteScrollState;
+
+  @override
+  void initState() {
+    super.initState();
+    order = widget.order;
+    storeFromOrder = order.relationships.store;
+    hasStoreFromOrder = storeFromOrder != null;
+    
+  }
 
   /// Update the order on the list of multiple orders
   void updateOrderOnItemList(Order order) {
-    if(previewOrderMode == PreviewOrderMode.multipleOrders) {
-      customHorizontalPageViewInfiniteScrollState!.currentState!.updateItemAt(index!, order);
+    customHorizontalPageViewInfiniteScrollState!.currentState!.updateItemAt(index, order);
+  }
+
+  Widget get orderContent {
+
+    if(orderContentType == OrderContentType.orderFullContent) {
+
+      /// Order Summary
+      return FullOrderContent(
+        order: order,
+        key: ValueKey<String>(order.status.name),
+        onUpdatedOrder: (Order order) {
+
+          /// Update the order on the list of orders
+          updateOrderOnItemList(order);
+
+          /// Notify parent widget of this updated order status
+          if(onUpdatedOrder != null) onUpdatedOrder!(order);
+          
+        },
+      );
+
+    }else if(orderContentType == OrderContentType.orderPaymentContent) {
+
+      /// Order Request Payment Dialog Content
+      return OrderRequestPaymentDialogContent(
+        order: order,
+        key: ValueKey<String>(order.status.name),
+        onRequestPayment: (Transaction transaction) {
+          
+          
+        },
+      );
+    
+    }else if(orderContentType == OrderContentType.orderCollectionContent) {
+      
+      /// Order Collection Content
+      return OrderCollectionContent(
+        order: order,
+        key: ValueKey<String>(order.status.name),
+        onUpdatedOrder: (Order order) {
+
+          /// Update the order on the list of orders
+          updateOrderOnItemList(order);
+
+          /// Notify parent widget of this updated order status
+          if(onUpdatedOrder != null) onUpdatedOrder!(order);
+          
+        },
+      );
+    
+    }else{
+
+      return const SizedBox();
+
     }
+
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18.0),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      child: SingleChildScrollView(
-        child: Card(
-          elevation: 10,
-          key: ValueKey<int>(order.id),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0)
-          ),
-          margin: EdgeInsets.zero,
-          child: Column(
-            children: [
-
-              /// Customer Profile
-              Padding(
-                padding: const EdgeInsets.only(top: 16, bottom: 16, left: 16.0, right: 16.0),
-                child: CustomerProfileAvatar(
-                  order: order,
-                  store: store,
-                ),
-              ),
-
-              /// Divider
-              const Divider(height: 0,),
-
-              /// Order Summary
-              OrderContent(
-                store: store,
-                order: order,
-                showLogo: hasStoreFromOrder,
-                color: Colors.transparent,
-                triggerCancel: triggerCancel,
-                key: ValueKey<String>(order.status.name),
-                onRequestedOrderRelationships: (Order order) {
-
-                  /// Set the store on the order since this order might not have a store eager loaded as a relationship
-                  order.relationships.store = store;
-
-                  updateOrderOnItemList(order);
-        
-                  /// Notify parent widget of this order with the requested order relationships e.g cart
-                  onRequestedOrderRelationships(order);
-                  
-                },
-                onUpdatedOrder: (Order order) {
-
-                  /// Set the store on the order since this order might not have a store eager loaded as a relationship
-                  order.relationships.store = store;
-
-                  ///  If we are updating a single order (the initial order that was
-                  ///  passed as an argument of the OrdersInHorizontalInfiniteScroll
-                  ///  widget)
-                  if(previewOrderMode! == PreviewOrderMode.singleOrder) {
-        
-                    /// Notify parent widget of this single updated order
-                    onUpdatedPreviewSingleOrder(order);
-
-                  ///  If we are updating a multiple orders
-                  }else{
-        
-                    updateOrderOnItemList(order);
-        
-                    /// Notify parent widget of this single updated order on a list of multiple orders
-                    onUpdatedOnMultipleOrders!(order);
-
-                  }
-                  
-                },
-              ),
-            ],
-          ),
+      child: Card(
+        elevation: 10,
+        key: ValueKey<int>(order.id),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0)
         ),
+        margin: EdgeInsets.zero,
+        child: Column(
+          children: [
+    
+            /// Store Dialog Header
+            StoreDialogHeader(store: store, padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0)),
+    
+            Expanded(
+              child: SingleChildScrollView(
+                child: orderContent
+              )
+            ),
+            
+          ],
+        )
       ),
     );
   }

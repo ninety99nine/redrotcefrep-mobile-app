@@ -35,6 +35,7 @@ class _EditProductCardsState extends State<EditProductCards> {
   bool get hasReachedMinimumProductsPerStoreOnPreview => products.length >= constants.minimumProductsPerStoreOnPreview;
   bool get isShoppingOnStorePage => (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
   bool get isShoppingOnStoreCard => (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
+  bool get isShoppingOnStoreOrdersModalBottomSheet => (shoppingCartCurrentView == ShoppingCartCurrentView.storeOrdersModalBottomSheet);
   List<Product> get filteredProducts => showAllProducts ? products : products.take(constants.minimumProductsPerStoreOnPreview).toList();
   bool get hasMoreProductsThanMinimumProductsToShow => (hasReachedMaximumProductsPerStore ? products.length : products.length + 1) > constants.minimumProductsPerStoreOnPreview;
   
@@ -67,7 +68,7 @@ class _EditProductCardsState extends State<EditProductCards> {
      *     we selected one of the products while other products where 
      *     hidden. This will allow the hidden products to be displayed
      */
-    if(isShoppingOnStoreCard || isShoppingOnStorePage) {
+    if(isShoppingOnStoreCard || isShoppingOnStorePage || isShoppingOnStoreOrdersModalBottomSheet) {
 
       setState(() {
         autoToggleShowAllProducts();

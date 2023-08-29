@@ -1,16 +1,18 @@
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/features/shopping_cart/widgets/anonymous/anonymous_details.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/delivery_or_pickup/delivery_or_pickup.dart';
+import 'package:bonako_demo/features/shopping_cart/widgets/occassion/occasion_details.dart';
+import 'package:bonako_demo/features/shopping_cart/widgets/special_note/special_note.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/payment/payment_details.dart';
-import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_content.dart';
+import '../../products/widgets/shoppable_product_cards/shoppable_product_cards.dart';
+import 'package:bonako_demo/features/stores/widgets/store_dialog_header.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
 import '../../order_for/widgets/order_for_details.dart';
 import '../../friend_groups/models/friend_group.dart';
 import '../../stores/providers/store_provider.dart';
-import '../../products/widgets/shoppable_product_cards/shoppable_product_cards.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
 import '../../stores/models/shoppable_store.dart';
 import '../../../core/shared_models/cart.dart';
 import '../../../core/shared_models/user.dart';
@@ -38,6 +40,7 @@ class ShoppingCartContent extends StatefulWidget {
 class _ShoppingCartState extends State<ShoppingCartContent> {
 
   ShoppableStore? store;
+  Map serverErrors = {};
   bool isSubmitting = false;
   bool hasInitialized = false;
   List lastSelectedProductItems = [];
@@ -54,6 +57,14 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   final ApiConflictResolverUtility apiConflictResolverUtility = ApiConflictResolverUtility();
   bool get isShowingStorePage => Provider.of<StoreProvider>(context, listen: true).isShowingStorePage;
+  bool get isShoppingOnStorePage => (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
+  bool get isShoppingOnStoreCard => (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
+  bool get isShoppingOnStoreOrdersModalBottomSheet => (shoppingCartCurrentView == ShoppingCartCurrentView.storeOrdersModalBottomSheet);
+
+  /// This allows us to access the state of OrdersModalBottomSheetState widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  final GlobalKey<OrdersModalBottomSheetState> _ordersModalBottomSheetState = GlobalKey<OrdersModalBottomSheetState>();
 
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
@@ -145,8 +156,8 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
      *  products. So since this ShoppingCartContent() widget's lastSelectedProductItems 
      *  are empty and the Shoppable Store selectedProducts are empty, we 
      *  therefore don't have  a difference in items that could cause the 
-     *  _requestInspectShoppingCart() to be executed. As a result the
-     *  is only becomes a cause for concern when ShoppingCartContent() is
+     *  _requestInspectShoppingCart() to be executed. As a result this
+     *  only becomes a cause for concern when ShoppingCartContent() is
      *  being built while we already have selectedProducts on the
      *  Shoppable Store Model.
      * 
@@ -156,10 +167,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
      *  _requestInspectShoppingCart() might not be desired. In our case, the
      *  justification is to minimize the number of Api Requests being made.
      */
-    final isShoppingOnStorePage = (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
-    final isShoppingOnStoreCard = (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
-
-    if( hasInitialized && (isShoppingOnStoreCard || isShoppingOnStorePage) && hasSelectedProducts && _productsHaveChanged() ) {
+    if( hasInitialized && (isShoppingOnStoreCard || isShoppingOnStorePage || isShoppingOnStoreOrdersModalBottomSheet) && hasSelectedProducts && _productsHaveChanged() ) {
 
       /// Request the shopping cart
       _requestInspectShoppingCart();
@@ -290,6 +298,8 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
   
   Future<void> _requestConvertShoppingCart() async {
 
+    print('_requestConvertShoppingCart ####################');
+
     _startSubmittionLoader();
     
     await storeProvider.setStore(store!).storeRepository.convertShoppingCart(
@@ -298,8 +308,9 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
       pickupDestination: store!.pickupDestination,
       collectionType: store!.collectionType,
       products: store!.selectedProducts,
-      anonymous: store!.anonymous!,
+      specialNote: store!.specialNote,
       friendGroups: friendGroups,
+      occasion: store!.occasion,
       cartCouponCodes: [],
       orderFor: orderFor!,
       friends: friends,
@@ -307,10 +318,14 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
       if(!mounted) return;
 
+      final responseBody = jsonDecode(response.body);
+
       if( response.statusCode == 201 ) {
 
-        final responseBody = jsonDecode(response.body);
         final Order createdOrder = Order.fromJson(responseBody);
+
+        /// Set the store relationship
+        createdOrder.relationships.store = store;
 
         setState(() {
               
@@ -333,24 +348,26 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
         });
         
         SnackbarUtility.showSuccessMessage(message: 'Your order has been sent.\nOpen orders to stay up to date', duration: 6);
+        
+        if(!isShoppingOnStoreOrdersModalBottomSheet) {
+          openOrdersModalBottomSheet();
+        }
 
-        if(store!.dpoPaymentEnabled) {
+        if(createdOrder.attributes.canRequestPayment) {
 
           Future.delayed(const Duration(seconds: 1)).then((value) {
-            DialogUtility.showInfiniteScrollContentDialog(
-              context: context,
-              heightRatio: 0.9,
-              showCloseIcon: false,
-              content: OrderTransactionsContent(
-                store: store!,
-                order: createdOrder,
-                transactionContentView: TransactionContentView.requestPayment
-              )
-            );
+
+            /// Open Dialog
+            showOrderRequestPaymentDialog(createdOrder);
+
           });
 
         }
 
+      }else if(response.statusCode == 422) {
+
+        handleServerValidation(responseBody['errors']);
+        
       }
 
     }).catchError((error) {
@@ -367,6 +384,43 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
     });
 
+  }
+
+  /// Set the validation errors as serverErrors
+  void handleServerValidation(Map errors) {
+
+    /**
+     *  errors = {
+     *    comment: [The comment must be more than 10 characters]
+     * }
+     */
+    setState(() {
+      errors.forEach((key, value) {
+        serverErrors[key] = value[0];
+      });
+    });
+
+  }
+
+  void openOrdersModalBottomSheet() {
+    if(_ordersModalBottomSheetState.currentState != null) {
+      _ordersModalBottomSheetState.currentState!.openBottomModalSheet();
+    }
+  }
+
+  void showOrderRequestPaymentDialog(Order createdOrder)
+  {
+    /// Open Dialog
+    DialogUtility.showInfiniteScrollContentDialog(
+      context: context,
+      heightRatio: 0.9,
+      showCloseIcon: false,
+      backgroundColor: Colors.transparent,
+      content: OrderRequestPaymentDialog(
+        order: createdOrder,
+        onRequestPayment: (_) => {},
+      )
+    );
   }
 
   @override
@@ -396,14 +450,17 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
         /// Show the order for details
         const OrderForDetails(),
 
-        /// Show the cart details
-        const DeliveryOrPickup(),
+        /// Show the occasion details
+        const OccasionDetails(),
+
+        /// Show the special note
+        SpecialNote(serverErrors: serverErrors),
 
         /// Show the payment details
         const PaymentDetails(),
 
-        /// Show the anonymous details
-        const AnonymousDetails(),
+        /// Show the cart details
+        const DeliveryOrPickup(),
 
         //  Call To Action
         AnimatedSwitcher(
@@ -417,6 +474,13 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
             onPressed: isSubmitting ? null : _requestConvertShoppingCart,
           ) : null,
         ),
+
+        /// Orders Modal Bottom Sheet
+        OrdersModalBottomSheet(
+          store: store,
+          key: _ordersModalBottomSheetState,
+          trigger: (openBottomModalSheet) => Container(),
+        )
 
       ],
     );

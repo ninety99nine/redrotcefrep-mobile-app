@@ -1,5 +1,8 @@
-import 'package:bonako_demo/core/shared_models/money.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
+
+import 'package:bonako_demo/core/shared_models/store_payment_method_association.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
+import 'package:bonako_demo/core/utils/mobile_number.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
@@ -50,9 +53,13 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   Map storeForm = {};
   Map serverErrors = {};
   bool isSubmitting = false;
-  bool isLoadingPaymentMethods = false;
   final _formKey = GlobalKey<FormState>();
-  List<String> supportedPaymentMethods = [];
+  bool isLoadingSupportedPaymentMethods = false;
+  bool isLoadingAvailablePaymentMethods = false;
+  late List<String> availableDepositPercentages;
+  List<PaymentMethod> supportedPaymentMethods = [];
+  List<PaymentMethod> availablePaymentMethods = [];
+  late List<String> availableInstallmentPercentages;
   final TextfieldTagsController _pickupDestinationsController = TextfieldTagsController();
   final TextfieldTagsController _deliveryDestinationsController = TextfieldTagsController();
   
@@ -70,15 +77,20 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
-  void _startPaymentMethodsLoader() => setState(() => isLoadingPaymentMethods = true);
-  void _stopPaymentMethodsLoader() => setState(() => isLoadingPaymentMethods = false);
+  void _startSupportedPaymentMethodsLoader() => setState(() => isLoadingSupportedPaymentMethods = true);
+  void _stopSupportedPaymentMethodsLoader() => setState(() => isLoadingSupportedPaymentMethods = false);
+  void _startAvailablePaymentMethodsLoader() => setState(() => isLoadingAvailablePaymentMethods = true);
+  void _stopAvailablePaymentMethodsLoader() => setState(() => isLoadingAvailablePaymentMethods = false);
 
   @override
   void initState() {
     super.initState();
     
     setStoreForm();
-    requestPaymentMethods();
+    requestSupportedPaymentMethods();
+    requestAvailablePaymentMethods();
+    availableDepositPercentages = generateDepositPercentages();
+    availableInstallmentPercentages = generateInstallmentPercentages();
   }
 
   @override
@@ -86,6 +98,26 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
     super.dispose();
     _pickupDestinationsController.dispose();
     _deliveryDestinationsController.dispose();
+  }
+
+  List<String> generateDepositPercentages() {
+    List<String> percentages = [];
+    for (int i = 5; i <= 95; i += 5) {
+
+      /// Add 5, 10, 15 ... 95
+      percentages.add(i.toString());
+    }
+    return percentages;
+  }
+
+  List<String> generateInstallmentPercentages() {
+    List<String> percentages = [];
+    for (int i = 5; i <= 95; i += 5) {
+
+      /// Add 5, 10, 15 ... 95
+      percentages.add(i.toString());
+    }
+    return percentages;
   }
 
   setStoreForm() {
@@ -99,6 +131,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         'online': store.online,
         'description': store.description,
         'offlineMessage': store.offlineMessage,
+        'mobileNumber': store.mobileNumber.withoutExtension,
 
         /// Delivery
         'deliveryNote': store.deliveryNote,
@@ -117,9 +150,16 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         }).toList(),
 
         /// Payment
-        'supportedPaymentMethods': store.supportedPaymentMethods.map((paymentMethod) {
-          return paymentMethod.toJson();
-        }).toList(),
+        'dpoCompanyToken': store.dpoCompanyToken,
+        'dpoPaymentEnabled': store.dpoPaymentEnabled,
+  
+        'supportedPaymentMethods': [],
+
+        'allowDepositPayments': store.allowDepositPayments,
+        'depositPercentages': List<String>.from(store.depositPercentages.map((depositPercentage) => depositPercentage.toString())),
+        
+        'allowInstallmentPayments': store.allowInstallmentPayments,
+        'installmentPercentages': List<String>.from(store.installmentPercentages.map((installmentPercentage) => installmentPercentage.toString())),
 
       };
 
@@ -127,38 +167,90 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
   }
 
-  requestPaymentMethods() {
+  requestAvailablePaymentMethods() {
 
-      _startPaymentMethodsLoader();
+    _startAvailablePaymentMethodsLoader();
 
-      apiProvider.apiRepository.get(url: store.links.showAvailablePaymentMethods.href).then((response) async {
+    storeProvider.setStore(store).storeRepository.showAvailablePaymentMethods().then((response) async {
 
-        if(response.statusCode == 200) {
-          
+      if(response.statusCode == 200) {
+
+        setState(() {
+
+          final responseBody = jsonDecode(response.body);
+        
+          /// Get the available payment methods
+          availablePaymentMethods = (responseBody['data'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
+
+          /// Sort the available payment methods alphabetically
+          availablePaymentMethods.sort((a, b) => a.name.compareTo(b.name));
+
+        });
+        
+
+      }else if(response.statusCode == 422) {
+
+        SnackbarUtility.showErrorMessage(message: 'Can\'t get payment methods');
+        
+      }
+
+    }).catchError((error) {
+
+      SnackbarUtility.showErrorMessage(message: 'Can\'t show payment methods');
+
+    }).whenComplete((){
+
+      _stopAvailablePaymentMethodsLoader();
+
+    });
+
+  }
+
+  requestSupportedPaymentMethods() {
+
+    _startSupportedPaymentMethodsLoader();
+
+    storeProvider.setStore(store).storeRepository.showSupportedPaymentMethods().then((response) async {
+
+      if(response.statusCode == 200) {
+
+        setState(() {
+
+          final responseBody = jsonDecode(response.body);
+        
           /// Get the payment methods
-          final paymentMethods = List<String>.from(jsonDecode(response.body));
+          supportedPaymentMethods = (responseBody['data'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
 
           /// Sort the payment methods alphabetically
-          paymentMethods.sort();
+          supportedPaymentMethods.sort((a, b) => a.name.compareTo(b.name));
 
-          /// Set the payment methods
-          setState(() => supportedPaymentMethods = paymentMethods);
+          storeForm['supportedPaymentMethods'] = supportedPaymentMethods.map((paymentMethod) {
+            return {
+              'id': paymentMethod.id,
+              'name': paymentMethod.name,
+              'active': paymentMethod.attributes.storePaymentMethodAssociation!.active,
+              'instruction': paymentMethod.attributes.storePaymentMethodAssociation!.instruction,
+            };
+          }).toList();
 
-        }else if(response.statusCode == 422) {
+        });
+        
 
-          SnackbarUtility.showErrorMessage(message: 'Can\'t get payment methods');
-          
-        }
+      }else if(response.statusCode == 422) {
 
-      }).catchError((error) {
+        SnackbarUtility.showErrorMessage(message: 'Can\'t get payment methods');
+        
+      }
 
-          SnackbarUtility.showErrorMessage(message: 'Can\'t show payment methods');
+    }).catchError((error) {
 
-      }).whenComplete((){
+      SnackbarUtility.showErrorMessage(message: 'Can\'t show payment methods');
 
-        _stopPaymentMethodsLoader();
+    }).whenComplete((){
 
-      });
+      _stopSupportedPaymentMethodsLoader();
+
+    });
 
   }
 
@@ -186,9 +278,13 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         offlineMessage: storeForm['offlineMessage'],
         deliveryFlatFee: storeForm['deliveryFlatFee'],
         allowFreeDelivery: storeForm['allowFreeDelivery'],
+        depositPercentages: storeForm['depositPercentages'],
         pickupDestinations: storeForm['pickupDestinations'],
         deliveryDestinations: storeForm['deliveryDestinations'],
+        allowDepositPayments: storeForm['allowDepositPayments'],
+        installmentPercentages: storeForm['installmentPercentages'],
         supportedPaymentMethods: storeForm['supportedPaymentMethods'],
+        allowInstallmentPayments: storeForm['allowInstallmentPayments'],
       ).then((response) async {
 
         final responseBody = jsonDecode(response.body);
@@ -377,6 +473,24 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
               ),
               
               /// Spacer
+              const SizedBox(height: 16),
+            
+              //// Mobile Number Field
+              CustomMobileNumberTextFormField(
+                supportedMobileNetworkNames: const [
+                  MobileNetworkName.orange,
+                  MobileNetworkName.mascom,
+                  MobileNetworkName.btc,
+                ],
+                initialValue: storeForm['mobileNumber'],
+                enabled: !isSubmitting,
+                onChanged: (value) {
+                  storeForm['mobileNumber'] = value;
+                },
+                //// onSaved: update
+              ),
+              
+              /// Spacer
               const SizedBox(height: 8),
 
               Row(
@@ -435,7 +549,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                       CustomTextFieldTags(
                         borderRadiusAmount: 16,
                         enabled: !isSubmitting,
-                        hintText: 'Add one or more destinations',
+                        hintText: 'Add one or more delivery destinations',
                         validatorOnDuplicateText: 'Destination already exists',
                         textfieldTagsController: _deliveryDestinationsController,
                         initialTags: List<String>.from(storeForm['deliveryDestinations'].map((e) => e['name']).toList()),
@@ -712,7 +826,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                         CustomTextFieldTags(
                           borderRadiusAmount: 16,
                           enabled: !isSubmitting,
-                          hintText: 'Add one or more destinations',
+                          hintText: 'Add one or more pickup destinations',
                           validatorOnDuplicateText: 'Destination already exists',
                           textfieldTagsController: _pickupDestinationsController,
                           initialTags: List<String>.from(storeForm['pickupDestinations'].map((e) => e['name']).toList()),
@@ -823,10 +937,10 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
               const SizedBox(height: 16),
 
               /// Loader
-              if(isLoadingPaymentMethods) const CustomCircularProgressIndicator(),
+              if(isLoadingSupportedPaymentMethods || isLoadingAvailablePaymentMethods) const CustomCircularProgressIndicator(),
 
               /// Payment Method Settings
-              if(!isLoadingPaymentMethods) ...[
+              if(!isLoadingSupportedPaymentMethods && !isLoadingAvailablePaymentMethods) ...[
 
                 /// Supported Payment Methods
                 CustomMultiSelectFormField(
@@ -835,39 +949,49 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                   key: ValueKey(storeForm['supportedPaymentMethods'].length),
                   initialValue: (storeForm['supportedPaymentMethods'] as List<Map>)
                     .where((supportedPaymentMethod) => supportedPaymentMethod['active'])
-                    .map((supportedPaymentMethod) => supportedPaymentMethod['name']).toList(),
-                  dataSource: List<dynamic>.from(supportedPaymentMethods.map((supportedPaymentMethod) => {
-                    'display': supportedPaymentMethod,
-                    'value': supportedPaymentMethod,
+                    .map((supportedPaymentMethod) => supportedPaymentMethod['id'])
+                    .toList(),
+                  dataSource: List<dynamic>.from(availablePaymentMethods.map((availablePaymentMethod) => {
+                    'display': availablePaymentMethod.name,
+                    'value': availablePaymentMethod.id,
                   })),
                   onSaved: (value) {
+
                     if (value != null) {
                       
-                      List<String> selectedPaymentMethods = List<String>.from(value);
+                      List<PaymentMethod> selectedPaymentMethods = availablePaymentMethods.where((availablePaymentMethod) {
+                        return value.contains(availablePaymentMethod.id);
+                      }).toList();
 
                       setState(() {
                         
-                        List<Map> existingPaymentMethods = storeForm['supportedPaymentMethods'];
+                        List<Map> existingSupportedPaymentMethods = storeForm['supportedPaymentMethods'];
                         List<Map> newPaymentMethods = [];
 
-                        for (var sortedPaymentMethod in selectedPaymentMethods) {
+                        for (var selectedPaymentMethod in selectedPaymentMethods) {
 
                           // Check if payment method already exists
-                          int existingIndex = existingPaymentMethods.indexWhere((existingMethod) => existingMethod['name'] == sortedPaymentMethod);
+                          int existingIndex = existingSupportedPaymentMethods.indexWhere((existingSupportedPaymentMethod) => existingSupportedPaymentMethod['id'] == selectedPaymentMethod.id);
                           
                           if (existingIndex != -1) {
-                            
-                            // Payment method already exists, mark as active
-                            existingPaymentMethods[existingIndex]['active'] = true;
-                            newPaymentMethods.add(existingPaymentMethods[existingIndex]);
+
+                            Map existingSupportedPaymentMethod = existingSupportedPaymentMethods[existingIndex];
+
+                            newPaymentMethods.add({
+                              'active': true,
+                              'id':  existingSupportedPaymentMethod['id'],
+                              'name':  existingSupportedPaymentMethod['name'],
+                              'instruction':  existingSupportedPaymentMethod['instruction'],
+                            });
                           
                           } else {
                             
                             // Payment method is new, add to list
                             newPaymentMethods.add({
                               'active': true,
-                              'name': sortedPaymentMethod,
-                              'instructions': '',
+                              'id': selectedPaymentMethod.id,
+                              'name': selectedPaymentMethod.name,
+                              'instruction': '',
                             });
                           
                           }
@@ -875,10 +999,12 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                         }
 
                         // Mark all other payment methods as inactive
-                        for (var existingMethod in existingPaymentMethods) {
-                          if (!selectedPaymentMethods.contains(existingMethod['name'])) {
-                            existingMethod['active'] = false;
-                            newPaymentMethods.add(existingMethod);
+                        for (var existingSupportedPaymentMethod in existingSupportedPaymentMethods) {
+                          if (!selectedPaymentMethods.map((selectedPaymentMethod) => selectedPaymentMethod.id).contains(existingSupportedPaymentMethod['id'])) {
+                            
+                            existingSupportedPaymentMethod['active'] = false;
+                            newPaymentMethods.add(existingSupportedPaymentMethod);
+
                           }
                         }
 
@@ -982,6 +1108,156 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                             }).toList()
                           ],  
                         ),
+                      ],
+                  )
+                ),
+                  
+                /// Spacer
+                const SizedBox(height: 16),
+
+                /// DPO Payment Enabled Checkbox
+                CustomCheckbox(
+                  value: storeForm['dpoPaymentEnabled'],
+                  disabled: isSubmitting,
+                  text: 'Enable DPO Payments',
+                  checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
+                  onChanged: (value) {
+                    setState(() => storeForm['dpoPaymentEnabled'] = value ?? false); 
+                  }
+                ),
+
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 500),
+                  child: !storeForm['dpoPaymentEnabled']
+                  ? Container()
+                  : Column(
+                      children: [
+                      
+                        /// Spacer
+                        const SizedBox(height: 16),
+
+                        /// DPO Company Token
+                        CustomTextFormField(
+                          errorText: serverErrors.containsKey('dpoCompanyToken') ? serverErrors['dpoCompanyToken'] : null,
+                          initialValue: storeForm['dpoCompanyToken'],
+                          hintText: 'xxxxxxxxxxxxxxxxxx',
+                          labelText: 'DPO Company Token',
+                          borderRadiusAmount: 16,
+                          enabled: !isSubmitting,
+                          maxLength: 50,
+                          onChanged: (value) {
+                            setState(() => storeForm['dpoCompanyToken'] = value);
+                          },
+                        ),
+                      
+                        /// Spacer
+                        const SizedBox(height: 16),
+
+                        /// Allow Deposit Checkbox
+                        CustomCheckbox(
+                          value: storeForm['allowDepositPayments'],
+                          disabled: isSubmitting,
+                          text: 'Allow Deposit',
+                          checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
+                          onChanged: (value) {
+                            setState(() => storeForm['allowDepositPayments'] = value ?? false); 
+                          }
+                        ),
+
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 500),
+                          child: !storeForm['allowDepositPayments']
+                          ? Container()
+                          : Column(
+                              children: [
+              
+                                /// Spacer
+                                const SizedBox(height: 8),
+
+                                /// Available Deposit Percentages
+                                CustomMultiSelectFormField(
+                                  title: 'Deposit Percentages',
+                                  hintText: 'Add one or more supported deposits',
+                                  key: ValueKey(storeForm['depositPercentages'].length),
+                                  initialValue: (storeForm['depositPercentages'] as List<String>),
+                                  dataSource: List<dynamic>.from(availableDepositPercentages.map((availableDepositPercentage) => {
+                                    'display': '$availableDepositPercentage%',
+                                    'value': availableDepositPercentage,
+                                  })),
+                                  onSaved: (value) {
+                                    if (value != null) {
+                                      setState(() {
+                      
+                                        List<String> selectedPercentages = availableDepositPercentages.where((availableDepositPercentage) {
+                                          return value.contains(availableDepositPercentage);
+                                        }).toList();
+
+                                        selectedPercentages.sort();
+                                        storeForm['depositPercentages'] = selectedPercentages;
+                                        
+                                      });
+                                    }
+                                  },
+                                ),
+
+                              ]
+                            )
+                        ),
+                      
+                        /// Spacer
+                        const SizedBox(height: 16),
+
+                        /// Allow Deposit Checkbox
+                        CustomCheckbox(
+                          value: storeForm['allowInstallmentPayments'],
+                          disabled: isSubmitting,
+                          text: 'Allow Installments',
+                          checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
+                          onChanged: (value) {
+                            setState(() => storeForm['allowInstallmentPayments'] = value ?? false); 
+                          }
+                        ),
+
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 500),
+                          child: !storeForm['allowInstallmentPayments']
+                          ? Container()
+                          : Column(
+                              children: [
+              
+                                /// Spacer
+                                const SizedBox(height: 8),
+
+                                /// Available Installment Percentages
+                                CustomMultiSelectFormField(
+                                  title: 'Installment Percentages',
+                                  hintText: 'Add one or more supported installments',
+                                  key: ValueKey(storeForm['installmentPercentages'].length),
+                                  initialValue: (storeForm['installmentPercentages'] as List<String>),
+                                  dataSource: List<dynamic>.from(availableInstallmentPercentages.map((availableInstallmentPercentage) => {
+                                    'display': '$availableInstallmentPercentage%',
+                                    'value': availableInstallmentPercentage,
+                                  })),
+                                  onSaved: (value) {
+                                    if (value != null) {
+                                      setState(() {
+
+                                        List<String> selectedPercentages = availableInstallmentPercentages.where((availableInstallmentPercentage) {
+                                          return value.contains(availableInstallmentPercentage);
+                                        }).toList();
+
+                                        selectedPercentages.sort();
+                                        storeForm['installmentPercentages'] = selectedPercentages;
+                                      
+                                      });
+                                    }
+                                  },
+                                ),
+
+                              ]
+                            )
+                        ),
+
                       ],
                   )
                 ),

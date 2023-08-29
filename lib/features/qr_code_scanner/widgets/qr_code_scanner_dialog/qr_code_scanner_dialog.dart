@@ -1,6 +1,3 @@
-import 'package:get/get.dart';
-
-import '../../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../../../core/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import '../qr_code_scanner.dart';
@@ -15,30 +12,31 @@ class QRCodeScannerDialog extends StatefulWidget {
   });
 
   @override
-  State<QRCodeScannerDialog> createState() => _QRCodeScannerDialogState();
+  State<QRCodeScannerDialog> createState() => QRCodeScannerDialogState();
 }
 
-class _QRCodeScannerDialogState extends State<QRCodeScannerDialog> {
+class QRCodeScannerDialogState extends State<QRCodeScannerDialog> {
 
   Function(String) get onScanned => widget.onScanned;
 
+  void showQRCodeScanner() {
+    DialogUtility.showContentDialog(
+      content: QRCodeScanner(
+        onScanned: onScanned,
+      ), 
+      context: context
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return CustomTextButton(
-      'scan',
-      prefixIcon: Icons.qr_code_scanner,
-      onPressed: () {
-        DialogUtility.showContentDialog(
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8, 
-            height: 300, 
-            child: QRCodeScanner(
-              onScanned: onScanned,
-            )
-          ), 
-          context: context
-        );
-      },
+    return GestureDetector(
+      onTap: showQRCodeScanner,
+      child: const CircleAvatar(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.orange,
+        child: Icon(Icons.qr_code_scanner_rounded),
+      ),
     );
   }
 }

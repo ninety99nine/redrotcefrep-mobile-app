@@ -17,9 +17,9 @@ class OrderCreatedNotificationContent extends StatelessWidget {
   DateTime get createdAt => notification.createdAt;
   String get orderNumber => orderProperties.number;
   int get otherTotalFriends => orderForTotalFriends - 1;
-  String get customerName => orderProperties.customerProperties.name;
-  bool get isAssociatedAsFriend => orderProperties.isAssociatedAsFriend;
   int get orderForTotalFriends => orderProperties.orderForTotalFriends;
+  bool get isAssociatedAsFriend => orderProperties.isAssociatedAsFriend;
+  String get customerFirstName => orderProperties.customerProperties.firstName;
   OrderProperties get orderProperties => orderCreatedNotification.orderProperties;
   OrderCreatedNotification get orderCreatedNotification => OrderCreatedNotification.fromJson(notification.data);
 
@@ -85,7 +85,7 @@ class OrderCreatedNotificationContent extends StatelessWidget {
                 children: [
                   TextSpan(
                     /// User Name
-                    text: customerName,
+                    text: customerFirstName,
                     style: style(context),
                   ),
                   TextSpan(
@@ -124,7 +124,7 @@ class OrderCreatedNotificationContent extends StatelessWidget {
             child: RichText(
               text: TextSpan(
                 /// User Name
-                text: customerName,
+                text: customerFirstName,
                 style: style(context),
                 children: [
                   TextSpan(

@@ -1,29 +1,19 @@
-import 'dart:convert';
-
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/core/utils/browser.dart';
-import 'package:bonako_demo/features/orders/services/order_services.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
-
+import 'package:bonako_demo/core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
-import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
+import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:bonako_demo/features/orders/services/order_services.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import './order_transactions_dialog/order_transactions_dialog.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/core/shared_models/user.dart';
-import '../../../stores/providers/store_provider.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import './order_transactions_dialog/order_transactions_dialog.dart';
+import 'dart:convert';
 
 class OrderTransactionsInHorizontalListViewInfiniteScroll extends StatefulWidget {
 
@@ -100,29 +90,10 @@ class OrderTransactionsInHorizontalListViewInfiniteScrollState extends State<Ord
   Widget get contentBeforeFirstItem {
     return Row(
       children: [
-        AddPayerAvatar(
-          order: order,
-          store: store,
-        ),
+        AddPayerAvatar(order: order),
         const SizedBox(width: 16)
       ],
     );
-  }
-
-  Widget? get noContentWidget {
-    if(order.attributes.isPaid) {
-
-      return null;
-
-    }else{
-
-      return OrderTransactionsDialog(
-        store: store, 
-        order: order,
-        transactionContentView: TransactionContentView.requestPayment,
-      );
-
-    }
   }
   
   @override
@@ -134,7 +105,6 @@ class OrderTransactionsInHorizontalListViewInfiniteScrollState extends State<Ord
       showNoMoreContent: false,
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
-      noContentWidget: noContentWidget,
       headerPadding: const EdgeInsets.all(0),
       catchErrorMessage: 'Can\'t show transactions',
       onRequest: (page, searchWord) => requestOrderTransactions(page, searchWord),
@@ -146,18 +116,15 @@ class OrderTransactionsInHorizontalListViewInfiniteScrollState extends State<Ord
 class AddPayerAvatar extends StatelessWidget {
 
   final Order order;
-  final ShoppableStore store;
 
   const AddPayerAvatar({
     super.key,
     required this.order,
-    required this.store,
   });
 
   @override
   Widget build(BuildContext context) {
     return OrderTransactionsModalBottomSheet(
-      store: store, 
       order: order,
       transactionContentView: TransactionContentView.requestPayment,
       trigger: (openBottomModalSheet) => Column(

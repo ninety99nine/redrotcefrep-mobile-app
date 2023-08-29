@@ -136,7 +136,7 @@ class AuthRepository {
   }
 
   /// Update the specified user
-  Future<http.Response> updateUser({ String? firstName, String? lastName, String? nickName, bool? anonymous }) {
+  Future<http.Response> updateUser({ String? firstName, String? lastName }) {
 
     if(user == null) throw Exception('An authenticated user is required to update');
 
@@ -145,8 +145,6 @@ class AuthRepository {
     Map body = {};
     if((firstName ?? '').isNotEmpty) body.addAll({'first_name': firstName});
     if((lastName ?? '').isNotEmpty) body.addAll({'last_name': lastName});
-    if((nickName ?? '').isNotEmpty) body.addAll({'nick_name': nickName});
-    if(anonymous != null) body.addAll({'anonymous': anonymous});
 
     return apiRepository.put(url: url, body: body);
     

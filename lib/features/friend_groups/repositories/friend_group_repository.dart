@@ -201,7 +201,7 @@ class FriendGroupRepository {
   }
   
   /// Get the orders of the specified friend group
-  Future<http.Response> showFriendGroupOrders({ String searchWord = '', bool withStore = false, int page = 1 }) {
+  Future<http.Response> showFriendGroupOrders({ String searchWord = '', bool withStore = false, bool withOccasion = false, int page = 1 }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to show orders');
 
@@ -211,6 +211,8 @@ class FriendGroupRepository {
 
     /// Check if we should eager load the store
     if(withStore) queryParams.addAll({'withStore': '1'});
+
+    if(withOccasion) queryParams.addAll({'withOccasion': '1'});
 
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});

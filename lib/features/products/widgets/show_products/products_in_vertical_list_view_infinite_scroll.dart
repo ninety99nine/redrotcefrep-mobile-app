@@ -72,7 +72,7 @@ class _ProductsInVerticalListViewInfiniteScrollState extends State<ProductsInVer
         final responseBody = jsonDecode(response.body);
 
         /// If the response product count does not match the store product count
-        if(productFilter == 'All' && store.productsCount != responseBody['total']) {
+        if(searchWord.isEmpty && productFilter == 'All' && store.productsCount != responseBody['total']) {
 
           store.productsCount = responseBody['total'];
           store.runNotifyListeners();

@@ -3,8 +3,10 @@ import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
 
 import '../../../../core/shared_models/product_line.dart';
+import '../../occasions/models/occasion.dart';
 import '../../../core/shared_models/cart.dart';
 import '../../products/models/product.dart';
 import 'package:collection/collection.dart';
@@ -14,6 +16,7 @@ import 'store.dart';
 enum ShoppingCartCurrentView {
   storeCard,
   storePage,
+  storeOrdersModalBottomSheet,
 }
 
 /// The Shoppable Store Model is an extension of the Store Model
@@ -47,7 +50,9 @@ class ShoppableStore extends Store with ChangeNotifier {
 
   PaymentMethod? paymentMethod;
 
-  bool? anonymous;
+  Occasion? occasion;
+
+  String? specialNote;
 
   /// Functions
   Function(Order)? onCreatedOrder;
@@ -57,13 +62,20 @@ class ShoppableStore extends Store with ChangeNotifier {
   /// Start loader
   resetShoppingCart({ canNotifyListeners = true }) {
     friends = [];
+    occasion = null;
     orderFor = 'Me';
     isLoading = false;
     friendGroups = [];
+    specialNote = null;
     totalPeople = null;
     shoppingCart = null;
+    paymentMethod = null;
     selectedProducts = [];
+    collectionType = null;
+    pickupDestination = null;
     productLinesNotFound = [];
+    addressForDelivery = null;
+    deliveryDestination = null;
 
     for (var i = 0; i < relationships.products.length; i++) {
       
@@ -80,18 +92,23 @@ class ShoppableStore extends Store with ChangeNotifier {
     notifyListeners();
   }
 
-  updateAnonymousStatus(bool anonymous) {
-    this.anonymous = anonymous;
-    notifyListeners();
-  }
-
   updatePaymentMethod(PaymentMethod paymentMethod) {
     this.paymentMethod = paymentMethod;
     notifyListeners();
   }
 
+  updateOccasion(Occasion? occasion) {
+    this.occasion = occasion;
+    notifyListeners();
+  }
+
   updateCollectionType(CollectionType collectionType) {
     this.collectionType = collectionType;
+    notifyListeners();
+  }
+
+  updateSpecialNote(String? specialNote) {
+    this.specialNote = specialNote;
     notifyListeners();
   }
 

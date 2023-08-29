@@ -1,20 +1,27 @@
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_button.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/store_dialer.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_left_side/store_name.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
-
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_other_associated_friends.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_customer_display_name.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment_status.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_created_at.dart';
 import '../../../stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../order_show/order_status.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_occasion.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_number.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_widgets/cards/custom_card.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../../stores/models/shoppable_store.dart';
-import '../../models/order.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import 'package:provider/provider.dart';
+import '../order_show/components/order_status.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import '../../models/order.dart';
 import 'dart:convert';
 
 class FriendGroupOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
@@ -76,6 +83,7 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
 
     return friendGroupProvider.setFriendGroup(friendGroup).friendGroupRepository.showFriendGroupOrders(
       searchWord: searchWord,
+      withOccasion: true,
       withStore: true,
       page: page
     ).then((response) {
@@ -118,7 +126,8 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
   Widget build(BuildContext context) {
 
     return CustomHorizontalListViewInfiniteScroll(
-      height: 170,
+      height: 200,
+      showSearchBar: false,
       debounceSearch: true,
       showNoMoreContent: false,
       onParseItem: onParseItem, 
@@ -158,20 +167,32 @@ class _OrderItemState extends State<OrderItem> {
   int get index => widget.index;
   Order get order => widget.order;
   bool get hasBeenSeen => totalViewsByTeam > 0;
+  bool get hasOccasion => order.occasionId != null;
+  int get totalViewsByTeam => order.totalViewsByTeam;
   ShoppableStore get store => order.relationships.store!;
-  int get totalViewsByTeam => widget.order.totalViewsByTeam;
+  bool get orderForManyPeople => order.orderForTotalUsers > 1;
+
+  int get summaryMaxLines {
+    if(hasOccasion && orderForManyPeople) {
+      return 1;
+    }else if(hasOccasion || orderForManyPeople) {
+      return 2;
+    }else {
+      return 3;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
 
     return OrdersModalBottomSheet(
       store: store,
-      order: order,
       canShowFloatingActionButton: false,
       trigger: (openBottomModalSheet) => Container(
         margin: const EdgeInsets.only(right: 8),
         width: MediaQuery.of(context).size.width * 0.8,
         child: CustomCard(
+          padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,30 +204,39 @@ class _OrderItemState extends State<OrderItem> {
                 children: [
                       
                   /// Order Number
-                  CustomTitleMediumText('#${widget.order.attributes.number}'),
-    
-                  /// Created At
-                  CustomBodyText(timeago.format(widget.order.createdAt, locale: 'en_short')),
-    
-                ],
-              ),
-    
-              /// Spacer
-              const SizedBox(height:  4,),
-    
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-    
-                  /// Status
-                  OrderStatus(
-                    lightShade: true,
-                    status: widget.order.status.name,
-                  ),
-    
-                  /// Seen Icon
-                  if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
+                  OrderNumber(order: order, showPrefix: false, orderNumberSize: OrderNumberSize.small),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+
+                      /// Order Customer Display Name
+                      OrderCustomerDisplayName(order: order),
+                        
+                      /// Group Icon (Indication Of A Shared Order)
+                      if(orderForManyPeople) ...[
+                        
+                        /// Spacer
+                        const SizedBox(height: 4,),
+                            
+                        /// Order Other Associated Friends
+                        OrderOtherAssociatedFriends(order: order),
+
+                      ],
+                        
+                      /// Group Icon (Indication Of A Shared Order)
+                      if(orderForManyPeople) ...[
+                        
+                        /// Spacer
+                        const SizedBox(height: 4,),
+        
+                        /// Payment Status
+                        OrderOccasion(order: order),
+
+                      ],
+
+                    ],
+                  )
     
                 ],
               ),
@@ -214,26 +244,102 @@ class _OrderItemState extends State<OrderItem> {
               /// Spacer
               const SizedBox(height: 8,),
     
-              /// Summary
-              CustomBodyText(widget.order.summary, maxLines: 2, overflow: TextOverflow.ellipsis),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  /// Summary
+                  Expanded(child: CustomBodyText(order.summary, maxLines: summaryMaxLines, overflow: TextOverflow.ellipsis)),
+    
+                  /// Spacer
+                  const SizedBox(width: 4,),
+    
+                  /// Seen Icon
+                  if(hasBeenSeen) Icon(FontAwesomeIcons.circleDot, color: Colors.blue.shade700, size: 12,)
+
+                ],
+              ),
     
               /// Spacer
-              const Spacer(),
+              const SizedBox(height: 4,),
     
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-            
-                  //  Store Logo
-                  StoreLogo(store: store, radius: 16,),
     
-                  /// Spacer
-                  const SizedBox(width: 8,),
+                  Row(
+                    children: [
+        
+                      /// Status
+                      OrderStatus(order: order, lightShade: true,),
+      
+                      /// Spacer
+                      const SizedBox(width:  8,),
+        
+                      /// Payment Status
+                      OrderPaymentStatus(order: order, lightShade: true,),
+      
+                      /// Spacer
+                      const SizedBox(width:  8,),
+
+                    ],
+                  ),
     
-                  /// Store Name
-                  CustomBodyText(store.name),
-    
+                  /// Created At
+                  OrderCreatedAt(order: order, short: true),
+
                 ],
+              ),
+
+              /// Spacer
+              const Spacer(),
+    
+              GestureDetector(
+                onTap: () {
+                  
+                  /// Navigate to the store page 
+                  StoreServices.navigateToStorePage(store);
+    
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                        
+                    //  Store Logo
+                    StoreLogo(store: store, radius: 16,),
+              
+                    /// Spacer
+                    const SizedBox(width: 8,),
+
+                    Expanded(
+                      child: Row(
+                        children: [
+                    
+                          /// Store Name
+                          Expanded(child: StoreName(store: store)),
+
+                          Row(
+                            children: [
+
+                              /// Request Payment Button / Pay Now Button
+                              OrderRequestPaymentButton(
+                                order: order,
+                                orderRequestPaymentButtonType: OrderRequestPaymentButtonType.icon
+                              ),
+
+                              /// Store Dialer
+                              StoreDialer(store: store),
+                        
+                            ],
+                          )
+                    
+                        ],
+                      ),
+                    )
+              
+                  ],
+                )
               )
     
             ],

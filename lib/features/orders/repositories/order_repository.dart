@@ -19,7 +19,7 @@ class OrderRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Show the specified order
-  Future<http.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withCountTransactions = false, bool withTransactions = false }) {
+  Future<http.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withOccasion = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
     
     if(order == null) throw Exception('The order must be set to show this order');
 
@@ -28,9 +28,63 @@ class OrderRepository {
     Map<String, String> queryParams = {};
     if(withCart) queryParams.addAll({'withCart': '1'});
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
+    if(withOccasion) queryParams.addAll({'withOccasion': '1'});
     if(withTransactions) queryParams.addAll({'withTransactions': '1'});
+    if(withPaymentMethod) queryParams.addAll({'withPaymentMethod': '1'});
     if(withDeliveryAddress) queryParams.addAll({'withDeliveryAddress': '1'});
     if(withCountTransactions) queryParams.addAll({'withCountTransactions': '1'});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
+  /// Show the specified order cart
+  Future<http.Response> showOrderCart() {
+    
+    if(order == null) throw Exception('The order must be set to show this order cart');
+
+    String url = order!.links.showCart.href;
+
+    Map<String, String> queryParams = {};
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
+  /// Show the specified order customer
+  Future<http.Response> showOrderCustomer() {
+    
+    if(order == null) throw Exception('The order must be set to show this order customer');
+
+    String url = order!.links.showCustomer.href;
+
+    Map<String, String> queryParams = {};
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
+  /// Show the specified order occasion
+  Future<http.Response> showOrderOccasion() {
+    
+    if(order == null) throw Exception('The order must be set to show this order occasion');
+
+    String url = order!.links.showOccasion.href;
+
+    Map<String, String> queryParams = {};
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
+  /// Show the specified order delivery address
+  Future<http.Response> showOrderDeliveryAddress() {
+    
+    if(order == null) throw Exception('The order must be set to show this order delivery address');
+
+    String url = order!.links.showDeliveryAddress.href;
+
+    Map<String, String> queryParams = {};
 
     return apiRepository.get(url: url, queryParams: queryParams);
     
@@ -59,7 +113,7 @@ class OrderRepository {
   }
 
   /// Update the status of the specified order
-  Future<http.Response> updateStatus({ required String status, String? collectionCode, bool withCart = false, bool withCustomer = false, bool withTransactions = false }) {
+  Future<http.Response> updateStatus({ required String status, String? collectionCode, bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
     
     if(order == null) throw Exception('The order must be set to update status');
 
@@ -69,6 +123,9 @@ class OrderRepository {
     if(withCart) queryParams.addAll({'withCart': '1'});
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
     if(withTransactions) queryParams.addAll({'withTransactions': '1'});
+    if(withPaymentMethod) queryParams.addAll({'withPaymentMethod': '1'});
+    if(withDeliveryAddress) queryParams.addAll({'withDeliveryAddress': '1'});
+    if(withCountTransactions) queryParams.addAll({'withCountTransactions': '1'});
 
     Map body = {
       'status': status
@@ -100,7 +157,7 @@ class OrderRepository {
   }
 
   /// Request payment for the specified order
-  Future<http.Response> requestPayment({ required int percentage, required paymentMethodId }) {
+  Future<http.Response> requestPayment({ required int percentage }) {
 
     if(order == null) throw Exception('The order must be set to request payment');
 
@@ -108,7 +165,6 @@ class OrderRepository {
     
     Map body = {
       'percentage': percentage,
-      'payment_method_id': paymentMethodId,
     };
     
     return apiRepository.post(url: url, body: body);
@@ -116,8 +172,21 @@ class OrderRepository {
   }
 
   ///////////////////////////////////
-  ///   TRANSACTIONS                 ///
+  ///   TRANSACTIONS              ///
   //////////////////////////////////
+
+  /// Show the specified order transactions count
+  Future<http.Response> showOrderTransactionsCount() {
+    
+    if(order == null) throw Exception('The order must be set to show this order transactions count');
+
+    String url = order!.links.showTransactionsCount.href;
+
+    Map<String, String> queryParams = {};
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
 
   /// Get the transaction filters of the specified order
   Future<http.Response> showTransactionFilters() {
@@ -151,4 +220,31 @@ class OrderRepository {
     
   }
 
+
+  ///////////////////////////////////
+  ///   PAYMENTS                 ///
+  //////////////////////////////////
+
+  /// Mark the specified order as paid
+  Future<http.Response> markAsUnverifiedPayment({ int? percentage, String? amount, required paymentMethodId }) {
+    
+    if(order == null) throw Exception('The order must be set to mark as paid');
+
+    String url = order!.links.markAsUnverifiedPayment.href;
+    
+    Map body = {
+      'payment_method_id': paymentMethodId,
+    };
+
+    if(percentage != null) {
+      body['percentage'] = percentage;
+    }else if(amount != null) {
+      body['amount'] = amount;
+    }else{
+      throw Exception('Provide the transaction percentage or amount');
+    }
+
+    return apiRepository.post(url: url, body: body);
+    
+  }
 }

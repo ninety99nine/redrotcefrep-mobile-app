@@ -14,6 +14,10 @@ class UserStoreAssociation {
   /*  Follower Information  */
   late String? followerStatus;
 
+  /*  Assigned Information  */
+  late bool isAssigned;
+  late int? assignedPosition;
+
   /*  Customer Information  */
   late Currency? currency;
   late int? totalOrdersRequested;
@@ -53,6 +57,10 @@ class UserStoreAssociation {
     /*  Follower Information  */
     followerStatus = json['followerStatus'];
 
+    /*  Assigned Information  */
+    isAssigned = json['isAssigned'];
+    assignedPosition = json['assignedPosition'];
+
     /*  Customer Information  */
     isAssociatedAsCustomer = json['isAssociatedAsCustomer'];
 
@@ -68,7 +76,6 @@ class UserStoreAssociation {
     isTeamMemberAsCreatorOrAdmin = json['isTeamMemberAsCreatorOrAdmin'];
     isTeamMemberAsCreator = json['isTeamMemberAsCreator'];
     isTeamMemberAsAdmin = json['isTeamMemberAsAdmin'];
-    isTeamMemberWhoHasDeclined = json['isTeamMemberWhoHasDeclined'];
     canManageEverything = json['canManageEverything'];
     canManageOrders = json['canManageOrders'];
     canManageProducts = json['canManageProducts'];

@@ -26,7 +26,6 @@ class _OrderTransactionsPageState extends State<OrderTransactionsPage> {
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
   Transaction get transaction => transactionProvider.transaction!;
-  ShoppableStore get store => storeProvider.store!;
   Order get order => orderProvider.order!;
 
   @override
@@ -34,7 +33,6 @@ class _OrderTransactionsPageState extends State<OrderTransactionsPage> {
     return Scaffold(
       body: OrderTransactionsContent(
         order: order,
-        store: store,
         showingFullPage: true,
         transaction: transaction,
       ),

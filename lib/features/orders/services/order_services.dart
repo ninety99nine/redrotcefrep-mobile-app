@@ -1,97 +1,28 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
+import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/utils/browser.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../../../core/constants/constants.dart' as constants;
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../enums/order_enums.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 
 class OrderServices {
 
-  /// Get the last selected preview order mode
-  /// This allows us to know what to do when swipping to the right
-  /// to preview an order on the scrollable order list. We can either
-  /// show a dialog that will showcase the selected order alone, or a
-  /// dialog that will showcase the selected order alongside multiple
-  /// other orders that are part of the same scrollable list.
-  static Future<PreviewOrderMode> getSelectedPreviewOrderModeOnDevice() async {
-    
-    final String? name = await SharedPreferences.getInstance().then((prefs) {
-      return prefs.getString('previewOrderMode');
-    });
-
-    if(name != null) {
-
-      for (var i = 0; i < PreviewOrderMode.values.length; i++) {
-
-        if(name == PreviewOrderMode.values[i].name) {
-
-          /// Return selected option
-          return PreviewOrderMode.values[i];
-
-        }
-        
-      }
-
-    }
-
-    /// Return default option
-    return PreviewOrderMode.singleOrder;
-    
-  }
-
-  /// Get the last selected preview order mode
-  /// This allows us to know what to do when swipping to the right
-  /// to preview an order on the scrollable order list. We can either
-  /// show a dialog that will showcase the selected order alone, or a
-  /// dialog that will showcase the selected order alongside multiple
-  /// other orders that are part of the same scrollable list.
-  static void saveSelectedPreviewOrderModeOnDevice(PreviewOrderMode previewOrderMode) {
-    
-    SharedPreferences.getInstance().then((prefs) {
-      return prefs.setString('previewOrderMode', previewOrderMode.name);
-    });
-
-  }
-
-  /// Get the customer display name to show when veiwing the specified order
-  static String getCustomerDiplayName(Order order) {
-    final UserOrderCollectionAssociation? userOrderCollectionAssociation = order.attributes.userOrderCollectionAssociation;
-    final bool isAssociatedAsCustomer = userOrderCollectionAssociation?.role.toLowerCase() == 'customer';
-    final bool isAnonymous = order.anonymous;
-
-    /**
-     *  The order.attributes.customerName can represent the actual customer name e.g "John Doe"
-     *  or the text indication that the user is anonymous e.g "Anonymous", supposing that this
-     *  order is being veiwed by anyone else but the customer, friend or team member. If it is
-     *  anonymous but veiwed by the customer we modify the outcome to return "Me" otherwise if
-     *  it is veiwed by a friend or team member the actual customer name will appear.
-     */
-    String diplayName = isAssociatedAsCustomer && isAnonymous ? 'Me' : order.attributes.customerName;
-
-    /// If this order was placed anonymously
-    if(order.anonymous) {
-
-      /// Add the emoji that shows that this display name is anonymous
-      diplayName += ' ${constants.anonymousEmoji}';
-
-    }
-
-    return diplayName;
-  }
-
   void sharePaymentLink(Order order, Transaction transaction) {
-    Share.share(transaction.dpoPaymentUrl!, subject: 'Order #${order.attributes.number} Payment Link');
+    
+    final ShoppableStore store = order.relationships.store!;
+    
+    final String message = '${store.name} 👋,\n\n${order.summary}\n\nTotal:${transaction.amount.amountWithCurrency}\n\nPlease use this link to pay using any card\n\n${transaction.dpoPaymentUrl}';
+
+    Share.share(message, subject: 'Order #${order.attributes.number} Payment Link');
+    
   }
 
   void launchPaymentLink(Transaction transaction, BuildContext context) {

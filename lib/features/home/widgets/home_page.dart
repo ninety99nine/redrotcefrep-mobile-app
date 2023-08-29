@@ -29,7 +29,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
-  int totalTabs = 6;
+  int totalTabs = 4;
   User get user => authProvider.user!;
   String get firstName => user.firstName;
   late final TabController _tabController;
@@ -113,8 +113,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   getNavigationTab('Following', 1),    
                   getNavigationTab('Groups', 2),        
                   getNavigationTab('My stores', 3),    
-                  getNavigationTab('Chat', 4),
-                  getNavigationTab('Communities', 5),    
+                  //getNavigationTab('Chat', 4),
+                  //getNavigationTab('Communities', 5),    
                 ],
               ),
             ),
@@ -146,10 +146,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           MyStoresPageContent(),
 
           /// Chat page
-          ChatPageContent(),
+          /// ChatPageContent(),
 
           /// Communities page
-          CommunitiesPageContent(),
+          /// CommunitiesPageContent(),
 
         ],
       )

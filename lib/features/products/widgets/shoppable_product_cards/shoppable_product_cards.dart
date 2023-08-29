@@ -38,6 +38,7 @@ class _ShoppableProductCardsState extends State<ShoppableProductCards> {
   bool get isShoppingOnStorePage => (shoppingCartCurrentView == ShoppingCartCurrentView.storePage && isShowingStorePage);
   bool get isShoppingOnStoreCard => (shoppingCartCurrentView == ShoppingCartCurrentView.storeCard && !isShowingStorePage);
   bool get canShowMoreOrLessButton => isShoppingOnStoreCard && doesntHaveSelectedProducts && hasMoreProductsThanMinimumProductsToShow;
+  bool get isShoppingOnStoreOrdersModalBottomSheet => (shoppingCartCurrentView == ShoppingCartCurrentView.storeOrdersModalBottomSheet);
   List<Product> get filteredProducts => showAllProducts ? products : products.take(constants.minimumProductsPerStoreOnPreview).toList();
   @override
   void initState() {
@@ -73,7 +74,7 @@ class _ShoppableProductCardsState extends State<ShoppableProductCards> {
      *     we selected one of the products while other products where 
      *     hidden. This will allow the hidden products to be displayed
      */
-    if(isShoppingOnStoreCard || isShoppingOnStorePage) {
+    if(isShoppingOnStoreCard || isShoppingOnStorePage || isShoppingOnStoreOrdersModalBottomSheet) {
 
       setState(() {
         setSelectedProductIds();

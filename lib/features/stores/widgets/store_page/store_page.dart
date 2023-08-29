@@ -264,8 +264,6 @@ class Content extends StatelessWidget {
     double logoRadius = canAccessAsShopper && hasDescription ? 36 : 24;
     bool isTeamMemberWhoHasJoined = StoreServices.isTeamMemberWhoHasJoined(store);
 
-    print('teamMemberWantsToViewAsCustomer: ${store.teamMemberWantsToViewAsCustomer}');
-
     return SingleChildScrollView(
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

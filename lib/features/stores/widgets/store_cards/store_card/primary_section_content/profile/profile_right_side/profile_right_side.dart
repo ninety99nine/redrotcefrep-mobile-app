@@ -1,13 +1,14 @@
-import 'package:bonako_demo/features/home/providers/home_provider.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:provider/provider.dart';
-
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/store_share_icon_button.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/store_dialer.dart';
 import '../../../../../store_menu/store_menu_modal_bottom_sheet/store_menu_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import '../../../../../../../rating/widgets/rating_show_using_stars.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import '../../../../../add_store_to_group/add_to_group_button.dart';
 import '../../../../../../services/store_services.dart';
 import '../../../../../../models/shoppable_store.dart';
 import 'adverts/show_adverts/advert_avatar_popup.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class StoreProfileRightSide extends StatefulWidget {
@@ -45,8 +46,17 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
 
-        /// Menu Modal Bottom Sheet
-        StoreMenuModalBottomSheet(store: store),
+        Row(
+          children: [
+            
+            /// Share Store Icon Button
+            StoreShareIconButton(store: store),
+
+            /// Menu Modal Bottom Sheet
+            StoreMenuModalBottomSheet(store: store),
+
+          ],
+        ),
 
         if(canAccessAsShopper) ...[
 
@@ -69,8 +79,11 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
           /// Spacer
           const SizedBox(height: 4.0,),
 
+          /// Store Dialer
+          StoreDialer(store: store),
+
           /// Add Store To Group Button
-          AddStoreToGroupButton(store: store)
+          AddStoreToGroupButton(store: store),
 
         ],
 

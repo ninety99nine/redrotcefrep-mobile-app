@@ -71,7 +71,7 @@ class _CouponsInVerticalListViewInfiniteScrollState extends State<CouponsInVerti
         final responseBody = jsonDecode(response.body);
 
         /// If the response coupon count does not match the store coupon count
-        if(couponFilter == 'All' && store.couponsCount != responseBody['total']) {
+        if(searchWord.isEmpty && couponFilter == 'All' && store.couponsCount != responseBody['total']) {
 
           store.couponsCount = responseBody['total'];
           store.runNotifyListeners();

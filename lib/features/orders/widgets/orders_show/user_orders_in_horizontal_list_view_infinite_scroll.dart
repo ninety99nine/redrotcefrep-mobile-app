@@ -1,27 +1,30 @@
-import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_button.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/store_dialer.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_left_side/store_name.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/stores/models/store.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_other_associated_friends.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_customer_display_name.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment_status.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_created_at.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_occasion.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/components/order_number.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../../core/shared_widgets/cards/custom_card.dart';
-import '../order_show/order_status.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../order_show/components/order_status.dart';
 import '../../../user/providers/user_provider.dart';
 import '../../../../core/shared_models/user.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import '../../models/order.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import '../../models/order.dart';
 import 'dart:convert';
 
 class UserOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
@@ -65,6 +68,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
     request = userProvider.setUser(user).userRepository.showOrders(
       withStore: store == null ? true : false,
       searchWord: searchWord,
+      withOccasion: true,
       storeId: store?.id,
       page: page
     );
@@ -149,7 +153,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   Widget build(BuildContext context) {
 
     return CustomHorizontalListViewInfiniteScroll(
-      height: 175,
+      height: 200,
       showSearchBar: false,
       debounceSearch: true,
       showNoMoreContent: false,
@@ -192,24 +196,32 @@ class _OrderItemState extends State<OrderItem> {
   int get index => widget.index;
   Order get order => widget.order;
   bool get hasBeenSeen => totalViewsByTeam > 0;
+  bool get hasOccasion => order.occasionId != null;
   int get totalViewsByTeam => order.totalViewsByTeam;
   bool get orderForManyPeople => order.orderForTotalUsers > 1;
   ShoppableStore get store => widget.store ?? order.relationships.store!;
-  bool get isAssociatedAsFriend => userOrderCollectionAssociation.role == 'Friend';
-  bool get isAssociatedAsCustomer => userOrderCollectionAssociation.role == 'Customer';
-  UserOrderCollectionAssociation get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation!;
+
+  int get summaryMaxLines {
+    if(hasOccasion && orderForManyPeople) {
+      return 1;
+    }else if(hasOccasion || orderForManyPeople) {
+      return 2;
+    }else {
+      return 3;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
 
     return OrdersModalBottomSheet(
       store: store,
-      order: order,
       canShowFloatingActionButton: false,
       trigger: (openBottomModalSheet) => Container(
         margin: const EdgeInsets.only(right: 8),
         width: MediaQuery.of(context).size.width * 0.8,
         child: CustomCard(
+          padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,44 +233,40 @@ class _OrderItemState extends State<OrderItem> {
                 children: [
                       
                   /// Order Number
-                  CustomTitleMediumText('#${order.attributes.number}'),
+                  OrderNumber(order: order, showPrefix: false, orderNumberSize: OrderNumberSize.small),
 
-                  /// Order For
-                  if(orderForManyPeople) Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+
+                      /// Order Customer Display Name
+                      OrderCustomerDisplayName(order: order),
                         
                       /// Group Icon (Indication Of A Shared Order)
-                      Icon(Icons.group_outlined, color: Colors.grey.shade400, size: 20,),
+                      if(orderForManyPeople) ...[
+                        
+                        /// Spacer
+                        const SizedBox(height: 4,),
+                            
+                        /// Order Other Associated Friends
+                        OrderOtherAssociatedFriends(order: order),
 
-                      /// Spacer
-                      if(isAssociatedAsFriend) const SizedBox(width: 4,),
-                      
-                      /// Customer Name (The Person That Shared This Order)
-                      if(isAssociatedAsFriend) CustomBodyText(order.customerFirstName, lightShade: true,),
-                    
+                      ],
+                        
+                      /// Group Icon (Indication Of A Shared Order)
+                      if(orderForManyPeople) ...[
+                        
+                        /// Spacer
+                        const SizedBox(height: 4,),
+        
+                        /// Payment Status
+                        OrderOccasion(order: order),
+
+                      ],
+
                     ],
-                  ),
+                  )
     
-                ],
-              ),
-    
-              /// Spacer
-              const SizedBox(height:  4,),
-    
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-    
-                  /// Status
-                  OrderStatus(
-                    lightShade: true,
-                    status: order.status.name,
-                  ),
-    
-                  /// Created At
-                  CustomBodyText(timeago.format(order.createdAt, locale: 'en_short'), lightShade: true,),
-
                 ],
               ),
     
@@ -270,9 +278,7 @@ class _OrderItemState extends State<OrderItem> {
                 children: [
                   
                   /// Summary
-                  Expanded(
-                    child: CustomBodyText(order.summary, maxLines: 2, overflow: TextOverflow.ellipsis)
-                  ),
+                  Expanded(child: CustomBodyText(order.summary, maxLines: summaryMaxLines, overflow: TextOverflow.ellipsis)),
     
                   /// Spacer
                   const SizedBox(width: 4,),
@@ -284,7 +290,39 @@ class _OrderItemState extends State<OrderItem> {
               ),
     
               /// Spacer
-              const SizedBox(height: 8,),
+              const SizedBox(height: 4,),
+    
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+    
+                  Row(
+                    children: [
+        
+                      /// Status
+                      OrderStatus(order: order, lightShade: true,),
+      
+                      /// Spacer
+                      const SizedBox(width:  8,),
+        
+                      /// Payment Status
+                      OrderPaymentStatus(order: order, lightShade: true,),
+      
+                      /// Spacer
+                      const SizedBox(width:  8,),
+
+                    ],
+                  ),
+    
+                  /// Created At
+                  OrderCreatedAt(order: order, short: true),
+
+                ],
+              ),
+
+              /// Spacer
+              const Spacer(),
     
               GestureDetector(
                 onTap: () {
@@ -302,12 +340,35 @@ class _OrderItemState extends State<OrderItem> {
               
                     /// Spacer
                     const SizedBox(width: 8,),
-              
-                    /// Store Name
-                    CustomBodyText(store.name),
+
+                    Expanded(
+                      child: Row(
+                        children: [
+                    
+                          /// Store Name
+                          Expanded(child: StoreName(store: store)),
+
+                          Row(
+                            children: [
+
+                              /// Request Payment Button / Pay Now Button
+                              OrderRequestPaymentButton(
+                                order: order,
+                                orderRequestPaymentButtonType: OrderRequestPaymentButtonType.icon
+                              ),
+
+                              /// Store Dialer
+                              StoreDialer(store: store),
+                        
+                            ],
+                          )
+                    
+                        ],
+                      ),
+                    )
               
                   ],
-                ),
+                )
               )
     
             ],

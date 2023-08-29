@@ -24,10 +24,10 @@ class _OrderPaidNotificationContentState extends State<OrderPaidNotificationCont
   bool get orderedByYou => orderProperties.orderedByYou;
   DateTime get createdAt => widget.notification.createdAt;
   String get payerName => transactionProperties.payerName;
-  String get customerName => orderProperties.customerProperties.name;
   bool get orderedAndPaidByYou => transactionProperties.orderedAndPaidByYou;
   StoreProperties get storeProperties => orderPaidNotification.storeProperties;
   OrderProperties get orderProperties => orderPaidNotification.orderProperties;
+  String get customerFirstName => orderProperties.customerProperties.firstName;
   bool get orderedAndPaidBySamePerson => transactionProperties.orderedAndPaidBySamePerson;
   TransactionProperties get transactionProperties => orderPaidNotification.transactionProperties;
   OrderPaidNotification get orderPaidNotification => OrderPaidNotification.fromJson(widget.notification.data);
@@ -60,7 +60,7 @@ class _OrderPaidNotificationContentState extends State<OrderPaidNotificationCont
               children: [
                 if(!orderedAndPaidBySamePerson) TextSpan(
                   /// User Name
-                  text: orderedByYou ? 'You' : customerName,
+                  text: orderedByYou ? 'You' : customerFirstName,
                   style: style(context),
                 ),
                 if(!orderedAndPaidBySamePerson) TextSpan(

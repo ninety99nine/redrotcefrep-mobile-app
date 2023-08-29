@@ -1,11 +1,11 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/order_content.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/full_order_content/full_order_content.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -163,10 +163,8 @@ class _QRCodeScannerContentState extends State<QRCodeScannerContent> {
                 ),
         
                 /// Order Content
-                OrderContent(
-                  store: order!.relationships.store!,
+                FullOrderContent(
                   key: ValueKey(order!.id),
-                  color: Colors.white,
                   order: order!,
                 ),
                 

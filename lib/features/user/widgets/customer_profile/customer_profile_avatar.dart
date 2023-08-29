@@ -1,21 +1,17 @@
 import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
-
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import '../../../stores/services/store_services.dart';
 import '../../../stores/models/shoppable_store.dart';
-import 'package:flutter/material.dart';
 import '../../../orders/models/order.dart';
+import 'package:flutter/material.dart';
 
 class CustomerProfileAvatar extends StatefulWidget {
 
   final Order order;
-  final ShoppableStore? store;
 
   const CustomerProfileAvatar({
     super.key,
     required this.order,
-    required this.store,
   });
 
   @override
@@ -25,17 +21,17 @@ class CustomerProfileAvatar extends StatefulWidget {
 class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
 
   Order get order => widget.order;
-  String get orderFor => order.orderFor;
-  ShoppableStore? get store => widget.store;
+  String get customerMobileNumber => '7xxxxxxx';
   int get orderForTotalUsers => order.orderForTotalUsers;
-  String get customerName => order.attributes.customerName;
+  ShoppableStore? get store => order.relationships.store;
   int get orderForTotalFriends => order.orderForTotalFriends;
-  String? get mobileNumber => order.customerMobileNumber?.withoutExtension;
-  bool get hasUserOrderCollectionAssociation => userOrderCollectionAssociation != null;
+  String? get customerDisplayName => order.attributes.customerDisplayName;
+  bool get isOrderingForFriendsOnly => order.attributes.isOrderingForFriendsOnly;
+  bool get isOrderingForMeAndFriends => order.attributes.isOrderingForMeAndFriends;
+  bool get isAssociatedAsAFriend => userOrderCollectionAssociation?.isAssociatedAsFriend ?? false;
+  bool get isAssociatedAsACustomer => userOrderCollectionAssociation?.isAssociatedAsCustomer ?? false;
   bool get canManageOrders => store == null ? false : store!.attributes.userStoreAssociation!.canManageOrders;
   UserOrderCollectionAssociation? get userOrderCollectionAssociation => order.attributes.userOrderCollectionAssociation;
-  bool get isAssociatedAsAFriend => hasUserOrderCollectionAssociation && userOrderCollectionAssociation!.role == 'Friend';
-  bool get isAssociatedAsACustomer => hasUserOrderCollectionAssociation && userOrderCollectionAssociation!.role == 'Customer';
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +57,14 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
                 /// Spacer
                 if(!canManageOrders && !isAssociatedAsAFriend) const SizedBox(height: 12),
     
-                /// Name
-                CustomTitleMediumText(customerName),
+                /// Customer Display Name
+                if(customerDisplayName != null) CustomTitleMediumText(customerDisplayName!),
 
                 /// If Associated As Customer / Friend And Order Is For More Than One Person
                 if((isAssociatedAsAFriend || isAssociatedAsACustomer) && orderForTotalUsers > 1) ...[
     
                   /// Spacer
-                  const SizedBox(height: 4),
+                  if(customerDisplayName != null) const SizedBox(height: 4),
 
                   Row(
                     children: [
@@ -82,7 +78,7 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
                       if(isAssociatedAsACustomer) ...[
                       
                         /// Shared With "Me And Friends"
-                        if(orderFor == 'Me And Friends') ...[
+                        if(isOrderingForMeAndFriends)...[
 
                           /// Shared with a friend / friends
                           CustomBodyText('Shared with ${orderForTotalFriends == 1 ? 'a friend' : '$orderForTotalFriends friends'}', lightShade: true),
@@ -90,7 +86,7 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
                         ],
                       
                         /// Shared With "Friends Only"
-                        if(orderFor == 'Friends Only') ...[
+                        if(isOrderingForFriendsOnly) ...[
 
                           /// Ordered for a friend / friends
                           CustomBodyText('Ordered for ${orderForTotalFriends == 1 ? 'a friend' : '$orderForTotalFriends friends'}', lightShade: true),
@@ -116,10 +112,10 @@ class _CustomerAvatarProfileState extends State<CustomerProfileAvatar> {
                   Row( 
                     children: [
 
-                      if(mobileNumber != null) ...[
+                      if(customerMobileNumber != null) ...[
       
                         /// Mobile Number
-                        CustomBodyText(mobileNumber, lightShade: true,),
+                        CustomBodyText(customerMobileNumber, lightShade: true,),
     
                         /// Spacer
                         const SizedBox(width: 8),

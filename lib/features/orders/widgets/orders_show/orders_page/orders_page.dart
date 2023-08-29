@@ -22,9 +22,8 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
 
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  ShoppableStore get store => storeProvider.store!;
   bool canShowFloatingActionButton = true;
-  Order? order;
+  ShoppableStore? store;
 
   @override
   void initState() {
@@ -34,8 +33,8 @@ class _OrdersPageState extends State<OrdersPage> {
     /// Get the route arguments
     final arguments = Get.arguments;
 
-    /// Set the "order" (if provided)
-    if(arguments.containsKey('order')) order = arguments['order'] as Order;
+    /// Set the "store" (if provided)
+    store = arguments['store'] as ShoppableStore;
 
     /// Get the "canShowFloatingActionButton" (if provided)
     if(arguments.containsKey('canShowFloatingActionButton')) canShowFloatingActionButton = arguments['canShowFloatingActionButton'] as bool;
@@ -48,7 +47,6 @@ class _OrdersPageState extends State<OrdersPage> {
       /// Content of the page
       body: OrdersContent(
         store: store,
-        order: order,
         showingFullPage: true,
         canShowFloatingActionButton: canShowFloatingActionButton
       ),

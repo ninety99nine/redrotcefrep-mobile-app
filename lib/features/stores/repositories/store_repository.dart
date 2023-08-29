@@ -1,5 +1,6 @@
 import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
+import 'package:bonako_demo/features/occasions/models/occasion.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
 import 'package:intl/intl.dart';
 
@@ -34,12 +35,13 @@ class StoreRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Create a store
-  Future<http.Response> createStore({ required String name, String? description, required String callToAction, required bool acceptedGoldenRules }) {
+  Future<http.Response> createStore({ required String name, String? description, required String callToAction, required String mobileNumber, required bool acceptedGoldenRules }) {
 
     String url = homeApiLinks.createStores;
     
     Map body = {
       'name': name,
+      'mobile_number': mobileNumber,
       'call_to_action': callToAction,
       'accepted_golden_rules': acceptedGoldenRules
     };
@@ -121,12 +123,13 @@ class StoreRepository {
   }
 
   /// Update the specified store
-  Future<http.Response> updateStore({ 
+  Future<http.Response> updateStore({
     String? name, bool? online, String? description, String? offlineMessage, String? deliveryNote,
     bool? allowDelivery, bool? allowFreeDelivery, List<Map>? deliveryDestinations, 
     String? deliveryFlatFee, String? pickupNote, bool? allowPickup,
-    List<Map>? supportedPaymentMethods,
-    List<Map>? pickupDestinations,
+    List<Map>? supportedPaymentMethods, bool? allowDepositPayments,
+    List<String>? depositPercentages, bool? allowInstallmentPayments,
+    List<String>? installmentPercentages, List<Map>? pickupDestinations,
   }) {
 
     if(store == null) throw Exception('The store must be set to update');
@@ -142,9 +145,19 @@ class StoreRepository {
     if(allowFreeDelivery != null) body['allowFreeDelivery'] = allowFreeDelivery;
     if(pickupNote != null && pickupNote.isNotEmpty) body['pickupNote'] = pickupNote;
     if(description != null && description.isNotEmpty) body['description'] = description;
+    if(allowDepositPayments != null) body['allowDepositPayments'] = allowDepositPayments;
     if(deliveryNote != null && deliveryNote.isNotEmpty) body['delivery_note'] = deliveryNote;
     if(offlineMessage != null && offlineMessage.isNotEmpty) body['offlineMessage'] = offlineMessage;
+    if(allowInstallmentPayments != null) body['allowInstallmentPayments'] = allowInstallmentPayments;
     if(deliveryFlatFee != null && deliveryFlatFee.isNotEmpty) body['deliveryFlatFee'] = deliveryFlatFee;
+
+    if(depositPercentages != null && depositPercentages.isNotEmpty) {
+      body['depositPercentages'] = depositPercentages.map((depositPercentage) => int.parse(depositPercentage)).toList();
+    }
+
+    if(installmentPercentages != null && installmentPercentages.isNotEmpty) {
+      body['installmentPercentages'] = installmentPercentages.map((installmentPercentage) => int.parse(installmentPercentage)).toList();
+    }
 
     if(pickupDestinations != null && pickupDestinations.isNotEmpty) {
       body['pickupDestinations'] = pickupDestinations.map((pickupDestination) => pickupDestination).toList();
@@ -155,13 +168,7 @@ class StoreRepository {
     }
 
     if(supportedPaymentMethods != null && supportedPaymentMethods.isNotEmpty) {
-
-      print('stage 1');
-
-      body['supportedPaymentMethods'] = supportedPaymentMethods.map((supportedPaymentMethod) => supportedPaymentMethod).toList();
-
-      print('stage 2');
-
+      body['supportedPaymentMethods'] = supportedPaymentMethods;
     }
 
     return apiRepository.put(url: url, body: body);
@@ -353,6 +360,49 @@ class StoreRepository {
     
   }
 
+
+  ///////////////////////////////////
+  ///   PAYMENT METHOD           ///
+  //////////////////////////////////
+
+  /// Get the available payment methods of the specified store
+  Future<http.Response> showAvailablePaymentMethods({ String? filter, String searchWord = '', int page = 1 }) {
+
+    if(store == null) throw Exception('The store must be set to show available payment methods');
+
+    String url = store!.links.showAvailablePaymentMethods.href;
+
+    Map<String, String> queryParams = {};
+      
+    /// Filter coupons by the specified status
+    if(filter != null) queryParams.addAll({'filter': filter});
+
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
+
+  /// Get the supported payment methods of the specified store
+  Future<http.Response> showSupportedPaymentMethods({ String? filter, String searchWord = '', int page = 1 }) {
+
+    if(store == null) throw Exception('The store must be set to show supported payment methods');
+
+    String url = store!.links.showSupportedPaymentMethods.href;
+
+    Map<String, String> queryParams = {};
+      
+    /// Filter coupons by the specified status
+    if(filter != null) queryParams.addAll({'filter': filter});
+
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    
+  }
+
   ///////////////////////////////////
   ///   SHORTCODES               ///
   //////////////////////////////////
@@ -405,7 +455,7 @@ class StoreRepository {
   }
 
   /// Get the orders of the specified store
-  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, String searchWord = '', int page = 1 }) {
+  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, bool withOccasion = false, bool withUserOrderCollectionAssociation = false, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show orders');
 
@@ -414,6 +464,10 @@ class StoreRepository {
     Map<String, String> queryParams = {};
 
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
+
+    if(withOccasion) queryParams.addAll({'withOccasion': '1'});
+
+    if(withUserOrderCollectionAssociation) queryParams.addAll({'withUserOrderCollectionAssociation': '1'});
 
     /// Filter orders by the specified friend user id
     if(friendUserId != null) queryParams.addAll({'friend_user_id': friendUserId.toString()});
@@ -876,6 +930,51 @@ class StoreRepository {
     
   }
 
+  /// Update the assigned store arrangement
+  Future<http.Response> updateAssignedStoresArrangement({ required List storeIds }) {
+
+    String url = homeApiLinks.updateAssignedStoresArrangement;
+    
+    Map body = {'arrangement': storeIds};
+
+    return apiRepository.post(url: url, body: body);
+    
+  }
+
+
+  /// Add the specified store to the assigned stores
+  Future<http.Response> addToAssignedStores() {
+
+    if(store == null) throw Exception('The store must be set to add to assigned stores');
+
+    String url = store!.links.addToAssignedStores.href;
+
+    return apiRepository.post(url: url);
+    
+  }
+
+  /// Remove the specified store from the assigned stores
+  Future<http.Response> removeFromAssignedStores() {
+
+    if(store == null) throw Exception('The store must be set to remove from assigned stores');
+
+    String url = store!.links.removeFromAssignedStores.href;
+
+    return apiRepository.post(url: url);
+    
+  }
+
+  /// Add or remove the specified store from the assigned stores
+  Future<http.Response> addOrRemoveFromAssignedStores() {
+
+    if(store == null) throw Exception('The store must be set to add or remove from assigned stores');
+
+    String url = store!.links.addOrRemoveFromAssignedStores.href;
+
+    return apiRepository.post(url: url);
+    
+  }
+
   /// Add or remove the specified store from the influencer stores
   Future<http.Response> addOrRemoveFromInfluencerStores() {
 
@@ -957,6 +1056,33 @@ class StoreRepository {
     
   }
 
+
+  ///////////////////////////////////
+  ///   SHARABLE CONTENT          ///
+  //////////////////////////////////
+
+  /// Get the sharable content of the specified store
+  Future<http.Response> showSharableContent() {
+
+    if(store == null) throw Exception('The store must be set to show sharable content');
+
+    String url = store!.links.showSharableContent.href;
+
+    return apiRepository.get(url: url);
+    
+  }
+
+  /// Get the sharable content choices of the specified store
+  Future<http.Response> showSharableContentChoices() {
+
+    if(store == null) throw Exception('The store must be set to show sharable content choices');
+
+    String url = store!.links.showSharableContentChoices.href;
+
+    return apiRepository.get(url: url);
+    
+  }
+
   /// Inspect the shopping cart
   Future<http.Response> inspectShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [], DeliveryDestination? deliveryDestination }) {
 
@@ -986,7 +1112,7 @@ class StoreRepository {
     List<Product> products = const [], List<String> cartCouponCodes = const [], 
     CollectionType? collectionType, PickupDestination? pickupDestination, 
     DeliveryDestination? deliveryDestination, Address? addressForDelivery,
-    required bool anonymous
+    Occasion? occasion, String? specialNote,
   }) {
 
     if(store == null) throw Exception('The store must be set to convert the shopping cart');
@@ -1010,15 +1136,16 @@ class StoreRepository {
     
     Map body = {
       'order_for': orderFor,
-      'anonymous': anonymous,
       'cart_products': cartProducts,
       'friend_user_ids': friendUserIds,
       'friend_group_ids': friendGroupIds,
       'cart_coupon_codes': cartCouponCodes,
     };
 
+    if(occasion != null) body.addAll({'occasion_id': occasion.id});
     if(collectionType != null) body.addAll({'collection_type': collectionType.name});
     if(addressForDelivery != null) body.addAll({'address_id': addressForDelivery.id});
+    if(specialNote != null && specialNote.isNotEmpty) body.addAll({'specialNote': specialNote});
     if(pickupDestination != null) body.addAll({'pickup_destination_name': pickupDestination.name});
     if(deliveryDestination != null) body.addAll({'delivery_destination_name': deliveryDestination.name});
 

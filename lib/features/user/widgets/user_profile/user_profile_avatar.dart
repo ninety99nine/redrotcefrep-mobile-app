@@ -23,8 +23,6 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
 
   late User user = widget.user;
-  bool get anonymous => user.anonymous;
-  String? get nickName => user.nickName;
   String get name => user.attributes.name;
   Function(User)? get onUpdatedUser => widget.onUpdatedUser;
   String get mobileNumber => user.mobileNumber!.withoutExtension;
@@ -63,17 +61,6 @@ class _UserProfileState extends State<UserProfile> {
                   
                     /// Spacer
                     const SizedBox(height: 4),
-      
-                    /// Nick Name
-                    if(anonymous && nickName != null) ...[
-      
-                      /// Nick Name
-                      CustomBodyText('@${nickName!} (Anonymous)', lightShade: true,),
-                  
-                      /// Spacer
-                      const SizedBox(height: 4),
-      
-                    ],
     
                     Row(
                       children: [

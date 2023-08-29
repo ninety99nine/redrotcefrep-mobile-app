@@ -31,7 +31,7 @@ class DialogUtility {
   }
 
   /// Show a dialog that supports the dynamic infinite scroll content
-  static Future<bool?> showInfiniteScrollContentDialog({ required content, bool showCloseIcon = true, double heightRatio = 0.6, required BuildContext context }) {
+  static Future<bool?> showInfiniteScrollContentDialog({ required content, bool showCloseIcon = true, double heightRatio = 0.6, Color? backgroundColor, required BuildContext context }) {
 
     Widget dialogContent() {
       return Stack(
@@ -79,6 +79,7 @@ class DialogUtility {
         return LayoutBuilder(
           builder: (context, constraints) {
             return AlertDialog(
+              backgroundColor: backgroundColor,
               content: SizedBox(
                 /// On scrollable content such as using CustomVerticalListViewInfiniteScroll(),
                 /// set the width and height dynamically based on the given
@@ -107,7 +108,7 @@ class DialogUtility {
   }
 
   /// Show a dialog that supports static or dynamic content
-  static Future<bool?> showContentDialog({ String title = '', required content, List<Widget>? actions, required BuildContext context }) {
+  static Future<bool?> showContentDialog({ String title = '', required content, List<Widget>? actions, EdgeInsets? insetPadding, required BuildContext context }) {
 
     Widget dialogContent() {
       return Stack(
@@ -175,7 +176,7 @@ class DialogUtility {
           /// The insetPadding has been modified so that the Dialog is as close as possible to
           /// the screen edges. The default padding is too much and makes the dialog to narrow
           /// on smaller devices.
-          insetPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 24.0),
+          insetPadding: insetPadding ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
         );
       }

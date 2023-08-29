@@ -55,6 +55,9 @@ class CustomHorizontalPageViewInfiniteScroll extends StatefulWidget {
   /// Mesage to show when there is no more content to show
   final String noMoreContent;
 
+  /// Widget to show when there is no more content to show
+  final Widget? noMoreContentWidget;
+
   /// Whether to show the loader that hides all the content on
   /// the first request or to hide this loader so that part of
   /// the content can appear e.g the contentBeforeSearchBar
@@ -72,6 +75,7 @@ class CustomHorizontalPageViewInfiniteScroll extends StatefulWidget {
     this.initialPage = 0,
     this.disabled = false,
     required this.onRequest,
+    this.noMoreContentWidget,
     this.showSearchBar = true,
     this.showSeparater = true,
     required this.onParseItem,
@@ -121,6 +125,7 @@ class CustomHorizontalPageViewInfiniteScrollState extends State<CustomHorizontal
   Function(int)? get onPageChanged => widget.onPageChanged;
   String get catchErrorMessage => widget.catchErrorMessage;
   bool get isSearching => isLoading && searchWord.isNotEmpty;
+  Widget? get noMoreContentWidget => widget.noMoreContentWidget;
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
   Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
@@ -360,8 +365,8 @@ class CustomHorizontalPageViewInfiniteScrollState extends State<CustomHorizontal
     );
   }
 
-  Widget get noMoreContentWidget {
-    return Column(
+  Widget get _noMoreContentWidget {
+    return noMoreContentWidget == null ? Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.ac_unit_sharp, size: 80, color: Colors.grey.shade300,),
@@ -371,7 +376,7 @@ class CustomHorizontalPageViewInfiniteScrollState extends State<CustomHorizontal
           textAlign: TextAlign.center
         ),
       ],
-    );
+    ) : noMoreContentWidget!;
   }
   
   Widget get searchInputField {  
@@ -485,7 +490,7 @@ class CustomHorizontalPageViewInfiniteScrollState extends State<CustomHorizontal
                     }else if(sentFirstRequest) {
 
                       /// No content / No more content widget
-                      return  totalItems == 0 ? noContentWidget : noMoreContentWidget;
+                      return  totalItems == 0 ? noContentWidget : _noMoreContentWidget;
 
                     }else{
                       

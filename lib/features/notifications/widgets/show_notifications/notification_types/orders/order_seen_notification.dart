@@ -17,10 +17,10 @@ class OrderSeenNotificationContent extends StatelessWidget {
 
   DateTime get createdAt => notification.createdAt;
   String get orderNumber => orderProperties.number;
-  String get customerName => orderProperties.customerProperties.name;
   bool get isAssociatedAsFriend => orderProperties.isAssociatedAsFriend;
   String get seenByUserName => orderProperties.seenByUserProperties.name;
   OrderProperties get orderProperties => orderSeenNotification.orderProperties;
+  String get customerFirstName => orderProperties.customerProperties.firstName;
   OrderSeenNotification get orderSeenNotification => OrderSeenNotification.fromJson(notification.data);
 
   TextStyle style(BuildContext context, {Color? color}) {
@@ -49,7 +49,7 @@ class OrderSeenNotificationContent extends StatelessWidget {
                 children: [
                   TextSpan(
                     /// User Name
-                    text: customerName,
+                    text: customerFirstName,
                     style: style(context),
                   ),
                   TextSpan(

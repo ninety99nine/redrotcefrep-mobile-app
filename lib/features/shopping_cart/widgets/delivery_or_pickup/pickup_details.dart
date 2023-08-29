@@ -62,10 +62,7 @@ class _DeliveryDetailsState extends State<PickupDetails> {
         if(store!.pickupNote != null) ...[
           
           /// Pickup Note
-          CustomMessageAlert(store!.pickupNote!),
-
-          /// Spacer
-          const SizedBox(height: 8),
+          CustomMessageAlert(store!.pickupNote!, icon: Icons.notes_rounded,),
 
         ],
 

@@ -1,9 +1,8 @@
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
-import 'package:get/get.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 
-import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../../../user/widgets/customer_profile/customer_profile_avatar.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'orders_in_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/providers/store_provider.dart';
@@ -13,19 +12,22 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'orders_page/orders_page.dart';
 import '../../enums/order_enums.dart';
-import '../../models/order.dart';
+import 'package:get/get.dart';
 import 'order_filters.dart';
 
 class OrdersContent extends StatefulWidget {
 
-  final Order? order;
+  /// Specify true/false to show a full page view
   final bool showingFullPage;
+
+  /// Specify the store to show orders of that store
   final ShoppableStore? store;
+
+  /// Specify true/false to show the floating action button e.g Place Order / Back
   final bool canShowFloatingActionButton;
 
   const OrdersContent({
     super.key,
-    this.order,
     required this.store,
     this.showingFullPage = false,
     this.canShowFloatingActionButton = true
@@ -37,15 +39,9 @@ class OrdersContent extends StatefulWidget {
 
 class _OrdersContentState extends State<OrdersContent> {
 
-  Order? order;
   String orderFilter = 'All';
   bool disableFloatingActionButton = false;
   OrderContentView orderContentView = OrderContentView.viewingOrders;
-
-  /// This allows us to access the state of OrderFilters widget using a Global key. 
-  /// We can then fire methods of the child widget from this current Widget state. 
-  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  GlobalKey<OrderFiltersState>? _orderFiltersState;
 
   ShoppableStore? get store => widget.store;
   double get topPadding => showingFullPage ? 32 : 0;
@@ -56,11 +52,15 @@ class _OrdersContentState extends State<OrdersContent> {
   /// list of orders by this user as well as by other users. In this case we might want to hide the 
   /// floating action button completely so that the "Back" option does not appear.
   bool get canShowFloatingActionButton => widget.canShowFloatingActionButton;
-  bool get isViewingOrder => orderContentView == OrderContentView.viewingOrder;
   bool get isViewingOrders => orderContentView == OrderContentView.viewingOrders;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  String get subtitle => isViewingOrders ?  'See what others are ordering' : 'Place a new order';
+  String get subtitle => isViewingOrders ? 'See what others are ordering' : 'Place a new order';
+
+  /// This allows us to access the state of OrderFilters widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  GlobalKey<OrderFiltersState>? _orderFiltersState;
 
   @override
   void initState() {
@@ -69,37 +69,20 @@ class _OrdersContentState extends State<OrdersContent> {
     
     /// Set the "_orderFiltersState" so that we can access the OrderFilters widget state
     _orderFiltersState = GlobalKey<OrderFiltersState>();
-
-    /**
-     *  If an order has been specified, then we need to show that
-     *  order. In this case we should prepare the view to show
-     *  this specified order instead of showing a list of
-     *  store orders
-     */
-    if(widget.order != null) {
-
-      order = widget.order;
-      orderContentView = OrderContentView.viewingOrder;
-      
-    }
-
   }
 
   /// Content to show based on the specified view
   Widget get content {
 
     /// If we want to view the orders content
-    if(isViewingOrders || isViewingOrder) {
+    if(isViewingOrders) {
 
       /// Show orders view
       return OrdersInVerticalListViewInfiniteScroll(
         store: store,
-        order: order,
-        onViewOrder: onViewOrder,
         orderFilter: orderFilter,
-        onUpdatedOrder: onUpdatedOrder,
-        orderContentView: orderContentView,
-        requestStoreOrderFilters: requestStoreOrderFilters
+        onPlaceOrder: onPlaceOrder,
+        requestOrderFilters: requestOrderFilters
       );
 
     }else{
@@ -119,10 +102,10 @@ class _OrdersContentState extends State<OrdersContent> {
   Widget get floatingActionButton {
 
     return CustomElevatedButton(
-      isViewingOrders ? 'Add Order' : 'Back',
+      isViewingOrders ? 'Place Order' : 'Back',
       onPressed: floatingActionButtonOnPressed,
       color: isViewingOrders ? Colors.green : Colors.grey,
-      prefixIcon: isViewingOrders ? Icons.add : Icons.keyboard_double_arrow_left,
+      prefixIcon: isViewingOrders ? null : Icons.keyboard_double_arrow_left,
     );
 
   }
@@ -140,9 +123,6 @@ class _OrdersContentState extends State<OrdersContent> {
       changeOrderContentView(OrderContentView.addingOrder);
 
     }else{
-      
-      /// Unset the order
-      order = null;
 
       /// Change to the show orders view
       changeOrderContentView(OrderContentView.viewingOrders);
@@ -156,35 +136,28 @@ class _OrdersContentState extends State<OrdersContent> {
   /// actions when clicked
   void onLoading(bool status) => disableFloatingActionButton = status;
 
-  /// Change the view once we are done placing an order
-  void onCreatedOrder() => changeOrderContentView(OrderContentView.viewingOrders);
-
   /// Called when the order filter has been changed,
   /// such as changing from "All" to "Waiting"
   void onSelectedOrderFilter(String orderFilter) {
     setState(() => this.orderFilter = orderFilter);
   }
 
-  /// Called when the order has been updated, such as
-  /// changing status from "Waiting" to "On Its Way"
-  void onUpdatedOrder(Order order) {
-    this.order = null;
-    requestStoreOrderFilters();
+  /// Change the view to place an order
+  void onPlaceOrder() {
+    changeOrderContentView(OrderContentView.addingOrder);
+  }
+
+  /// Change the view once we are done placing an order
+  void onCreatedOrder(Order order) {
+    requestOrderFilters();
     changeOrderContentView(OrderContentView.viewingOrders);
   }
 
   /// Make an Api Request to update the order filters so that
   /// we can acquire the total count of orders assigned to
   /// each filter e.g "Waiting (30)" or "On Its Way (20)"
-  void requestStoreOrderFilters() {
-    if(_orderFiltersState!.currentState != null) _orderFiltersState!.currentState!.requestStoreOrderFilters();
-  }
-
-  /// Called to change the view from viewing multiple orders
-  /// to viewing one specific order
-  void onViewOrder(Order order) {
-    this.order = order;
-    changeOrderContentView(OrderContentView.viewingOrder);
+  void requestOrderFilters() {
+    if(_orderFiltersState!.currentState != null) _orderFiltersState!.currentState!.requestOrderFilters();
   }
 
   /// Called to change the view to the specified view
@@ -212,35 +185,25 @@ class _OrdersContentState extends State<OrdersContent> {
                 /// Wrap Padding around the following:
                 /// Title, Subtitle, Customer Profile Avatar, Filters
                 Padding(
-                  padding: EdgeInsets.only(top: 20 + topPadding, left: (order == null ? 32 : 16), bottom: 16),
+                  padding: EdgeInsets.only(top: 20 + topPadding, left: 32, bottom: 16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      
-                      if(order == null) ...[
                 
-                        /// Title
-                        const CustomTitleMediumText('Orders', padding: EdgeInsets.only(bottom: 8),),
-                        
-                        /// Subtitle
-                        AnimatedSwitcher(
-                          switchInCurve: Curves.easeIn,
-                          switchOutCurve: Curves.easeOut,
-                          duration: const Duration(milliseconds: 500),
-                          child: Align(
-                            key: ValueKey(subtitle),
-                            alignment: Alignment.centerLeft,
-                            child: CustomBodyText(subtitle),
-                          )
-                        ),
-
-                      ],
-
-                      /// Customer Profile Avatar
-                      if(order != null) CustomerProfileAvatar(
-                        order: order!,
-                        store: store,
+                      /// Title
+                      const CustomTitleMediumText('Orders', padding: EdgeInsets.only(bottom: 8),),
+                      
+                      /// Subtitle
+                      AnimatedSwitcher(
+                        switchInCurve: Curves.easeIn,
+                        switchOutCurve: Curves.easeOut,
+                        duration: const Duration(milliseconds: 500),
+                        child: Align(
+                          key: ValueKey(subtitle),
+                          alignment: Alignment.centerLeft,
+                          child: CustomBodyText(subtitle),
+                        )
                       ),
 
                       //  Filters
@@ -288,7 +251,7 @@ class _OrdersContentState extends State<OrdersContent> {
                 Get.toNamed(
                   OrdersPage.routeName,
                   arguments: {
-                    'order': order,
+                    'store': store,
                     'canShowFloatingActionButton': canShowFloatingActionButton
                   }
                 );
@@ -308,10 +271,11 @@ class _OrdersContentState extends State<OrdersContent> {
           ),
   
           /// Floating Button
-          if(canShowFloatingActionButton) AnimatedPositioned(
+          if(canShowFloatingActionButton)
+          AnimatedPositioned(
             right: 10,
             duration: const Duration(milliseconds: 500),
-            top: (isViewingOrders ? 112 : (isViewingOrder ? 52 : 64)) + topPadding,
+            top: (isViewingOrders ? 112 : 56) + topPadding,
             child: floatingActionButton,
           )
         ],

@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 class OrderTransactionsDialog extends StatefulWidget {
   
   final Order order;
-  final ShoppableStore store;
   final Transaction? transaction;
   final Widget Function(void Function())? trigger;
   final TransactionContentView? transactionContentView;
@@ -21,7 +20,6 @@ class OrderTransactionsDialog extends StatefulWidget {
     super.key,
     this.trigger,
     this.transaction,
-    required this.store,
     required this.order,
     this.transactionContentView
   });
@@ -33,10 +31,11 @@ class OrderTransactionsDialog extends StatefulWidget {
 class _OrderTransactionsDialogState extends State<OrderTransactionsDialog> {
 
   Order get order => widget.order;
-  ShoppableStore get store => widget.store;
   bool get isPaid => order.attributes.isPaid;
   Transaction? get transaction => widget.transaction;
+  ShoppableStore get store => widget.order.relationships.store!;
   Widget Function(void Function())? get trigger => widget.trigger;
+  bool get canManageOrders => store.attributes.userStoreAssociation!.canManageOrders;
   TransactionContentView? get transactionContentView => widget.transactionContentView;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
@@ -51,11 +50,12 @@ class _OrderTransactionsDialogState extends State<OrderTransactionsDialog> {
 
       /// Return the total transactions and total transactions text
       return CustomElevatedButton(
-        'BonakoPay',
-        width: 120,
+        fontSize: 12,
         onPressed: openDialog,
         prefixIcon: Icons.payment,
         alignment: Alignment.center,
+        width: canManageOrders ? 130 : 120,
+        canManageOrders ? 'Request Payment' : 'Pay Now',
       );
 
     }
@@ -71,7 +71,6 @@ class _OrderTransactionsDialogState extends State<OrderTransactionsDialog> {
       showCloseIcon: false,
       content: OrderTransactionsContent(
         order: order,
-        store: store,
         transaction: transaction,
         transactionContentView: transactionContentView ?? (isPaid ? TransactionContentView.viewingTransactions : TransactionContentView.requestPayment)
       )

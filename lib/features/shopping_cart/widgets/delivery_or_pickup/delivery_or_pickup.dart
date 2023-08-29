@@ -88,6 +88,7 @@ class _DeliveryOrPickupState extends State<DeliveryOrPickup> {
             if(allowPickupAndDelivery) ...[
 
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
 
                   /// Delivery option
@@ -119,7 +120,10 @@ class _DeliveryOrPickupState extends State<DeliveryOrPickup> {
             if(store!.collectionType == CollectionType.delivery) const DeliveryDetails(),
             
             /// Pickup details
-            if(store!.collectionType == CollectionType.pickup) const PickupDetails()
+            if(store!.collectionType == CollectionType.pickup) const PickupDetails(),
+              
+            /// Spacer
+            if(allowPickupOrDelivery) const SizedBox(height: 16),
 
           ] : [],
         )

@@ -1,10 +1,8 @@
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
 import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
-
-import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
 import '../../../stores/providers/store_provider.dart';
-import '../../../stores/services/store_services.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../models/order_filters.dart' as model;
 import 'package:provider/provider.dart';
@@ -50,13 +48,13 @@ class OrderFiltersState extends State<OrderFilters> {
     /// Set the local state orderFilter value to the widget orderFilter value
     orderFilter = widget.orderFilter;
     
-    requestStoreOrderFilters();
+    requestOrderFilters();
   }
 
-  /// Request the store order filters
+  /// Request the order filters
   /// This will allow us to show filters that can be used
   /// to filter the results of orders returned on each request
-  void requestStoreOrderFilters() {
+  void requestOrderFilters() {
 
     Future<http.Response> request;
 
@@ -69,7 +67,7 @@ class OrderFiltersState extends State<OrderFilters> {
     /// If the store is provided
     }else{
 
-      /// Request the store order filters
+      /// Request the order filters
       request = storeProvider.setStore(store!).storeRepository.showOrderFilters();
       
     }
@@ -98,7 +96,7 @@ class OrderFiltersState extends State<OrderFilters> {
   /// Change the current review filter
   void changeOrderFilter(String orderFilter) {
     selectOrderFilter(orderFilter);
-    requestStoreOrderFilters();
+    requestOrderFilters();
   }
 
   /// Select the specified review filter

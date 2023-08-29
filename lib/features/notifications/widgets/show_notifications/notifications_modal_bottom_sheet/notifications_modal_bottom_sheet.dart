@@ -118,7 +118,7 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
       if(type == 'App\\Notifications\\Orders\\OrderCreated') {
         
         final OrderCreatedNotification notification = OrderCreatedNotification.fromJson(eventData);
-        final String customerFirstName = notification.orderProperties.customerProperties.name;
+        final String customerFirstName = notification.orderProperties.customerProperties.firstName;
         final bool isAssociatedAsFriend = notification.orderProperties.isAssociatedAsFriend;
         final int orderForTotalFriends = notification.orderProperties.orderForTotalFriends;
         final String amount = notification.orderProperties.amount.amountWithCurrency;

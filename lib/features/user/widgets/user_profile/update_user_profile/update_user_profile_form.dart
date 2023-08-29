@@ -57,9 +57,7 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
       
       userForm = {
         'firstName': user.firstName,
-        'anonymous': user.anonymous,
         'lastName': user.lastName,
-        'nickName': user.nickName,
       };
 
     });
@@ -80,10 +78,8 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
       onSubmitting(true);
 
       authProvider.setUser(user).authRepository.updateUser(
-        anonymous: userForm['anonymous'],
         firstName: userForm['firstName'],
         lastName: userForm['lastName'],
-        nickName: userForm['nickName'],
       ).then((response) async {
 
         final responseBody = jsonDecode(response.body);
@@ -189,44 +185,7 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
                     onChanged: (value) {
                       setState(() => userForm['lastName'] = value); 
                     }
-                  ),
-                  
-                  /// Spacer
-                  const SizedBox(height: 16),
-
-                  /// Online Checkbox
-                  CustomCheckbox(
-                    value: userForm['anonymous'],
-                    disabled: isSubmitting,
-                    text: 'Make me anonymous',
-                    onChanged: (value) {
-                      setState(() => userForm['anonymous'] = value ?? false); 
-                    }
-                  ),
-
-                  if(userForm['anonymous']) ...[
-
-                    /// Instructions
-                    const CustomMessageAlert(
-                      'You are anonymous, your name will not be shown to other users except shopkeepers. We will use your nick name instead.',
-                      margin: EdgeInsets.only(top: 16, bottom: 24),
-                    ),
-
-                    /// Nick Name
-                    CustomTextFormField(
-                      errorText: serverErrors.containsKey('nickName') ? serverErrors['nickName'] : null,
-                      initialValue: userForm['nickName'],
-                      enabled: !isSubmitting,
-                      borderRadiusAmount: 16,
-                      labelText: 'Nick Name',
-                      hintText: 'Kat',
-                      maxLength: 40,
-                      onChanged: (value) {
-                        setState(() => userForm['nickName'] = value); 
-                      },
-                    ),
-
-                  ],   
+                  ), 
 
                 ],
               )

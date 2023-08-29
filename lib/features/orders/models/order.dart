@@ -1,9 +1,9 @@
 import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
 import 'package:bonako_demo/features/addresses/models/delivery_address.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
-
+import 'package:bonako_demo/features/occasions/models/occasion.dart';
 import '../../../core/shared_models/name_and_description.dart';
-import '../../../../core/shared_models/mobile_number.dart';
 import '../../../../core/shared_models/percentage.dart';
 import '../../../../core/shared_models/currency.dart';
 import '../../../../core/shared_models/status.dart';
@@ -16,25 +16,27 @@ import '../../stores/models/shoppable_store.dart';
 class Order {
   late int id;
   late Links links;
-  late bool anonymous;
   late String summary;
   late String orderFor;
   late Money amountPaid;
+  late int? occasionId;
   late Currency currency;
   late DateTime createdAt;
+  late String? specialNote;
   late int? customerUserId;
   late Money amountPending;
   late int totalViewsByTeam;
+  late int? paymentMethodId;
   late Attributes attributes;
+  late int? deliveryAddressId;
   late int? transactionsCount;
   late int orderForTotalUsers;
-  late String? collectionType;
   late Money amountOutstanding;
   late int? collectionByUserId;
-  late String customerLastName;
   late String? destinationName;
   late int orderForTotalFriends;
-  late String customerFirstName;
+  late String? customerLastName;
+  late String? customerFirstName;
   late NameAndDescription status;
   late Status collectionVerified;
   late Relationships relationships;
@@ -46,8 +48,8 @@ class Order {
   late String? collectionByUserLastName;
   late NameAndDescription paymentStatus;
   late String? collectionByUserFirstName;
-  late MobileNumber? customerMobileNumber;
   late Percentage amountPendingPercentage;
+  late NameAndDescription? collectionType;
   late Percentage amountOutstandingPercentage;
   late String? collectionVerifiedByUserLastName;
   late String? collectionVerifiedByUserFirstName;
@@ -57,19 +59,20 @@ class Order {
     id = json['id'];
     summary = json['summary'];
     orderFor = json['orderFor'];
-    anonymous = json['anonymous'];
+    occasionId = json['occasionId'];
+    specialNote = json['specialNote'];
     links = Links.fromJson(json['links']);
     customerUserId = json['customerUserId'];
-    collectionType = json['collectionType'];
+    paymentMethodId = json['paymentMethodId'];
     destinationName = json['destinationName'];
     totalViewsByTeam = json['totalViewsByTeam'];
     customerLastName = json['customerLastName'];
-    transactionsCount = json['transactionsCount'];
     customerFirstName = json['customerFirstName'];
+    transactionsCount = json['transactionsCount'];
+    deliveryAddressId = json['deliveryAddressId'];
     createdAt = DateTime.parse(json['createdAt']);
     currency = Currency.fromJson(json['currency']);
     amountPaid = Money.fromJson(json['amountPaid']);
-    collectionByUserId = json['collectionByUserId'];
     orderForTotalUsers = json['orderForTotalUsers'];
     orderForTotalFriends = json['orderForTotalFriends'];
     status = NameAndDescription.fromJson(json['status']);
@@ -87,49 +90,71 @@ class Order {
     amountPendingPercentage = Percentage.fromJson(json['amountPendingPercentage']);
     amountOutstandingPercentage = Percentage.fromJson(json['amountOutstandingPercentage']);
     lastViewedByTeamAt = json['lastViewedByTeamAt'] == null ? null : DateTime.parse(json['lastViewedByTeamAt']);
+    collectionType = json['collectionType'] == null ? null : NameAndDescription.fromJson(json['collectionType']);
     relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
     firstViewedByTeamAt = json['firstViewedByTeamAt'] == null ? null : DateTime.parse(json['firstViewedByTeamAt']);
     collectionVerifiedAt = json['collectionVerifiedAt'] == null ? null : DateTime.parse(json['collectionVerifiedAt']);
-    customerMobileNumber = json['customerMobileNumber'] == null ? null : MobileNumber.fromJson(json['customerMobileNumber']);
   }
 }
 
 class Attributes {
-  late String number;
   late bool isPaid;
   late bool isUnpaid;
-  late bool isPartiallyPaid;
-  late bool isPendingPayment;
+  late String? number;
   late bool isWaiting;
   late bool isOnItsWay;
-  late bool isReadyForPickup;
   late bool isCancelled;
   late bool isCompleted;
-  late String customerName;
+  late bool canMarkAsPaid;
+  late String? customerName;
+  late bool isPartiallyPaid;
+  late bool isPendingPayment;
+  late bool isReadyForPickup;
+  late bool canRequestPayment;
+  late String? customerDisplayName;
   late String? collectionByUserName;
+  late List<PayableAmount> payableAmounts;
   late String? collectionVerifiedByUserName;
   late List<NameAndDescription> followUpStatuses;
-  late UserOrderCollectionAssociation? userOrderCollectionAssociation;
   late DialToShowCollectionCode dialToShowCollectionCode;
+  late UserOrderCollectionAssociation? userOrderCollectionAssociation;
+
+  late bool isOrderingForMe;
+  late bool isOrderingForBusiness;
+  late bool isOrderingForFriendsOnly;
+  late bool isOrderingForMeAndFriends;
+  late String? otherAssociatedFriends;
 
   Attributes.fromJson(Map<String, dynamic> json) {
+
     number = json['number'];
     isPaid = json['isPaid'];
     isUnpaid = json['isUnpaid'];
-    isPartiallyPaid = json['isPartiallyPaid'];
-    isPendingPayment = json['isPendingPayment'];
     isWaiting = json['isWaiting'];
     isOnItsWay = json['isOnItsWay'];
-    isReadyForPickup = json['isReadyForPickup'];
     isCancelled = json['isCancelled'];
     isCompleted = json['isCompleted'];
     customerName = json['customerName'];
+    canMarkAsPaid = json['canMarkAsPaid'];
+    isOrderingForMe = json['isOrderingForMe'];
+    isPartiallyPaid = json['isPartiallyPaid'];
+    isPendingPayment = json['isPendingPayment'];
+    isReadyForPickup = json['isReadyForPickup'];
+    canRequestPayment = json['canRequestPayment'];
+    customerDisplayName = json['customerDisplayName'];
     collectionByUserName = json['collectionByUserName'];
+    isOrderingForBusiness = json['isOrderingForBusiness'];
+    otherAssociatedFriends = json['otherAssociatedFriends'];
+    isOrderingForFriendsOnly = json['isOrderingForFriendsOnly'];
+    isOrderingForMeAndFriends = json['isOrderingForMeAndFriends'];
     collectionVerifiedByUserName = json['collectionVerifiedByUserName'];
+    dialToShowCollectionCode = DialToShowCollectionCode.fromJson(json['dialToShowCollectionCode']);
+    payableAmounts = List<PayableAmount>.from(json['payableAmounts'].map((payableAmount) {
+      return PayableAmount.fromJson(payableAmount);
+    })).toList();
     followUpStatuses = List<NameAndDescription>.from(json['followUpStatuses'].map((followUpStatus) {
       return NameAndDescription.fromJson(followUpStatus);
     })).toList();
-    dialToShowCollectionCode = DialToShowCollectionCode.fromJson(json['dialToShowCollectionCode']);
     userOrderCollectionAssociation = json['userOrderCollectionAssociation'] == null ? null : UserOrderCollectionAssociation.fromJson(json['userOrderCollectionAssociation']);
   }
 }
@@ -144,10 +169,27 @@ class DialToShowCollectionCode {
   }
 }
 
+class PayableAmount {
+
+  late String name;
+  late String type;
+  late Money amount;
+  late int percentage;
+
+  PayableAmount.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    type = json['type'];
+    percentage = json['percentage'];
+    amount = Money.fromJson(json['amount']);
+  }
+}
+
 class Relationships {
   late Cart? cart;
   late User? customer;
+  late Occasion? occasion;
   late ShoppableStore? store;
+  late PaymentMethod? paymentMethod;
   late List<Transaction>? transactions;
   late DeliveryAddress? deliveryAddress;
 
@@ -155,6 +197,8 @@ class Relationships {
     cart = json['cart'] == null ? null : Cart.fromJson(json['cart']);
     customer = json['customer'] == null ? null : User.fromJson(json['customer']);
     store = json['store'] == null ? null : ShoppableStore.fromJson(json['store']);
+    occasion = json['occasion'] == null ? null : Occasion.fromJson(json['occasion']);
+    paymentMethod = json['paymentMethod'] == null ? null : PaymentMethod.fromJson(json['paymentMethod']);
     deliveryAddress = json['deliveryAddress'] == null ? null : DeliveryAddress.fromJson(json['deliveryAddress']);
     transactions = json['transactions'] == null ? null : (json['transactions'] as List).map((transaction) => Transaction.fromJson(transaction)).toList();
   }
@@ -162,22 +206,34 @@ class Relationships {
 
 class Links {
   late Link self;
+  late Link showCart;
   late Link showViewers;
+  late Link showCustomer;
   late Link updateStatus;
+  late Link showOccasion;
   late Link requestPayment;
   late Link showTransactions;
+  late Link showDeliveryAddress;
   late Link revokeCollectionCode;
+  late Link showTransactionsCount;
   late Link generateCollectionCode;
   late Link showTransactionFilters;
+  late Link markAsUnverifiedPayment;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
+    showCart = Link.fromJson(json['showCart']);
     showViewers = Link.fromJson(json['showViewers']);
+    showCustomer = Link.fromJson(json['showCustomer']);
     updateStatus = Link.fromJson(json['updateStatus']);
+    showOccasion = Link.fromJson(json['showOccasion']);
     requestPayment = Link.fromJson(json['requestPayment']);
     showTransactions = Link.fromJson(json['showTransactions']);
+    showDeliveryAddress = Link.fromJson(json['showDeliveryAddress']);
     revokeCollectionCode = Link.fromJson(json['revokeCollectionCode']);
+    showTransactionsCount = Link.fromJson(json['showTransactionsCount']);
     generateCollectionCode = Link.fromJson(json['generateCollectionCode']);
     showTransactionFilters = Link.fromJson(json['showTransactionFilters']);
+    markAsUnverifiedPayment = Link.fromJson(json['markAsUnverifiedPayment']);
   }
 }

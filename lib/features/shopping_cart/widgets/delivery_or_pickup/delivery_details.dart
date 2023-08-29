@@ -152,7 +152,6 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
         switchOutCurve: Curves.easeOut,
         duration: const Duration(milliseconds: 500),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: hasSelectedProducts ? [
 
             /// If we have delivery destinations
@@ -187,10 +186,13 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                 ],
               ),
 
-              /// Spacer
-              const SizedBox(height: 8),
+              //  Divider
+              const Divider(),
 
             ],
+
+            /// Spacer
+            const SizedBox(height: 8),
             
             /// Title
             CustomTitleSmallText(hasAddressForDelivery ? 'Choose your delivery address' : 'Where should we deliver?', margin: const EdgeInsets.only(left: 8),),
@@ -261,11 +263,8 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
               /// Delivery Note
               CustomMessageAlert(
                 store!.deliveryNote!,
-                icon: Icons.delivery_dining_rounded,
+                icon: Icons.notes_rounded,
               ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
 
             ],
 

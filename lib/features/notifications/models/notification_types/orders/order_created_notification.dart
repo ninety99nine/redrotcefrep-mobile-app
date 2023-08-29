@@ -47,11 +47,13 @@ class OrderProperties {
 class CustomerProperties {
   late int id;
   late String name;
+  late String lastName;
   late String firstName;
 
   CustomerProperties.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
+    lastName = json['lastName'];
     firstName = json['firstName'];
   }
 }

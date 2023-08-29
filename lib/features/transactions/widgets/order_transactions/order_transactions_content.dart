@@ -1,13 +1,11 @@
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transaction_filters.dart';
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_in_vertical_list_view_infinite_scroll.dart';
-
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'request_payment_for_order_form/request_payment_for_order_form.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import 'order_transactions_page/order_transactions_page.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
@@ -18,7 +16,6 @@ import 'package:flutter/material.dart';
 class OrderTransactionsContent extends StatefulWidget {
   
   final Order order;
-  final ShoppableStore store;
   final bool showingFullPage;
   final Transaction? transaction;
   final TransactionContentView? transactionContentView;
@@ -27,7 +24,6 @@ class OrderTransactionsContent extends StatefulWidget {
     super.key,
     this.transaction,
     required this.order,
-    required this.store,
     this.transactionContentView,
     this.showingFullPage = false,
   });
@@ -50,16 +46,11 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<OrderTransactionFiltersState> orderTransactionFiltersState = GlobalKey<OrderTransactionFiltersState>();
 
-  /// This allows us to access the state of OrderTransactionsForm widget using a Global key. 
-  /// We can then fire methods of the child widget from this current Widget state. 
-  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<RequestPaymentForOrderFormState> _requestPaymentForOrderForm = GlobalKey<RequestPaymentForOrderFormState>();
-
   Order get order => widget.order;
-  ShoppableStore get store => widget.store;
   bool get isPaid => order.attributes.isPaid;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
+  ShoppableStore get store => order.relationships.store!;
   bool get hasTransactions => order.transactionsCount != 0;
   String get totalTransactions => order.transactionsCount!.toString();
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
@@ -94,43 +85,14 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
 
   /// Content to show based on the specified view
   Widget get content {
-
-    /// If we want to view the transactions content
-    if(isViewingRequestPayment) {
-
-      /// Show transactions view
-      return RequestPaymentForOrderForm(
-        order: order,
-        store: store,
-        transaction: transaction,
-        onSubmitting: onSubmitting,
-        key: _requestPaymentForOrderForm,
-        onCreatedTransaction: onCreatedTransaction,
-      );
-
-    /// If we want to view the create transaction content
-    }else {
       
-      return OrderTransactionsInVerticalListViewInfiniteScroll(
-        order: order,
-        transactionFilter: transactionFilter,
-        onSelectedTransaction: onSelectedTransaction,
-        orderTransactionFiltersState: orderTransactionFiltersState
-      );
-
-    }
+    return OrderTransactionsInVerticalListViewInfiniteScroll(
+      order: order,
+      transactionFilter: transactionFilter,
+      onSelectedTransaction: onSelectedTransaction,
+      orderTransactionFiltersState: orderTransactionFiltersState
+    );
     
-  }
-
-  void onSubmitting(status) {
-    setState(() {
-      isSubmitting = status;
-      disableFloatingActionButton = status;
-    });
-  }
-
-  void onCreatedTransaction(Transaction transaction){
-    changeTransactionContentView(TransactionContentView.viewingTransactions);
   }
 
   void onSelectedTransaction(Transaction transaction){

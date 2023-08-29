@@ -1,3 +1,6 @@
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
+import 'package:bonako_demo/core/utils/mobile_number.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
@@ -30,17 +33,27 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
   String description = '';
   bool isSubmitting = false;
   String callToAction = 'Buy';
+  late String mobileNumber;
   bool acceptedGoldenRules = false;
   final _formKey = GlobalKey<FormState>();
 
   Function(ShoppableStore)? get onCreatedStore => widget.onCreatedStore;
   StoreRepository get storeRepository => friendGroupProvider.storeRepository;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get friendGroupProvider => Provider.of<StoreProvider>(context, listen: false);
   String? get nameErrorText => serverErrors.containsKey('name') ? serverErrors['name'] : null;
+  String get mobileNumberWithExtension => MobileNumberUtility.addMobileNumberExtension(mobileNumber);
   String? get descriptionErrorText => serverErrors.containsKey('description') ? serverErrors['description'] : null;
+  String? get mobileNumberErrorText => serverErrors.containsKey('mobileNumber') ? serverErrors['mobileNumber'] : null;
 
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
+
+  @override
+  void initState() {
+    super.initState();
+    mobileNumber = authProvider.user!.mobileNumber!.withoutExtension;
+  }
 
   void _requestCreateStore() {
 
@@ -54,6 +67,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
           name: name,
           description: description,
           callToAction: callToAction,
+          mobileNumber: mobileNumberWithExtension,
           acceptedGoldenRules: acceptedGoldenRules
         ).then((response) async {
 
@@ -193,6 +207,24 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
               minLines: 2,
               onChanged: (value) {
                 setState(() => description = value); 
+              }
+            ),
+              
+            /// Spacer
+            const SizedBox(height: 16),
+          
+            //// Mobile Number Field
+            CustomMobileNumberTextFormField(
+              supportedMobileNetworkNames: const [
+                MobileNetworkName.orange,
+                MobileNetworkName.mascom,
+                MobileNetworkName.btc,
+              ],
+              errorText: mobileNumberErrorText,
+              initialValue: mobileNumber,
+              enabled: !isSubmitting,
+              onChanged: (value) {
+                mobileNumber = value;
               }
             ),
 

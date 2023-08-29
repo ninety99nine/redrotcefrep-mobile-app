@@ -7,9 +7,7 @@ import 'link.dart';
 class User {
   late int id;
   late Links links;
-  late bool anonymous;
   late String lastName;
-  late String? nickName;
   late String firstName;
   late bool? isSuperAdmin;
   late DateTime? createdAt;
@@ -21,9 +19,7 @@ class User {
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    nickName = json['nickName'];
     lastName = json['lastName'];
-    anonymous = json['anonymous'];
     firstName = json['firstName'];
     isSuperAdmin = json['isSuperAdmin'];
     links = Links.fromJson(json['links']);
@@ -39,6 +35,7 @@ class User {
 class Attributes {
   late String name;
   late bool requiresPassword;
+  late String mobileNumberShortcode;
   late UserStoreAssociation? userStoreAssociation;
   late UserOrderViewAssociation? userOrderViewAssociation;
   late UserFriendGroupAssociation? userFriendGroupAssociation;
@@ -46,6 +43,7 @@ class Attributes {
   Attributes.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     requiresPassword = json['requiresPassword'];
+    mobileNumberShortcode = json['mobileNumberShortcode'];
     userStoreAssociation = json['userStoreAssociation'] == null ? null : UserStoreAssociation.fromJson(json['userStoreAssociation']);
     userOrderViewAssociation = json['userOrderViewAssociation'] == null ? null : UserOrderViewAssociation.fromJson(json['userOrderViewAssociation']);
     userFriendGroupAssociation = json['userFriendGroupAssociation'] == null ? null : UserFriendGroupAssociation.fromJson(json['userFriendGroupAssociation']);
