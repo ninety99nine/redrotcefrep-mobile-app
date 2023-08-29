@@ -120,7 +120,8 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
 
       return CustomMessageAlert(
         'Add stores here and ask customers to dial $mobileNumberShortcode to access and place orders',
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(top: 40, bottom: 16, left: 16, right: 16),
+        
       );
 
     }else{
@@ -143,7 +144,7 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
             child: RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                text: 'Promote stores by adding them to your Bonako number. Everytime people dial ',
+                text: 'Promote stores by adding them on your Bonako number. Everytime people dial\n\n ',
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.normal,
                 ),
@@ -158,7 +159,7 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
                   ),
                   /// Second text must have a normal weight
                   TextSpan(
-                    text: ', they can easily access these stores',
+                    text: '\n\nThey can easily access these stores',
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontWeight: FontWeight.normal,
                     )
@@ -181,6 +182,7 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
       canReorder: true,
       onReorder: onReorder,
       debounceSearch: true,
+      showNoContent: false,
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
       headerPadding: EdgeInsets.zero,
