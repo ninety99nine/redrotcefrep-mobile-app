@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
@@ -11,10 +12,11 @@ import '../../../../core/shared_widgets/loader/custom_circular_progress_indicato
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 
 class ImagePickerContent extends StatefulWidget {
 
+  final String title;
+  final String subtitle;
   final String fileName;
   final String submitUrl;
   final String? deleteUrl;
@@ -29,7 +31,9 @@ class ImagePickerContent extends StatefulWidget {
     super.key,
     this.onPickedFile,
     this.onDeletedFile,
+    required this.title,
     this.onSubmittedFile,
+    required this.subtitle,
     required this.fileName,
     required this.submitUrl,
     required this.deleteUrl,
@@ -47,6 +51,9 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
   XFile? _pickedFile;
   bool isLoading = false;
   final ImagePicker _imagePicker = ImagePicker();
+
+  String get title => widget.title;
+  String get subtitle => widget.subtitle;
 
   List<Map> menus = [
     {
@@ -300,7 +307,36 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-          
+                        
+              /// Wrap Padding around the following:
+              /// Title, Subtitle, Filters
+              Padding(
+                padding: const EdgeInsets.only(top: 20, left: 32, bottom: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        
+                        /// Title
+                        CustomTitleMediumText(title, overflow: TextOverflow.ellipsis, margin: const EdgeInsets.only(top: 4, bottom: 4),),
+                        
+                        /// Subtitle
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: CustomBodyText(subtitle),
+                        )
+
+                      ],
+                    )
+                    
+                  ],
+                ),
+              ),
+
               /// Content
               Expanded(
                 child: Container(

@@ -4,11 +4,13 @@ class TermsAndConditions {
   late String button;
   late List<Item> items;
   late String instruction;
+  late String confirmation;
 
   TermsAndConditions.fromJson(Map<String, dynamic> json) {
     title = json['title'];
     button = json['button'];
     instruction = json['instruction'];
+    confirmation = json['confirmation'];
     items = (json['items'] as List).map((item) => Item.fromJson(item)).toList();
   }
   

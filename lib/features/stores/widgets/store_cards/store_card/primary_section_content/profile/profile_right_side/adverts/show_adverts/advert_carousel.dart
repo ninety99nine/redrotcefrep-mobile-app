@@ -88,6 +88,8 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
 
   Widget editableAdvert(itemIndex) {
     return ImagePickerModalBottomSheet(
+      title: 'Advert',
+      subtitle: 'Your customers love quality adverts 👌',
       fileName: 'advert',
       submitMethod: SubmitMethod.post,
       submitUrl: store.links.updateAdvert.href,
@@ -136,6 +138,8 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
   Widget addAdvert() {
     return Center(
       child: ImagePickerModalBottomSheet(
+        title: 'Advert',
+        subtitle: 'Your customers love quality adverts 👌',
         fileName: 'advert',
         onSubmittedFile: (file, response) {
 

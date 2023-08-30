@@ -414,7 +414,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                 enabled: !isSubmitting && !isDeleting,
                 labelText: 'Description',
                 borderRadiusAmount: 16,
-                maxLength: 120,
+                maxLength: 200,
                 minLines: 1,
                 onChanged: (value) {
                   setState(() => productForm['description'] = value); 

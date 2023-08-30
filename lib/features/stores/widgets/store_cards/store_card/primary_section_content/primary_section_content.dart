@@ -93,8 +93,8 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
         
             ],
         
-            /// Subscribe Modal Bottom Sheet
-            if(isTeamMemberWhoHasJoined && !canAccessAsTeamMember && hasCoverPhoto) Expanded(
+            /// Subscribe Modal Bottom Sheet (Access Denied For Team Member)
+            if(isTeamMemberWhoHasJoined && !canAccessAsTeamMember) Expanded(
               child: AnimatedSize(
                 clipBehavior: Clip.none,
                 duration: const Duration(milliseconds: 500),
@@ -105,8 +105,9 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
                   child: Column(
                     key: ValueKey(teamMemberWantsToViewAsCustomer),
                     children: [
+                      
                       /// Access Denied For Team Member
-                      if(!teamMemberWantsToViewAsCustomer) ...[
+                      if(hasCoverPhoto) ...[
                         SubscribeToStoreModalBottomSheet(
                           store: widget.store,
                           subscribeButtonAlignment: subscribeButtonAlignment,

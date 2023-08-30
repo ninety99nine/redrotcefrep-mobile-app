@@ -39,8 +39,9 @@ class _StoreLogoState extends State<StoreLogo> {
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
   bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
-  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
+  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
 
   Widget get placeholderLogo {
 
@@ -54,6 +55,8 @@ class _StoreLogoState extends State<StoreLogo> {
 
   Widget get editableLogo {
     return ImagePickerModalBottomSheet(
+      title: 'Store Logo',
+      subtitle: 'Your customers love quality logos 👌',
       fileName: 'logo',
       onSubmittedFile: (file, response) {
 
@@ -97,6 +100,7 @@ class _StoreLogoState extends State<StoreLogo> {
           ),
           child: Stack(
             children: [
+              
               CircleAvatar(
                 radius: widget.radius,
                 backgroundColor: Colors.grey.shade100,

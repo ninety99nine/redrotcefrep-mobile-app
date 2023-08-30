@@ -49,131 +49,123 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
   bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
 
+  /// key: ValueKey(showEditableMode),
+  /// key: ValueKey(teamMemberWantsToViewAsCustomer),
+
   @override
   Widget build(BuildContext context) {
 
-    return Column(
-      children: [
-          
-        AnimatedSize(
-          clipBehavior: Clip.none,
-          duration: const Duration(milliseconds: 500),
-          child: AnimatedSwitcher(
-            switchInCurve: Curves.easeIn,
-            switchOutCurve: Curves.easeOut,
-            duration: const Duration(milliseconds: 500),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              key: ValueKey(showEditableMode),
-              children: <Widget>[
-
-                /// Store Cover Photo (Editable)
-                if(showEditableMode) ...[
-
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: isShowingStorePage ? 16.0 : 0),
-                    child: StoreCoverPhoto(
-                      store: store,
-                      canChangeCoverPhoto: true,
-                    ),
-                  ),
-
-                  /// Spacer
-                  const SizedBox(height: 16,),
-
-                ],
-
-                /// Store Cover Photo (Uneditable)
-                if(!showEditableMode && hasCoverPhoto && canAccessAsShopper) ...[
-                  
-                  Container(
-                    width: double.infinity,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8)
-                    ),
-                    child: CachedNetworkImage(
-                      placeholder: (context, url) => const CustomCircularProgressIndicator(),
-                      imageUrl: store.coverPhoto!,
-                      width: double.infinity,
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-
-                  /// Spacer
-                  const SizedBox(height: 16,),
-
-                ],
-
-              ],
-            ),
-          ),
-        ),
-
-        if(canShowAdverts && (canAccessAsShopper || isTeamMemberWhoHasJoined)) ...[
-        
-          /// Store Adverts
-          StoreAdvertCarousel(store: store),
-
-          /// Spacer
-          const SizedBox(height: 16,),
-
-        ],
-
-        Padding(
-          padding: padding,
-          child: Column(
-            children: [
-
-              /// Edit Product Cards
-              if(showEditableMode)  ...[
-
-                EditProductCards(
-                  shoppingCartCurrentView: widget.shoppingCartCurrentView
-                )
-
-              ],
-
-              /// Shopping Cart
-              if(!showEditableMode && canAccessAsShopper) ShoppingCartContent(
-                shoppingCartCurrentView: widget.shoppingCartCurrentView
+    return AnimatedSize(
+      clipBehavior: Clip.none,
+      duration: const Duration(milliseconds: 500),
+      child: AnimatedSwitcher(
+        switchInCurve: Curves.easeIn,
+        switchOutCurve: Curves.easeOut,
+        duration: const Duration(milliseconds: 500),
+        child: Column(
+          key: ValueKey('$showEditableMode $teamMemberWantsToViewAsCustomer'),
+          children: [
+              
+            if(showEditableMode) ...[
+      
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: isShowingStorePage ? 16.0 : 0),
+                child: StoreCoverPhoto(
+                  store: store,
+                  canChangeCoverPhoto: true,
+                ),
               ),
-
+      
+              /// Spacer
+              const SizedBox(height: 16,),
+      
             ],
-          ),
-        ),
-
-        /// Subscribe Modal Bottom Sheet
-        if(isTeamMemberWhoHasJoined && !canAccessAsTeamMember && !hasCoverPhoto) AnimatedSize(
-          clipBehavior: Clip.none,
-          duration: const Duration(milliseconds: 500),
-          child: AnimatedSwitcher(
-            switchInCurve: Curves.easeIn,
-            switchOutCurve: Curves.easeOut,
-            duration: const Duration(milliseconds: 500),
-            child: Column(
-              key: ValueKey(teamMemberWantsToViewAsCustomer),
+      
+            /// Store Cover Photo (Uneditable)
+            if(!showEditableMode && hasCoverPhoto) ...[
+              
+              Container(
+                width: double.infinity,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8)
+                ),
+                child: CachedNetworkImage(
+                  placeholder: (context, url) => const CustomCircularProgressIndicator(),
+                  imageUrl: store.coverPhoto!,
+                  width: double.infinity,
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+      
+              /// Spacer
+              const SizedBox(height: 16,),
+      
+            ],
+      
+            if(canShowAdverts) ...[
+            
+              /// Store Adverts
+              StoreAdvertCarousel(store: store),
+      
+              /// Spacer
+              const SizedBox(height: 16,),
+      
+            ],
+      
+            if(showEditableMode || (hasProducts && !showEditableMode)) Padding(
+              padding: padding,
+              child: Column(
+                children: [
+              
+                  /// Edit Product Cards
+                  if(showEditableMode)  ...[
+      
+                    EditProductCards(
+                      shoppingCartCurrentView: widget.shoppingCartCurrentView
+                    )
+      
+                  ],
+      
+                  /// Shopping Cart
+                  if(!showEditableMode) ...[
+      
+                    /// Spacer
+                    if(teamMemberWantsToViewAsCustomer) const SizedBox(height: 16,),
+      
+                    ShoppingCartContent(
+                      shoppingCartCurrentView: widget.shoppingCartCurrentView
+                    ),
+      
+                  ]
+      
+                ]
+              ),
+            ),
+      
+            /// Subscribe Modal Bottom Sheet
+            if(isTeamMemberWhoHasJoined && !canAccessAsTeamMember) Column(
               children: [
-          
+            
                 /// Access Denied For Team Member
-                if(!teamMemberWantsToViewAsCustomer) ...[
-
+                if(!hasCoverPhoto) ...[
+      
                   /// Spacer
-                  const SizedBox(height: 16,),
-
+                  if(!teamMemberWantsToViewAsCustomer) const SizedBox(height: 16,),
+      
                   SubscribeToStoreModalBottomSheet(
                     store: widget.store,
                     subscribeButtonAlignment: Alignment.center,
                   ),
-
+      
                 ],
-          
+            
               ]
-            ),
-          )
-        )
-
-      ],
+            )
+      
+          ],
+        ),
+      ),
     );
   }
 }

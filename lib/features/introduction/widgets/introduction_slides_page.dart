@@ -154,11 +154,14 @@ class SliderManager {
           ),
           child: Image.asset('assets/images/logo-color.png')
         ),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Sell goods and services to local customers and get paid while reaching more people all in one space',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Sell goods and services to local customers and get paid while reaching more people all in one space',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+            ),
           ),
         )
       ),
@@ -168,19 +171,22 @@ class SliderManager {
         title: 'Sell Your Best',
         context: context,
         image: Image.asset('assets/images/intro_slides/inventory.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Bonako lets you sell up to five',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '✋', style: TextStyle(fontSize: 32, height: 0.5)
-              ),
-              TextSpan(
-                text: 'products at a time. This means picking your best fast-selling and on-demand products. Avoid the clutter and confusion of selling too many products at the same time'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Bonako lets you sell up to five',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '✋', style: TextStyle(fontSize: 32, height: 0.5)
+                ),
+                TextSpan(
+                  text: 'products at a time. This means picking your best fast-selling and on-demand products. Avoid the clutter and confusion of selling too many products at the same time'
+                ),
+              ],
+            ),
           ),
         )
       ),
@@ -190,19 +196,22 @@ class SliderManager {
         title: 'Dial 2 Buy',
         context: context,
         image: Image.asset('assets/images/intro_slides/customer.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'No WIFI, No Mobile Data, No Airtime, No problem. Your customers simply Dial to Buy ',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '😍', style: TextStyle(fontSize: 28, height: 0.5)
-              ),
-              TextSpan(
-                text: ' At work, home or in traffic, your customers can place those orders at that special moment of inspiration'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'No WIFI, No Mobile Data, No Airtime, No problem. Your customers simply Dial to Buy ',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '😍', style: TextStyle(fontSize: 28, height: 0.5)
+                ),
+                TextSpan(
+                  text: ' At work, home or in traffic, your customers can place those orders at that special moment of inspiration'
+                ),
+              ],
+            ),
           ),
         )
       ),
@@ -212,19 +221,22 @@ class SliderManager {
         title: 'Team Up',
         context: context,
         image: Image.asset('assets/images/intro_slides/team.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Bonako makes it easy to invite',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '🤝', style: TextStyle(fontSize: 32, height: 0.5)
-              ),
-              TextSpan(
-                text: 'friends, family and co-workers to help grow your business and make more profit. Dreams and teams work together'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Bonako makes it easy to invite',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '🤝', style: TextStyle(fontSize: 32, height: 0.5)
+                ),
+                TextSpan(
+                  text: 'friends, family and co-workers to help grow your business and make more profit. Dreams and teams work together'
+                ),
+              ],
+            ),
           ),
         )
       ),
@@ -233,19 +245,22 @@ class SliderManager {
       getContentConfig(
         context: context,
         image: Image.asset('assets/images/intro_slides/celebration.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Thats it!  ',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '🙌', style: TextStyle(fontSize: 32, height: 0.5)
-              ),
-              TextSpan(
-                text: '\nIt\'s time to create your store and start selling'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Thats it!  ',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '🙌', style: TextStyle(fontSize: 32, height: 0.5)
+                ),
+                TextSpan(
+                  text: '\nIt\'s time to create your store and start selling'
+                ),
+              ],
+            ),
           ),
         )
       )
@@ -268,11 +283,14 @@ class SliderManager {
           margin: const EdgeInsets.only(top: 100, bottom: 40),
           child: Image.asset('assets/images/logo-color.png')
         ),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Buy goods and services from your favourite local suppliers all in one space',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Buy goods and services from your favourite local suppliers all in one space',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+            ),
           ),
         )
       ),
@@ -282,19 +300,22 @@ class SliderManager {
         title: 'Buy Only The Best',
         context: context,
         image: Image.asset('assets/images/intro_slides/comparing.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Bonako reduces your options for the best shopping experience. Local sellers list their top 5 best products so that you can ',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '😍', style: TextStyle(fontSize: 24, height: 0.5)
-              ),
-              TextSpan(
-                text: ' pick from the best in store'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Bonako reduces your options for the best shopping experience. Local sellers list their top 5 best products so that you can ',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '😍', style: TextStyle(fontSize: 24, height: 0.5)
+                ),
+                TextSpan(
+                  text: ' pick from the best in store'
+                ),
+              ],
+            ),
           ),
         )
       ),
@@ -304,19 +325,22 @@ class SliderManager {
         title: 'Split The Bill',
         context: context,
         image: Image.asset('assets/images/intro_slides/sharing.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Place an order and share that ',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '🤝', style: TextStyle(fontSize: 32, height: 0.5)
-              ),
-              TextSpan(
-                text: ' bill with two or more friends, family or co-workers. You don’t have to pay for that order alone. Bonako makes it easy for others to contribute and split those costs.'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Place an order and share that ',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '🤝', style: TextStyle(fontSize: 32, height: 0.5)
+                ),
+                TextSpan(
+                  text: ' bill with two or more friends, family or co-workers. You don’t have to pay for that order alone. Bonako makes it easy for others to contribute and split those costs.'
+                ),
+              ],
+            ),
           ),
         )
       ),
@@ -326,19 +350,22 @@ class SliderManager {
         title: 'Follow Your Plug',
         context: context,
         image: Image.asset('assets/images/intro_slides/followers.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Like what you get from your plug? ',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '👌', style: TextStyle(fontSize: 32, height: 0.5)
-              ),
-              TextSpan(
-                text: ' Bonako makes it easy to follow your favourite stores and always get the best of what you like'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Like what you get from your plug? ',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '👌', style: TextStyle(fontSize: 32, height: 0.5)
+                ),
+                TextSpan(
+                  text: ' Bonako makes it easy to follow your favourite stores and always get the best of what you like'
+                ),
+              ],
+            ),
           ),
         )
       ),
@@ -347,19 +374,22 @@ class SliderManager {
       getContentConfig(
         context: context,
         image: Image.asset('assets/images/intro_slides/celebration.png'),
-        description: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'Thats it!  ',
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
-            children: const <TextSpan>[
-              TextSpan(
-                text: '🙌', style: TextStyle(fontSize: 32, height: 0.5)
-              ),
-              TextSpan(
-                text: '\nIt\'s time to start shopping'
-              ),
-            ],
+        description: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Thats it!  ',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
+              children: const <TextSpan>[
+                TextSpan(
+                  text: '🙌', style: TextStyle(fontSize: 32, height: 0.5)
+                ),
+                TextSpan(
+                  text: '\nIt\'s time to start shopping'
+                ),
+              ],
+            ),
           ),
         )
       )

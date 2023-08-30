@@ -220,7 +220,7 @@ class _ContentState extends State<Content> {
                 switchOutCurve: Curves.easeOut,
                 duration: const Duration(milliseconds: 500),
                 child: acceptedTermsAndConditions 
-                  ? const CustomBodyText('I agree and accept these terms and conditions by proceeding to use this service.', margin: EdgeInsets.only(top: 24),)
+                  ? CustomBodyText(termsAndConditions!.confirmation, margin: const EdgeInsets.only(top: 24),)
                   : null 
               ),
             ),

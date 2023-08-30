@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import '../image_picker_content.dart';
 
 class ImagePickerModalBottomSheet extends StatefulWidget {
-
+  
+  final String title;
+  final String subtitle;
   final String fileName;
   final String submitUrl;
   final String? deleteUrl;
@@ -30,8 +32,10 @@ class ImagePickerModalBottomSheet extends StatefulWidget {
     this.deleteUrl,
     this.onPickedFile,
     this.onDeletedFile,
+    required this.title,
     this.onSubmittedFile,
     this.triggerText = '',
+    required this.subtitle,
     required this.fileName,
     required this.submitUrl,
     this.submitBody = const {},
@@ -58,6 +62,9 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
   Widget Function(void Function())? get trigger => widget.trigger;
   Function(http.Response)? get onDeletedFile => widget.onDeletedFile;
   Function(XFile, http.Response)? get onSubmittedFile => widget.onSubmittedFile;
+
+  String get title => widget.title;
+  String get subtitle => widget.subtitle;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -145,6 +152,8 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
       trigger: _trigger,
       /// Content of the bottom modal sheet
       content: ImagePickerContent(
+        title: title,
+        subtitle: subtitle,
         fileName: fileName,
         submitUrl: submitUrl,
         deleteUrl: deleteUrl,

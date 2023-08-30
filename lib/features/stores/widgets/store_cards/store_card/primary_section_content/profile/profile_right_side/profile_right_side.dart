@@ -35,8 +35,9 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
   bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
-  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
+  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
 
   @override
   Widget build(BuildContext context) {
@@ -58,17 +59,17 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
           ],
         ),
 
+        if(hasAdverts || showEditableMode) ...[
+
+          /// Spacer
+          const SizedBox(height: 4.0,),
+          
+          /// Store Adverts
+          StoreAdvertAvatarPopup(store: store),
+
+        ],
+
         if(canAccessAsShopper) ...[
-
-          if(hasAdverts || showEditableMode) ...[
-
-            /// Spacer
-            const SizedBox(height: 4.0,),
-            
-            /// Store Adverts
-            StoreAdvertAvatarPopup(store: store),
-
-          ],
         
           /// Spacer
           if(hasRating) const SizedBox(height: 8.0,),

@@ -120,6 +120,8 @@ Future<void> showAdvertDialog(ShoppableStore store, BuildContext context) {
 
   Widget get noAdvertCircleAvatar {
     return ImagePickerModalBottomSheet(
+      title: 'Advert',
+      subtitle: 'Your customers love quality adverts 👌',
       fileName: 'advert',
       onSubmittedFile: (file, response) {
 

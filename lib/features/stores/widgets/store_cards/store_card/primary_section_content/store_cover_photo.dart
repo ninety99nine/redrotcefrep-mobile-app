@@ -143,6 +143,8 @@ class _StoreCoverPhotoState extends State<StoreCoverPhoto> {
      * we just want to navigate to show the store
      */
     return ImagePickerModalBottomSheet(
+      title: 'Cover Photo',
+      subtitle: 'Your customers love quality cover photos 👌',
       fileName: 'cover_photo',
       onSubmittedFile: (file, response) {
 

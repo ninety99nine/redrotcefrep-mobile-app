@@ -508,7 +508,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
                 const SizedBox(height: 8),
 
                 /// Ordering For "X" People
-                if(isOrderingForMe || isOrderingForMeAndFriends || isOrderingForFriendsOnly) ...[
+                if(isOrderingForMeAndFriends || isOrderingForFriendsOnly) ...[
 
                   AnimatedSize(
                     duration: const Duration(milliseconds: 500),
@@ -535,7 +535,7 @@ class _OrderForDetailsState extends State<OrderForDetails> {
                     children: [
                       
                       /// Me Chip
-                      if(isOrderingForMe || (isOrderingForMeAndFriends && isOrderingForFriendsOnly)) CustomChip(
+                      if(isOrderingForMeAndFriends) CustomChip(
                         labelWidget: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
