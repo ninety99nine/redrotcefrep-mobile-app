@@ -9,6 +9,7 @@ import 'notification_types/orders/order_status_updated_notification.dart';
 import 'notification_types/stores/store_created_notification.dart';
 import 'notification_types/stores/store_deleted_notification.dart';
 import 'notification_types/orders/order_created_notification.dart';
+import 'notification_types/orders/order_updated_notification.dart';
 import 'notification_types/orders/order_seen_notification.dart';
 import 'notification_types/users/following_store_notification.dart';
 import 'notification_types/users/invitation_to_follow_store_accepted_notification.dart';
@@ -40,6 +41,11 @@ class NotificationItem extends StatelessWidget {
     if (notification.type == "App\\Notifications\\Orders\\OrderCreated") {
       
       return OrderCreatedNotificationContent(notification: notification);
+
+    /// Order updated
+    }else if (notification.type == "App\\Notifications\\Orders\\OrderUpdated") {
+      
+      return OrderUpdatedNotificationContent(notification: notification);
 
     /// Order seen
     }else if (notification.type == "App\\Notifications\\Orders\\OrderSeen") {

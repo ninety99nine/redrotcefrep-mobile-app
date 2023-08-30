@@ -28,7 +28,7 @@ class SubscribeToStoreContent extends StatefulWidget {
   State<SubscribeToStoreContent> createState() => _SubscribeToStoreContentState();
 }
 
-class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
+class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> with WidgetsBindingObserver{
 
   bool isLoading = false;
   bool isFakeLoading = false;
@@ -47,6 +47,36 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
   void initState() {
     super.initState();
     requestGeneratePaymentShortcode();
+
+    // Register the observer to detect app lifecycle changes
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    // Remove the observer to detect app lifecycle changes
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+
+    /**
+     *  When the user clicks on the dial button, they will be moved away from the app.
+     *  Once the user returns we want to refresh the stores immediately incase they
+     *  subscribed and need to see that subscribed store.
+     */
+    if (state == AppLifecycleState.resumed) {
+
+      /// Close this modal bottom sheet
+      Get.back();
+      
+      // App is now resumed, perform logic to refresh stores
+      storeProvider.refreshStores!();
+
+    }
+
   }
 
   void dial() {
@@ -69,6 +99,7 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> {
     DialerUtility.dial(
       number: paymentShortcode!.attributes.dial.code
     );
+
   }
 
   void requestGeneratePaymentShortcode() {

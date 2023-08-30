@@ -1,5 +1,9 @@
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:provider/provider.dart';
 import 'profile_right_side/profile_right_side.dart';
 import '../../../../../models/shoppable_store.dart';
 import 'profile_left_side/profile_left_side.dart';
@@ -26,48 +30,26 @@ class _StoreProfileState extends State<StoreProfile> {
 
   ShoppableStore get store => widget.store;
   bool get showProfileRightSide => widget.showProfileRightSide;
-  Alignment get subscribeButtonAlignment => widget.subscribeButtonAlignment;
-  bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
-  bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
-  bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
-  
 
   @override
   Widget build(BuildContext context) {
     
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            
-            //  Store Profile Left Side (Name, Description, e.t.c)
-            Expanded(
-              child: StoreProfileLeftSide(store: store)
-            ),
-              
-            //  Spacer
-            if(showProfileRightSide) const SizedBox(width: 8,),
-
-            //  Store Profile Right Side (Adverts, Rating, e.t.c)
-            if(showProfileRightSide) StoreProfileRightSide(store: store)
-
-          ]
+        
+        //  Store Profile Left Side (Name, Description, e.t.c)
+        Expanded(
+          child: StoreProfileLeftSide(store: store)
         ),
+          
+        //  Spacer
+        if(showProfileRightSide) const SizedBox(width: 8,),
 
-        /// Access Denied For Team Member
-        if(isTeamMemberWhoHasJoined && !canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer) ...[
+        //  Store Profile Right Side (Adverts, Rating, e.t.c)
+        if(showProfileRightSide) StoreProfileRightSide(store: store)
 
-          /// Subscribe Modal Bottom Sheet
-          SubscribeToStoreModalBottomSheet(
-            store: widget.store,
-            subscribeButtonAlignment: subscribeButtonAlignment,
-          )
-
-        ],
-
-      ],
+      ]
     );
   }
 }

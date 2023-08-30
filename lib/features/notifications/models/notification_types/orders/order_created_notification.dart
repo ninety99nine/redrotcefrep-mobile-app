@@ -3,10 +3,12 @@ import 'package:bonako_demo/core/shared_models/money.dart';
 class OrderCreatedNotification {
   late StoreProperties storeProperties;
   late OrderProperties orderProperties;
+  late OcassionProperties? ocassionProperties;
 
   OrderCreatedNotification.fromJson(Map<String, dynamic> json) {
     storeProperties = StoreProperties.fromJson(json['store']);
     orderProperties = OrderProperties.fromJson(json['order']);
+    ocassionProperties = json['occasion'] == null ? null : OcassionProperties.fromJson(json['occasion']);
   }
 }
 
@@ -29,6 +31,7 @@ class OrderProperties {
   late int orderForTotalUsers;
   late int orderForTotalFriends;
   late bool isAssociatedAsFriend;
+  late bool isAssociatedAsCustomer;
   late CustomerProperties customerProperties;
 
   OrderProperties.fromJson(Map<String, dynamic> json) {
@@ -40,6 +43,7 @@ class OrderProperties {
     orderForTotalUsers = json['orderForTotalUsers'];
     orderForTotalFriends = json['orderForTotalFriends'];
     isAssociatedAsFriend = json['isAssociatedAsFriend'];
+    isAssociatedAsCustomer = json['isAssociatedAsCustomer'];
     customerProperties = CustomerProperties.fromJson(json['customer']);
   }
 }
@@ -55,5 +59,13 @@ class CustomerProperties {
     name = json['name'];
     lastName = json['lastName'];
     firstName = json['firstName'];
+  }
+}
+
+class OcassionProperties {
+  late String name;
+
+  OcassionProperties.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
   }
 }

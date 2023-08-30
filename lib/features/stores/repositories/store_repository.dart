@@ -35,7 +35,7 @@ class StoreRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Create a store
-  Future<http.Response> createStore({ required String name, String? description, required String callToAction, required String mobileNumber, required bool acceptedGoldenRules }) {
+  Future<http.Response> createStore({ required String name, String? description, required String callToAction, required String mobileNumber }) {
 
     String url = homeApiLinks.createStores;
     
@@ -43,7 +43,6 @@ class StoreRepository {
       'name': name,
       'mobile_number': mobileNumber,
       'call_to_action': callToAction,
-      'accepted_golden_rules': acceptedGoldenRules
     };
 
     if(description != null && description.isNotEmpty) body.addAll({'description': description});

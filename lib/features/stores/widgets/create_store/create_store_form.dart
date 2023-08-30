@@ -34,7 +34,6 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
   bool isSubmitting = false;
   String callToAction = 'Buy';
   late String mobileNumber;
-  bool acceptedGoldenRules = false;
   final _formKey = GlobalKey<FormState>();
 
   Function(ShoppableStore)? get onCreatedStore => widget.onCreatedStore;
@@ -67,8 +66,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
           name: name,
           description: description,
           callToAction: callToAction,
-          mobileNumber: mobileNumberWithExtension,
-          acceptedGoldenRules: acceptedGoldenRules
+          mobileNumber: mobileNumberWithExtension
         ).then((response) async {
 
           final responseBody = jsonDecode(response.body);
@@ -113,7 +111,6 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
   void _resetForm() {
     setState(() {
       name = '';
-      acceptedGoldenRules = false;
 
       Future.delayed(const Duration(milliseconds: 100)).then((value) {
 
@@ -155,19 +152,6 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
       });
     });
 
-  }
-
-  Widget get acceptedGoldenRulesCheckbox {
-    return CustomCheckbox(
-      disabled: isSubmitting,
-      text: 'Accept Golden Rules',
-      value: acceptedGoldenRules,
-      onChanged: (status) {
-        
-        setState(() => acceptedGoldenRules = status ?? false);
-        
-      }
-    );
   }
 
   @override
@@ -224,15 +208,9 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
               initialValue: mobileNumber,
               enabled: !isSubmitting,
               onChanged: (value) {
-                mobileNumber = value;
+                setState(() => mobileNumber = value);
               }
             ),
-
-            /// Spacer
-            const SizedBox(height: 16,),
-
-            /// Accepted Golden Rules Checkbox
-            acceptedGoldenRulesCheckbox,
 
             /// Spacer
             const SizedBox(height: 16,),
@@ -244,7 +222,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
               isLoading: isSubmitting,
               alignment: Alignment.center,
               onPressed: _requestCreateStore,
-              disabled: name.isEmpty || !acceptedGoldenRules,
+              disabled: name.isEmpty || description.isEmpty || mobileNumber.length != 8,
             )
 
           ]

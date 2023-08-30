@@ -33,7 +33,6 @@ class Links {
   late String showSearchFriends;
   late String showPaymentMethods;
   late String showInfluencerStores;
-  late String showStoreGoldenRules;
   late String validateResetPassword;
   late String showSearchFriendGroups;
   late String checkInvitationsToFollowStores;
@@ -59,7 +58,6 @@ class Links {
     showSearchFriends = json['showSearchFriends'];
     showPaymentMethods = json['showPaymentMethods'];
     showInfluencerStores = json['showInfluencerStores'];
-    showStoreGoldenRules = json['showStoreGoldenRules'];
     validateResetPassword = json['validateResetPassword'];
     showSearchFriendGroups = json['showSearchFriendGroups'];
     checkInvitationsToFollowStores = json['checkInvitationsToFollowStores'];

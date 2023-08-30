@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:bonako_demo/core/utils/pusher.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/notifications/providers/notification_provider.dart';
 import 'package:bonako_demo/features/notifications/models/notification.dart' as model;
@@ -36,6 +40,8 @@ class _NotificationsInVerticalListViewInfiniteScrollState extends State<Notifica
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
+  late PusherProvider pusherProvider;
+
   ShoppableStore? get store => widget.store;
   String get notificationFilter => widget.notificationFilter;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
@@ -43,6 +49,44 @@ class _NotificationsInVerticalListViewInfiniteScrollState extends State<Notifica
   Function(model.Notification) get onSelectedNotification => widget.onSelectedNotification;
   GlobalKey<NotificationFiltersState> get notificationFiltersState => widget.notificationFiltersState;
   NotificationProvider get notificationProvider => Provider.of<NotificationProvider>(context, listen: false);
+  
+  @override
+  void initState() {
+    super.initState();
+    
+    /// Set the Pusher Provider
+    pusherProvider = Provider.of<PusherProvider>(context, listen: false);
+
+    listenForNewNotificationAlerts();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    /// Unsubscribe from this specified event on this channel
+    pusherProvider.unsubscribeToAuthNotifications(identifier: 'NotificationsInVerticalListViewInfiniteScroll');
+  }
+
+  void listenForNewNotificationAlerts() async {
+
+      /// Subscribe to notification alerts
+      pusherProvider.subscribeToAuthNotifications(
+        identifier: 'NotificationsInVerticalListViewInfiniteScroll', 
+        onEvent: onNotificationAlerts
+      );
+
+  }
+
+  void onNotificationAlerts(event) {
+
+    if (event.eventName == "Illuminate\\Notifications\\Events\\BroadcastNotificationCreated") {
+
+      /// Refresh the notifications to show the new notification
+      _customVerticalListViewInfiniteScrollState.currentState?.startRequest();
+
+    }
+
+  }
 
   /// Render each request item as an NotificationItem
   Widget onRenderItem(notification, int index, List notifications, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => NotificationItem(

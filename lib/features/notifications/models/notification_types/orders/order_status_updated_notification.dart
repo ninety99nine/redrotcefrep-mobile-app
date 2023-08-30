@@ -30,6 +30,7 @@ class OrderProperties {
   late int orderForTotalUsers;
   late int orderForTotalFriends;
   late bool isAssociatedAsFriend;
+  late bool isAssociatedAsCustomer;
   late CustomerProperties customerProperties;
   late ChangedByUserProperties changedByUserProperties;
   
@@ -43,6 +44,7 @@ class OrderProperties {
     orderForTotalUsers = json['orderForTotalUsers'];
     orderForTotalFriends = json['orderForTotalFriends'];
     isAssociatedAsFriend = json['isAssociatedAsFriend'];
+    isAssociatedAsCustomer = json['isAssociatedAsCustomer'];
     customerProperties = CustomerProperties.fromJson(json['customer']);
     changedByUserProperties = ChangedByUserProperties.fromJson(json['changedByUser']);
   }

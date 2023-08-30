@@ -1,11 +1,12 @@
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/show_associated_stores/associated_stores_modal_bottom_sheet/associated_stores_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/icon_button/store_invite_icon_button.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/mobile_phone_icon_button.dart';
 import 'package:bonako_demo/features/stores/widgets/create_store/create_store_card.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_cards.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MyStoresPageContent extends StatefulWidget {
   const MyStoresPageContent({super.key});
@@ -33,16 +34,43 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
    *  bool wantKeepAlive = true;
   */
 
+  bool? hasStores;
   final GlobalKey<StoreCardsState> storeCardsState = GlobalKey<StoreCardsState>();
+  
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    /// Get the updated hasStores state
+    final bool updatedHasStores = Provider.of<AuthProvider>(context, listen: false).hasStores;
+
+    /// If the local hasStores state does not match the updatedHasStores state
+    if(hasStores != updatedHasStores) {
+
+      /// Update the local hasStores
+      setState(() => hasStores = updatedHasStores);
+
+    }
+    
+  }
 
   Widget contentBeforeSearchBar(bool isLoading, int totalStores) {
     return Stack(
       children: [
                   
         /// Create Store Card
-        CreateStoreCard(
-          totalStores: totalStores,
-          onCreatedStore: onCreatedStore
+        Container(
+          margin: EdgeInsets.only(top: hasStores == true ? 0 : 32),
+          child: CreateStoreCard(
+            totalStores: totalStores,
+            onCreatedStore: onCreatedStore
+          ),
         ),
           
         /// Check List Icon Button
@@ -90,6 +118,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
       /// Add the created store
       storeCardsState.currentState!.customVerticalListViewInfiniteScrollState.currentState!.data.insert(0, createdStore);
       storeCardsState.currentState!.customVerticalListViewInfiniteScrollState.currentState!.forceRenderListView++;
+      hasStores = true;
     });
 
   }
@@ -102,6 +131,18 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with SingleTi
 
   @override
   Widget build(BuildContext context) {
+
+    /// Listen to changes on the AuthProvider so that we can know when
+    /// the authProvider.resourceTotals have been updated. Once the
+    /// authProvider.resourceTotals have been updated by the
+    /// HomePage Widget, we can then use getter such as
+    /// authProvider.hasStores to know whether this
+    /// authenticated user has stores.
+    /// 
+    /// Once these changes occur, we can use the didChangeDependencies() change 
+    /// to capture and set the  
+    Provider.of<AuthProvider>(context, listen: true);
+
     return StoreCards(
       key: storeCardsState,
       contentBeforeSearchBar: contentBeforeSearchBar,

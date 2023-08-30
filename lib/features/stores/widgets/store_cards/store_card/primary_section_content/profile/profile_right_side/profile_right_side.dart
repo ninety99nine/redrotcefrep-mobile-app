@@ -50,7 +50,7 @@ class _StoreProfileRightSideState extends State<StoreProfileRightSide> {
           children: [
             
             /// Share Store Icon Button
-            StoreShareIconButton(store: store),
+            if(canAccessAsTeamMember) StoreShareIconButton(store: store),
 
             /// Menu Modal Bottom Sheet
             StoreMenuModalBottomSheet(store: store),

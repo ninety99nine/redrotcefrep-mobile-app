@@ -2,9 +2,8 @@ import 'package:bonako_demo/core/utils/pusher.dart';
 import 'package:bonako_demo/features/notifications/widgets/show_notifications/notifications_modal_bottom_sheet/notifications_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
-import 'package:get/get.dart';
 import '../../search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/home/widgets/tab_content/chat_page_content.dart';
+import 'package:bonako_demo/features/user/models/resource_totals.dart';
 import 'tab_content/following_page_content/following_page_content.dart';
 import 'tab_content/my_stores_page_content/my_stores_page_content.dart';
 import '../../../features/authentication/providers/auth_provider.dart';
@@ -12,13 +11,14 @@ import 'package:bonako_demo/features/home/services/home_service.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../features/home/providers/home_provider.dart';
-import 'tab_content/communities_page_content.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
 import '../../../../core/shared_models/user.dart';
 import 'tab_content/profile_page_content.dart';
 import 'tab_content/groups_page_content.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'home_drawer.dart';
+import 'dart:convert';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,21 +30,35 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
   int totalTabs = 4;
+  late PusherProvider pusherProvider;
   User get user => authProvider.user!;
+  bool isLoadingResourceTotals = false;
   String get firstName => user.firstName;
   late final TabController _tabController;
   bool isGettingSelectedHomeTabIndexFromDeviceStorage = true;
 
   int get selectedHomeTabIndex => homeProvider.selectedHomeTabIndex;
-  bool get canShowFloatingActionButtons => selectedHomeTabIndex != 4;
   ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  bool get canShowFloatingActionButtons => selectedHomeTabIndex != 4 && authProvider.resourceTotals != null;
+
+  void _startResourceTotalsLoader() => setState(() => isLoadingResourceTotals = true);
+  void _stopResourceTotalsLoader() => setState(() => isLoadingResourceTotals = false);
 
   @override
   void initState() {
     
     super.initState();
+    
+    /// Set the Pusher Provider
+    pusherProvider = Provider.of<PusherProvider>(context, listen: false);
+
+    /// Listen for new invitation alerts
+    listenForNewInvitationAlerts();
+
+    /// Request the resource totals
+    _requestShowResourceTotals();
     
     _tabController = TabController(initialIndex: selectedHomeTabIndex, length: totalTabs, vsync: this);
 
@@ -61,6 +75,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       if(selectedHomeTabIndex != _tabController.index) {
         setState(() => homeProvider.setSelectedHomeTabIndex(_tabController.index));
       }
+
+      /// Request the resource totals
+      _requestShowResourceTotals();
 
     });
 
@@ -80,6 +97,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void dispose() {
     super.dispose();
     _tabController.dispose();
+    /// Unsubscribe from this specified event on this channel
+    pusherProvider.unsubscribeToAuthNotifications(identifier: 'HomePage');
   }
 
   void changeNavigationTab(int index) {
@@ -87,6 +106,94 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       homeProvider.setSelectedHomeTabIndex(index);
       _tabController.index = index;
     });
+  }
+  
+  /// Request resource totals
+  void _requestShowResourceTotals() {
+
+    if(!isLoadingResourceTotals) {
+
+      _startResourceTotalsLoader();
+
+      authProvider.authRepository.showResourceTotals().then((response) async {
+
+        final responseBody = jsonDecode(response.body);
+
+        if(response.statusCode == 200) {
+
+          final ResourceTotals resourceTotals = ResourceTotals.fromJson(responseBody);
+
+          authProvider.setResourceTotals(resourceTotals);
+
+        }else{
+
+          SnackbarUtility.showErrorMessage(message: 'Failed to get resource totals');
+
+        }
+
+        return response;
+
+      }).catchError((error) {
+
+        SnackbarUtility.showErrorMessage(message: 'Failed to show resource totals');
+
+      }).whenComplete(() {
+
+        _stopResourceTotalsLoader();
+
+      });
+
+    }
+
+  }
+
+  void listenForNewInvitationAlerts() async {
+
+    print('*************** listenForNewInvitationAlerts');
+
+    /// Subscribe to notification alerts
+    pusherProvider.subscribeToAuthNotifications(
+      identifier: 'HomePage', 
+      onEvent: onNotificationAlerts
+    );
+  
+  }
+
+  void onNotificationAlerts(event) {
+
+    print('*************** HomePage: onNotificationAlerts');
+
+    if (event.eventName == "Illuminate\\Notifications\\Events\\BroadcastNotificationCreated") {
+
+      if(!authProvider.hasNotifications) {
+
+        /// Request the resource totals to show the notifications floating action button
+        _requestShowResourceTotals();
+
+      }else{
+
+        /// Parse event.data into a Map
+        Map<String, dynamic> eventData = jsonDecode(event.data);
+
+        //  Get the event type
+        String type = eventData['type'];
+
+        if(!authProvider.hasStores) {
+        
+          ///  Check if this is a notification of a created or deleted store
+          if(type == "App\\Notifications\\Stores\\StoreCreated" || type == "App\\Notifications\\Stores\\StoreDeleted") {
+
+            /// Request the resource totals to show the qr code floating action button (if necessary)
+            _requestShowResourceTotals();
+            
+          }
+
+        }
+
+      }
+
+    }
+
   }
 
   PreferredSizeWidget get appBar {
@@ -112,7 +219,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   getNavigationTab(firstName, 0),
                   getNavigationTab('Following', 1),    
                   getNavigationTab('Groups', 2),        
-                  getNavigationTab('My stores', 3),    
+                  getNavigationTab('My stores', 3),
                   //getNavigationTab('Chat', 4),
                   //getNavigationTab('Communities', 5),    
                 ],
@@ -166,23 +273,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget get floatingActionButtons {
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: canShowFloatingActionButtons ? [
-
-        /// Notifications Modal Bottom Sheet
-        notificationModalBottomSheet,
-        
-        /// QR Code Scanner Modal Bottom Sheet
-        qrCodeScannerModalBottomSheet,
-
-        /// Orders Modal Bottom Sheet
-        ordersModalBottomSheet,
-
-        /// Search Modal Bottom Sheet
-        searchModalBottomSheet,
-
-      ] : [],
+    return AnimatedOpacity(
+      opacity: isLoadingResourceTotals ? 0 : 1,
+      duration: const Duration(seconds: 1),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: canShowFloatingActionButtons ? [
+    
+          /// Notifications Modal Bottom Sheet
+          if(authProvider.hasNotifications) notificationModalBottomSheet,
+          
+          /// QR Code Scanner Modal Bottom Sheet
+          if(authProvider.hasStores) qrCodeScannerModalBottomSheet,
+    
+          /// Orders Modal Bottom Sheet
+          ordersModalBottomSheet,
+    
+          /// Search Modal Bottom Sheet
+          searchModalBottomSheet,
+    
+        ] : [],
+      ),
     );
 
   }

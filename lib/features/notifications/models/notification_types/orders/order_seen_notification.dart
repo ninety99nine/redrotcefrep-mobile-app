@@ -29,6 +29,7 @@ class OrderProperties {
   late int orderForTotalUsers;
   late int orderForTotalFriends;
   late bool isAssociatedAsFriend;
+  late bool isAssociatedAsCustomer;
   late CustomerProperties customerProperties;
   late SeenByUserProperties seenByUserProperties;
 
@@ -40,6 +41,7 @@ class OrderProperties {
     amount = Money.fromJson(json['amount']);
     orderForTotalFriends = json['orderForTotalFriends'];
     isAssociatedAsFriend = json['isAssociatedAsFriend'];
+    isAssociatedAsCustomer = json['isAssociatedAsCustomer'];
     customerProperties = CustomerProperties.fromJson(json['customer']);
     seenByUserProperties = SeenByUserProperties.fromJson(json['seenByUser']);
   }

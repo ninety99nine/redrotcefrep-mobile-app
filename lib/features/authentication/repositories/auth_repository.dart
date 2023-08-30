@@ -232,6 +232,15 @@ class AuthRepository {
     return apiRepository.put(url: url, body: body);
     
   }
+  
+  /// Show resource totals
+  Future<http.Response> showResourceTotals() {
+
+    final url = user!.links.showResourceTotals.href;
+
+    return apiRepository.get(url: url);
+  
+  }
 
   /// Logout
   Future<http.Response> logout({ LogoutType logoutType = LogoutType.everyone }) {

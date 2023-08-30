@@ -1,30 +1,32 @@
-import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_created_notification.dart';
+import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_updated_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification.dart' as model;
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:flutter/material.dart';
 
-class OrderCreatedNotificationContent extends StatelessWidget {
+class OrderUpdatedNotificationContent extends StatelessWidget {
 
   final model.Notification notification;
   
-  const OrderCreatedNotificationContent({
+  const OrderUpdatedNotificationContent({
     super.key,
     required this.notification
   });
 
   DateTime get createdAt => notification.createdAt;
   String get orderNumber => orderProperties.number;
+
+  bool get hasOccasion => ocassionProperties != null;
   int get otherTotalFriends => orderForTotalFriends - 1;
   int get orderForTotalFriends => orderProperties.orderForTotalFriends;
   bool get isAssociatedAsFriend => orderProperties.isAssociatedAsFriend;
+  bool get isAssociatedAsCustomer => orderProperties.isAssociatedAsCustomer;
   String get customerFirstName => orderProperties.customerProperties.firstName;
-  OrderProperties get orderProperties => orderCreatedNotification.orderProperties;
-
-  bool get hasOccasion => ocassionProperties != null;
-  OcassionProperties? get ocassionProperties => orderCreatedNotification.ocassionProperties;
-  OrderCreatedNotification get orderCreatedNotification => OrderCreatedNotification.fromJson(notification.data);
+  OrderProperties get orderProperties => orderUpdatedNotification.orderProperties;
+  String get updatedByUserFirstName => orderProperties.updatedByUserProperties.firstName;
+  OcassionProperties? get ocassionProperties => orderUpdatedNotification.ocassionProperties;
+  OrderUpdatedNotification get orderUpdatedNotification => OrderUpdatedNotification.fromJson(notification.data);
 
   TextStyle style(BuildContext context, {Color? color}) {
     return Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -53,9 +55,14 @@ class OrderCreatedNotificationContent extends StatelessWidget {
             child: RichText(
               text: TextSpan(
                 /// Activity
-                text: 'Ordered by ',
+                text: updatedByUserFirstName,
                 style: style(context),
                 children: [
+                  TextSpan(
+                    /// Activity
+                    text: ' updated an order placed by ',
+                    style: style(context, color: Colors.grey),
+                  ),
                   TextSpan(
                     /// User Name
                     text: customerFirstName,
@@ -97,12 +104,12 @@ class OrderCreatedNotificationContent extends StatelessWidget {
             child: RichText(
               text: TextSpan(
                 /// User Name
-                text: customerFirstName,
+                text: updatedByUserFirstName,
                 style: style(context),
                 children: [
                   TextSpan(
                     /// Activity
-                    text: ' placed an order',
+                    text: ' updated ${isAssociatedAsCustomer ? 'your' : 'an'} order',
                     style: style(context, color: Colors.grey),
                   )
                 ]
@@ -137,7 +144,7 @@ class OrderCreatedNotificationContent extends StatelessWidget {
             children: [
 
               /// Store Name
-              CustomTitleSmallText(orderCreatedNotification.storeProperties.name),
+              CustomTitleSmallText(orderUpdatedNotification.storeProperties.name),
               
               /// Notificaiton Date And Time Ago
               CustomBodyText(timeago.format(createdAt, locale: 'en_short')),
@@ -156,7 +163,7 @@ class OrderCreatedNotificationContent extends StatelessWidget {
     
               /// Order Summary
               Expanded(
-                child: CustomBodyText(orderCreatedNotification.orderProperties.summary)
+                child: CustomBodyText(orderUpdatedNotification.orderProperties.summary)
               ),
           
               /// Spacer

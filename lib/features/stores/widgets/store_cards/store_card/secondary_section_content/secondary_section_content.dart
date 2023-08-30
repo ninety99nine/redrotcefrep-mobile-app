@@ -47,30 +47,13 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
-  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember && !teamMemberWantsToViewAsCustomer;
+  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
 
   @override
   Widget build(BuildContext context) {
 
     return Column(
       children: [
-
-        /// View As Customer Checkbox
-        if((isShowingStorePage || hasSelectedMyStores) && canAccessAsTeamMember) ...[
-
-          Container(
-            padding: padding,
-            margin: const EdgeInsets.only(bottom: 16, left: 8),
-            child: CustomCheckbox(
-              value: teamMemberWantsToViewAsCustomer,
-              text: 'View as customer',
-              onChanged: (value) {
-                if(value != null) store.updateTeamMemberWantsToViewAsCustomer(value);
-              }
-            ),
-          ),
-
-        ],
           
         AnimatedSize(
           clipBehavior: Clip.none,
@@ -127,7 +110,7 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
           ),
         ),
 
-        if(canShowAdverts && (canAccessAsShopper || canAccessAsTeamMember)) ...[
+        if(canShowAdverts && (canAccessAsShopper || isTeamMemberWhoHasJoined)) ...[
         
           /// Store Adverts
           StoreAdvertCarousel(store: store),
@@ -159,6 +142,36 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
             ],
           ),
         ),
+
+        /// Subscribe Modal Bottom Sheet
+        if(isTeamMemberWhoHasJoined && !canAccessAsTeamMember && !hasCoverPhoto) AnimatedSize(
+          clipBehavior: Clip.none,
+          duration: const Duration(milliseconds: 500),
+          child: AnimatedSwitcher(
+            switchInCurve: Curves.easeIn,
+            switchOutCurve: Curves.easeOut,
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              key: ValueKey(teamMemberWantsToViewAsCustomer),
+              children: [
+          
+                /// Access Denied For Team Member
+                if(!teamMemberWantsToViewAsCustomer) ...[
+
+                  /// Spacer
+                  const SizedBox(height: 16,),
+
+                  SubscribeToStoreModalBottomSheet(
+                    store: widget.store,
+                    subscribeButtonAlignment: Alignment.center,
+                  ),
+
+                ],
+          
+              ]
+            ),
+          )
+        )
 
       ],
     );

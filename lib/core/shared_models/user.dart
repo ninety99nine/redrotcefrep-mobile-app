@@ -87,6 +87,7 @@ class Links {
   late Link? showStoreTeamMemberPermissions; 
   late Link? updateStoreTeamMemberPermissions; 
   late Link? showStoreCustomer; 
+  late Link showResourceTotals;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
@@ -125,5 +126,6 @@ class Links {
     showStoreTeamMemberPermissions = json['showStoreTeamMemberPermissions'] == null ? null : Link.fromJson(json['showStoreTeamMemberPermissions']);
     updateStoreTeamMemberPermissions = json['updateStoreTeamMemberPermissions'] == null ? null : Link.fromJson(json['updateStoreTeamMemberPermissions']);
     showStoreCustomer = json['showStoreCustomer'] == null ? null : Link.fromJson(json['showStoreCustomer']);
+    showResourceTotals = Link.fromJson(json['showResourceTotals']);
   }
 }
