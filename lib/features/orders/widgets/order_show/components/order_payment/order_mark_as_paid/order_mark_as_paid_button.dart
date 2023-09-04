@@ -28,10 +28,10 @@ class _OrderMarkAsPaidButtonState extends State<OrderMarkAsPaidButton> {
 
   Widget get markAsPaidButton {
     return CustomElevatedButton(
-      width: 80,
+      width: 100,
       fontSize: 12,
       'Mark As Paid',
-      color: Colors.green,
+      prefixIcon: Icons.check_circle_sharp,
       onPressed: () {
         
         DialogUtility.showContentDialog(

@@ -100,7 +100,6 @@ class _FollowersContentState extends State<FollowersContent> {
       width: 120,
       onPressed: floatingActionButtonOnPressed,
       isViewingFollowers ? 'Invite Friends' : 'Back',
-      color: isViewingFollowers ? Colors.green : Colors.grey,
       prefixIcon: isViewingFollowers ? Icons.add : Icons.keyboard_double_arrow_left,
     );
 

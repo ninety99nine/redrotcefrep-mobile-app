@@ -15,6 +15,7 @@ class Product extends Quantitative {
   late Links links;
   late String? sku;
   late String name;
+  late String? photo;
   late Status isFree;
   late Status visible;
   late String? barcode;
@@ -37,6 +38,7 @@ class Product extends Quantitative {
     id = json['id'];
     sku = json['sku'];
     name = json['name'];
+    photo = json['photo'];
     barcode = json['barcode'];
     arrangement = json['arrangement'];
     description = json['description'];
@@ -60,11 +62,17 @@ class Product extends Quantitative {
 
 class Links {
   late Link self;
+  late Link showPhoto;
+  late Link updatePhoto;
+  late Link deletePhoto;
   late Link updateProduct;
   late Link deleteProduct;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
+    showPhoto = Link.fromJson(json['showPhoto']);
+    updatePhoto = Link.fromJson(json['updatePhoto']);
+    deletePhoto = Link.fromJson(json['deletePhoto']);
     updateProduct = Link.fromJson(json['updateProduct']);
     deleteProduct = Link.fromJson(json['deleteProduct']);
   }

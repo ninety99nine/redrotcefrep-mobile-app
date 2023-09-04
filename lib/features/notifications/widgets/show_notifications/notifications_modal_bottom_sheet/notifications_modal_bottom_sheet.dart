@@ -1,4 +1,3 @@
-import 'package:bonako_demo/core/shared_models/money.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_paid_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_created_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_seen_notification.dart';
@@ -9,6 +8,7 @@ import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_moda
 import 'package:bonako_demo/features/notifications/enums/notification_enums.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import 'package:bonako_demo/core/shared_models/money.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/pusher.dart';
@@ -231,32 +231,36 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
 
   Widget get _trigger {
 
-    Widget counterBadge = Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            spreadRadius: 1,
-            blurRadius: 5,
-            color: Colors.black.withAlpha(50))
-        ],
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.red,
+    Widget counterBadge = GestureDetector(
+      onTap: openBottomModalSheet,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          /*
+          boxShadow: [
+            BoxShadow(
+              spreadRadius: 1,
+              blurRadius: 5,
+              color: Colors.black.withAlpha(50))
+          ],
+          */
+          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).floatingActionButtonTheme.backgroundColor,
+        ),
+        child: Text("$totalUnreadNotifications", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, height: 1)),
       ),
-      child: Text("$totalUnreadNotifications", style: const TextStyle(color: Colors.white, height: 1)),
     );
 
     floatingActionButton(openBottomModalSheet) => FloatingActionButton(
       mini: true,
       heroTag: 'notifications-button',
       onPressed: openBottomModalSheet,
-      backgroundColor: Colors.green,
       child: const Icon(Icons.notifications_none_rounded)
     );
 
     return FittedBox(
       child: Stack(
-        alignment: const Alignment(1.5, -1.5),
+        alignment: const Alignment(1.4, -1.4),
         children: [
 
           //// Floating Action Button

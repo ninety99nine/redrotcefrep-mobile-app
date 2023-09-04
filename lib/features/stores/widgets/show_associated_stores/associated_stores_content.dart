@@ -83,7 +83,7 @@ class _AssociatedStoresContentState extends State<AssociatedStoresContent> {
         isLoading: isSubmitting,
         alignment: Alignment.center,
         onPressed: () => openBottomModalSheet(),
-      color: isDeleting ? Colors.grey : Colors.green,
+        color: isDeleting ? Colors.grey : null,
       ),
     );
 

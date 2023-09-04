@@ -1,5 +1,10 @@
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'dart:convert';
 
 class ApiRepository {
@@ -119,6 +124,43 @@ class ApiRepository {
     
   }
 
+  /// Make POST Request with uploadable files
+  Future<dio.Response> postWithDio({
+    required String url,
+    Map<String, String>? queryParams,
+    required Map<String, dynamic> body,
+    void Function(int, int)? onSendProgress,
+    bool handleRequestFailure = true,
+  }) async {
+
+    print('post url $url');
+    print('_bearerToken: $bearerToken');
+    print('post body');
+    print(body);
+
+    final dio.FormData formData = dio.FormData.fromMap(body);
+
+    try {
+      
+      return await Dio().post(
+        url,
+        data: formData,
+        options: Options(
+          headers: apiHeaders
+        ),
+        queryParameters: queryParams,
+        onSendProgress: onSendProgress,
+      );
+      
+    } on DioException catch (exception) {
+
+      ApiService.handleDioRequestFailure(exception: exception);
+      rethrow;
+      
+    }
+
+  }
+
   /// Make PUT Request
   Future<http.Response> put({ required String url, Map<String, String>? queryParams, body = const {}, handleRequestFailure = true }) async {
     
@@ -204,6 +246,28 @@ class ApiRepository {
       throw(error);
       
     });
+  }
+
+  Map getUploadableFiles(Map body) {
+    print('stage 1');
+    // Create a copy of the original body
+    Map bodyCopy = Map.from(body);
+    print('stage 2');
+    bodyCopy.removeWhere((key, value) => value.runtimeType != XFile);
+    print('stage 3');
+    print(bodyCopy);
+    return bodyCopy;
+  }
+
+  Map excludeUploadableFiles(Map body) {
+    print('stage 4');
+    // Create a copy of the original body
+    Map bodyCopy = Map.from(body);
+    print('stage 5');
+    bodyCopy.removeWhere((key, value) => value.runtimeType == XFile);
+    print('stage 6');
+    print(bodyCopy);
+    return bodyCopy;
   }
 
 }

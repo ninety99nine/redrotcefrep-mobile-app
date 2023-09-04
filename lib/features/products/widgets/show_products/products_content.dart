@@ -200,9 +200,9 @@ class _ProductsContentState extends State<ProductsContent> {
           title,
           width: 120,
           isLoading: isSubmitting,
+          color: isDeleting ? Colors.grey : null,
           onPressed: floatingActionButtonOnPressed,
           prefixIcon: isViewingProducts ? Icons.add : null,
-          color: isDeleting ? Colors.grey : Colors.green,
         ),
 
       ],

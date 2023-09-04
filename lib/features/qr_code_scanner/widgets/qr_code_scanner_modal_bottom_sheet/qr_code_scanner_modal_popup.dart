@@ -29,7 +29,6 @@ class _QRCodeScannerModalBottomSheetState extends State<QRCodeScannerModalBottom
       mini: true,
       heroTag: 'qr-code-button',
       onPressed: openBottomModalSheet,
-      backgroundColor: Colors.green,
       child: const Icon(Icons.qr_code_scanner)
     );
   }

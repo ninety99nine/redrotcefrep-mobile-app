@@ -104,7 +104,6 @@ class _OrdersContentState extends State<OrdersContent> {
     return CustomElevatedButton(
       isViewingOrders ? 'Place Order' : 'Back',
       onPressed: floatingActionButtonOnPressed,
-      color: isViewingOrders ? Colors.green : Colors.grey,
       prefixIcon: isViewingOrders ? null : Icons.keyboard_double_arrow_left,
     );
 

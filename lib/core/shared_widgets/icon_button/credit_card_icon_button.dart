@@ -17,13 +17,14 @@ class CreditCardIconButton extends StatelessWidget {
         border: Border.all(color: Colors.transparent),
       ),
       child: InkWell(
+        highlightColor: Colors.teal.shade50,
         borderRadius: BorderRadius.circular(50),
         onTap: onTap,
-        child: const Material(
-          color: Color.fromARGB(0, 15, 10, 10),
+        child: Material(
+          color: const Color.fromARGB(0, 15, 10, 10),
           child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.credit_card_rounded, color: Colors.green,),
+            padding: const EdgeInsets.all(4.0),
+            child: Icon(Icons.credit_card_rounded, color: Colors.teal),
           ),
         ),
       ),

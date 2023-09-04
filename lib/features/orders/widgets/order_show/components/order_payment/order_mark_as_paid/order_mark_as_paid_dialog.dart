@@ -239,7 +239,6 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
                       width: 120,
                       fontSize: 12,
                       'Mark As Paid',
-                      color: Colors.green,
                       isLoading: isSubmitting,
                       alignment: Alignment.center,
                       prefixIcon: Icons.check_circle_sharp,

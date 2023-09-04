@@ -1,20 +1,20 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
-import 'package:get/get.dart';
-
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
+import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../image_picker_content.dart';
+import 'package:get/get.dart';
 
 class ImagePickerModalBottomSheet extends StatefulWidget {
   
   final String title;
+  final double? radius;
   final String subtitle;
   final String fileName;
-  final String submitUrl;
+  final String? submitUrl;
   final String? deleteUrl;
   final String triggerText;
   final IconData triggerIcon;
@@ -28,8 +28,10 @@ class ImagePickerModalBottomSheet extends StatefulWidget {
 
   const ImagePickerModalBottomSheet({
     super.key,
+    this.radius,
     this.trigger,
     this.deleteUrl,
+    this.submitUrl,
     this.onPickedFile,
     this.onDeletedFile,
     required this.title,
@@ -37,7 +39,6 @@ class ImagePickerModalBottomSheet extends StatefulWidget {
     this.triggerText = '',
     required this.subtitle,
     required this.fileName,
-    required this.submitUrl,
     this.submitBody = const {},
     this.deleteBody = const {},
     required this.submitMethod,
@@ -50,8 +51,9 @@ class ImagePickerModalBottomSheet extends StatefulWidget {
 
 class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomSheet> {
 
+  double? get radius => widget.radius;
   String get fileName => widget.fileName;
-  String get submitUrl => widget.submitUrl;
+  String? get submitUrl => widget.submitUrl;
   String? get deleteUrl => widget.deleteUrl;
   String get triggerText => widget.triggerText;
   IconData get triggerIcon => widget.triggerIcon;
@@ -74,46 +76,45 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
   Widget get _trigger {
 
     final Widget defaultTrigger = DottedBorder(
-        radius: const Radius.circular(32),
-        borderType: triggerText.isEmpty ? BorderType.Circle : BorderType.RRect,
-        strokeCap: StrokeCap.butt,
-        padding: EdgeInsets.zero,
-        dashPattern: const [6, 3],
-        color: Colors.grey,
-        strokeWidth: 1,
-        child: Material(
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
-          ),
-          color:Colors.grey.shade100,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () => openBottomModalSheet(),
-            child: Ink(
-              child: Padding(
-                /// Note that we use "11px" instead of "12px" because we want 
-                /// to accomodate the 1px from the border strokeWidth
-                padding: const EdgeInsets.all(11),
-                child: Wrap(
-                  children: [
+      radius: Radius.circular(radius ?? 20),
+      borderType: triggerText.isEmpty ? BorderType.Circle : BorderType.RRect,
+      strokeCap: StrokeCap.butt,
+      padding: EdgeInsets.zero,
+      dashPattern: const [6, 3],
+      color: Colors.grey,
+      strokeWidth: 1,
+      child: Material(
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radius ?? 20),
+        ),
+        color:Colors.grey.shade100,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(radius ?? 20),
+          onTap: () => openBottomModalSheet(),
+          child: Ink(
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              radius: radius ?? 20,
+              child: Wrap(
+                children: [
 
-                    /// Icon
-                    Icon(triggerIcon, size: 16, color: Colors.grey.shade400,),
+                  /// Icon
+                  Icon(triggerIcon, size: 16, color: Colors.grey.shade400,),
 
-                    /// Spacer
-                    if(triggerText.isNotEmpty) const SizedBox(width: 16,),
+                  /// Spacer
+                  if(triggerText.isNotEmpty) const SizedBox(width: 16,),
 
-                    /// Text
-                    if(triggerText.isNotEmpty) CustomBodyText(triggerText)
+                  /// Text
+                  if(triggerText.isNotEmpty) CustomBodyText(triggerText)
 
-                  ],
-                ),
+                ],
               ),
             ),
           ),
         ),
-      );
+      ),
+    );
 
     return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
 
@@ -124,6 +125,23 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
     if(_customBottomModalSheetState.currentState != null) {
       _customBottomModalSheetState.currentState!.showBottomSheet(context);
     } 
+  }
+
+
+
+
+
+  void _onPickedFile(XFile file) {
+
+    if(submitUrl == null) {
+
+      /// Close the modal bottom sheet
+      Get.back();
+
+    }
+
+    if(onPickedFile != null) onPickedFile!(file);
+    
   }
 
   void _onSubmittedFile(XFile file, http.Response response) {
@@ -160,7 +178,7 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
         submitBody: submitBody,
         deleteBody: deleteBody,
         submitMethod: submitMethod,
-        onPickedFile: onPickedFile,
+        onPickedFile: _onPickedFile,
         onDeletedFile: _onDeletedFile,
         onSubmittedFile: _onSubmittedFile
       ),

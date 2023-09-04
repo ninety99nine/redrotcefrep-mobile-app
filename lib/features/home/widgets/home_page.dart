@@ -298,6 +298,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   }
 
+  Widget get notificationModalBottomSheet {
+    return const NotificationsModalBottomSheet();
+  }
+
   Widget get qrCodeScannerModalBottomSheet {
     return const QRCodeScannerModalBottomSheet();
   }
@@ -312,14 +316,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         mini: true,
         heroTag: 'orders-button',
         onPressed: openBottomModalSheet,
-        backgroundColor: Colors.green,
         child: const Icon(Icons.shopping_bag_outlined)
       )
     );
-  }
-
-  Widget get notificationModalBottomSheet {
-    return const NotificationsModalBottomSheet();
   }
 
   @override

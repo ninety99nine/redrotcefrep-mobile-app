@@ -113,7 +113,6 @@ class _CreateOrUpdateAddressContentState extends State<CreateOrUpdateAddressCont
     return CustomElevatedButton(
       width: 120,
       'Save Changes',
-      color: Colors.green,
       isLoading: isSubmitting,
       onPressed: floatingActionButtonOnPressed,
     );

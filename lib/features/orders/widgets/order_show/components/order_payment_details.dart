@@ -209,7 +209,7 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
         minHeight: 8,
         color: Colors.green,
         backgroundColor: Colors.grey.shade200,
-        value: (order.amountPaidPercentage.value / 100),
+        value: (50 / 100),
       ),
     );
   }

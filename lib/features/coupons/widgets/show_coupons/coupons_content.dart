@@ -196,9 +196,9 @@ class _CouponsContentState extends State<CouponsContent> {
           title,
           width: 120,
           isLoading: isSubmitting,
+          color: isDeleting ? Colors.grey : null,
           onPressed: floatingActionButtonOnPressed,
           prefixIcon: isViewingCoupons ? Icons.add : null,
-          color: isDeleting ? Colors.grey : Colors.green,
         ),
 
       ],

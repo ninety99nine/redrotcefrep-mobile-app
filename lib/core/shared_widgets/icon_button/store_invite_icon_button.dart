@@ -20,13 +20,13 @@ class StoreInviteIconButton extends StatelessWidget {
         border: Border.all(color: Colors.transparent),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(50),
+        highlightColor: Colors.teal.shade50,
         onTap: onTap,
         child: Material(
           color: const Color.fromARGB(0, 15, 10, 10),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Icon(FontAwesomeIcons.store, size: size, color: Colors.grey.shade400,),
+            child: Icon(FontAwesomeIcons.store, size: size, color: Colors.teal,),
           ),
         ),
       ),

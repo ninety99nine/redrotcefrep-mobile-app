@@ -74,7 +74,6 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
     return CustomElevatedButton(
       width: 120,
       'Save Changes',
-      color: Colors.green,
       isLoading: isSubmitting,
       onPressed: floatingActionButtonOnPressed,
     );

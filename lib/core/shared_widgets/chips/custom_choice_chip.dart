@@ -24,7 +24,7 @@ class CustomChoiceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChoiceChip(
-      labelStyle: TextStyle(color: selected ? Colors.white : null),
+      labelStyle: TextStyle(color: selected ? Colors.white : null, fontWeight: FontWeight.bold),
       selectedColor: selectedColor ?? Theme.of(context).primaryColor,
       backgroundColor: backgroundColor ?? Colors.grey.shade200,
       label: labelWidget ?? Text(label), 

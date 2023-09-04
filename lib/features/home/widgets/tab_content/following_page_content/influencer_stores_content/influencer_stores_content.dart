@@ -139,7 +139,7 @@ class InfluencerStoresContentState extends State<InfluencerStoresContent> {
       showExpandIconButton: false,
       onSelectedStore: _requestAddStoreToInfluencerStores,
       trigger: (openBottomModalSheet) => CustomElevatedButton(
-        'Add Store',
+        '+ Add Store',
         disabled: isLoading,
         isLoading: isLoading,
         alignment: Alignment.center,

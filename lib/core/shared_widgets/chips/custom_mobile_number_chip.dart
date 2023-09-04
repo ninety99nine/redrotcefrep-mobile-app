@@ -12,8 +12,9 @@ class CustomMobileNumberChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      avatar: const CircleAvatar(
-        child: Icon(Icons.phone, size: 16,),
+      avatar: CircleAvatar(
+        backgroundColor: Theme.of(context).primaryColor,
+        child: const Icon(Icons.phone, size: 16, color: Colors.white,),
       ),
       labelStyle: TextStyle(color: Theme.of(context).primaryColor),
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),

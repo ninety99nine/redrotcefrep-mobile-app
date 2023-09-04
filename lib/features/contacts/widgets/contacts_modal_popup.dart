@@ -192,7 +192,6 @@ List<Contact> contacts = [];
       floatingActionButtonLabel,
       prefixIcon: floatingActionButtonIcon,
       onPressed: floatingActionButtonOnPressed,
-      color: isViewingList ? Colors.green : Colors.grey,
     );
 
   }

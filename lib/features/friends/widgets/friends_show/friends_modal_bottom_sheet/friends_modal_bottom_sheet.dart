@@ -56,7 +56,6 @@ class FriendsModalBottomSheetState extends State<FriendsModalBottomSheet> {
 
       return CustomTextButton(
         'Add Friends',
-        color: Colors.green,
         prefixIcon: Icons.add,
         alignment: Alignment.center,
         onPressed: openBottomModalSheet,

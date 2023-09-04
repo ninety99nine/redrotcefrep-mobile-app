@@ -139,7 +139,7 @@ class BrandStoresContentState extends State<BrandStoresContent> {
       showExpandIconButton: false,
       onSelectedStore: _requestAddStoreToBrandStores,
       trigger: (openBottomModalSheet) => CustomElevatedButton(
-        'Add Store',
+        '+ Add Store',
         disabled: isLoading,
         isLoading: isLoading,
         alignment: Alignment.center,

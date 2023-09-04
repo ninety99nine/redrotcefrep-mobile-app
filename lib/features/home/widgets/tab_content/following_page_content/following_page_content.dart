@@ -436,6 +436,7 @@ class _CircleAvatarTabState extends State<CircleAvatarTab> with SingleTickerProv
             builder: (context, child) {
               final radius = _radiusTween.evaluate(_animationController);
               return CircleAvatar(
+                backgroundColor: Theme.of(context).primaryColor,
                 radius: radius,
                 child: Padding(
                   padding: widget.padding,

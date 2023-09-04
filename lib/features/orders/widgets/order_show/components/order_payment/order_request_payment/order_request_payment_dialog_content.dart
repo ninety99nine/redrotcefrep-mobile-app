@@ -150,7 +150,7 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
     return CustomMessageAlert(
       showIcon: false,
       padding: const EdgeInsets.all(16),
-      bgColor: Theme.of(context).primaryColor.withOpacity(0.1),
+      bgColor: Theme.of(context).primaryColor.withOpacity(0.05),
       'Pay hassle-free with any card 😍 - Choose from 3 options:\n\n1. Pay yourself\n2. Friends pay for you\n3. Split the bill with friends.'
     );
   }

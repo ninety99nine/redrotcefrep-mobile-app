@@ -126,7 +126,6 @@ class _ModalContentState extends State<ModalContent> {
         /// Accept All
         CustomElevatedButton(
           width: 100,
-          color: Colors.green,
           prefixIcon: Icons.check_circle,
           isAcceptingAll ? '' : 'Accept All',
           isLoading: isLoading && isAcceptingAll,

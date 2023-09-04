@@ -18,6 +18,7 @@ class PhoneIconButton extends StatelessWidget {
         border: Border.all(color: Colors.transparent),
       ),
       child: InkWell(
+        highlightColor: Colors.teal.shade50,
         borderRadius: BorderRadius.circular(50),
         onTap: () {
           DialerUtility.dial(number: number);
@@ -25,8 +26,8 @@ class PhoneIconButton extends StatelessWidget {
         child: const Material(
           color: Color.fromARGB(0, 15, 10, 10),
           child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.phone, color: Colors.green,),
+            padding: EdgeInsets.all(4.0),
+            child: Icon(Icons.phone, color: Colors.teal),
           ),
         ),
       ),

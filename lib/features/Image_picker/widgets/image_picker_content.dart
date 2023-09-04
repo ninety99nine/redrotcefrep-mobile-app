@@ -18,7 +18,7 @@ class ImagePickerContent extends StatefulWidget {
   final String title;
   final String subtitle;
   final String fileName;
-  final String submitUrl;
+  final String? submitUrl;
   final String? deleteUrl;
   final SubmitMethod submitMethod;
   final Function(XFile)? onPickedFile;
@@ -29,13 +29,13 @@ class ImagePickerContent extends StatefulWidget {
 
   const ImagePickerContent({
     super.key,
+    this.submitUrl,
     this.onPickedFile,
     this.onDeletedFile,
     required this.title,
     this.onSubmittedFile,
     required this.subtitle,
     required this.fileName,
-    required this.submitUrl,
     required this.deleteUrl,
     this.submitBody = const {},
     this.deleteBody = const {},
@@ -67,8 +67,9 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
   ];
 
   String get fileName => widget.fileName;
-  String get submitUrl => widget.submitUrl;
+  String? get submitUrl => widget.submitUrl;
   String? get deleteUrl => widget.deleteUrl;
+  bool get hasSubmitUrl => submitUrl != null;
   SubmitMethod get submitMethod => widget.submitMethod;
   Map<String, String> get submitBody => widget.submitBody;
   Map<String, String> get deleteBody => widget.deleteBody;
@@ -138,92 +139,96 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
 
   void submitImage() async {
 
-    http.MultipartRequest request;
+    if(hasSubmitUrl) {
 
-    if(submitMethod == SubmitMethod.post) {
+      http.MultipartRequest request;
 
-      request = http.MultipartRequest('POST', Uri.parse(submitUrl));
+      if(submitMethod == SubmitMethod.post) {
 
-    }else{
+        request = http.MultipartRequest('POST', Uri.parse(submitUrl!));
 
-      request = http.MultipartRequest('PUT', Uri.parse(submitUrl));
+      }else{
 
-    }
-
-    /// Add the bearer token on the request header
-    request.headers.addAll(<String, String> {
-      'Authorization': 'Bearer ${apiProvider.apiRepository.bearerToken}'
-    });
-
-    print('url: ${request.url}');
-    print('method: ${request.method}');
-    print('Headers');
-    print(request.headers);
-
-    /// Prepare the file to be uploaded
-    http.MultipartFile multipartFile = await http.MultipartFile.fromPath(fileName, _pickedFile!.path);
-    
-    /// Add the file on the request
-    request.files.add(multipartFile);
-
-    /// Add the fields on the request
-    request.fields.addAll(submitBody);    
-
-    print('Files');
-    print(request.files);  
-
-    print('Fields');
-    print(request.fields);
-
-    print('SEND!');
-
-    _startLoader();
-
-    /// Send the file
-    var streamedResponse = await request.send();
-
-    /// Wait for a response
-    http.Response.fromStream(streamedResponse).then((response) {
-
-      ApiService.handleRequestFailure(response: response, ignoreValidationErrors: true);
-
-      final responseBody = jsonDecode(response.body);
-
-      print('DONE!');
-      print(response.statusCode);
-      print(responseBody);
-
-      if ( response.statusCode == 200 || response.statusCode == 201) {
-
-        if(onSubmittedFile != null) onSubmittedFile!(_pickedFile!, response);
-        
-        SnackbarUtility.showSuccessMessage(message: 'Uploaded successfully!');
-
-      }else if(response.statusCode == 422) {
-
-        final Map<String, dynamic> validationErrors = responseBody['errors'];
-        
-        /**
-         *  validationErrors = {
-         *    "logo": ["The logo size must not exceed 2MB"]
-         *  }
-         */
-        validationErrors.forEach((key, value) {
-          SnackbarUtility.showErrorMessage(message: value[0]);
-        });
+        request = http.MultipartRequest('PUT', Uri.parse(submitUrl!));
 
       }
 
-    }).catchError((e) {
+      /// Add the bearer token on the request header
+      request.headers.addAll(<String, String> {
+        'Authorization': 'Bearer ${apiProvider.apiRepository.bearerToken}'
+      });
+
+      print('url: ${request.url}');
+      print('method: ${request.method}');
+      print('Headers');
+      print(request.headers);
+
+      /// Prepare the file to be uploaded
+      http.MultipartFile multipartFile = await http.MultipartFile.fromPath(fileName, _pickedFile!.path);
       
-      SnackbarUtility.showErrorMessage(message: 'Failed to upload!');
+      /// Add the file on the request
+      request.files.add(multipartFile);
 
-    })
-    .whenComplete(() {
+      /// Add the fields on the request
+      request.fields.addAll(submitBody);    
 
-      _stopLoader();
+      print('Files');
+      print(request.files);  
 
-    });
+      print('Fields');
+      print(request.fields);
+
+      print('SEND!');
+
+      _startLoader();
+
+      /// Send the file
+      var streamedResponse = await request.send();
+
+      /// Wait for a response
+      http.Response.fromStream(streamedResponse).then((response) {
+
+        ApiService.handleRequestFailure(response: response, ignoreValidationErrors: true);
+
+        final responseBody = jsonDecode(response.body);
+
+        print('DONE!');
+        print(response.statusCode);
+        print(responseBody);
+
+        if ( response.statusCode == 200 || response.statusCode == 201) {
+
+          if(onSubmittedFile != null) onSubmittedFile!(_pickedFile!, response);
+          
+          SnackbarUtility.showSuccessMessage(message: 'Uploaded successfully!');
+
+        }else if(response.statusCode == 422) {
+
+          final Map<String, dynamic> validationErrors = responseBody['errors'];
+          
+          /**
+           *  validationErrors = {
+           *    "logo": ["The logo size must not exceed 2MB"]
+           *  }
+           */
+          validationErrors.forEach((key, value) {
+            SnackbarUtility.showErrorMessage(message: value[0]);
+          });
+
+        }
+
+      }).catchError((e) {
+        
+        SnackbarUtility.showErrorMessage(message: 'Failed to upload!');
+
+      })
+      .whenComplete(() {
+
+        _stopLoader();
+
+      });
+
+    }
 
   }
 

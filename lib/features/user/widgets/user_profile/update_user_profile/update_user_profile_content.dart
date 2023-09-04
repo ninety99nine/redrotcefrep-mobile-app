@@ -76,7 +76,6 @@ class _UpdateUserProfileContentState extends State<UpdateUserProfileContent> {
     return CustomElevatedButton(
       width: 120,
       'Save Changes',
-      color: Colors.green,
       isLoading: isSubmitting,
       onPressed: floatingActionButtonOnPressed,
     );

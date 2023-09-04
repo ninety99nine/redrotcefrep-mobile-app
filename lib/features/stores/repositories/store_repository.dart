@@ -2,6 +2,8 @@ import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
 import 'package:bonako_demo/features/occasions/models/occasion.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/shared_models/permission.dart';
@@ -14,6 +16,7 @@ import '../../api/providers/api_provider.dart';
 import '../../products/models/product.dart';
 import 'package:http/http.dart' as http;
 import '../models/shoppable_store.dart';
+import 'package:dio/dio.dart' as dio;
 import '../enums/store_enums.dart';
 
 class StoreRepository {
@@ -220,7 +223,8 @@ class StoreRepository {
   }
 
   /// Create a product on the specified store
-  Future<http.Response> createProduct({ 
+  Future<dio.Response> createProduct({
+    XFile? photo,
     required String name, required String? description, required bool showDescription, required bool visible,
     required String unitRegularPrice, required String unitSalePrice, required String unitCostPrice,
     required String? sku, required String? barcode, required bool isFree, required bool allowVariations,
@@ -232,8 +236,9 @@ class StoreRepository {
 
     String url = store!.links.createProducts.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
+      'photo': photo,
       'is_free': isFree,
       'visible': visible,
       'unit_cost_price': unitCostPrice,
@@ -245,13 +250,14 @@ class StoreRepository {
       'allowed_quantity_per_order': allowedQuantityPerOrder,
     };
 
+    if(photo != null) body['photo'] = photo;
     if(sku != null && sku.isNotEmpty) body['sku'] = sku;
     if(barcode != null && barcode.isNotEmpty) body['barcode'] = barcode;
     if(stockQuantityType == 'limited') body['stock_quantity'] = stockQuantity;
     if(description != null && description.isNotEmpty) body['description'] = description;
     if(allowedQuantityPerOrder == 'limited') body['maximum_allowed_quantity_per_order'] = maximumAllowedQuantityPerOrder;
 
-    return apiRepository.post(url: url, body: body);
+    return apiRepository.postWithDio(url: url, body: body);
     
   }
 

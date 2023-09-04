@@ -52,7 +52,7 @@ class _OrderRequestPaymentButtonState extends State<OrderRequestPaymentButton> {
         fontSize: 12,
         prefixIcon: Icons.payment,
         alignment: Alignment.center,
-        width: requestingPayment ? 130 : 120,
+        width: requestingPayment ? 130 : 80,
         onPressed: showOrderRequestPaymentDialog,
         requestingPayment ? 'Request Payment' : 'Pay Now',
       );

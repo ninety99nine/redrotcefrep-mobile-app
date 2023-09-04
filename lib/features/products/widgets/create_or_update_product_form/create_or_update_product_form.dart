@@ -9,8 +9,11 @@ import 'package:bonako_demo/features/stores/repositories/store_repository.dart';
 import 'package:bonako_demo/features/products/providers/product_provider.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/product_logo.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -42,6 +45,7 @@ class CreateOrUpdateProductForm extends StatefulWidget {
 
 class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
+  XFile? photo;
   Map productForm = {};
   Map serverErrors = {};
   bool isDeleting= false;
@@ -139,6 +143,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
       onSubmitting(true);
 
       storeProvider.setStore(store).storeRepository.createProduct(
+        photo: photo,
         sku: productForm['sku'],
         name: productForm['name'],
         isFree: productForm['isFree'],
@@ -154,36 +159,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         stockQuantityType: productForm['stockQuantityType'],
         allowedQuantityPerOrder: productForm['allowedQuantityPerOrder'],
         maximumAllowedQuantityPerOrder: productForm['maximumAllowedQuantityPerOrder'],
-      ).then((response) async {
-
-        final responseBody = jsonDecode(response.body);
-
-        if(response.statusCode == 201) {
-
-          final Product createdProduct = Product.fromJson(responseBody);
-
-          /**
-           *  This method must come before the SnackbarUtility.showSuccessMessage()
-           *  in case this method executes a Get.back() to close a bottom modal
-           *  sheet for instance. If we execute this after showSuccessMessage()
-           *  then we will close the showSuccessMessage() Snackbar instead
-           *  of the bottom modal sheet
-           */
-          if(onCreatedProduct != null) onCreatedProduct!(createdProduct);
-
-          SnackbarUtility.showSuccessMessage(message: 'Created successfully');
-
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
-        }
-
-      }).catchError((error) {
-
-        SnackbarUtility.showErrorMessage(message: 'Can\'t create product');
-
-      }).whenComplete((){
+      ).whenComplete((){
 
         _stopSubmittionLoader();
       
@@ -357,10 +333,30 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: productForm.isEmpty ? [] : [
               
               /// Spacer
               const SizedBox(height: 8),
+
+              ProductPhoto(
+                radius: 60,
+                store: store,
+                product: product,
+                canChangePhoto: true,
+                onPickedFile: (file) {
+                  photo = file;
+
+                  print('file');
+                  print(file);
+                  print('file.runtimeType');
+                  print(file.runtimeType);
+                  
+                }
+              ),
+              
+              /// Spacer
+              const SizedBox(height: 16),
 
               /// Visible Checkbox
               CustomCheckbox(

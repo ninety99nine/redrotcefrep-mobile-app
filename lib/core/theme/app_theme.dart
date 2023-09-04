@@ -5,12 +5,15 @@ class AppTheme {
   static ThemeData lightTheme() {
 
     return ThemeData(
+
+      fontFamily: 'OpenSans',
+      
       //  primarySwatch: Colors.blue,
       //  primarySwatch: Colors.indigo,
-      primaryColor: Colors.blue.shade800,
-      
-      splashColor: Colors.grey.shade200,
-      highlightColor: Colors.grey.shade100,
+      primaryColor: Colors.black,
+
+      splashColor: Colors.black,
+      highlightColor: Colors.yellow.shade100,
       textTheme: ThemeData.light().textTheme.copyWith(
 
         //  Text title themes
@@ -21,8 +24,8 @@ class AppTheme {
       ),
 
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        splashColor: Colors.white.withOpacity(0.5),
-        backgroundColor: Colors.green.shade500,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.yellow.shade800,  /// Colors.redAccent
         extendedTextStyle: const TextStyle(fontWeight: FontWeight.bold)
       ),
       

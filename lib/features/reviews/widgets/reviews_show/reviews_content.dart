@@ -94,7 +94,6 @@ class _ReviewsContentState extends State<ReviewsContent> {
       width: 120,
       isViewingReviews ? 'Add Review' : 'Back',
       onPressed: floatingActionButtonOnPressed,
-      color: isViewingReviews ? Colors.green : Colors.grey,
       prefixIcon: isViewingReviews ? Icons.add : Icons.keyboard_double_arrow_left,
     );
 

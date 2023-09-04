@@ -20,12 +20,13 @@ class ShareIconButton extends StatelessWidget {
         border: Border.all(color: Colors.transparent),
       ),
       child: InkWell(
+        highlightColor: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(50),
         onTap: onTap,
         child: Material(
           color: const Color.fromARGB(0, 15, 10, 10),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Icon(FontAwesomeIcons.share, size: size, color: Colors.grey.shade400,),
           ),
         ),

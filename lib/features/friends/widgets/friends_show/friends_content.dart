@@ -168,13 +168,11 @@ class _FriendsContentState extends State<FriendsContent> {
   Widget get floatingActionButton {
 
     String text = 'Back';
-    Color color = Colors.grey;
     IconData? prefixIcon = Icons.keyboard_double_arrow_left;
 
     if(isViewingFriends || isViewingGroups || isViewingSharedGroups) {
 
       prefixIcon = Icons.add;
-      color = Colors.green;
 
       if(hasSelectedFriends || hasSelectedFriendGroups) {
 
@@ -192,7 +190,6 @@ class _FriendsContentState extends State<FriendsContent> {
     return CustomElevatedButton(
       text,
       width: 120,
-      color: color,
       prefixIcon: prefixIcon,
       onPressed: floatingActionButtonOnPressed,
     );

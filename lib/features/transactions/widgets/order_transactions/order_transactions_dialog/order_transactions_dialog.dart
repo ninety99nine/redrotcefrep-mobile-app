@@ -54,7 +54,7 @@ class _OrderTransactionsDialogState extends State<OrderTransactionsDialog> {
         onPressed: openDialog,
         prefixIcon: Icons.payment,
         alignment: Alignment.center,
-        width: canManageOrders ? 130 : 120,
+        width: canManageOrders ? 130 : 80,
         canManageOrders ? 'Request Payment' : 'Pay Now',
       );
 

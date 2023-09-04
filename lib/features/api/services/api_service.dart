@@ -4,6 +4,7 @@ import '../../../core/utils/snackbar.dart';
 import '../providers/api_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'dart:convert';
 
@@ -115,6 +116,63 @@ class ApiService {
 
       print(e);
       
+      e.printError();
+      
+      /// Show the error message e.g when the jsonDecode(response.body) fails
+      SnackbarUtility.showErrorMessage(message: e.toString());
+
+    }
+
+  }
+
+  /// Handle the request failure
+  static void handleDioRequestFailure({ required dio.DioException exception, bool ignoreValidationErrors = false }) {
+
+    try {
+      
+      /// Print the error
+      exception.printError();
+
+      /// The request was made and the server responded with a status code
+      /// that falls out of the range of 2xx and is also not a 304.
+      /// Reference: https://pub.dev/packages/dio#handling-errors
+      if (exception.response != null) {
+
+        final int statusCode = exception.response!.statusCode!;
+
+        print(statusCode);
+        print('statusCode');
+
+        if(statusCode == 401 || statusCode == 422) {
+
+          final Map data = exception.response!.data;
+
+          /// Check if this is a 401 Unauthorized Request
+          if(statusCode == 401) {
+
+            /// Navigate to the page 
+            Get.offAndToNamed(LandingPage.routeName);
+
+            /// Show the unauthorized message
+            SnackbarUtility.showInfoMessage(message: data['message']);
+
+          }else if(statusCode == 422 && ignoreValidationErrors == false) {
+
+            /// Get the first validation error
+            final firstValidationErrorMessage = (data['errors'] as Map).entries.first.value[0];
+
+            /// Show the error message
+            SnackbarUtility.showErrorMessage(message: firstValidationErrorMessage);
+
+          }
+
+        }
+
+      }
+
+    } catch (e) {
+      
+      /// Print the error
       e.printError();
       
       /// Show the error message e.g when the jsonDecode(response.body) fails

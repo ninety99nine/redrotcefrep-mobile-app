@@ -186,14 +186,14 @@ class PayerAvatar extends StatelessWidget {
             /// User Avatar
             Container(
               decoration: BoxDecoration(
-                border: Border.all(width: 2, color: isPaid ? Colors.green.shade300 : Colors.orange.shade300),
+                border: Border.all(width: 2, color: isPaid ? Colors.green.shade300 : Colors.orange.shade400),
                 borderRadius: const BorderRadius.all(Radius.circular(32))
               ),
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: CircleAvatar(
                   radius: 16,
-                  backgroundColor: isPaid ? Colors.green.shade400 : Colors.orange.shade200,
+                  backgroundColor: isPaid ? Colors.green.shade400 : Colors.orange.shade300,
                   child: const Icon(Icons.person, color: Colors.white),
                 ),
               ),

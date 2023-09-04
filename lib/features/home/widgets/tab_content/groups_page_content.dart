@@ -304,7 +304,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
       showExpandIconButton: false,
       onSelectedStore: _requestAddStoreToFriendGroups,
       trigger: (openBottomModalSheet) => CustomElevatedButton(
-        'Add Store',
+        '+ Add Store',
         disabled: isAddingStore,
         isLoading: isAddingStore,
         alignment: Alignment.center,

@@ -134,7 +134,7 @@ class MyPlugStoresContentState extends State<MyPlugStoresContent> {
       showExpandIconButton: false,
       onSelectedStore: _requestUpdateFollowing,
       trigger: (openBottomModalSheet) => CustomElevatedButton(
-        'Add Store',
+        '+ Add Store',
         disabled: isLoading,
         isLoading: isLoading,
         alignment: Alignment.center,

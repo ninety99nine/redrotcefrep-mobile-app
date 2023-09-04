@@ -143,7 +143,6 @@ class _TeamMembersContentState extends State<TeamMembersContent> {
       width: 120,
       onPressed: floatingActionButtonOnPressed,
       isViewingTeamMembers ? 'Invite Team' : 'Back',
-      color: isViewingTeamMembers ? Colors.green : Colors.grey,
       prefixIcon: isViewingTeamMembers ? Icons.add : Icons.keyboard_double_arrow_left,
     );
 

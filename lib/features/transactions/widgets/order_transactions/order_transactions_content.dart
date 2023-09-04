@@ -132,7 +132,7 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
             prefixIcon: Icons.add,
             isLoading: isSubmitting,
             onPressed: floatingActionButtonOnPressed,
-            color: isDeleting ? Colors.grey : Colors.green,
+            color: isDeleting ? Colors.grey : null,
           ),
 
         ]
