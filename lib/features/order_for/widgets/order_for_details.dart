@@ -137,12 +137,10 @@ class _OrderForDetailsState extends State<OrderForDetails> {
         storeProvider.setStore(store!).storeRepository.showShoppingCartOrderForOptions()
           .then((response) async {
 
-          final responseBody = jsonDecode(response.body);
-
           if(response.statusCode == 200) {
 
             /// Set the order for options
-            setState(() => orderForOptions = List.from(responseBody));
+            setState(() => orderForOptions = List.from(response.data));
 
             /// Save the order for options on the device storage (client side)
             OrderForService.saveOrderForOptionsOnDeviceStorage(orderForOptions);
@@ -189,10 +187,8 @@ class _OrderForDetailsState extends State<OrderForDetails> {
 
         if(response.statusCode == 200) {
 
-          final responseBody = jsonDecode(response.body);
-
           /// Set the total people
-          setState(() => store!.setTotalPeople(responseBody['total']));
+          setState(() => store!.setTotalPeople(response.data['total']));
 
         }
 

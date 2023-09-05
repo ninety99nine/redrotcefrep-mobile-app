@@ -1,18 +1,15 @@
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/chips/custom_choice_chip.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
-import 'package:bonako_demo/core/shared_widgets/tags/custom_tag.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/coupons/providers/coupon_provider.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
+import 'package:bonako_demo/features/coupons/providers/coupon_provider.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/core/shared_widgets/tags/custom_tag.dart';
 import 'package:bonako_demo/features/coupons/models/coupon.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'coupon_filters.dart';
 import 'dart:convert';
 
@@ -58,7 +55,7 @@ class _CouponsInVerticalListViewInfiniteScrollState extends State<CouponsInVerti
   
   /// Render each request item as an Coupon
   Coupon onParseItem(coupon) => Coupon.fromJson(coupon);
-  Future<http.Response> requestStoreCoupons(int page, String searchWord) {
+  Future<dio.Response> requestStoreCoupons(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showCoupons(
       /// Filter by the coupon filter specified (couponFilter)
       filter: couponFilter,
@@ -68,12 +65,10 @@ class _CouponsInVerticalListViewInfiniteScrollState extends State<CouponsInVerti
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
         /// If the response coupon count does not match the store coupon count
-        if(searchWord.isEmpty && couponFilter == 'All' && store.couponsCount != responseBody['total']) {
+        if(searchWord.isEmpty && couponFilter == 'All' && store.couponsCount != response.data['total']) {
 
-          store.couponsCount = responseBody['total'];
+          store.couponsCount = response.data['total'];
           store.runNotifyListeners();
 
         }

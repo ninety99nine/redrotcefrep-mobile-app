@@ -1,17 +1,19 @@
-import 'dart:convert';
+import 'dart:io';
 
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
-import 'package:bonako_demo/features/api/services/api_service.dart';
-import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:bonako_demo/core/utils/error_utility.dart';
+
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
+import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:bonako_demo/core/shared_widgets/progress_bar/progress_bar.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 
 class ImagePickerContent extends StatefulWidget {
 
@@ -24,8 +26,8 @@ class ImagePickerContent extends StatefulWidget {
   final Function(XFile)? onPickedFile;
   final Map<String, String> submitBody;
   final Map<String, String> deleteBody;
-  final Function(http.Response)? onDeletedFile;
-  final Function(XFile, http.Response)? onSubmittedFile;
+  final Function(dio.Response)? onDeletedFile;
+  final Function(XFile, dio.Response)? onSubmittedFile;
 
   const ImagePickerContent({
     super.key,
@@ -49,7 +51,10 @@ class ImagePickerContent extends StatefulWidget {
 class _ImagePickerContentState extends State<ImagePickerContent> {
   
   XFile? _pickedFile;
-  bool isLoading = false;
+  Map serverErrors = {};
+  bool isDeleting = false;
+  bool isSubmitting = false;
+  int onSendProgressPercentage = 0;
   final ImagePicker _imagePicker = ImagePicker();
 
   String get title => widget.title;
@@ -74,12 +79,15 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
   Map<String, String> get submitBody => widget.submitBody;
   Map<String, String> get deleteBody => widget.deleteBody;
   Function(XFile)? get onPickedFile => widget.onPickedFile;
-  Function(http.Response)? get onDeletedFile => widget.onDeletedFile;
-  Function(XFile, http.Response)? get onSubmittedFile => widget.onSubmittedFile;
+  Function(dio.Response)? get onDeletedFile => widget.onDeletedFile;
+  bool get canShowProgressBar => isSubmitting && onSendProgressPercentage > 0;
+  Function(XFile, dio.Response)? get onSubmittedFile => widget.onSubmittedFile;
   ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
 
-  void _startLoader() => setState(() => isLoading = true);
-  void _stopLoader() => setState(() => isLoading = false);
+  void _startDeleteLoader() => setState(() => isDeleting = true);
+  void _stopDeleteLoader() => setState(() => isDeleting = false);
+  void _startSubmittionLoader() => setState(() => isSubmitting = true);
+  void _stopSubmittionLoader() => setState(() => isSubmitting = false);
 
   @override
   void initState() {
@@ -141,90 +149,46 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
 
     if(hasSubmitUrl) {
 
-      http.MultipartRequest request;
+      _startSubmittionLoader();
 
-      if(submitMethod == SubmitMethod.post) {
+      apiProvider.apiRepository.post(
+        url: submitUrl!,
+        body: {fileName: _pickedFile},
+        onSendProgress: onSendProgress
+      ).then((response) {
 
-        request = http.MultipartRequest('POST', Uri.parse(submitUrl!));
-
-      }else{
-
-        request = http.MultipartRequest('PUT', Uri.parse(submitUrl!));
-
-      }
-
-      /// Add the bearer token on the request header
-      request.headers.addAll(<String, String> {
-        'Authorization': 'Bearer ${apiProvider.apiRepository.bearerToken}'
-      });
-
-      print('url: ${request.url}');
-      print('method: ${request.method}');
-      print('Headers');
-      print(request.headers);
-
-      /// Prepare the file to be uploaded
-      http.MultipartFile multipartFile = await http.MultipartFile.fromPath(fileName, _pickedFile!.path);
-      
-      /// Add the file on the request
-      request.files.add(multipartFile);
-
-      /// Add the fields on the request
-      request.fields.addAll(submitBody);    
-
-      print('Files');
-      print(request.files);  
-
-      print('Fields');
-      print(request.fields);
-
-      print('SEND!');
-
-      _startLoader();
-
-      /// Send the file
-      var streamedResponse = await request.send();
-
-      /// Wait for a response
-      http.Response.fromStream(streamedResponse).then((response) {
-
-        ApiService.handleRequestFailure(response: response, ignoreValidationErrors: true);
-
-        final responseBody = jsonDecode(response.body);
-
-        print('DONE!');
+        print('upload response');
         print(response.statusCode);
-        print(responseBody);
+        print(response.statusMessage);
+        print(response.data);
 
-        if ( response.statusCode == 200 || response.statusCode == 201) {
+        if(response.statusCode == 200 || response.statusCode == 201) {
 
           if(onSubmittedFile != null) onSubmittedFile!(_pickedFile!, response);
           
           SnackbarUtility.showSuccessMessage(message: 'Uploaded successfully!');
 
-        }else if(response.statusCode == 422) {
-
-          final Map<String, dynamic> validationErrors = responseBody['errors'];
-          
-          /**
-           *  validationErrors = {
-           *    "logo": ["The logo size must not exceed 2MB"]
-           *  }
-           */
-          validationErrors.forEach((key, value) {
-            SnackbarUtility.showErrorMessage(message: value[0]);
-          });
+          setState(() => onSendProgressPercentage = 0);
 
         }
 
-      }).catchError((e) {
+      }).onError((dio.DioException exception, stackTrace) {
         
-        SnackbarUtility.showErrorMessage(message: 'Failed to upload!');
+        print('validation error');
 
-      })
-      .whenComplete(() {
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
-        _stopLoader();
+      }).catchError((error) {
+
+        print(error);
+
+        SnackbarUtility.showErrorMessage(message: 'Can\'t upload image');
+
+      }).whenComplete(() {
+
+        if(!mounted) return;
+
+        _stopSubmittionLoader();
 
       });
 
@@ -234,7 +198,7 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
 
   void deleteImage() {
 
-    _startLoader();
+    _startDeleteLoader();
 
     apiProvider.apiRepository.delete(url: deleteUrl!, body: deleteBody).then((response) {
 
@@ -242,9 +206,7 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
 
         if(onDeletedFile != null) onDeletedFile!(response);
 
-        final responseBody = jsonDecode(response.body);
-
-        final message = responseBody['message'] ?? 'Deleted successfully!';
+        final message = response.data['message'] ?? 'Deleted successfully!';
         
         SnackbarUtility.showSuccessMessage(message: message);
 
@@ -252,8 +214,17 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
 
     }).whenComplete(() {
 
-      _stopLoader();
+      _stopDeleteLoader();
 
+    });
+  }
+
+  void onSendProgress(int sent, int total) {
+    setState(() {
+      if (total != 0 && isSubmitting) {
+        double percentage = sent / total * 100;
+        onSendProgressPercentage = percentage.round();
+      }
     });
   }
 
@@ -262,8 +233,29 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: isLoading 
-        ? const CustomCircularProgressIndicator() 
+      child: isSubmitting 
+        ? Column(
+          children: [
+
+            CircleAvatar(
+              radius: 100,
+              backgroundColor: Colors.grey.shade100,
+              backgroundImage: FileImage(File(_pickedFile!.path)),
+            ),
+            
+            Container(
+              margin: const EdgeInsets.only(top: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CustomCircularProgressIndicator(size: 16, strokeWidth: 2, margin: EdgeInsets.only(right: 8)),
+                  CustomBodyText(onSendProgressPercentage == 100 ? 'Almost there...' : 'Uploading...'),
+                ],
+              ),
+            ),
+
+          ],
+        ) 
         : ListView.separated(
         itemCount: menus.length,
         separatorBuilder: (_, __) => const Divider(height: 0,), 
@@ -316,26 +308,34 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
               /// Wrap Padding around the following:
               /// Title, Subtitle, Filters
               Padding(
-                padding: const EdgeInsets.only(top: 20, left: 32, bottom: 16),
+                padding: const EdgeInsets.only(top: 20, left: 32, right: 32, bottom: 16),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        
-                        /// Title
-                        CustomTitleMediumText(title, overflow: TextOverflow.ellipsis, margin: const EdgeInsets.only(top: 4, bottom: 4),),
-                        
-                        /// Subtitle
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: CustomBodyText(subtitle),
-                        )
+                    CustomTitleMediumText(title, overflow: TextOverflow.ellipsis, margin: const EdgeInsets.only(top: 4, bottom: 4),),
+                    
+                    /// Subtitle
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: CustomBodyText(subtitle),
+                    ),
 
-                      ],
+                    /// Progress Bar
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 500),
+                      child: AnimatedSwitcher(
+                        switchInCurve: Curves.easeIn,
+                        switchOutCurve: Curves.easeOut,
+                        duration: const Duration(milliseconds: 500),
+                        child: canShowProgressBar 
+                          ? Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: CustomProgressBar(percentage: onSendProgressPercentage)
+                            )
+                          : null
+                      ),
                     )
                     
                   ],
@@ -362,7 +362,7 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
             top: 8,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back(),
             ),
           )
 

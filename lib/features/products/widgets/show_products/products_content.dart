@@ -1,11 +1,10 @@
-import 'package:bonako_demo/features/products/models/product.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
-import 'package:get/get.dart';
-
+import 'package:bonako_demo/core/shared_widgets/progress_bar/progress_bar.dart';
+import '../create_or_update_product_form/create_or_update_product_form.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../create_or_update_product_form/create_or_update_product_form.dart';
+import 'package:bonako_demo/features/stores/services/store_services.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/products/models/product.dart';
 import 'products_in_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
@@ -13,6 +12,7 @@ import 'products_page/products_page.dart';
 import '../../enums/product_enums.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'product_filters.dart';
 
 class ProductsContent extends StatefulWidget {
@@ -40,6 +40,7 @@ class _ProductsContentState extends State<ProductsContent> {
   bool isDeleting = false;
   bool isSubmitting = false;
   String productFilter = 'All';
+  int onSendProgressPercentage = 0;
   bool disableFloatingActionButton = false;
   ProductContentView productContentView = ProductContentView.viewingProducts;
 
@@ -60,6 +61,7 @@ class _ProductsContentState extends State<ProductsContent> {
   bool get isViewingProducts => productContentView == ProductContentView.viewingProducts;
   bool get isCreatingProduct => productContentView == ProductContentView.creatingProduct;
   bool get isEditingProduct => productContentView == ProductContentView.editingProduct;
+  bool get canShowProgressBar => (isCreatingProduct || isEditingProduct) && isSubmitting && onSendProgressPercentage > 0;
   String get subtitle {
 
     if(isViewingProducts) {
@@ -117,6 +119,7 @@ class _ProductsContentState extends State<ProductsContent> {
         onDeleting: onDeleting,
         onSubmitting: onSubmitting,
         key: _createProductFormState,
+        onSendProgress: onSendProgress,
         onDeletedProduct: onDeletedProduct,
         onCreatedProduct: onCreatedProduct,
         onUpdatedProduct: onUpdatedProduct,
@@ -130,6 +133,15 @@ class _ProductsContentState extends State<ProductsContent> {
     setState(() {
       isSubmitting = status;
       disableFloatingActionButton = status;
+    });
+  }
+
+  void onSendProgress(int sent, int total) {
+    setState(() {
+      if (total != 0 && isSubmitting) {
+        double percentage = sent / total * 100;
+        onSendProgressPercentage = percentage.round();
+      }
     });
   }
 
@@ -282,7 +294,7 @@ class _ProductsContentState extends State<ProductsContent> {
                 /// Wrap Padding around the following:
                 /// Title, Subtitle, Filters
                 Padding(
-                  padding: EdgeInsets.only(top: 20 + topPadding, left: 32, bottom: 16),
+                  padding: EdgeInsets.only(top: 20 + topPadding, left: 32, right: 16, bottom: 16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,6 +322,22 @@ class _ProductsContentState extends State<ProductsContent> {
                         productFilter: productFilter,
                         onSelectedProductFilter: onSelectedProductFilter,
                       ),
+
+                      /// Progress Bar
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 500),
+                        child: AnimatedSwitcher(
+                          switchInCurve: Curves.easeIn,
+                          switchOutCurve: Curves.easeOut,
+                          duration: const Duration(milliseconds: 500),
+                          child: canShowProgressBar 
+                            ? Container(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: CustomProgressBar(percentage: onSendProgressPercentage)
+                              )
+                            : null
+                        ),
+                      )
                       
                     ],
                   ),
@@ -339,13 +367,13 @@ class _ProductsContentState extends State<ProductsContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(ProductsPage.routeName);
+                Get.toNamed(ProductsPage.routeName);
               
               }
             ),
@@ -357,7 +385,7 @@ class _ProductsContentState extends State<ProductsContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   
@@ -365,7 +393,7 @@ class _ProductsContentState extends State<ProductsContent> {
           AnimatedPositioned(
             right: 10,
             duration: const Duration(milliseconds: 500),
-            top: (isViewingProducts ? 112 : 56) + topPadding,
+            top: (isViewingProducts ? 112 : 56) + topPadding + (canShowProgressBar ? 28 : 0),
             child: floatingActionButton,
           )
         ],

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
@@ -11,9 +9,10 @@ import 'package:bonako_demo/features/products/models/product.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import './product_filters.dart';
+import 'dart:convert';
 
 class ProductsInVerticalListViewInfiniteScroll extends StatefulWidget {
   
@@ -59,7 +58,7 @@ class _ProductsInVerticalListViewInfiniteScrollState extends State<ProductsInVer
   
   /// Render each request item as an Product
   Product onParseItem(product) => Product.fromJson(product);
-  Future<http.Response> requestStoreProducts(int page, String searchWord) {
+  Future<dio.Response> requestStoreProducts(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showProducts(
       /// Filter by the product filter specified (productFilter)
       filter: productFilter,
@@ -69,12 +68,10 @@ class _ProductsInVerticalListViewInfiniteScrollState extends State<ProductsInVer
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
         /// If the response product count does not match the store product count
-        if(searchWord.isEmpty && productFilter == 'All' && store.productsCount != responseBody['total']) {
+        if(searchWord.isEmpty && productFilter == 'All' && store.productsCount != response.data['total']) {
 
-          store.productsCount = responseBody['total'];
+          store.productsCount = response.data['total'];
           store.runNotifyListeners();
 
         }

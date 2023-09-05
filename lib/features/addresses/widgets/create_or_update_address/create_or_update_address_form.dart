@@ -1,20 +1,21 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
-import 'package:bonako_demo/core/utils/debouncer.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/features/addresses/models/delivery_address.dart';
+import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:bonako_demo/features/addresses/providers/address_provider.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/addresses/widgets/address_card.dart';
-import 'package:bonako_demo/features/addresses/widgets/delivery_address_card.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/core/utils/debouncer.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../../models/address.dart';
+import 'package:get/get.dart';
 import 'dart:convert';
 
 class CreateOrUpdateAddressForm extends StatefulWidget {
@@ -152,28 +153,28 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
         addressLine: addressForm['addressLine']
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 201) {
 
-          final Address updatedAddress = Address.fromJson(responseBody);
+          final Address updatedAddress = Address.fromJson(response.data);
 
           /// Notify parent on created address
           if(onCreatedAddress != null) onCreatedAddress!(updatedAddress);
 
           SnackbarUtility.showSuccessMessage(message: 'Updated successfully');
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t create address');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -208,28 +209,28 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
         addressLine: addressForm['addressLine']
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          final Address updatedAddress = Address.fromJson(responseBody);
+          final Address updatedAddress = Address.fromJson(response.data);
 
           /// Notify parent on update address
           if(onUpdatedAddress != null) onUpdatedAddress!(updatedAddress);
 
           SnackbarUtility.showSuccessMessage(message: 'Updated successfully');
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t update address');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -275,7 +276,7 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Can\'t update address');
+        SnackbarUtility.showErrorMessage(message: 'Can\'t delete address');
 
       }).whenComplete((){
 
@@ -297,22 +298,6 @@ class CreateOrUpdateAddressFormState extends State<CreateOrUpdateAddressForm> {
       content: 'Are you sure you want to delete this address?',
       context: context
     );
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    addressLine: [The address line must be more than 3 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
 
   }
 

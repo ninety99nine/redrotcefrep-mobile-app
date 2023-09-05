@@ -27,9 +27,9 @@ class StoreCoverPhoto extends StatefulWidget {
 class _StoreCoverPhotoState extends State<StoreCoverPhoto> {
 
   ShoppableStore get store => widget.store;
-  bool get hasCoverPhoto => store.coverPhoto != null;
+  bool get hasCoverPhoto => store.hasCoverPhoto;
   bool get canChangeCoverPhoto => widget.canChangeCoverPhoto;
-  bool get doesNothaveCoverPhoto => store.coverPhoto == null;
+  bool get doesNotHaveCoverPhoto => store.doesNotHaveCoverPhoto;
 
   Widget placeholderCoverPhoto(openBottomModalSheet) {
     return DottedBorder(
@@ -147,11 +147,9 @@ class _StoreCoverPhotoState extends State<StoreCoverPhoto> {
       subtitle: 'Your customers love quality cover photos 👌',
       fileName: 'cover_photo',
       onSubmittedFile: (file, response) {
-
-        final responseBody = jsonDecode(response.body);
         
         /// Set the updated cover photo from the response
-        setState(() => store.coverPhoto = responseBody['coverPhoto']);
+        setState(() => store.coverPhoto = response.data['coverPhoto']);
 
       },
       onDeletedFile: (response) {
@@ -165,7 +163,7 @@ class _StoreCoverPhotoState extends State<StoreCoverPhoto> {
       submitMethod: SubmitMethod.post,
       submitUrl: store.links.updateCoverPhoto.href,
       deleteUrl: hasCoverPhoto ? store.links.deleteCoverPhoto.href : null,
-      trigger: doesNothaveCoverPhoto 
+      trigger: doesNotHaveCoverPhoto 
         ? (openBottomModalSheet) => placeholderCoverPhoto(openBottomModalSheet)
         : (openBottomModalSheet) => coverPhoto(openBottomModalSheet)
       );

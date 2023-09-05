@@ -60,11 +60,9 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
 
     storeProvider.setStore(store).storeRepository.showAvailablePaymentMethods().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
         setState(() {
-          supportedPaymentMethods = (responseBody['data'] as List).map((paymentMethod) {
+          supportedPaymentMethods = (response.data['data'] as List).map((paymentMethod) {
             return PaymentMethod.fromJson(paymentMethod);
           }).toList();
 

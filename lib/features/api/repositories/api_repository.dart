@@ -1,11 +1,8 @@
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:collection/collection.dart';
-import 'package:http/http.dart' as http;
+
 import '../services/api_service.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/dio.dart';
-import 'dart:convert';
 
 class ApiRepository {
 
@@ -14,7 +11,8 @@ class ApiRepository {
 
   Map<String, String> get apiHeaders => {
     'Authorization': 'Bearer $bearerToken',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
   };
 
   ApiRepository() {
@@ -23,6 +21,7 @@ class ApiRepository {
     bearerTokenFuture = ApiService.getBearerTokenFromDeviceStorage().then((bearerToken) {
 
       setBearerToken(bearerToken);
+      return bearerToken;
 
     });
 
@@ -34,103 +33,43 @@ class ApiRepository {
     return this;
   }
 
-  setQueryParamsOnUrl({ required String url, Map<String, String>? queryParams, int? page }) {
-
-    //  Set the query params
-    queryParams = queryParams ?? {};
-
-    //  Add the page as a query param (if provided)
-    if(page != null) queryParams.addAll({ 'page': page.toString() });
-
-    if(queryParams.isNotEmpty) {
-
-      final encodedQueryParams = queryParams.entries.map((entry) {
-
-        final key = Uri.encodeQueryComponent(entry.key);
-        final value = Uri.encodeQueryComponent(entry.value);
-        return '$key=$value';
-
-      }).join('&');
-
-      final separator = url.contains('?') ? '&' : '?';
-
-      url = '$url$separator$encodedQueryParams';
-
-      return url;
-
-    }else{
-      
-      return url;
-
-    }
-
-  }
-
   /// Make GET Request
-  Future<http.Response> get({ required String url, Map<String, String>? queryParams, int? page, handleRequestFailure = true }) async {
-    
-    await Future.delayed(const Duration(seconds: 0));
-
-    //  Set the query params on the request url
-    url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
+  Future<dio.Response> get({
+    required String url,
+    bool handleRequestFailure = true,
+    Map<String, String>? queryParams,
+    void Function(int, int)? onSendProgress,
+  }) async {
 
     print('get url $url');
     print('_bearerToken: $bearerToken');
 
-    return http.get(
-      Uri.parse(url),
-      headers: apiHeaders,
-    ).then((response) {
+    try {
+      
+      return await Dio().get(
+        url,
+        options: Options(
+          headers: apiHeaders
+        ),
+        queryParameters: queryParams,
+      );
+      
+    } on DioException catch (exception) {
 
-      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
-      return response;
+      ApiService.handleRequestFailure(exception: exception);
+      rethrow;
       
-    }).catchError((error) {
-      print(error);
-      ApiService.handleApplicationFailure(error);
-      throw(error);
-      
-    });
+    }
+
   }
 
   /// Make POST Request
-  Future<http.Response> post({ required String url, body = const {}, Map<String, String>? queryParams, int? page, handleRequestFailure = true }) async {
-    
-    await Future.delayed(const Duration(seconds: 0));
-
-    //  Set the query params on the request url
-    url = setQueryParamsOnUrl(url: url, page: page, queryParams: queryParams);
-    
-    print('post url $url');
-    print('_bearerToken: $bearerToken');
-    print('post body');
-    print(body);
-
-    return http.post(
-      Uri.parse(url),
-      headers: apiHeaders,
-      body: jsonEncode(body),
-    ).then((response) {
-
-      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
-      return response;
-      
-    }).catchError((error) {
-
-      ApiService.handleApplicationFailure(error);
-      throw(error);
-      
-    });
-    
-  }
-
-  /// Make POST Request with uploadable files
-  Future<dio.Response> postWithDio({
+  Future<dio.Response> post({
     required String url,
-    Map<String, String>? queryParams,
-    required Map<String, dynamic> body,
-    void Function(int, int)? onSendProgress,
+    Map<String, dynamic>? body,
     bool handleRequestFailure = true,
+    Map<String, String>? queryParams,
+    void Function(int, int)? onSendProgress,
   }) async {
 
     print('post url $url');
@@ -138,7 +77,23 @@ class ApiRepository {
     print('post body');
     print(body);
 
-    final dio.FormData formData = dio.FormData.fromMap(body);
+    final FormData formData = FormData();
+
+    // Add regular fields if available
+    formData.fields.addAll((body ?? {}).entries.where((entry) => entry.value.runtimeType != XFile).map(
+      (entry) => MapEntry(entry.key, entry.value.toString()),
+    ));
+
+    // Add uploadable files if available
+    await Future.wait((body ?? {}).entries.where((entry) => entry.value.runtimeType == XFile).map(
+      (entry) async {
+        final xFile = entry.value as XFile;
+        formData.files.add(MapEntry(
+          entry.key,
+          await MultipartFile.fromFile(xFile.path, filename: xFile.name),
+        ));
+      },
+    ));
 
     try {
       
@@ -154,7 +109,7 @@ class ApiRepository {
       
     } on DioException catch (exception) {
 
-      ApiService.handleDioRequestFailure(exception: exception);
+      ApiService.handleRequestFailure(exception: exception);
       rethrow;
       
     }
@@ -162,112 +117,113 @@ class ApiRepository {
   }
 
   /// Make PUT Request
-  Future<http.Response> put({ required String url, Map<String, String>? queryParams, body = const {}, handleRequestFailure = true }) async {
-    
-    await Future.delayed(const Duration(seconds: 0));
+  Future<dio.Response> put({
+    required String url,
+    Map<String, dynamic>? body,
+    bool handleRequestFailure = true,
+    Map<String, String>? queryParams,
+    void Function(int, int)? onSendProgress,
+  }) async {
 
-    //  Set the query params on the request url
-    url = setQueryParamsOnUrl(url: url, queryParams: queryParams);
-    
     print('put url $url');
+    print('_bearerToken: $bearerToken');
     print('put body');
     print(body);
 
-    return http.put(
-      Uri.parse(url),
-      headers: apiHeaders,
-      body: jsonEncode(body),
-    ).then((response) {
+    final dio.FormData formData = dio.FormData.fromMap(body ?? {});
+
+    try {
       
-      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
-      return response;
+      return await Dio().put(
+        url,
+        data: formData,
+        options: Options(
+          headers: apiHeaders
+        ),
+        queryParameters: queryParams,
+        onSendProgress: onSendProgress,
+      );
       
-    }).catchError((error) {
+    } on DioException catch (exception) {
+
+      ApiService.handleRequestFailure(exception: exception);
+      rethrow;
       
-      ApiService.handleApplicationFailure(error);
-      throw(error);
-      
-    });
+    }
+
   }
 
   /// Make PATCH Request
-  Future<http.Response> patch({ required String url, Map<String, String>? queryParams, body = const {}, handleRequestFailure = true }) async {
-    
-    await Future.delayed(const Duration(seconds: 0));
+  Future<dio.Response> patch({
+    required String url,
+    Map<String, dynamic>? body,
+    bool handleRequestFailure = true,
+    Map<String, String>? queryParams,
+    void Function(int, int)? onSendProgress,
+  }) async {
 
-    //  Set the query params on the request url
-    url = setQueryParamsOnUrl(url: url, queryParams: queryParams);
-    
     print('patch url $url');
+    print('_bearerToken: $bearerToken');
     print('patch body');
     print(body);
 
-    return http.patch(
-      Uri.parse(url),
-      headers: apiHeaders,
-      body: jsonEncode(body),
-    ).then((response) {
+    final dio.FormData formData = dio.FormData.fromMap(body ?? {});
 
-      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
-      return response;
+    try {
       
-    }).catchError((error) {
+      return await Dio().patch(
+        url,
+        data: formData,
+        options: Options(
+          headers: apiHeaders
+        ),
+        queryParameters: queryParams,
+        onSendProgress: onSendProgress,
+      );
+      
+    } on DioException catch (exception) {
 
-      ApiService.handleApplicationFailure(error);
-      throw(error);
+      ApiService.handleRequestFailure(exception: exception);
+      rethrow;
       
-    });
+    }
+
   }
 
   /// Make DELETE Request
-  Future<http.Response> delete({ required String url, Map<String, String>? queryParams, body = const {}, handleRequestFailure = true }) async {
-    
-    await Future.delayed(const Duration(seconds: 0));
+  Future<dio.Response> delete({
+    required String url,
+    Map<String, dynamic>? body,
+    bool handleRequestFailure = true,
+    Map<String, String>? queryParams,
+    void Function(int, int)? onSendProgress,
+  }) async {
 
-    //  Set the query params on the request url
-    url = setQueryParamsOnUrl(url: url, queryParams: queryParams);
-    
     print('delete url $url');
+    print('_bearerToken: $bearerToken');
     print('delete body');
     print(body);
 
-    return http.delete(
-      Uri.parse(url),
-      headers: apiHeaders,
-      body: jsonEncode(body),
-    ).then((response) {
+    final dio.FormData formData = dio.FormData.fromMap(body ?? {});
 
-      if(handleRequestFailure) ApiService.handleRequestFailure(response: response);
-      return response;
+    try {
       
-    }).catchError((error) {
-
-      ApiService.handleApplicationFailure(error);
-      throw(error);
+      return await Dio().delete(
+        url,
+        data: formData,
+        options: Options(
+          headers: apiHeaders
+        ),
+        queryParameters: queryParams
+      );
       
-    });
-  }
+    } on DioException catch (exception) {
 
-  Map getUploadableFiles(Map body) {
-    print('stage 1');
-    // Create a copy of the original body
-    Map bodyCopy = Map.from(body);
-    print('stage 2');
-    bodyCopy.removeWhere((key, value) => value.runtimeType != XFile);
-    print('stage 3');
-    print(bodyCopy);
-    return bodyCopy;
-  }
+      ApiService.handleRequestFailure(exception: exception);
+      rethrow;
+      
+    }
 
-  Map excludeUploadableFiles(Map body) {
-    print('stage 4');
-    // Create a copy of the original body
-    Map bodyCopy = Map.from(body);
-    print('stage 5');
-    bodyCopy.removeWhere((key, value) => value.runtimeType == XFile);
-    print('stage 6');
-    print(bodyCopy);
-    return bodyCopy;
   }
 
 }

@@ -188,13 +188,13 @@ class _CreateOrUpdateAddressContentState extends State<CreateOrUpdateAddressCont
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the address
                 //addressProvider.setStore(address);
                 
                 /// Navigate to the page
-                //Navigator.of(context).pushNamed(ReviewsPage.routeName);
+                //Get.toNamed(ReviewsPage.routeName);
               
               }
             ),
@@ -206,7 +206,7 @@ class _CreateOrUpdateAddressContentState extends State<CreateOrUpdateAddressCont
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

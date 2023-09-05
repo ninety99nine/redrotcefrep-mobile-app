@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
@@ -6,15 +8,14 @@ import '../../../../core/shared_models/user_store_association.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_models/mobile_number.dart';
 import '../../../stores/providers/store_provider.dart';
-import '../../../stores/services/store_services.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/utils/snackbar.dart';
 import '../../../../core/utils/dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class TeamMembersInVerticalListViewInfiniteScroll extends StatefulWidget {
@@ -84,7 +85,7 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
 
   /// Render each request item as an User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestStoreTeamMembers(int page, String searchWord) {
+  Future<dio.Response> requestStoreTeamMembers(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showTeamMembers(
       /// Filter by the team member filter specified (teamMemberFilter)
       filter: teamMemberFilter,
@@ -94,12 +95,10 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
         /// If the response team member count does not match the store team member count
-        if(teamMemberFilter == 'Joined' && store.teamMembersCount != responseBody['total']) {
+        if(teamMemberFilter == 'Joined' && store.teamMembersCount != response.data['total']) {
 
-          store.teamMembersCount = responseBody['total'];
+          store.teamMembersCount = response.data['total'];
           store.runNotifyListeners();
 
         }
@@ -157,11 +156,9 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
         teamMembers: teamMembers,
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           //  Refresh the team members
           customInfiniteScrollCurrentState.startRequest();
@@ -175,6 +172,9 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
+        /// Show the error message
         SnackbarUtility.showErrorMessage(message: 'Failed to remove team members');
 
       }).whenComplete((){

@@ -1,4 +1,5 @@
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:get/get.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_call_customer.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_occasion.dart';
@@ -15,8 +16,8 @@ import 'orders_in_horizontal_infinite_scroll.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../../../core/utils/dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
 import 'dart:convert';
 
@@ -106,9 +107,9 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
-  Future<http.Response> requestStoreOrders(int page, String searchWord) {
+  Future<dio.Response> requestStoreOrders(int page, String searchWord) {
     
-    Future<http.Response> request;
+    Future<dio.Response> request;
 
     /**
      *  If the store is not provided, then we must load the current authenticated user's orders.
@@ -159,14 +160,11 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
       if( response.statusCode == 200 ) {
 
         setState(() {
-          
-          /// Get the response body
-          final responseBody = jsonDecode(response.body);
 
           /// If the response order count does not match the store order count
-          if(searchWord.isEmpty && orderFilter == 'All' && store != null && store!.ordersCount != responseBody['total']) {
+          if(searchWord.isEmpty && orderFilter == 'All' && store != null && store!.ordersCount != response.data['total']) {
 
-            store!.ordersCount = responseBody['total'];
+            store!.ordersCount = response.data['total'];
             store!.runNotifyListeners();
 
           }
@@ -324,7 +322,7 @@ class _OrderItemState extends State<OrderItem> {
       if(orderFilter == 'All') {
 
         /// Return false not to dismiss this order while closing the dialog
-        Navigator.of(context).pop(false);
+        Get.back(result: false);
 
       /// If we are viewing filtered orders (filtered as waiting, on its way, e.t.c)
       }else{
@@ -337,7 +335,7 @@ class _OrderItemState extends State<OrderItem> {
 
           /// Return true to dismiss this order while closing the dialog.
           /// This is because this order is within the wrong order filter category e.g Updated from "Waiting" to "On Its Way"
-          Navigator.of(context).pop(true);
+          Get.back(result: true);
 
         /// If the updated order status is the same as the filter of orders we want to view 
         }else{
@@ -345,7 +343,7 @@ class _OrderItemState extends State<OrderItem> {
           /// Return false not to dismiss this order while closing the dialog
           /// This scenerio occurs when we update the order without changing the order status
           /// e.g Updated the order relationships such as the order cart
-          Navigator.of(context).pop(false);
+          Get.back(result: false);
 
         }
 
@@ -356,7 +354,7 @@ class _OrderItemState extends State<OrderItem> {
       /// Since this order does not exist on the vertical list of orders, then it means that we have updated an order
       /// on the horizontal list of orders that is out of range on the vertical list of orders. We don't need to
       /// dismiss the current order since we updated a different order that we cannot access at this time.
-      Navigator.of(context).pop(false);
+      Get.back(result: false);
 
     }
 

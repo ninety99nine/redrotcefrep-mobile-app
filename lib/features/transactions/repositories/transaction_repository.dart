@@ -1,7 +1,7 @@
 import '../../api/repositories/api_repository.dart';
 import '../../transactions/models/transaction.dart';
 import '../../api/providers/api_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 
 class TransactionRepository {
 

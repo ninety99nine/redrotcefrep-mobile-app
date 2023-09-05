@@ -1,8 +1,8 @@
 import '../../api/models/api_home.dart' as api_home;
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
+import 'package:dio/dio.dart' as dio;
 import '../models/occasion.dart';
-import 'package:http/http.dart' as http;
 
 class OccasionRepository {
 
@@ -23,7 +23,7 @@ class OccasionRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Show the occasion
-  Future<http.Response> showOccasions() {
+  Future<dio.Response> showOccasions() {
 
     String url = homeApiLinks.showOccasions;
     

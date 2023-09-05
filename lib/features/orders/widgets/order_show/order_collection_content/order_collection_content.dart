@@ -87,11 +87,9 @@ class OrderCollectionContentState extends State<OrderCollectionContent> {
       withDeliveryAddress: order.deliveryAddressId == null ? false : true,
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
         
-        _onUpdatedOrder(Order.fromJson(responseBody));
+        _onUpdatedOrder(Order.fromJson(response.data));
 
       }
 

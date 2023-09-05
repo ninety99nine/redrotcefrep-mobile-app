@@ -1,16 +1,16 @@
-import 'package:bonako_demo/features/home/providers/home_provider.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_cover_photo.dart';
-import 'package:provider/provider.dart';
 import '../../../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/products/widgets/edit_product_cards/edit_product_cards.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import '../../../../../shopping_cart/widgets/shopping_cart_content.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'store_product_carousel/store_product_carousel.dart';
 import '../../../../services/store_services.dart';
 import '../../../../models/shoppable_store.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class StoreSecondarySectionContent extends StatefulWidget {
@@ -35,12 +35,13 @@ class StoreSecondarySectionContent extends StatefulWidget {
 class _StoreSecondarySectionContentState extends State<StoreSecondarySectionContent> {
 
   ShoppableStore get store => widget.store;
+  bool get hasCoverPhoto => store.hasCoverPhoto;
   EdgeInsetsGeometry get padding => widget.padding;
   bool get canShowAdverts => widget.canShowAdverts;
-  bool get hasCoverPhoto => store.coverPhoto != null;
   bool get hasProducts => store.relationships.products.isNotEmpty;
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
   bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
+  bool get doesNotHaveProductPhotos => store.doesNotHaveProductPhotos;
   bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
   bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
@@ -80,9 +81,9 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
               const SizedBox(height: 16,),
       
             ],
-      
+
             /// Store Cover Photo (Uneditable)
-            if(!showEditableMode && hasCoverPhoto) ...[
+            if(!showEditableMode && doesNotHaveProductPhotos && hasCoverPhoto) ...[
               
               Container(
                 width: double.infinity,
@@ -111,6 +112,16 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
               /// Spacer
               const SizedBox(height: 16,),
       
+            ],
+
+            if(true) ...[
+
+              /// Store Product Carousel
+              StoreProductCarousel(store: store),
+        
+              /// Spacer
+              const SizedBox(height: 16,),
+
             ],
       
             if(showEditableMode || (hasProducts && !showEditableMode)) Padding(

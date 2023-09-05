@@ -1,4 +1,5 @@
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -64,12 +65,10 @@ class _TeamPermissionstate extends State<TeamPermissions> {
     storeProvider.setStore(store).storeRepository.showAllTeamMemberPermissions()
     .then((response) async {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         setState(() {
-          permissions = (responseBody as List).map((permission) {
+          permissions = (response.data as List).map((permission) {
             return Permission.fromJson(permission);
           }).toList();
         });
@@ -80,6 +79,9 @@ class _TeamPermissionstate extends State<TeamPermissions> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to show team permissions');
 
     }).whenComplete((){

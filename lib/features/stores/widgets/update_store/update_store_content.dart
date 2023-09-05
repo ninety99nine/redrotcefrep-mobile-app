@@ -149,13 +149,13 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                //Navigator.of(context).pushNamed(ReviewsPage.routeName);
+                /// Get.toNamed(ReviewsPage.routeName);
               
               }
             ),
@@ -167,7 +167,7 @@ class _UpdateStoreContentState extends State<UpdateStoreContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

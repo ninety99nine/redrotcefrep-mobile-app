@@ -163,7 +163,7 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
       var pusherAuthHostName = constants.pusherAuthHostName;
 
-      Map body = {
+      Map<String, dynamic> body = {
         'socket_id': socketId,
         'channel_name': channelName
       };
@@ -174,11 +174,11 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
           body: body
       );
 
-      Map json = jsonDecode(response.body);
+      var data = response.data;
 
-      if (json.containsKey('auth')) {
+      if (data.containsKey('auth')) {
       
-        return json;
+        return data;
       
       } else {
         

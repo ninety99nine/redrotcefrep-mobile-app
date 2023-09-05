@@ -5,8 +5,8 @@ import '../../../friend_groups/models/friend_group.dart';
 import '../../repositories/search_repository.dart';
 import '../../providers/search_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 
 class SearchedFriendGroupsInVerticalListViewInfiniteScroll extends StatefulWidget {
   
@@ -42,7 +42,7 @@ class _SearchedFriendGroupsInVerticalListViewInfiniteScrollState extends State<S
     onSelectedFriendGroup: onSelectedFriendGroup
   );
   FriendGroup onParseItem(friendGroup) => FriendGroup.fromJson(friendGroup);
-  Future<http.Response> requestSearch(int page, String searchWord) {
+  Future<dio.Response> requestSearch(int page, String searchWord) {
     return searchRepository.searchFriendGroups(
       searchWord: searchWord,
       page: page

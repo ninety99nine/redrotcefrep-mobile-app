@@ -1,22 +1,21 @@
-import 'dart:convert';
-
-import 'package:bonako_demo/core/utils/pusher.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:get/get.dart';
-import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
-import 'package:http/http.dart' as http;
 import '../../../core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../../authentication/widgets/terms_and_conditions_page.dart';
 import '../../authentication/providers/auth_provider.dart';
 import '../../../core/exceptions/request_failed_page.dart';
 import '../../authentication/widgets/signin_page.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/core/utils/pusher.dart';
 import '../services/introduction_service.dart';
 import '../../api/providers/api_provider.dart';
 import 'introduction_role_selection_page.dart';
 import '../../home/widgets/home_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
+import 'dart:convert';
 
 class LandingPage extends StatefulWidget {
 
@@ -69,7 +68,7 @@ class _LandingPageState extends State<LandingPage> {
     if(pusherProvider != null) pusherProvider!.unsubscribeToAuthLogin(identifier: 'LandingPage');
   }
 
-  Future<http.Response>? startSetup() async {
+  Future<dio.Response>? startSetup() async {
 
     print('Running startSetup()');
 
@@ -120,18 +119,15 @@ class _LandingPageState extends State<LandingPage> {
       //  Failed request to Api Home request
       }else{
 
-        /// Get the response body
-        final responseBody = jsonDecode(response.body);
-
         /// If the response body contains a server message
-        if(responseBody.containsKey('message')) {
+        if(response.data.containsKey('message')) {
           
-          errorMessage = responseBody['message'];
+          errorMessage = response.data['message'];
 
         /// If the response body contains an server error
-        }else if(responseBody.containsKey('error')) {
+        }else if(response.data.containsKey('error')) {
           
-          errorMessage = responseBody['error'];
+          errorMessage = response.data['error'];
 
         }
 
@@ -143,6 +139,8 @@ class _LandingPageState extends State<LandingPage> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
       errorMessage = error.toString();
 
       _handleHomeApiRequestFailed();
@@ -152,6 +150,7 @@ class _LandingPageState extends State<LandingPage> {
       _stopLoader();
 
     });
+
   }
 
   void onTryAgain() {

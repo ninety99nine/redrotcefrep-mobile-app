@@ -1,22 +1,20 @@
-import 'package:bonako_demo/core/shared_models/money.dart';
-import 'package:bonako_demo/core/shared_models/name_and_description.dart';
-import 'package:bonako_demo/core/shared_models/status.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
-import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transaction_filters.dart';
-import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/features/transactions/providers/transaction_provider.dart';
+import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:bonako_demo/features/orders/providers/order_provider.dart';
+import 'package:bonako_demo/features/orders/services/order_services.dart';
+import 'package:bonako_demo/core/shared_models/name_and_description.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/core/shared_models/money.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 
 class OrderTransactionsInVerticalListViewInfiniteScroll extends StatefulWidget {
   
@@ -62,7 +60,7 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
   
   /// Render each request item as an Transaction
   Transaction onParseItem(transaction) => Transaction.fromJson(transaction);
-  Future<http.Response> requestStoreTransactions(int page, String searchWord) {
+  Future<dio.Response> requestStoreTransactions(int page, String searchWord) {
     return orderProvider.setOrder(order).orderRepository.showTransactions(
       /// Filter by the transaction filter specified (transactionFilter)
       withRequestingUser: true,
@@ -75,12 +73,10 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
       /*
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
         /// If the response transaction count does not match the order transaction count
-        if(transactionFilter == 'All' && order.transactionsCount != responseBody['total']) {
+        if(transactionFilter == 'All' && order.transactionsCount != response.data['total']) {
 
-          order.transactionsCount = responseBody['total'];
+          order.transactionsCount = response.data['total'];
           order.runNotifyListeners();
 
         }

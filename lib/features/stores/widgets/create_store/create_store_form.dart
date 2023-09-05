@@ -1,17 +1,17 @@
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
-import 'package:bonako_demo/core/utils/mobile_number.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
-import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:bonako_demo/core/utils/mobile_number.dart';
 import '../../repositories/store_repository.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 
 class CreateStoreForm extends StatefulWidget {
 
@@ -69,29 +69,29 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
           mobileNumber: mobileNumberWithExtension
         ).then((response) async {
 
-          final responseBody = jsonDecode(response.body);
-
           if(response.statusCode == 201) {
 
             _resetForm();
 
-            ShoppableStore createdStore = ShoppableStore.fromJson(responseBody);
+            ShoppableStore createdStore = ShoppableStore.fromJson(response.data);
 
             if(onCreatedStore != null) onCreatedStore!(createdStore);
 
             SnackbarUtility.showSuccessMessage(message: 'Store created');
 
-          }else if(response.statusCode == 422) {
-
-            handleServerValidation(responseBody['errors']);
-            
           }
+
+        }).onError((dio.DioException exception, stackTrace) {
+
+          ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
         }).catchError((error) {
 
+          printError(info: error.toString());
+
           SnackbarUtility.showErrorMessage(message: 'Can\'t create store');
 
-        }).whenComplete((){
+        }).whenComplete(() {
 
           _stopSubmittionLoader();
 
@@ -136,22 +136,6 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
      */
     return Future.delayed(const Duration(milliseconds: 100));
     
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    name: [The name must be more than 3 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
-
   }
 
   @override

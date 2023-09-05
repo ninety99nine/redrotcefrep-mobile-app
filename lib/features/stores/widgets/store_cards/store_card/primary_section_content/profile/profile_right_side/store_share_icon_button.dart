@@ -1,12 +1,13 @@
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/icon_button/share_icon_button.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:get/get.dart';
 import '../../../../../../models/shoppable_store.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class StoreShareIconButton extends StatefulWidget {
@@ -35,16 +36,14 @@ class _StoreShareIconButtonState extends State<StoreShareIconButton> {
     _startLoader();
 
     Provider.of<StoreProvider>(context, listen: false).setStore(store).storeRepository.showSharableContent()
-      .then((http.Response response) {
+      .then((dio.Response response) {
 
         if(!mounted) return;
 
         if( response.statusCode == 200 ) {
-
-          final responseBody = jsonDecode(response.body);
             
           /// Set the sharable content
-          final String sharableContent = responseBody['message'];
+          final String sharableContent = response.data['message'];
 
           /// Share this content with line break tags
           Share.share(sharableContent, subject: store.name);
@@ -53,10 +52,10 @@ class _StoreShareIconButtonState extends State<StoreShareIconButton> {
       
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         /// Show the error message
         SnackbarUtility.showErrorMessage(message: 'Can\'t share store');
-
-        return error;
 
       }).whenComplete(() {
     

@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -7,8 +9,8 @@ import '../../../../stores/providers/store_provider.dart';
 import '../../../../../core/utils/snackbar.dart';
 import '../../../../../core/utils/dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FollowerInvitationsModalBottomSheet extends StatefulWidget {
@@ -92,11 +94,10 @@ class _ModalContentState extends State<ModalContent> {
   /// Decline All buttons. The onRequest returns that request
   /// of the Scrollable content so that we can make this
   /// decision.
-  onRequest(Future<http.Response> request) {
+  onRequest(Future<dio.Response> request) {
     request.then((response) {
 
-      final Map responseBody = jsonDecode(response.body);
-      final int total = responseBody['total'];
+      final int total = response.data['total'];
 
       /// Determine whether to show floating actions button or not
       setState(() => canShowFloatingActionButtons = total > 0);
@@ -166,30 +167,29 @@ class _ModalContentState extends State<ModalContent> {
       storeProvider.storeRepository.acceptAllInvitationsToFollow()
       .then((response) {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           /// Notify the parent that user responded to the invitations
           onRespondedToInvitation();
 
           /// Close the modal
-          Navigator.of(context).pop();
+          Get.back();
           
         }
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Failed to accept invitations');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopLoader();
 
       });
-
     }
   }
 
@@ -210,25 +210,25 @@ class _ModalContentState extends State<ModalContent> {
       storeProvider.storeRepository.declineAllInvitationsToFollow()
       .then((response) {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           /// Notify the parent that user responded to the invitations
           onRespondedToInvitation();
           
           /// Close the modal
-          Navigator.of(context).pop();
+          Get.back();
           
         }
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Failed to decline invitations');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopLoader();
 
@@ -296,7 +296,7 @@ class _ModalContentState extends State<ModalContent> {
             right: 10,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

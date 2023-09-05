@@ -1,6 +1,6 @@
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 import '../models/order.dart';
 
 class OrderRepository {
@@ -19,7 +19,7 @@ class OrderRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Show the specified order
-  Future<http.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withOccasion = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
+  Future<dio.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withOccasion = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
     
     if(order == null) throw Exception('The order must be set to show this order');
 
@@ -39,7 +39,7 @@ class OrderRepository {
   }
 
   /// Show the specified order cart
-  Future<http.Response> showOrderCart() {
+  Future<dio.Response> showOrderCart() {
     
     if(order == null) throw Exception('The order must be set to show this order cart');
 
@@ -52,7 +52,7 @@ class OrderRepository {
   }
 
   /// Show the specified order customer
-  Future<http.Response> showOrderCustomer() {
+  Future<dio.Response> showOrderCustomer() {
     
     if(order == null) throw Exception('The order must be set to show this order customer');
 
@@ -65,7 +65,7 @@ class OrderRepository {
   }
 
   /// Show the specified order occasion
-  Future<http.Response> showOrderOccasion() {
+  Future<dio.Response> showOrderOccasion() {
     
     if(order == null) throw Exception('The order must be set to show this order occasion');
 
@@ -78,7 +78,7 @@ class OrderRepository {
   }
 
   /// Show the specified order delivery address
-  Future<http.Response> showOrderDeliveryAddress() {
+  Future<dio.Response> showOrderDeliveryAddress() {
     
     if(order == null) throw Exception('The order must be set to show this order delivery address');
 
@@ -91,7 +91,7 @@ class OrderRepository {
   }
 
   /// Generate the collection code
-  Future<http.Response> generateCollectionCode() {
+  Future<dio.Response> generateCollectionCode() {
     
     if(order == null) throw Exception('The order must be set to generate the collection code');
 
@@ -102,7 +102,7 @@ class OrderRepository {
   }
 
   /// Revoke the collection code
-  Future<http.Response> revokeCollectionCode() {
+  Future<dio.Response> revokeCollectionCode() {
     
     if(order == null) throw Exception('The order must be set to revoke the collection code');
 
@@ -113,7 +113,7 @@ class OrderRepository {
   }
 
   /// Update the status of the specified order
-  Future<http.Response> updateStatus({ required String status, String? collectionCode, bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
+  Future<dio.Response> updateStatus({ required String status, String? collectionCode, bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
     
     if(order == null) throw Exception('The order must be set to update status');
 
@@ -127,7 +127,7 @@ class OrderRepository {
     if(withDeliveryAddress) queryParams.addAll({'withDeliveryAddress': '1'});
     if(withCountTransactions) queryParams.addAll({'withCountTransactions': '1'});
 
-    Map body = {
+    Map<String, dynamic> body = {
       'status': status
     };
 
@@ -142,28 +142,30 @@ class OrderRepository {
   }
 
   /// Show viewers of the specified order
-  Future<http.Response> showViewers({ String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showViewers({ String searchWord = '', int page = 1 }) {
     
     if(order == null) throw Exception('The order must be set to show viewers');
 
     String url = order!.links.showViewers.href;
 
     Map<String, String> queryParams = {};
+
+    queryParams.addAll({'page': page.toString()}); 
       
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Request payment for the specified order
-  Future<http.Response> requestPayment({ required int percentage }) {
+  Future<dio.Response> requestPayment({ required int percentage }) {
 
     if(order == null) throw Exception('The order must be set to request payment');
 
     String url = order!.links.requestPayment.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'percentage': percentage,
     };
     
@@ -176,7 +178,7 @@ class OrderRepository {
   //////////////////////////////////
 
   /// Show the specified order transactions count
-  Future<http.Response> showOrderTransactionsCount() {
+  Future<dio.Response> showOrderTransactionsCount() {
     
     if(order == null) throw Exception('The order must be set to show this order transactions count');
 
@@ -189,7 +191,7 @@ class OrderRepository {
   }
 
   /// Get the transaction filters of the specified order
-  Future<http.Response> showTransactionFilters() {
+  Future<dio.Response> showTransactionFilters() {
 
     if(order == null) throw Exception('The order must be set to show transaction filters');
 
@@ -200,23 +202,25 @@ class OrderRepository {
   }
 
   /// Get the transactions of the specified order
-  Future<http.Response> showTransactions({ String? filter, bool withRequestingUser = false, bool withPayingUser = false, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showTransactions({ String? filter, bool withRequestingUser = false, bool withPayingUser = false, String searchWord = '', int page = 1 }) {
 
     if(order == null) throw Exception('The order must be set to show transactions');
 
     String url = order!.links.showTransactions.href;
 
     Map<String, String> queryParams = {};
+
+    /// Page
+    queryParams.addAll({'page': page.toString()}); 
       
     /// Filter transactions by the specified status
     if(filter != null) queryParams.addAll({'filter': filter});
 
-    /// Filter by search
     if(withRequestingUser) queryParams.addAll({'withPayingUser': '1'});
     if(withRequestingUser) queryParams.addAll({'withRequestingUser': '1'});
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
@@ -226,13 +230,13 @@ class OrderRepository {
   //////////////////////////////////
 
   /// Mark the specified order as paid
-  Future<http.Response> markAsUnverifiedPayment({ int? percentage, String? amount, required paymentMethodId }) {
+  Future<dio.Response> markAsUnverifiedPayment({ int? percentage, String? amount, required paymentMethodId }) {
     
     if(order == null) throw Exception('The order must be set to mark as paid');
 
     String url = order!.links.markAsUnverifiedPayment.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'payment_method_id': paymentMethodId,
     };
 

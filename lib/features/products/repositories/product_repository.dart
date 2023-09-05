@@ -1,7 +1,7 @@
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../products/models/product.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 
 class ProductRepository {
 
@@ -19,7 +19,7 @@ class ProductRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Update the specified product
-  Future<http.Response> updateProduct({ 
+  Future<dio.Response> updateProduct({ 
     bool? visible, String? name, bool? showDescription, String? description,
     String? unitRegularPrice, String? unitSalePrice, String? unitCostPrice,
     String? sku, String? barcode, bool? isFree, bool? allowVariations,
@@ -31,7 +31,7 @@ class ProductRepository {
 
     String url = product!.links.updateProduct.href;
     
-    Map body = {};
+    Map<String, dynamic> body = {};
 
     if(visible != null) body['visible'] = visible;
     if(name != null && name.isNotEmpty) body['name'] = name;
@@ -55,7 +55,7 @@ class ProductRepository {
   }
 
   /// Delete the specified product
-  Future<http.Response> deleteProduct() {
+  Future<dio.Response> deleteProduct() {
 
     if(product == null) throw Exception('The product must be set to delete');
     String url = product!.links.deleteProduct.href;

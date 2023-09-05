@@ -47,12 +47,10 @@ class _OrderDeliveryAddressState extends State<OrderDeliveryAddress> {
 
     orderProvider.setOrder(widget.order).orderRepository.showOrderDeliveryAddress().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         /// Set the delivery address on this order
-        order.relationships.deliveryAddress = DeliveryAddress.fromJson(responseBody);
+        order.relationships.deliveryAddress = DeliveryAddress.fromJson(response.data);
 
         if(onRequestedDeliveryAddress != null) onRequestedDeliveryAddress!(order.relationships.deliveryAddress!);
 

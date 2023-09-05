@@ -3,9 +3,9 @@ import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart'
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../image_picker_content.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 class ImagePickerModalBottomSheet extends StatefulWidget {
@@ -22,9 +22,9 @@ class ImagePickerModalBottomSheet extends StatefulWidget {
   final Function(XFile)? onPickedFile;
   final Map<String, String> submitBody;
   final Map<String, String> deleteBody;
-  final Function(http.Response)? onDeletedFile;
+  final Function(dio.Response)? onDeletedFile;
   final Widget Function(void Function())? trigger;
-  final Function(XFile, http.Response)? onSubmittedFile;
+  final Function(XFile, dio.Response)? onSubmittedFile;
 
   const ImagePickerModalBottomSheet({
     super.key,
@@ -62,8 +62,8 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
   Map<String, String> get deleteBody => widget.deleteBody;
   Function(XFile)? get onPickedFile => widget.onPickedFile;
   Widget Function(void Function())? get trigger => widget.trigger;
-  Function(http.Response)? get onDeletedFile => widget.onDeletedFile;
-  Function(XFile, http.Response)? get onSubmittedFile => widget.onSubmittedFile;
+  Function(dio.Response)? get onDeletedFile => widget.onDeletedFile;
+  Function(XFile, dio.Response)? get onSubmittedFile => widget.onSubmittedFile;
 
   String get title => widget.title;
   String get subtitle => widget.subtitle;
@@ -127,10 +127,6 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
     } 
   }
 
-
-
-
-
   void _onPickedFile(XFile file) {
 
     if(submitUrl == null) {
@@ -144,7 +140,7 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
     
   }
 
-  void _onSubmittedFile(XFile file, http.Response response) {
+  void _onSubmittedFile(XFile file, dio.Response response) {
 
     /// Close the modal bottom sheet
     Get.back();
@@ -153,7 +149,7 @@ class _ImagePickerModalBottomSheetState extends State<ImagePickerModalBottomShee
     
   }
 
-  void _onDeletedFile(http.Response response) {
+  void _onDeletedFile(dio.Response response) {
 
     /// Close the modal bottom sheet
     Get.back();

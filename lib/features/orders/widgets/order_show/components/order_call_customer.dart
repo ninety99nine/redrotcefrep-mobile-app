@@ -47,12 +47,10 @@ class _OrderCallCustomerState extends State<OrderCallCustomer> {
 
     orderProvider.setOrder(widget.order).orderRepository.showOrderCustomer().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         /// Set the customer on this order
-        order.relationships.customer = User.fromJson(responseBody);
+        order.relationships.customer = User.fromJson(response.data);
 
         if(onRequestedCustomer != null) onRequestedCustomer!(order.relationships.customer!);
 

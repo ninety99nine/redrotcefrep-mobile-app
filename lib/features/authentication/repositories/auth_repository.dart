@@ -4,8 +4,7 @@ import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';
 import '../../api/services/api_service.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../enums/auth_enums.dart';
 
 class AuthRepository {
@@ -29,7 +28,7 @@ class AuthRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Signin using the provided inputs
-  Future<http.Response> signin({ required String mobileNumber, required String password, String? passwordConfirmation, String? verificationCode }) async {
+  Future<dio.Response> signin({ required String mobileNumber, required String password, String? passwordConfirmation, String? verificationCode }) async {
 
     final url = homeApiLinks.login;
 
@@ -50,7 +49,7 @@ class AuthRepository {
   }
 
   /// Validate the signup inputs 
-  Future<http.Response> validateSignup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation }) async {
+  Future<dio.Response> validateSignup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation }) async {
 
     final url = homeApiLinks.validateRegister;
 
@@ -67,7 +66,7 @@ class AuthRepository {
   }
 
   /// Signup using the provided inputs
-  Future<http.Response> signup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation, required String verificationCode }) async {
+  Future<dio.Response> signup({ required String firstName, required String lastName, required String mobileNumber, required String password, String? passwordConfirmation, required String verificationCode }) async {
 
     final url = homeApiLinks.register;
 
@@ -89,7 +88,7 @@ class AuthRepository {
   }
 
   /// Validate the reset password inputs 
-  Future<http.Response> validateResetPassword({ required String password, String? passwordConfirmation }) async {
+  Future<dio.Response> validateResetPassword({ required String password, String? passwordConfirmation }) async {
 
     final url = homeApiLinks.validateResetPassword;
 
@@ -103,7 +102,7 @@ class AuthRepository {
   }
 
   /// Reset password using the provided inputs
-  Future<http.Response> resetPassword({ required String mobileNumber, required String password, required String passwordConfirmation, required String verificationCode }) async {
+  Future<dio.Response> resetPassword({ required String mobileNumber, required String password, required String passwordConfirmation, required String verificationCode }) async {
 
     final url = homeApiLinks.resetPassword;
 
@@ -123,7 +122,7 @@ class AuthRepository {
   }
 
   /// Check if an account matching the provided mobile number exists
-  Future<http.Response> checkIfMobileAccountExists({ required String? mobileNumber }){
+  Future<dio.Response> checkIfMobileAccountExists({ required String? mobileNumber }){
     
     final url = homeApiLinks.accountExists;
 
@@ -136,13 +135,13 @@ class AuthRepository {
   }
 
   /// Update the specified user
-  Future<http.Response> updateUser({ String? firstName, String? lastName }) {
+  Future<dio.Response> updateUser({ String? firstName, String? lastName }) {
 
     if(user == null) throw Exception('An authenticated user is required to update');
 
     String url = user!.links.updateUser.href;
 
-    Map body = {};
+    Map<String, dynamic> body = {};
     if((firstName ?? '').isNotEmpty) body.addAll({'first_name': firstName});
     if((lastName ?? '').isNotEmpty) body.addAll({'last_name': lastName});
 
@@ -151,7 +150,7 @@ class AuthRepository {
   }
 
   /// Show friend and friend group filters
-  Future<http.Response> showFriendAndFriendGroupFilters(){
+  Future<dio.Response> showFriendAndFriendGroupFilters(){
     
     if(user == null) throw Exception('An authenticated user is required to show the friend and friend group filters'); 
     
@@ -162,24 +161,28 @@ class AuthRepository {
   }
 
   /// Show friends
-  Future<http.Response> showFriends({ int? page = 1 }){
+  Future<dio.Response> showFriends({ int page = 1 }){
     
     if(user == null) throw Exception('An authenticated user is required to show friends'); 
     
     final url =  user!.links.showFriends.href;
 
-    return apiRepository.get(url: url, page: page);
+    Map<String, String> queryParams = {};
+
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Create friends
-  Future<http.Response> createFriends({ required List<String> mobileNumbers }) {
+  Future<dio.Response> createFriends({ required List<String> mobileNumbers }) {
 
     if(user == null) throw Exception('An authenticated user is required to show friends'); 
     
     final url =  user!.links.showFriends.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       /// Add the mobile number extension to each mobile number
       'mobile_numbers': mobileNumbers.map((mobileNumber) => MobileNumberUtility.addMobileNumberExtension(mobileNumber)).toList()
     };
@@ -189,7 +192,7 @@ class AuthRepository {
   }
 
   /// Remove friends
-  Future<http.Response> removeFriends({ required List<User> friends }) {
+  Future<dio.Response> removeFriends({ required List<User> friends }) {
 
     if(user == null) throw Exception('An authenticated user is required to remove the friends');
 
@@ -199,7 +202,7 @@ class AuthRepository {
         return friend.mobileNumber!.withExtension;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'mobile_numbers': mobileNumbers,
     };
 
@@ -208,7 +211,7 @@ class AuthRepository {
   }
   
   /// Show last selected friend
-  Future<http.Response> showLastSelectedFriend() {
+  Future<dio.Response> showLastSelectedFriend() {
 
     final url = user!.links.showLastSelectedFriend.href;
 
@@ -217,7 +220,7 @@ class AuthRepository {
   }
 
   /// Update last selected friend groups
-  Future<http.Response> updateLastSelectedFriends({ required List<User> friends }) {
+  Future<dio.Response> updateLastSelectedFriends({ required List<User> friends }) {
 
     final url = user!.links.updateLastSelectedFriends.href;
 
@@ -225,7 +228,7 @@ class AuthRepository {
         return friend.id;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'friend_user_ids': friendUserIds,
     };
 
@@ -234,7 +237,7 @@ class AuthRepository {
   }
   
   /// Show resource totals
-  Future<http.Response> showResourceTotals() {
+  Future<dio.Response> showResourceTotals() {
 
     final url = user!.links.showResourceTotals.href;
 
@@ -243,22 +246,22 @@ class AuthRepository {
   }
 
   /// Logout
-  Future<http.Response> logout({ LogoutType logoutType = LogoutType.everyone }) {
+  Future<dio.Response> logout({ LogoutType logoutType = LogoutType.everyone }) {
 
     if(user == null) throw Exception('An authenticated user is required to logout'); 
     
     final url =  user!.links.logout.href;
 
-    final body = {};
-    if(logoutType == LogoutType.everyone) body.addAll({'everyone': true});
+    Map<String, dynamic> body = {};
     if(logoutType == LogoutType.others) body.addAll({'others': true});
+    if(logoutType == LogoutType.everyone) body.addAll({'everyone': true});
 
     return apiRepository.post(url: url, body: body);
     
   }
 
   /// Show the terms and conditions
-  Future<http.Response> showTermsAndConditions() {
+  Future<dio.Response> showTermsAndConditions() {
 
     if(user == null) throw Exception('An authenticated user is required to show the terms and conditions'); 
     
@@ -269,7 +272,7 @@ class AuthRepository {
   }
 
   /// Accept the terms and conditions
-  Future<http.Response> acceptTermsAndConditions() {
+  Future<dio.Response> acceptTermsAndConditions() {
 
     if(user == null) throw Exception('An authenticated user is required to accept the terms and conditions'); 
     
@@ -284,7 +287,7 @@ class AuthRepository {
   }
 
   /// Show notification filters
-  Future<http.Response> showNotificationFilters() {
+  Future<dio.Response> showNotificationFilters() {
     
     if(user == null) throw Exception('An authenticated user is required to show the notification filters'); 
     
@@ -295,7 +298,7 @@ class AuthRepository {
   }
 
   /// Show notifications
-  Future<http.Response> showNotifications({ String? filter, int? page = 1 }) {
+  Future<dio.Response> showNotifications({ String? filter, int page = 1 }) {
     
     if(user == null) throw Exception('An authenticated user is required to show the notifications'); 
     
@@ -303,15 +306,17 @@ class AuthRepository {
 
     Map<String, String> queryParams = {};
 
+    queryParams.addAll({'page': page.toString()});
+
     /// Filter notifications by the specified status
     if(filter != null) queryParams.addAll({'filter': filter});
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Show notification filters
-  Future<http.Response> countNotifications() {
+  Future<dio.Response> countNotifications() {
     
     if(user == null) throw Exception('An authenticated user is required to count the notifications'); 
     
@@ -322,13 +327,13 @@ class AuthRepository {
   }
 
   /// Mark notifications as read
-  Future<http.Response> markNotificationsAsRead({ required List<String> mobileNumbers }) {
+  Future<dio.Response> markNotificationsAsRead({ required List<String> mobileNumbers }) {
 
     if(user == null) throw Exception('An authenticated user is required to mark the notifications as read');
     
     final url =  user!.links.markNotificationsAsRead.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       /// Add the mobile number extension to each mobile number
       'mobile_numbers': mobileNumbers.map((mobileNumber) => MobileNumberUtility.addMobileNumberExtension(mobileNumber)).toList()
     };

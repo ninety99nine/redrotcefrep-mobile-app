@@ -1,21 +1,22 @@
-import 'package:bonako_demo/features/api/models/api_home.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
-
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/button/previous_text_button.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import '../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/api/models/api_home.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../models/account_existence_user.dart';
 import '../repositories/auth_repository.dart';
 import '../services/auth_form_service.dart';
 import '../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../enums/auth_enums.dart';
 import 'reset_password_page.dart';
+import 'package:get/get.dart';
 import 'auth_scaffold.dart';
 import 'signup_page.dart';
-import 'dart:convert';
 
 class SigninPage extends StatefulWidget {
 
@@ -126,7 +127,7 @@ class _SigninFormState extends State<SigninForm> {
       authForm.hasFormOnDevice(AuthFormType.signup).then((hasIncompleteSignupForm) {
 
         /// Navigate to the SignupPage to continue with this incomplete form
-        if(hasIncompleteSignupForm) Navigator.pushNamed(context, SignupPage.routeName);
+        if(hasIncompleteSignupForm) Get.toNamed(SignupPage.routeName);
 
       });
 
@@ -134,7 +135,7 @@ class _SigninFormState extends State<SigninForm> {
       authForm.hasFormOnDevice(AuthFormType.resetPassword).then((hasIncompleteResetPasswordForm) {
 
         /// Navigate to the ResetPasswordPage to continue with this incomplete form
-        if(hasIncompleteResetPasswordForm) Navigator.pushNamed(context, ResetPasswordPage.routeName);
+        if(hasIncompleteResetPasswordForm) Get.toNamed(ResetPasswordPage.routeName);
 
       });
 
@@ -148,7 +149,7 @@ class _SigninFormState extends State<SigninForm> {
 
     authForm.resetServerValidationErrors(setState: setState);
 
-    authForm.validateForm(context).then((status) async {
+    ErrorUtility.validateForm(authForm.formKey).then((status) async {
 
       if( status ) {
 
@@ -187,6 +188,8 @@ class _SigninFormState extends State<SigninForm> {
   Future<void> _requestMobileAccountExistence() async {
 
     _startSubmittionLoader();
+
+    print('_requestMobileAccountExistence() !!!!!!!!!');
     
     await authRepository.checkIfMobileAccountExists(
       mobileNumber: authForm.mobileNumberWithExtension,
@@ -194,8 +197,7 @@ class _SigninFormState extends State<SigninForm> {
 
       if( response.statusCode == 200 ) {
 
-        final responseBody = jsonDecode(response.body);
-        authForm.user = AccountExistenceUser.fromJson(responseBody);
+        authForm.user = AccountExistenceUser.fromJson(response.data);
         
         if( authForm.user!.attributes.requiresPassword ) {
 
@@ -207,15 +209,17 @@ class _SigninFormState extends State<SigninForm> {
 
         }
         
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, authForm.serverErrors, exception);
 
     }).catchError((error) {
 
-      authForm.showSnackbarUnknownError(context);
+      printError(info: error.toString());
+
+      authForm.showSnackbarUnknownError();
 
     }).whenComplete((){
 
@@ -249,22 +253,23 @@ class _SigninFormState extends State<SigninForm> {
         /// Show the floating action button
         authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
 
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, authForm.serverErrors, exception);
 
     }).catchError((error) {
 
-      authForm.showSnackbarUnknownError(context);
+      printError(info: error.toString());
+
+      authForm.showSnackbarUnknownError();
 
     }).whenComplete((){
 
       _stopSubmittionLoader();
 
     });
-    
 
   }
 
@@ -281,20 +286,22 @@ class _SigninFormState extends State<SigninForm> {
 
       if(response.statusCode == 200) {
 
-        authForm.showSnackbarSigninSuccess(response, context);
+        authForm.showSnackbarSigninSuccess(response);
 
         /// Remove the forms from the device
         await authForm.unsaveFormOnDevice();
         
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, authForm.serverErrors, exception);
 
     }).catchError((error) {
 
-      authForm.showSnackbarUnknownError(context);
+      printError(info: error.toString());
+
+      authForm.showSnackbarUnknownError();
 
     }).whenComplete((){
 
@@ -380,9 +387,9 @@ class _SigninFormState extends State<SigninForm> {
         CustomTextButton(
           'Sign Up',
           onPressed: () {
-              
+            
             /// Navigate to the SignupPage
-            Navigator.pushNamed(context, SignupPage.routeName).whenComplete(() {
+            Get.toNamed(SignupPage.routeName)!.whenComplete(() {
 
               /// If we return back, save the form again
               authForm.saveFormOnDevice();
@@ -408,9 +415,9 @@ class _SigninFormState extends State<SigninForm> {
             'mobileNumber': authForm.mobileNumber,
             'user': authForm.user,
           };
-          
+              
           /// Navigate to the ResetPasswordPage
-          Navigator.pushNamed(context, ResetPasswordPage.routeName, arguments: arguments).whenComplete(() {
+          Get.toNamed(ResetPasswordPage.routeName, arguments: arguments)!.whenComplete(() {
 
             /// If we return back, save the form again
             authForm.saveFormOnDevice();

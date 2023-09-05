@@ -235,14 +235,12 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
 
     storeProvider.setStore(store).storeRepository.updateFollowing().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         setState(() {
           
           //  Set the updated follower status
-          store.attributes.userStoreAssociation!.followerStatus = responseBody['followerStatus'];
+          store.attributes.userStoreAssociation!.followerStatus = response.data['followerStatus'];
 
           //  Refresh the stores
           storeProvider.refreshStores!();
@@ -258,19 +256,23 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
          */
         Get.back();
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
       }
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to ${isFollower ? 'unfollow' : 'follow'}');
 
-    }).whenComplete((){
-
+    }).whenComplete(() {
+  
       _stopLoader();
 
     });
+    
   }
 
   void addOrRemoveFromBrandStores() {
@@ -279,14 +281,12 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
 
     storeProvider.setStore(store).storeRepository.addOrRemoveFromBrandStores().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         setState(() {
           
           //  Set the updated brand store status
-          store.isBrandStore = responseBody['isBrandStore'];
+          store.isBrandStore = response.data['isBrandStore'];
 
           //  Refresh the stores
           storeProvider.refreshStores!();
@@ -302,19 +302,23 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
          */
         Get.back();
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
       }
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to ${store.isBrandStore ? 'remove from brand stores' : 'add to brand stores'}');
 
-    }).whenComplete((){
-
+    }).whenComplete(() {
+  
       _stopLoader();
 
     });
+    
   }
 
   void addOrRemoveFromInfluencerStores() {
@@ -323,14 +327,12 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
 
     storeProvider.setStore(store).storeRepository.addOrRemoveFromInfluencerStores().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         setState(() {
           
           //  Set the updated influencer store status
-          store.isInfluencerStore = responseBody['isInfluencerStore'];
+          store.isInfluencerStore = response.data['isInfluencerStore'];
 
           //  Refresh the stores
           storeProvider.refreshStores!();
@@ -346,12 +348,15 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
          */
         Get.back();
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
       }
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to ${store.isBrandStore ? 'remove from influencer stores' : 'add to influencer stores'}');
 
     }).whenComplete((){
@@ -369,8 +374,6 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       friendGroups: friendGroups,
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         /**
@@ -382,12 +385,15 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
          */
         Get.back();
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
       }
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to add to group');
 
     }).whenComplete((){
@@ -417,8 +423,6 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
       friendGroupIds: [friendGroupProvider.friendGroup!.id]
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         /**
@@ -430,7 +434,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
          */
         Get.back();
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
         /// Refresh the stores
         if(storeProvider.refreshStores != null) storeProvider.refreshStores!();
@@ -439,6 +443,9 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to remove from group');
 
     }).whenComplete((){
@@ -565,7 +572,7 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
             top: 8,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           )
 

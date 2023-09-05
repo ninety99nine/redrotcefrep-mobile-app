@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/text/custom_title_large_text.dart';
@@ -10,8 +12,8 @@ import '../models/terms_and_conditions.dart';
 import '../../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class TermsAndConditionsPage extends StatelessWidget {
@@ -75,11 +77,9 @@ class _ContentState extends State<Content> {
 
       if( response.statusCode == 200 ) {
 
-        final responseBody = jsonDecode(response.body);
-
         setState(() {
           
-          termsAndConditions = TermsAndConditions.fromJson(responseBody);
+          termsAndConditions = TermsAndConditions.fromJson(response.data);
 
         });
 
@@ -87,9 +87,11 @@ class _ContentState extends State<Content> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
       SnackbarUtility.showErrorMessage(message: 'Can\'t show the terms and conditions');
 
-    }).whenComplete((){
+    }).whenComplete(() {
 
       _stopLoader();
 
@@ -107,36 +109,23 @@ class _ContentState extends State<Content> {
 
       if( response.statusCode == 200 ) {
         
-        Navigator.pushReplacementNamed(
-          context,
-          LandingPage.routeName
-        );
-
-        showAcceptedTermsAndConditionsMessage(response);
+        Get.offAndToNamed(LandingPage.routeName);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
       }
 
     }).catchError((error) {
 
-      showFailedToAcceptTermsAndConditionsMessage();
+      printError(info: error.toString());
 
-    }).whenComplete((){
+      SnackbarUtility.showErrorMessage(message: 'Can\'t accept the terms and conditions');
+
+    }).whenComplete(() {
 
       _stopSubmittionLoader();
 
     });
 
-  }
-
-  void showAcceptedTermsAndConditionsMessage(http.Response response) {
-    final responseBody = jsonDecode(response.body);
-    final message = responseBody['message'];
-
-    SnackbarUtility.showSuccessMessage(message: message);
-  }
-
-  void showFailedToAcceptTermsAndConditionsMessage() {
-    SnackbarUtility.showErrorMessage(message: 'Can\'t accept the terms and conditions');
   }
 
   Widget getContent() {

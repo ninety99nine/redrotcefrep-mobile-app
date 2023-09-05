@@ -12,9 +12,9 @@ import '../follow_store/follow_store_button.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../../enums/store_enums.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class StoresInHorizontalListViewInfiniteScroll extends StatefulWidget {
@@ -53,7 +53,7 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
 
   /// Render each request item as an Store
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
-  Future<http.Response> requestStores(int page, String searchWord) {
+  Future<dio.Response> requestStores(int page, String searchWord) {
 
     return storeProvider.storeRepository.showUserStores(
       userAssociation: userAssociation,
@@ -65,12 +65,9 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
       if( response.statusCode == 200 ) {
 
         setState(() {
-          
-          /// Get the response body
-          final responseBody = jsonDecode(response.body);
 
           /// Determine if we have any stores
-          hasStores = responseBody['total'] > 0;
+          hasStores = response.data['total'] > 0;
 
         });
         
@@ -207,7 +204,7 @@ class _StoreItemState extends State<StoreItem> {
               const SizedBox(height: 8,),
                       
               /// Store Name
-              CustomBodyText(store.name),
+              CustomBodyText(store.name, overflow: TextOverflow.ellipsis, height: 1.4,),
       
               /// Spacer
               const SizedBox(height: 4,),

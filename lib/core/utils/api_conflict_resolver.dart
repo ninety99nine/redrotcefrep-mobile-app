@@ -1,4 +1,4 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 import 'dart:async';
 
 class ApiConflictResolverUtility {
@@ -40,9 +40,9 @@ class ApiConflictResolverUtility {
   ///     Update the scrollable data using the payload of the "Request Last"
   ///  
   ///  }
-  Future<http.Response> addRequest({ 
-    required Future<http.Response> Function() onRequest, 
-    required Function(http.Response) onCompleted,
+  Future<dio.Response> addRequest({ 
+    required Future<dio.Response> Function() onRequest, 
+    required Function(dio.Response) onCompleted,
     required Function() onStartLoader, 
     required Function() onStopLoader
   }) {

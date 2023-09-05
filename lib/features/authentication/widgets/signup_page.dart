@@ -1,17 +1,19 @@
-import 'package:bonako_demo/features/api/models/api_home.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/button/previous_text_button.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:bonako_demo/features/api/models/api_home.dart';
 import '../../introduction/widgets/landing_page.dart';
 import '../repositories/auth_repository.dart';
 import '../services/auth_form_service.dart';
 import '../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../enums/auth_enums.dart';
+import 'package:get/get.dart';
 import 'auth_scaffold.dart';
-import 'dart:convert';
 
 class SignupPage extends StatefulWidget {
 
@@ -132,7 +134,7 @@ class _SignupFormState extends State<SignupForm> {
 
     authForm.resetServerValidationErrors(setState: setState);
 
-    authForm.validateForm(context).then((status) async {
+    ErrorUtility.validateForm(authForm.formKey).then((status) async {
 
       if( status ) {
 
@@ -187,15 +189,17 @@ class _SignupFormState extends State<SignupForm> {
         /// Show the floating action button
         authForm.toggleShowFloatingButton(apiHome.mobileVerificationShortcode, context);
 
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, authForm.serverErrors, exception);
 
     }).catchError((error) {
 
-      authForm.showSnackbarUnknownError(context);
+      printError(info: error.toString());
+
+      authForm.showSnackbarUnknownError();
 
     }).whenComplete((){
 
@@ -220,25 +224,24 @@ class _SignupFormState extends State<SignupForm> {
 
       if(response.statusCode == 201) {
 
-        authForm.showSnackbarSigninSuccess(response, context);
+        authForm.showSnackbarSigninSuccess(response);
 
-        Navigator.pushReplacementNamed(
-          context,
-          LandingPage.routeName
-        );
+        Get.offAndToNamed(LandingPage.routeName);
 
         /// Remove the forms from the device
         await authForm.unsaveFormOnDevice();
 
-      }else if(response.statusCode == 422) {
-
-        await authForm.handleServerValidation(response, context);
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, authForm.serverErrors, exception);
 
     }).catchError((error) {
 
-      authForm.showSnackbarUnknownError(context);
+      printError(info: error.toString());
+
+      authForm.showSnackbarUnknownError();
 
     }).whenComplete((){
 
@@ -274,7 +277,7 @@ class _SignupFormState extends State<SignupForm> {
           /// Remove the forms from the device
           authForm.unsaveFormOnDevice().whenComplete(() {
             
-            Navigator.of(context).pop();
+            Get.back();
             
           });
 

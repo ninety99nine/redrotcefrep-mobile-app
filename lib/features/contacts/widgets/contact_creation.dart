@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
 import '../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
@@ -55,11 +57,15 @@ class _FollowersModalBottomSheetState extends State<ContactCreation> {
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Can\'t create contact');
-        
-      });
+        printError(info: error.toString());
 
-      _stopLoader();
+        SnackbarUtility.showErrorMessage(message: 'Can\'t create contact');
+
+      }).whenComplete(() {
+
+        _stopLoader();
+
+      });
 
     }else{
 

@@ -6,6 +6,7 @@ import 'package:bonako_demo/features/authentication/providers/auth_provider.dart
 import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:get/get.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import 'associated_stores_in_vertical_list_view_infinite_scroll.dart';
@@ -103,11 +104,9 @@ class _AssociatedStoresContentState extends State<AssociatedStoresContent> {
 
       storeProvider.setStore(store).storeRepository.addToAssignedStores().then((response) {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           /// Refresh the list of stores
           _associatedStoresInVerticalListViewInfiniteScrollState.currentState?.refreshStores();
@@ -116,9 +115,11 @@ class _AssociatedStoresContentState extends State<AssociatedStoresContent> {
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+        
         SnackbarUtility.showErrorMessage(message: 'Failed to add store');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         onSubmitting(false);
 
@@ -184,10 +185,10 @@ class _AssociatedStoresContentState extends State<AssociatedStoresContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(AssociatedStoresPage.routeName);
+                Get.toNamed(AssociatedStoresPage.routeName);
               
               }
             ),
@@ -199,7 +200,7 @@ class _AssociatedStoresContentState extends State<AssociatedStoresContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

@@ -1,11 +1,12 @@
 import 'package:bonako_demo/core/shared_widgets/multiple_mobile_number_form/custom_multiple_mobile_number_form.dart';
+import 'package:get/get.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../models/followers_invitations.dart';
 import '../../../../core/utils/snackbar.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FollowerSendInvitation extends StatefulWidget {
@@ -35,19 +36,17 @@ class _FollowerSendInvitationState extends State<FollowerSendInvitation> {
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   
   /// Request to invite followers
-  Future<http.Response> _requestInviteFollowers(List<String> mobileNumbers) {
+  Future<dio.Response> _requestInviteFollowers(List<String> mobileNumbers) {
 
     return storeProvider.setStore(store).storeRepository.inviteFollowers(
       mobileNumbers: mobileNumbers,
     ).then((response) async {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4);
+        SnackbarUtility.showSuccessMessage(message: response.data['message'], duration: 4);
 
-        followersInvitations = FollowersInvitations.fromJson(responseBody['invitations']);
+        followersInvitations = FollowersInvitations.fromJson(response.data['invitations']);
 
         onInviteFollowers(followersInvitations!);
 
@@ -55,7 +54,10 @@ class _FollowerSendInvitationState extends State<FollowerSendInvitation> {
 
       return response;
 
+
     }).catchError((error) {
+
+      printError(info: error.toString());
 
       SnackbarUtility.showErrorMessage(message: 'Failed to invite friends');
 

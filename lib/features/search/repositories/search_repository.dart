@@ -1,7 +1,7 @@
 import '../../api/repositories/api_repository.dart';
 import '../../api/models/api_home.dart' as api_home;
 import '../../api/providers/api_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 
 class SearchRepository {
 
@@ -19,7 +19,7 @@ class SearchRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Show the search filters
-  Future<http.Response> showSearchFilters() {
+  Future<dio.Response> showSearchFilters() {
 
     String url = homeApiLinks.showSearchFilters;
 
@@ -28,7 +28,7 @@ class SearchRepository {
   }
 
   /// Search stores
-  Future<http.Response> searchStores({ String searchWord = '', int? page = 1}) {
+  Future<dio.Response> searchStores({ String searchWord = '', int page = 1}) {
 
     String url = homeApiLinks.showSearchStores;
 
@@ -39,38 +39,47 @@ class SearchRepository {
     queryParams.addAll({'withCountReviews': '1'});
     queryParams.addAll({'withUserStoreAssociation': '1'});
 
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Search stores
-  Future<http.Response> searchFriends({ String searchWord = '', int? page = 1}) {
+  Future<dio.Response> searchFriends({ String searchWord = '', int page = 1}) {
 
     String url = homeApiLinks.showSearchFriends;
 
     Map<String, String> queryParams = {};
 
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Search stores
-  Future<http.Response> searchFriendGroups({ String searchWord = '', int? page = 1}) {
+  Future<dio.Response> searchFriendGroups({ String searchWord = '', int page = 1}) {
 
     String url = homeApiLinks.showSearchFriendGroups;
 
     Map<String, String> queryParams = {};
+
+    /// Page
+    queryParams.addAll({'page': page.toString()});
 
     queryParams.addAll({'withCountUsers': '0'});
     queryParams.addAll({'withCountFriends': '1'});
 
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 

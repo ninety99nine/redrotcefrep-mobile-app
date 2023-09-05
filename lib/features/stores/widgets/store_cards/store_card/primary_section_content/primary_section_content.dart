@@ -33,7 +33,7 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
 
   ShoppableStore get store => widget.store;
   double? get logoRadius => widget.logoRadius;
-  bool get hasCoverPhoto => store.coverPhoto != null;
+  bool get hasCoverPhoto => store.hasCoverPhoto;
   bool get showProfileRightSide => widget.showProfileRightSide;
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
   bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;

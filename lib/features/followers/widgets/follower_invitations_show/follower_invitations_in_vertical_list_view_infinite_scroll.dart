@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
@@ -9,8 +11,8 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../stores/enums/store_enums.dart';
 import '../../../../core/utils/snackbar.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FollowerInvitationsInVerticalListViewInfiniteScroll extends StatefulWidget {
@@ -18,7 +20,7 @@ class FollowerInvitationsInVerticalListViewInfiniteScroll extends StatefulWidget
   final bool? isAcceptingAll;
   final bool? isDecliningAll;
   final Function() onRespondedToInvitation;
-  final Function(Future<http.Response>) onRequest;
+  final Function(Future<dio.Response>) onRequest;
 
   const FollowerInvitationsInVerticalListViewInfiniteScroll({
     super.key,
@@ -41,7 +43,7 @@ class _FollowerInvitationsInVerticalListViewInfiniteScrollState extends State<Fo
 
   bool? get isAcceptingAll => widget.isAcceptingAll;
   bool? get isDecliningAll => widget.isDecliningAll;
-  Function(Future<http.Response>) get onRequest => widget.onRequest;
+  Function(Future<dio.Response>) get onRequest => widget.onRequest;
   Function() get onRespondedToInvitation => widget.onRespondedToInvitation;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
@@ -58,9 +60,9 @@ class _FollowerInvitationsInVerticalListViewInfiniteScrollState extends State<Fo
 
   /// Render each request item as an ShoppableStore
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
-  Future<http.Response> requestInvitedStores(int page, String searchWord) {
+  Future<dio.Response> requestInvitedStores(int page, String searchWord) {
     
-    Future<http.Response> response = storeProvider.storeRepository.showUserStores(
+    Future<dio.Response> response = storeProvider.storeRepository.showUserStores(
       /// Return stores were the user is invited to follow
       userAssociation: UserAssociation.invitedToFollow,
       user: authProvider.user!,
@@ -134,11 +136,9 @@ class _InvitationItemState extends State<InvitationItem> {
     return storeProvider.setStore(store).storeRepository.acceptInvitationToFollow()
     .then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
         /// Notify the parent that user responded to the invitation
         onRespondedToInvitation();
@@ -151,15 +151,16 @@ class _InvitationItemState extends State<InvitationItem> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
       SnackbarUtility.showErrorMessage(message: 'Failed to accept invitation');
 
-      return false;
-
-    }).whenComplete((){
+    }).whenComplete(() {
 
       _stopLoader();
 
     });
+
   }
 
   /// Request to decline invitation to follow store
@@ -170,11 +171,9 @@ class _InvitationItemState extends State<InvitationItem> {
     return storeProvider.setStore(store).storeRepository.declineInvitationToFollow()
     .then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
         /// Notify the parent that user responded to the invitation
         onRespondedToInvitation();
@@ -187,11 +186,11 @@ class _InvitationItemState extends State<InvitationItem> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
       SnackbarUtility.showErrorMessage(message: 'Failed to decline invitation');
 
-      return false;
-
-    }).whenComplete((){
+    }).whenComplete(() {
 
       _stopLoader();
 
@@ -210,7 +209,7 @@ class _InvitationItemState extends State<InvitationItem> {
         if(totalItemsLeft == 0) {
 
           /// Close the modal (Return false to notify the parent to refresh)
-          Navigator.of(context).pop(true);
+          Get.back(result: true);
 
         }
       },

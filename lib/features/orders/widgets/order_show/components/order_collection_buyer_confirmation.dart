@@ -101,11 +101,9 @@ class _OrderCollectionBuyerConfirmationState extends State<OrderCollectionBuyerC
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
-        order.attributes.userOrderCollectionAssociation!.collectionCodeExpiresAt = DateTime.parse(responseBody['collectionCodeExpiresAt']);
-        order.attributes.userOrderCollectionAssociation!.collectionQrCode = responseBody['collectionQrCode'];
-        order.attributes.userOrderCollectionAssociation!.collectionCode = responseBody['collectionCode'];
+        order.attributes.userOrderCollectionAssociation!.collectionCodeExpiresAt = DateTime.parse(response.data['collectionCodeExpiresAt']);
+        order.attributes.userOrderCollectionAssociation!.collectionQrCode = response.data['collectionQrCode'];
+        order.attributes.userOrderCollectionAssociation!.collectionCode = response.data['collectionCode'];
 
       }
 

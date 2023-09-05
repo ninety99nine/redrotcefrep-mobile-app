@@ -2,22 +2,19 @@ import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
 import 'package:bonako_demo/features/occasions/models/occasion.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-
 import '../../../../../core/shared_models/permission.dart';
 import '../../friend_groups/models/friend_group.dart';
 import '../../../../../core/utils/mobile_number.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/models/api_home.dart' as api_home;
+import 'package:image_picker/image_picker.dart';
 import '../../api/providers/api_provider.dart';
 import '../../products/models/product.dart';
-import 'package:http/http.dart' as http;
 import '../models/shoppable_store.dart';
 import 'package:dio/dio.dart' as dio;
 import '../enums/store_enums.dart';
+import 'package:intl/intl.dart';
 
 class StoreRepository {
 
@@ -38,11 +35,11 @@ class StoreRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Create a store
-  Future<http.Response> createStore({ required String name, String? description, required String callToAction, required String mobileNumber }) {
+  Future<dio.Response> createStore({ required String name, String? description, required String callToAction, required String mobileNumber }) {
 
     String url = homeApiLinks.createStores;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
       'mobile_number': mobileNumber,
       'call_to_action': callToAction,
@@ -56,7 +53,7 @@ class StoreRepository {
 
   /// Get the stores of the specified url
   /// e.g brand stores, influencer stores, e.t.c
-  Future<http.Response> showStores({ String? url, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, String searchWord = '', int? page = 1 }) {
+  Future<dio.Response> showStores({ String? url, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, String searchWord = '', int page = 1 }) {
 
     url ??= homeApiLinks.showStores;
 
@@ -74,7 +71,10 @@ class StoreRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    if(page  != null) queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
@@ -82,7 +82,7 @@ class StoreRepository {
   /// e.g where the user is a follower, customer, or team member.
   /// If the association is not provided, the default behaviour is
   /// to return stores where the authenticated user is a team member
-  Future<http.Response> showUserStores({ required User user, UserAssociation? userAssociation, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int? page = 1 }) {
+  Future<dio.Response> showUserStores({ required User user, UserAssociation? userAssociation, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int page = 1 }) {
 
     String url = user.links.showStores.href;
 
@@ -102,12 +102,15 @@ class StoreRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Get the specified store
-  Future<http.Response> showStore({ required String storeUrl, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false }) {
+  Future<dio.Response> showStore({ required String storeUrl, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false }) {
 
     Map<String, String> queryParams = {};
     if(withRating) queryParams.addAll({'withRating': '1'});
@@ -125,7 +128,7 @@ class StoreRepository {
   }
 
   /// Update the specified store
-  Future<http.Response> updateStore({
+  Future<dio.Response> updateStore({
     String? name, bool? online, String? description, String? offlineMessage, String? deliveryNote,
     bool? allowDelivery, bool? allowFreeDelivery, List<Map>? deliveryDestinations, 
     String? deliveryFlatFee, String? pickupNote, bool? allowPickup,
@@ -138,7 +141,7 @@ class StoreRepository {
 
     String url = store!.links.updateStore.href;
     
-    Map body = {};
+    Map<String, dynamic> body = {};
 
     if(online != null) body['online'] = online;
     if(name != null && name.isNotEmpty) body['name'] = name;
@@ -178,7 +181,7 @@ class StoreRepository {
   }
 
   /// Delete the specified store
-  Future<http.Response> deleteStore() {
+  Future<dio.Response> deleteStore() {
 
     if(store == null) throw Exception('The store must be set to delete');
 
@@ -193,7 +196,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the product filters of the specified store
-  Future<http.Response> showProductFilters() {
+  Future<dio.Response> showProductFilters() {
 
     if(store == null) throw Exception('The store must be set to show product filters');
 
@@ -204,7 +207,7 @@ class StoreRepository {
   }
 
   /// Get the products of the specified store
-  Future<http.Response> showProducts({ String? filter, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showProducts({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show products');
 
@@ -216,9 +219,12 @@ class StoreRepository {
     if(filter != null) queryParams.addAll({'filter': filter});
 
     /// Filter by search
-    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
@@ -229,7 +235,8 @@ class StoreRepository {
     required String unitRegularPrice, required String unitSalePrice, required String unitCostPrice,
     required String? sku, required String? barcode, required bool isFree, required bool allowVariations,
     required String allowedQuantityPerOrder, required String maximumAllowedQuantityPerOrder, 
-    required String stockQuantity, required String stockQuantityType, 
+    required String stockQuantity, required String stockQuantityType,
+    void Function(int, int)? onSendProgress
   }) {
 
     if(store == null) throw Exception('The store must be set to create a product');
@@ -250,25 +257,25 @@ class StoreRepository {
       'allowed_quantity_per_order': allowedQuantityPerOrder,
     };
 
-    if(photo != null) body['photo'] = photo;
+    //if(photo != null) body['photo'] = photo;
     if(sku != null && sku.isNotEmpty) body['sku'] = sku;
     if(barcode != null && barcode.isNotEmpty) body['barcode'] = barcode;
     if(stockQuantityType == 'limited') body['stock_quantity'] = stockQuantity;
     if(description != null && description.isNotEmpty) body['description'] = description;
     if(allowedQuantityPerOrder == 'limited') body['maximum_allowed_quantity_per_order'] = maximumAllowedQuantityPerOrder;
 
-    return apiRepository.postWithDio(url: url, body: body);
+    return apiRepository.post(url: url, body: body, onSendProgress: onSendProgress);
     
   }
 
   /// Update the product arrangement on the specified store
-  Future<http.Response> updateProductArrangement({ required List productIds }) {
+  Future<dio.Response> updateProductArrangement({ required List productIds }) {
 
     if(store == null) throw Exception('The store must be set to update the product arrangement');
 
     String url = store!.links.updateProductArrangement.href;
     
-    Map body = {'arrangement': productIds};
+    Map<String, dynamic> body = {'arrangement': productIds};
 
     return apiRepository.post(url: url, body: body);
     
@@ -279,7 +286,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the coupon filters of the specified store
-  Future<http.Response> showCouponFilters() {
+  Future<dio.Response> showCouponFilters() {
 
     if(store == null) throw Exception('The store must be set to show coupon filters');
 
@@ -290,7 +297,7 @@ class StoreRepository {
   }
 
   /// Get the coupons of the specified store
-  Future<http.Response> showCoupons({ String? filter, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showCoupons({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show coupons');
 
@@ -304,12 +311,15 @@ class StoreRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Create a coupon on the specified store
-  Future<http.Response> createCoupon({ 
+  Future<dio.Response> createCoupon({ 
     required String name, bool active = false, String? description, DiscountType discountType = DiscountType.percentage,
     bool offerDiscount = false, String? discountFixedRate, String? discountPercentageRate, bool offerFreeDelivery = false,
     bool activateUsingCode = false, String? code, bool activateUsingMinimumGrandTotal = false, String? minimumGrandTotal,
@@ -325,7 +335,7 @@ class StoreRepository {
 
     String url = store!.links.createCoupons.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
       'active': active,
       'offerDiscount': offerDiscount,
@@ -371,7 +381,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the available payment methods of the specified store
-  Future<http.Response> showAvailablePaymentMethods({ String? filter, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showAvailablePaymentMethods({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show available payment methods');
 
@@ -385,12 +395,15 @@ class StoreRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Get the supported payment methods of the specified store
-  Future<http.Response> showSupportedPaymentMethods({ String? filter, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showSupportedPaymentMethods({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show supported payment methods');
 
@@ -404,7 +417,10 @@ class StoreRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
@@ -413,7 +429,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Generate a payment shortcode for the specified store
-  Future<http.Response> generatePaymentShortcode() {
+  Future<dio.Response> generatePaymentShortcode() {
 
     if(store == null) throw Exception('The store must be set to generate a payment shortcode');
 
@@ -428,13 +444,13 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Create a subscription on the specified store
-  Future<http.Response> createFakeSubscription() {
+  Future<dio.Response> createFakeSubscription() {
 
     if(store == null) throw Exception('The store must be set to create a subscription');
 
     String url = store!.links.createFakeSubscriptions.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       'test_subscription': 1,
       'payment_method_id': 1,
       'subscription_plan_id': 1,
@@ -449,7 +465,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the order filters of the specified store
-  Future<http.Response> showOrderFilters() {
+  Future<dio.Response> showOrderFilters() {
 
     if(store == null) throw Exception('The store must be set to show the order filters');
 
@@ -460,7 +476,7 @@ class StoreRepository {
   }
 
   /// Get the orders of the specified store
-  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, bool withOccasion = false, bool withUserOrderCollectionAssociation = false, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, bool withOccasion = false, bool withUserOrderCollectionAssociation = false, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show orders');
 
@@ -490,9 +506,12 @@ class StoreRepository {
     if(filter != null) queryParams.addAll({'filter': filter});
 
     /// Filter by search
-    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    /// Page
+    queryParams.addAll({'page': page.toString()});
     
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
@@ -501,7 +520,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the follower filters of the specified store
-  Future<http.Response> showFollowerFilters() {
+  Future<dio.Response> showFollowerFilters() {
 
     if(store == null) throw Exception('The store must be set to show follower filters');
 
@@ -512,7 +531,7 @@ class StoreRepository {
   }
 
   /// Get the followers of the specified store
-  Future<http.Response> showFollowers({ String? filter, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showFollowers({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show followers');
 
@@ -526,12 +545,15 @@ class StoreRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Get the following status on the specified store
-  Future<http.Response> showFollowing() {
+  Future<dio.Response> showFollowing() {
 
     if(store == null) throw Exception('The store must be set to show following status');
 
@@ -542,7 +564,7 @@ class StoreRepository {
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> updateFollowing({ String? status }) {
+  Future<dio.Response> updateFollowing({ String? status }) {
 
     if(store == null) throw Exception('The store must be set to update following status');
 
@@ -558,13 +580,13 @@ class StoreRepository {
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> inviteFollowers({ required List<String> mobileNumbers }) {
+  Future<dio.Response> inviteFollowers({ required List<String> mobileNumbers }) {
 
     if(store == null) throw Exception('The store must be set to invite followers');
 
     String url = store!.links.inviteFollowers.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       /// Add the mobile number extension to each mobile number
       'mobile_numbers': mobileNumbers.map((mobileNumber) => MobileNumberUtility.addMobileNumberExtension(mobileNumber)).toList()
     };
@@ -574,7 +596,7 @@ class StoreRepository {
   }
 
   /// Check the user invitations on the specified store
-  Future<http.Response> checkStoreInvitationsToFollow() {
+  Future<dio.Response> checkStoreInvitationsToFollow() {
 
     String url = homeApiLinks.checkInvitationsToFollowStores;
 
@@ -583,7 +605,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptInvitationToFollow() {
+  Future<dio.Response> acceptInvitationToFollow() {
 
     if(store == null) throw Exception('The store must be set to accept invitation to follow');
 
@@ -594,7 +616,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineInvitationToFollow() {
+  Future<dio.Response> declineInvitationToFollow() {
 
     if(store == null) throw Exception('The store must be set to decline invitation to follow');
 
@@ -605,7 +627,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptAllInvitationsToFollow() {
+  Future<dio.Response> acceptAllInvitationsToFollow() {
 
     String url = homeApiLinks.acceptAllInvitationsToFollowStores;
 
@@ -614,7 +636,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineAllInvitationsToFollow() {
+  Future<dio.Response> declineAllInvitationsToFollow() {
 
     String url = homeApiLinks.declineAllInvitationsToFollowStores;
 
@@ -627,7 +649,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the follower filters of the specified store
-  Future<http.Response> showTeamMemberFilters() {
+  Future<dio.Response> showTeamMemberFilters() {
 
     if(store == null) throw Exception('The store must be set to show team member filters');
 
@@ -638,7 +660,7 @@ class StoreRepository {
   }
 
   /// Get the team members of the specified store
-  Future<http.Response> showTeamMembers({ String? filter, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showTeamMembers({ String? filter, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show team members');
 
@@ -652,12 +674,15 @@ class StoreRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Show the store team permissions
-  Future<http.Response> showAllTeamMemberPermissions() {
+  Future<dio.Response> showAllTeamMemberPermissions() {
 
     if(store == null) throw Exception('The store must be set to invite team members');
 
@@ -668,13 +693,13 @@ class StoreRepository {
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> inviteTeamMembers({ required List<String> mobileNumbers, List<Permission> permissions = const [] }) {
+  Future<dio.Response> inviteTeamMembers({ required List<String> mobileNumbers, List<Permission> permissions = const [] }) {
 
     if(store == null) throw Exception('The store must be set to invite team members');
 
     String url = store!.links.inviteTeamMembers.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       /// Add the mobile number extension to each mobile number
       'mobile_numbers': mobileNumbers.map((mobileNumber) => MobileNumberUtility.addMobileNumberExtension(mobileNumber)).toList(),
       /// Get the permission names in lowercase
@@ -686,13 +711,13 @@ class StoreRepository {
   }
 
   /// Update the following status on the specified store
-  Future<http.Response> updateTeamMemberPermissions({ required User teamMember, List<Permission> permissions = const [] }) {
+  Future<dio.Response> updateTeamMemberPermissions({ required User teamMember, List<Permission> permissions = const [] }) {
 
     if(store == null) throw Exception('The store must be set to update the team member permissions');
 
     String url = teamMember.links.updateStoreTeamMemberPermissions!.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       /// Get the permission names in lowercase
       'permissions': permissions.map((permission) => permission.name.toLowerCase()).toList(),
     };
@@ -702,7 +727,7 @@ class StoreRepository {
   }
 
   /// Remove team members on the specified store
-  Future<http.Response> removeTeamMembers({ required List<User> teamMembers }) {
+  Future<dio.Response> removeTeamMembers({ required List<User> teamMembers }) {
 
     if(store == null) throw Exception('The store must be set to remove the team members');
 
@@ -718,7 +743,7 @@ class StoreRepository {
 
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'mobile_numbers': mobileNumbers,
     };
 
@@ -727,7 +752,7 @@ class StoreRepository {
   }
 
   /// Check the user invitations on the specified store
-  Future<http.Response> checkStoreInvitationsToJoinTeam() {
+  Future<dio.Response> checkStoreInvitationsToJoinTeam() {
 
     String url = homeApiLinks.checkInvitationsToJoinTeamStores;
 
@@ -736,7 +761,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptInvitationToJoinTeam() {
+  Future<dio.Response> acceptInvitationToJoinTeam() {
 
     if(store == null) throw Exception('The store must be set to accept invitation to join team');
 
@@ -747,7 +772,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineInvitationToJoinTeam() {
+  Future<dio.Response> declineInvitationToJoinTeam() {
 
     if(store == null) throw Exception('The store must be set to decline invitation to join team');
 
@@ -758,7 +783,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> acceptAllInvitationsToJoinTeam() {
+  Future<dio.Response> acceptAllInvitationsToJoinTeam() {
 
     String url = homeApiLinks.acceptAllInvitationsToJoinTeamStores;
 
@@ -767,7 +792,7 @@ class StoreRepository {
   }
 
   /// Accept invitation to follow specified store
-  Future<http.Response> declineAllInvitationsToJoinTeam() {
+  Future<dio.Response> declineAllInvitationsToJoinTeam() {
 
     String url = homeApiLinks.declineAllInvitationsToJoinTeamStores;
 
@@ -780,7 +805,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the review filters of the specified store
-  Future<http.Response> showReviewFilters() {
+  Future<dio.Response> showReviewFilters() {
 
     if(store == null) throw Exception('The store must be set to show the review filters');
 
@@ -791,7 +816,7 @@ class StoreRepository {
   }
 
   /// Get the reviews of the specified store
-  Future<http.Response> showReviews({ required String? filter, int? userId, bool withUser = false, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showReviews({ required String? filter, int? userId, bool withUser = false, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show reviews');
 
@@ -806,16 +831,19 @@ class StoreRepository {
     
     /// Filter reviews by the specified filter
     if(filter != null) queryParams.addAll({'filter': filter});
-    
+
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Get the review rating options of the specified store
-  Future<http.Response> showReviewRatingOptions() {
+  Future<dio.Response> showReviewRatingOptions() {
 
     if(store == null) throw Exception('The store must be set to show review rating options');
 
@@ -825,13 +853,13 @@ class StoreRepository {
   }
 
   /// Create a review on the specified store
-  Future<http.Response> createReview({ required String subject, String? comment, required int rating }) {
+  Future<dio.Response> createReview({ required String subject, String? comment, required int rating }) {
 
     if(store == null) throw Exception('The store must be set to create a review');
 
     String url = store!.links.createReviews.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'rating': rating.toString(),
       'subject': subject,
     };
@@ -847,7 +875,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Add store to friend groups
-  Future<http.Response> addStoreToFriendGroups({ required List<FriendGroup> friendGroups }) {
+  Future<dio.Response> addStoreToFriendGroups({ required List<FriendGroup> friendGroups }) {
 
     if(store == null) throw Exception('The store must be set to add to friend groups');
 
@@ -857,7 +885,7 @@ class StoreRepository {
         return friendGroup.id;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'friend_group_ids': friendGroupIds,
     };
 
@@ -866,13 +894,13 @@ class StoreRepository {
   }
 
   /// Remove store from friend group
-  Future<http.Response> removeStoreFromFriendGroups({ required List<int> friendGroupIds }) {
+  Future<dio.Response> removeStoreFromFriendGroups({ required List<int> friendGroupIds }) {
 
     if(store == null) throw Exception('The store must be set to remove from friend group');
 
     String url = store!.links.removeFromFriendGroups.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'friend_group_ids': friendGroupIds,
     };
 
@@ -881,7 +909,7 @@ class StoreRepository {
   }
 
   /// Add the specified store to the brand stores
-  Future<http.Response> addToBrandStores() {
+  Future<dio.Response> addToBrandStores() {
 
     if(store == null) throw Exception('The store must be set to add to brand stores');
 
@@ -892,7 +920,7 @@ class StoreRepository {
   }
 
   /// Remove the specified store from the brand stores
-  Future<http.Response> removeFromBrandStores() {
+  Future<dio.Response> removeFromBrandStores() {
 
     if(store == null) throw Exception('The store must be set to remove from brand stores');
 
@@ -903,7 +931,7 @@ class StoreRepository {
   }
 
   /// Add or remove the specified store from the brand stores
-  Future<http.Response> addOrRemoveFromBrandStores() {
+  Future<dio.Response> addOrRemoveFromBrandStores() {
 
     if(store == null) throw Exception('The store must be set to add or remove from brand stores');
 
@@ -914,7 +942,7 @@ class StoreRepository {
   }
 
   /// Add the specified store to the influencer stores
-  Future<http.Response> addToInfluencerStores() {
+  Future<dio.Response> addToInfluencerStores() {
 
     if(store == null) throw Exception('The store must be set to add to influencer stores');
 
@@ -925,7 +953,7 @@ class StoreRepository {
   }
 
   /// Remove the specified store from the influencer stores
-  Future<http.Response> removeFromInfluencerStores() {
+  Future<dio.Response> removeFromInfluencerStores() {
 
     if(store == null) throw Exception('The store must be set to remove from influencer stores');
 
@@ -936,11 +964,11 @@ class StoreRepository {
   }
 
   /// Update the assigned store arrangement
-  Future<http.Response> updateAssignedStoresArrangement({ required List storeIds }) {
+  Future<dio.Response> updateAssignedStoresArrangement({ required List storeIds }) {
 
     String url = homeApiLinks.updateAssignedStoresArrangement;
     
-    Map body = {'arrangement': storeIds};
+    Map<String, dynamic> body = {'arrangement': storeIds};
 
     return apiRepository.post(url: url, body: body);
     
@@ -948,7 +976,7 @@ class StoreRepository {
 
 
   /// Add the specified store to the assigned stores
-  Future<http.Response> addToAssignedStores() {
+  Future<dio.Response> addToAssignedStores() {
 
     if(store == null) throw Exception('The store must be set to add to assigned stores');
 
@@ -959,7 +987,7 @@ class StoreRepository {
   }
 
   /// Remove the specified store from the assigned stores
-  Future<http.Response> removeFromAssignedStores() {
+  Future<dio.Response> removeFromAssignedStores() {
 
     if(store == null) throw Exception('The store must be set to remove from assigned stores');
 
@@ -970,7 +998,7 @@ class StoreRepository {
   }
 
   /// Add or remove the specified store from the assigned stores
-  Future<http.Response> addOrRemoveFromAssignedStores() {
+  Future<dio.Response> addOrRemoveFromAssignedStores() {
 
     if(store == null) throw Exception('The store must be set to add or remove from assigned stores');
 
@@ -981,7 +1009,7 @@ class StoreRepository {
   }
 
   /// Add or remove the specified store from the influencer stores
-  Future<http.Response> addOrRemoveFromInfluencerStores() {
+  Future<dio.Response> addOrRemoveFromInfluencerStores() {
 
     if(store == null) throw Exception('The store must be set to add or remove from influencer stores');
 
@@ -996,7 +1024,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Show the shopping cart order for options
-  Future<http.Response> showShoppingCartOrderForOptions() {
+  Future<dio.Response> showShoppingCartOrderForOptions() {
 
     if(store == null) throw Exception('The store must be set to show the shopping cart order for options');
 
@@ -1007,7 +1035,7 @@ class StoreRepository {
   }
 
   /// Show the shopping cart order for total users (customer & friends)
-  Future<http.Response> countShoppingCartOrderForUsers({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups }) {
+  Future<dio.Response> countShoppingCartOrderForUsers({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups }) {
 
     if(store == null) throw Exception('The store must be set to show the shopping cart order for total friends');
 
@@ -1021,7 +1049,7 @@ class StoreRepository {
         return friendGroup.id;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'order_for': orderFor,
       'friend_user_ids': friendUserIds,
       'friend_group_ids': friendGroupIds,
@@ -1032,7 +1060,7 @@ class StoreRepository {
   }
 
   /// Show the shopping cart order for users (customer & friends)
-  Future<http.Response> showShoppingCartOrderForUsers({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showShoppingCartOrderForUsers({ required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show the shopping cart order for friends');
 
@@ -1046,18 +1074,21 @@ class StoreRepository {
         return friendGroup.id;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'order_for': orderFor,
       'friend_user_ids': friendUserIds,
       'friend_group_ids': friendGroupIds,
     };
 
     Map<String, String> queryParams = {};
-    
-    /// Filter by search
-    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
 
-    return apiRepository.post(url: url, body: body, page: page, queryParams: queryParams);
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    return apiRepository.post(url: url, body: body, queryParams: queryParams);
     
   }
 
@@ -1067,7 +1098,7 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the sharable content of the specified store
-  Future<http.Response> showSharableContent() {
+  Future<dio.Response> showSharableContent() {
 
     if(store == null) throw Exception('The store must be set to show sharable content');
 
@@ -1078,7 +1109,7 @@ class StoreRepository {
   }
 
   /// Get the sharable content choices of the specified store
-  Future<http.Response> showSharableContentChoices() {
+  Future<dio.Response> showSharableContentChoices() {
 
     if(store == null) throw Exception('The store must be set to show sharable content choices');
 
@@ -1089,13 +1120,13 @@ class StoreRepository {
   }
 
   /// Inspect the shopping cart
-  Future<http.Response> inspectShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [], DeliveryDestination? deliveryDestination }) {
+  Future<dio.Response> inspectShoppingCart({ List<Product> products = const [], List<String> cartCouponCodes = const [], DeliveryDestination? deliveryDestination }) {
 
     if(store == null) throw Exception('The store must be set to inspect the shopping cart');
 
     String url = store!.links.inspectShoppingCart.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'cart_coupon_codes': cartCouponCodes,
       'cart_products': products.map((product) {
         return {
@@ -1112,7 +1143,7 @@ class StoreRepository {
   }
 
   /// Convert the shopping cart into an order
-  Future<http.Response> convertShoppingCart({ 
+  Future<dio.Response> convertShoppingCart({ 
     required String orderFor, required List<User> friends, required List<FriendGroup> friendGroups, 
     List<Product> products = const [], List<String> cartCouponCodes = const [], 
     CollectionType? collectionType, PickupDestination? pickupDestination, 
@@ -1139,7 +1170,7 @@ class StoreRepository {
         };
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'order_for': orderFor,
       'cart_products': cartProducts,
       'friend_user_ids': friendUserIds,

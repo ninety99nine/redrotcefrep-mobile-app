@@ -2,8 +2,8 @@ import '../../authentication/providers/auth_provider.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../models/friend_group.dart';
 
 class FriendGroupRepository {
@@ -28,7 +28,7 @@ class FriendGroupRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Show friend group filters
-  Future<http.Response> showFriendGroupFilters({ BuildContext? context }){
+  Future<dio.Response> showFriendGroupFilters({ BuildContext? context }){
     
     final url =  user.links.showFriendGroupFilters.href;
 
@@ -37,7 +37,7 @@ class FriendGroupRepository {
   }
 
   /// Show friend groups
-  Future<http.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, bool withCountOrders = false, String searchWord = '', int? page = 1 }){
+  Future<dio.Response> showFriendGroups({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, bool withCountOrders = false, String searchWord = '', int page = 1 }){
 
     final url =  user.links.showFriendGroups.href;
 
@@ -47,6 +47,9 @@ class FriendGroupRepository {
     if(withCountStores) queryParams.addAll({'withCountStores': '1'});
     if(withCountOrders) queryParams.addAll({'withCountOrders': '1'});
     if(withCountFriends) queryParams.addAll({'withCountFriends': '1'});
+      
+    /// Page
+    queryParams.addAll({'page': page.toString()});
 
     /// Filter friend groups by the specified status
     if(filter != null) queryParams.addAll({'filter': filter});
@@ -54,12 +57,12 @@ class FriendGroupRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
   
   }
 
   /// Remove friend groups
-  Future<http.Response> createFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
+  Future<dio.Response> createFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
 
     String url = user.links.createFriendGroups.href;
 
@@ -67,7 +70,7 @@ class FriendGroupRepository {
         return friend.mobileNumber!.withExtension;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
       'shared': shared,
       'mobile_numbers': mobileNumbers,
@@ -79,7 +82,7 @@ class FriendGroupRepository {
   }
 
   /// Update friend group
-  Future<http.Response> updateFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
+  Future<dio.Response> updateFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to update');
 
@@ -89,7 +92,7 @@ class FriendGroupRepository {
         return friend.mobileNumber!.withExtension;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
       'shared': shared,
       'mobile_numbers': mobileNumbers,
@@ -101,7 +104,7 @@ class FriendGroupRepository {
   }
 
   /// Delete friend group
-  Future<http.Response> deleteFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
+  Future<dio.Response> deleteFriendGroup({ required String name, required bool shared, required bool canAddFriends, required List<User> friends }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to delete');
 
@@ -111,7 +114,7 @@ class FriendGroupRepository {
         return friend.mobileNumber!.withExtension;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
       'shared': shared,
       'mobile_numbers': mobileNumbers,
@@ -123,7 +126,7 @@ class FriendGroupRepository {
   }
 
   /// Delete friend groups
-  Future<http.Response> deleteManyFriendGroups({ required List<FriendGroup> friendGroups }) {
+  Future<dio.Response> deleteManyFriendGroups({ required List<FriendGroup> friendGroups }) {
 
     String url = user.links.deleteManyFriendGroups.href;
 
@@ -131,7 +134,7 @@ class FriendGroupRepository {
         return friendGroup.id;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'friend_group_ids': friendGroupIds,
     };
 
@@ -140,23 +143,26 @@ class FriendGroupRepository {
   }
 
   /// Show friend groups members
-  Future<http.Response> showFriendGroupMembers({ int? exceptUserId, int? page = 1,  BuildContext? context }){
+  Future<dio.Response> showFriendGroupMembers({ int? exceptUserId, int page = 1,  BuildContext? context }){
 
     if(friendGroup == null) throw Exception('A friend group is required to show members');
 
     String url = friendGroup!.links.showFriendGroupMembers.href;
 
     Map<String, String> queryParams = {};
+      
+    /// Page
+    queryParams.addAll({'page': page.toString()});
     
     /// Exclude specific users matching the specified user id
     if(exceptUserId != null) queryParams.addAll({'except_user_id': exceptUserId.toString()});
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Remove friend groups members
-  Future<http.Response> removeFriendGroupMembers({ required List<User> friends }) {
+  Future<dio.Response> removeFriendGroupMembers({ required List<User> friends }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to remove members');
 
@@ -166,7 +172,7 @@ class FriendGroupRepository {
         return friend.id;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'user_ids': userIds,
     };
 
@@ -175,7 +181,7 @@ class FriendGroupRepository {
   }
   
   /// Show last selected friend group
-  Future<http.Response> showLastSelectedFriendGroup({ BuildContext? context }) {
+  Future<dio.Response> showLastSelectedFriendGroup({ BuildContext? context }) {
 
     final url = user.links.showLastSelectedFriendGroup.href;
 
@@ -184,7 +190,7 @@ class FriendGroupRepository {
   }
 
   /// Update last selected friend groups
-  Future<http.Response> updateLastSelectedFriendGroups({ required List<FriendGroup> friendGroups }) {
+  Future<dio.Response> updateLastSelectedFriendGroups({ required List<FriendGroup> friendGroups }) {
 
     final url = user.links.updateLastSelectedFriendGroups.href;
 
@@ -192,7 +198,7 @@ class FriendGroupRepository {
         return friendGroup.id;
     }).toList();
     
-    Map body = {
+    Map<String, dynamic> body = {
       'friend_group_ids': friendGroupIds,
     };
 
@@ -201,13 +207,16 @@ class FriendGroupRepository {
   }
   
   /// Get the orders of the specified friend group
-  Future<http.Response> showFriendGroupOrders({ String searchWord = '', bool withStore = false, bool withOccasion = false, int page = 1 }) {
+  Future<dio.Response> showFriendGroupOrders({ String searchWord = '', bool withStore = false, bool withOccasion = false, int page = 1 }) {
 
     if(friendGroup == null) throw Exception('A friend group is required to show orders');
 
     String url = friendGroup!.links.showFriendGroupOrders.href;
 
     Map<String, String> queryParams = {};
+      
+    /// Page
+    queryParams.addAll({'page': page.toString()});
 
     /// Check if we should eager load the store
     if(withStore) queryParams.addAll({'withStore': '1'});
@@ -217,7 +226,7 @@ class FriendGroupRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
     
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 }

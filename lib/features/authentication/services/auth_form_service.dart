@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/utils/error_utility.dart';
+
 import '../../../core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
 import '../../../core/shared_widgets/text_form_field/custom_password_text_form_field.dart';
 import '../../../core/shared_widgets/text_form_field/custom_one_time_pin_field.dart';
@@ -10,8 +12,8 @@ import '../models/account_existence_user.dart';
 import '../../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../../../core/utils/dialer.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../enums/auth_enums.dart';
 import 'dart:convert';
 
@@ -99,17 +101,12 @@ class AuthFormService {
     };
   }
 
-  showSnackbarUnknownError(BuildContext context) {
+  showSnackbarUnknownError() {
     SnackbarUtility.showErrorMessage(message: 'Sorry, something went wrong');
   }
 
-  showSnackbarValidationError(BuildContext context) {
-    SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
-  }
-
-  showSnackbarSigninSuccess(http.Response response, BuildContext context) {
-    final responseBody = jsonDecode(response.body);
-    final message = responseBody['message'];
+  showSnackbarSigninSuccess(dio.Response response) {
+    final message = response.data['message'];
 
     SnackbarUtility.showSuccessMessage(message: message);
   }
@@ -198,16 +195,15 @@ class AuthFormService {
 
   Widget getFirstNameField(Function setState) {
 
-    void update(value) => setState(() => firstName = value);
+    void onChanged(value) => setState(() => firstName = value);
     
     return CustomTextFormField(
       errorText: serverErrors.containsKey('firstName') ? serverErrors['firstName'] : null,
       initialValue: firstName,
       labelText: 'First Name',
       enabled: !isSubmitting,
+      onChanged: onChanged,
       hintText: 'Katlego',
-      onChanged: update,
-      onSaved: update,
       maxLength: 20,
     );
       
@@ -215,16 +211,15 @@ class AuthFormService {
 
   Widget getLastNameField(Function setState) {
 
-    void update(value) => setState(() => lastName = value);
+    void onChanged(value) => setState(() => lastName = value);
     
     return CustomTextFormField(
       errorText: serverErrors.containsKey('lastName') ? serverErrors['lastName'] : null,
       enabled: !isSubmitting,
       initialValue: lastName,
       labelText: 'Last Name',
+      onChanged: onChanged,
       hintText: 'Warona',
-      onChanged: update,
-      onSaved: update,
       maxLength: 20,
     );
       
@@ -232,7 +227,7 @@ class AuthFormService {
 
   Widget getMobileNumberField(Function setState) {
 
-    void update(value) => setState(() => mobileNumber = value);
+    void onChanged(value) => setState(() => mobileNumber = value);
 
     return CustomMobileNumberTextFormField(
       errorText: serverErrors.containsKey('mobileNumber') ? serverErrors['mobileNumber'] : null,
@@ -241,15 +236,14 @@ class AuthFormService {
       ],
       initialValue: mobileNumber,
       enabled: !isSubmitting,
-      onChanged: update,
-      onSaved: update
+      onChanged: onChanged
     );
       
   }
 
   Widget getPasswordField(Function setState, void Function() onSubmit) {
 
-    void update(value) => setState(() => password = value);
+    void onChanged(value) => setState(() => password = value);
     
     return CustomPasswordTextFormField(
       errorText: serverErrors.containsKey('password') ? serverErrors['password'] : null,
@@ -257,15 +251,14 @@ class AuthFormService {
       enabled: !isSubmitting,
       initialValue: password,
       labelText: 'Password',
-      onChanged: update,
-      onSaved: update
+      onChanged: onChanged
     );
     
   }
 
   Widget getPasswordConfirmationField(Function setState, void Function() onSubmit) {
 
-    void update(value) => setState(() => passwordConfirmation = value);
+    void onChanged(value) => setState(() => passwordConfirmation = value);
     
     return CustomPasswordTextFormField(
       errorText: serverErrors.containsKey('password') ? serverErrors['password'] : null,
@@ -275,81 +268,29 @@ class AuthFormService {
       labelText: 'Confirm Password',
       matchPassword: password,
       enabled: !isSubmitting,
-      onChanged: update,
-      onSaved: update
+      onChanged: onChanged
     );
     
   }
 
   Widget getMobileVerificationField(Function setState) {
 
-    void update(value) => setState(() => verificationCode = value);
+    void onChanged(value) => setState(() => verificationCode = value);
     
     return CustomOneTimePinField(
       errorText: serverErrors.containsKey('verificationCode') ? serverErrors['verificationCode'] : null,
       enabled: !isSubmitting,
-      onCompleted: update,
-      onSubmitted: update,
-      onChanged: update,
-      onSaved: update,
+      onChanged: onChanged
     );
     
   }
 
-  Future<void> handleServerValidation(http.Response response, BuildContext context) async {
-
-    if( response.statusCode == 422 ) {
-
-      final responseBody = jsonDecode(response.body);
-      final Map<String, dynamic> validationErrors = responseBody['errors'];
-
-      /**
-       *  validationErrors = {
-       *    "mobileNumber": ["Enter a valid mobile number containing only digits e.g 26771234567"],
-       *    "verificationCode": ["The verification code is not valid"],
-       *  }
-       */
-      validationErrors.forEach((key, value){
-        serverErrors[key] = value[0];
-      });
-
-      /// Validate the form but do not show the snackbar validation error message
-      /// because the server validation message is shown using the Api Service
-      /// handleRequestFailure() method.
-      validateForm(context, canShowSnackbarValidationError: false);
-
-    }
-
-  }
-
-  Future<bool> validateForm(BuildContext context, { bool canShowSnackbarValidationError = true }) {
-
-    /**
-     *  We need to allow the setState() method to update the Widget Form Fields
-     *  so that we can give the application a chance to update the inputs 
-     *  before we validate them.
-     */
-    return Future.delayed(const Duration(milliseconds: 100)).then((value) {
-      if( formKey.currentState!.validate() == true ) {
-        return true;
-      }else{
-        if(canShowSnackbarValidationError) showSnackbarValidationError(context);
-        return false;
-      }
-    });
-    
-  }
-
   void resetServerValidationErrors({ required Function setState }){
-    setState(() {
-      serverErrors = {};
-    });
+    setState(() => serverErrors = {});
   }
 
   void saveForm() {
-
     return formKey.currentState!.save();
-    
   }
 
   /// Save the authentication form on the device storage.

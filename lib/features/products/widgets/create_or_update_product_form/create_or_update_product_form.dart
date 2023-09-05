@@ -1,22 +1,23 @@
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/product_logo.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/features/products/repositories/product_repository.dart';
 import 'package:bonako_demo/features/stores/repositories/store_repository.dart';
 import 'package:bonako_demo/features/products/providers/product_provider.dart';
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/product_logo.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:get/get.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 
 class CreateOrUpdateProductForm extends StatefulWidget {
   
@@ -24,6 +25,7 @@ class CreateOrUpdateProductForm extends StatefulWidget {
   final ShoppableStore store;
   final Function(bool) onDeleting;
   final Function(bool) onSubmitting;
+  final Function(int, int) onSendProgress;
   final Function(Product)? onDeletedProduct;
   final Function(Product)? onUpdatedProduct;
   final Function(Product)? onCreatedProduct;
@@ -37,6 +39,7 @@ class CreateOrUpdateProductForm extends StatefulWidget {
     this.onCreatedProduct,
     required this.onDeleting,
     required this.onSubmitting,
+    required this.onSendProgress,
   });
 
   @override
@@ -58,6 +61,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
   ShoppableStore get store => widget.store;
   Function(bool) get onDeleting => widget.onDeleting;
   Function(bool) get onSubmitting => widget.onSubmitting;
+  Function(int, int) get onSendProgress => widget.onSendProgress;
   Function(Product)? get onDeletedProduct => widget.onDeletedProduct;
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
   Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
@@ -147,6 +151,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         sku: productForm['sku'],
         name: productForm['name'],
         isFree: productForm['isFree'],
+        onSendProgress: onSendProgress,
         barcode: productForm['barcode'],
         visible: productForm['visible'],
         description: productForm['description'],
@@ -159,7 +164,40 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         stockQuantityType: productForm['stockQuantityType'],
         allowedQuantityPerOrder: productForm['allowedQuantityPerOrder'],
         maximumAllowedQuantityPerOrder: productForm['maximumAllowedQuantityPerOrder'],
-      ).whenComplete((){
+      ).then((response) {
+
+        if(response.statusCode == 201) {
+
+          print('success 2');
+
+          final Product createdProduct = Product.fromJson(response.data);
+
+          print('success 3');
+
+          /**
+           *  This method must come before the SnackbarUtility.showSuccessMessage()
+           *  in case this method executes a Get.back() to close a bottom modal
+           *  sheet for instance. If we execute this after showSuccessMessage()
+           *  then we will close the showSuccessMessage() Snackbar instead
+           *  of the bottom modal sheet
+           */
+          if(onCreatedProduct != null) onCreatedProduct!(createdProduct);
+
+          SnackbarUtility.showSuccessMessage(message: 'Created successfully');
+
+        }
+        
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
+
+      }).catchError((error) {
+
+        printError(info: error.toString());
+
+        SnackbarUtility.showErrorMessage(message: 'Can\'t create product');
+
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -167,6 +205,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         onSubmitting(false);
 
       });
+
 
     }else{
 
@@ -207,11 +246,9 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         maximumAllowedQuantityPerOrder: productForm['maximumAllowedQuantityPerOrder'],
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          final Product updatedProduct = Product.fromJson(responseBody);
+          final Product updatedProduct = Product.fromJson(response.data);
           
           /**
            *  This method must come before the SnackbarUtility.showSuccessMessage()
@@ -225,17 +262,19 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
           SnackbarUtility.showSuccessMessage(message: 'Updated successfully');
 
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t update product');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -268,22 +307,22 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
       productProvider.setProduct(product!).productRepository.deleteProduct().then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
           /// Notify parent that the product has been deleted
           if(onDeletedProduct != null) onDeletedProduct!(product!);
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
         }
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Failed to delete groups');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopDeleteLoader();
 
@@ -303,22 +342,6 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
       content: 'Are you sure you want to delete ${product!.name}?',
       context: context
     );
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    comment: [The comment must be more than 10 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
 
   }
 

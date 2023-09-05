@@ -1,35 +1,29 @@
-
-import 'package:bonako_demo/core/shared_models/store_payment_method_association.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
-import 'package:bonako_demo/core/utils/mobile_number.dart';
-import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
-import 'package:bonako_demo/core/shared_widgets/multi_select_form_field/custom_multi_select_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/switch/custom_switch.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text_field_tags/custom_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
-import 'package:bonako_demo/features/products/repositories/product_repository.dart';
-import 'package:bonako_demo/features/stores/models/store.dart';
-import 'package:bonako_demo/features/stores/repositories/store_repository.dart';
-import 'package:bonako_demo/features/products/providers/product_provider.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_cover_photo.dart';
-import 'package:textfield_tags/textfield_tags.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:bonako_demo/core/shared_widgets/multi_select_form_field/custom_multi_select_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/text_field_tags/custom_text_form_field.dart';
+import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
+import 'package:bonako_demo/features/stores/repositories/store_repository.dart';
+import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/core/shared_widgets/switch/custom_switch.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:bonako_demo/core/utils/mobile_number.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:textfield_tags/textfield_tags.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 
 class UpdateStoreForm extends StatefulWidget {
   
@@ -176,11 +170,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
       if(response.statusCode == 200) {
 
         setState(() {
-
-          final responseBody = jsonDecode(response.body);
         
           /// Get the available payment methods
-          availablePaymentMethods = (responseBody['data'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
+          availablePaymentMethods = (response.data['data'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
 
           /// Sort the available payment methods alphabetically
           availablePaymentMethods.sort((a, b) => a.name.compareTo(b.name));
@@ -188,17 +180,19 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         });
         
 
-      }else if(response.statusCode == 422) {
-
-        SnackbarUtility.showErrorMessage(message: 'Can\'t get payment methods');
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Can\'t show payment methods');
+      printError(info: error.toString());
 
-    }).whenComplete((){
+      SnackbarUtility.showErrorMessage(message: 'Can\'t show available payment methods');
+
+    }).whenComplete(() {
 
       _stopAvailablePaymentMethodsLoader();
 
@@ -215,11 +209,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
       if(response.statusCode == 200) {
 
         setState(() {
-
-          final responseBody = jsonDecode(response.body);
         
           /// Get the payment methods
-          supportedPaymentMethods = (responseBody['data'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
+          supportedPaymentMethods = (response.data['data'] as List).map((paymentMethod) => PaymentMethod.fromJson(paymentMethod)).toList();
 
           /// Sort the payment methods alphabetically
           supportedPaymentMethods.sort((a, b) => a.name.compareTo(b.name));
@@ -236,17 +228,19 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         });
         
 
-      }else if(response.statusCode == 422) {
-
-        SnackbarUtility.showErrorMessage(message: 'Can\'t get payment methods');
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
     }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Can\'t show payment methods');
+      printError(info: error.toString());
 
-    }).whenComplete((){
+      SnackbarUtility.showErrorMessage(message: 'Can\'t show supported payment methods');
+
+    }).whenComplete(() {
 
       _stopSupportedPaymentMethodsLoader();
 
@@ -287,11 +281,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         allowInstallmentPayments: storeForm['allowInstallmentPayments'],
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          final ShoppableStore updatedStore = ShoppableStore.fromJson(responseBody);
+          final ShoppableStore updatedStore = ShoppableStore.fromJson(response.data);
 
           /// Set the non editable fields
           updatedStore.activeSubscriptionsCount = store.activeSubscriptionsCount;
@@ -311,17 +303,19 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
           SnackbarUtility.showSuccessMessage(message: 'Updated successfully');
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t update store');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -335,22 +329,6 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
       SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    comment: [The comment must be more than 10 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
 
   }
 

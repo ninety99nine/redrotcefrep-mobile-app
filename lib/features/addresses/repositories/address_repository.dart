@@ -1,6 +1,6 @@
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 import './../models/address.dart';
 
 class AddressRepository {
@@ -19,13 +19,13 @@ class AddressRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Update the specified address
-  Future<http.Response> updateAddress({ String? name, String? addressLine }){
+  Future<dio.Response> updateAddress({ String? name, String? addressLine }){
 
     if(address == null) throw Exception('The address must be set to update address');
 
     String url =  address!.links!.updateAddress.href;
 
-    Map body = {};
+    Map<String, dynamic> body = {};
 
     if(name != null) body['name'] = name;
     if(addressLine != null) body['addressLine'] = addressLine;
@@ -35,7 +35,7 @@ class AddressRepository {
   }
 
   /// Delete the specified address
-  Future<http.Response> deleteAddress(){
+  Future<dio.Response> deleteAddress(){
 
     if(address == null) throw Exception('The address must be set to delete address');
 

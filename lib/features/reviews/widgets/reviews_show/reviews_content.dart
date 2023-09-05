@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../user/widgets/reviewer_profile/reviewer_profile_avatar.dart';
@@ -240,13 +242,13 @@ class _ReviewsContentState extends State<ReviewsContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(ReviewsPage.routeName);
+                Get.toNamed(ReviewsPage.routeName);
               
               }
             ),
@@ -258,7 +260,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

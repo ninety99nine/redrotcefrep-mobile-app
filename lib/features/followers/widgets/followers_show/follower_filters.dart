@@ -3,8 +3,8 @@ import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../models/follower_filters.dart' as model;
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FollowerFilters extends StatefulWidget {
@@ -50,13 +50,13 @@ class FollowerFiltersState extends State<FollowerFilters> {
   void requestStoreFollowerFilters() {
     
     storeProvider.setStore(store).storeRepository.showFollowerFilters()
-    .then((http.Response response) {
+    .then((dio.Response response) {
 
       if(!mounted) return;
 
       if( response.statusCode == 200 ) {
 
-        final responseBody = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+        final responseBody = List<Map<String, dynamic>>.from(response.data);
         
         setState(() {
           

@@ -12,10 +12,10 @@ import 'package:bonako_demo/core/shared_models/money.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/pusher.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../notifications_content.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class NotificationsModalBottomSheet extends StatefulWidget {
@@ -74,16 +74,14 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
   void requestCountNotifications() {
     
     authProvider.authRepository.countNotifications()
-    .then((http.Response response) {
+    .then((dio.Response response) {
 
       if(!mounted) return;
 
       if( response.statusCode == 200 ) {
-
-        final responseBody = jsonDecode(response.body);
         
         //// Set the total notifications
-        setState(() => totalUnreadNotifications = responseBody['totalUnreadNotifications']);
+        setState(() => totalUnreadNotifications = response.data['totalUnreadNotifications']);
 
       }
 

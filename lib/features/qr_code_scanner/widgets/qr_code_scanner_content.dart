@@ -7,6 +7,7 @@ import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -88,15 +89,13 @@ class _QRCodeScannerContentState extends State<QRCodeScannerContent> {
 
     apiProvider.apiRepository.put(url: url, queryParams: queryParams).then((response) {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
           /// Play success sound
           audioPlayer.play(AssetSource('sounds/success.mp3'));
 
           /// Set the updated order
-          setState(() => order = Order.fromJson(responseBody));
+          setState(() => order = Order.fromJson(response.data));
 
           /// Show success snackbar
           SnackbarUtility.showSuccessMessage(message: 'Completed');
@@ -183,7 +182,7 @@ class _QRCodeScannerContentState extends State<QRCodeScannerContent> {
           top: 24,
           child: IconButton(
             icon: const Icon(Icons.cancel, size: 28, color: Colors.grey),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Get.back(),
           ),
         ),
       ],

@@ -111,15 +111,16 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> with 
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
-        paymentShortcode = Shortcode.fromJson(responseBody);
+        paymentShortcode = Shortcode.fromJson(response.data);
         
         
       }
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to create payment shortcode');
 
     }).whenComplete((){
@@ -159,6 +160,9 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> with 
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to subscribe');
 
     }).whenComplete((){
@@ -286,7 +290,7 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> with 
             right: 10,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
         ],

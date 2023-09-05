@@ -98,13 +98,11 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
       context: context,
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        if(responseBody != null) {
+        if(response.data != null) {
 
-          friendGroup = FriendGroup.fromJson(responseBody);
+          friendGroup = FriendGroup.fromJson(response.data);
           friendGroupProvider.setFriendGroup(friendGroup!);
 
         }
@@ -125,24 +123,25 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
       friendGroups: [friendGroup!],
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
         refreshStores();
 
       }
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
       SnackbarUtility.showErrorMessage(message: 'Failed to add to group');
 
-    }).whenComplete((){
+    }).whenComplete(() {
 
       _stopAddStoreLoader();
 
     });
+
   }
 
   void refreshStores() {

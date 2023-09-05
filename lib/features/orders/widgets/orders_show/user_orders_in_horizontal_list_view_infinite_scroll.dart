@@ -22,8 +22,8 @@ import '../order_show/components/order_status.dart';
 import '../../../user/providers/user_provider.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
 import 'dart:convert';
 
@@ -60,9 +60,9 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
-  Future<http.Response> requestUserOrders(int page, String searchWord) {
+  Future<dio.Response> requestUserOrders(int page, String searchWord) {
 
-    Future<http.Response> request;
+    Future<dio.Response> request;
 
     /// Get the orders of the users from any store or a specific store
     request = userProvider.setUser(user).userRepository.showOrders(
@@ -78,12 +78,9 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
       if( response.statusCode == 200 ) {
 
         setState(() {
-          
-          /// Get the response body
-          final responseBody = jsonDecode(response.body);
 
           /// Get the total orders
-          totalOrders = responseBody['total'];
+          totalOrders = response.data['total'];
 
         });
         

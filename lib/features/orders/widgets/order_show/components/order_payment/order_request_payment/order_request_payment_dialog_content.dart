@@ -11,12 +11,13 @@ import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
-import 'dart:convert';
 
 class OrderRequestPaymentDialogContent extends StatefulWidget {
 
@@ -74,74 +75,64 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
       percentage: payableAmount.percentage
     ).then((response) {
 
-        final responseBody = jsonDecode(response.body);
+      if(response.statusCode == 200) {
 
-        if(response.statusCode == 200) {
-
-          final Transaction createdTransaction = Transaction.fromJson(responseBody);
-          
-          /// Notify parent widget on created transaction
-          if(onRequestPayment != null) onRequestPayment!(createdTransaction);
-
-          /// Close the Dialog
-          Get.back();
-
-          if(requestingPayment) {
-
-            /// Notify the user that they can share the payment link with their customer
-            SnackbarUtility.showSuccessMessage(message: 'Share payment link with your customer');
-
-            OrderServices().sharePaymentLink(order, createdTransaction);
-
-          /// If paying by myself
-          }else if(payingByMyself) {
-
-            /// Notify the user that we are preparing payment
-            SnackbarUtility.showSuccessMessage(message: 'Preparing payment');
-
-            /// Launch Direct Pay Online
-            OrderServices().launchPaymentLink(createdTransaction, context);
-
-          /// If paying using friend
-          }else if(payingUsingFriend) {
-
-            /// Notify the user that they can share the payment link with their friend
-            SnackbarUtility.showSuccessMessage(message: 'Share payment link with your friend');
-
-            OrderServices().sharePaymentLink(order, createdTransaction);
-
-          /// If paying using split payment
-          }else if(payingUsingSplitPayment) {
-
-            /// Notify the user that they can share the payment links with their friends
-            SnackbarUtility.showSuccessMessage(message: 'Share payment links with your friends');
-
-          }
-
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
-        }
+        final Transaction createdTransaction = Transaction.fromJson(response.data);
         
+        /// Notify parent widget on created transaction
+        if(onRequestPayment != null) onRequestPayment!(createdTransaction);
+
+        /// Close the Dialog
+        Get.back();
+
+        if(requestingPayment) {
+
+          /// Notify the user that they can share the payment link with their customer
+          SnackbarUtility.showSuccessMessage(message: 'Share payment link with your customer');
+
+          OrderServices().sharePaymentLink(order, createdTransaction);
+
+        /// If paying by myself
+        }else if(payingByMyself) {
+
+          /// Notify the user that we are preparing payment
+          SnackbarUtility.showSuccessMessage(message: 'Preparing payment');
+
+          /// Launch Direct Pay Online
+          OrderServices().launchPaymentLink(createdTransaction, context);
+
+        /// If paying using friend
+        }else if(payingUsingFriend) {
+
+          /// Notify the user that they can share the payment link with their friend
+          SnackbarUtility.showSuccessMessage(message: 'Share payment link with your friend');
+
+          OrderServices().sharePaymentLink(order, createdTransaction);
+
+        /// If paying using split payment
+        }else if(payingUsingSplitPayment) {
+
+          /// Notify the user that they can share the payment links with their friends
+          SnackbarUtility.showSuccessMessage(message: 'Share payment links with your friends');
+
+        }
+
+      }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
+
+    }).catchError((error) {
+
+      printError(info: error.toString());
+
+      SnackbarUtility.showErrorMessage(message: 'Failed to prepare payment');
+
     }).whenComplete(() {
+
       _stopSubmittionLoader();
-    });
 
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    comment: [The comment must be more than 10 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
     });
 
   }

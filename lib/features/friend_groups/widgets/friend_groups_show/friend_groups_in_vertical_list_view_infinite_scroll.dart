@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -7,9 +9,9 @@ import '../../providers/friend_group_provider.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../../../core/utils/dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import '../../models/friend_group.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FriendGroupsInVerticalListViewInfiniteScroll extends StatefulWidget {
@@ -63,7 +65,7 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
   
   /// Render each request item as an FriendGroup
   FriendGroup onParseItem(friendGroup) => FriendGroup.fromJson(friendGroup);
-  Future<http.Response> requestFriendGroups(int page, String searchWord) {
+  Future<dio.Response> requestFriendGroups(int page, String searchWord) {
 
     return friendGroupRepository.showFriendGroups(
       withCountFriends: true,
@@ -121,11 +123,9 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
         friendGroups: selectedFriendGroups
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           //  Refresh the friend groups
           customInfiniteScrollCurrentState.startRequest();
@@ -136,9 +136,11 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Failed to delete groups');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopDeleteLoader();
 

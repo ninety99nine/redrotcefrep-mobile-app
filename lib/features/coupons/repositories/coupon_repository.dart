@@ -1,10 +1,10 @@
 import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
-import 'package:intl/intl.dart';
-
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../coupons/models/coupon.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
+import 'package:intl/intl.dart';
+
 
 class CouponRepository {
 
@@ -22,7 +22,7 @@ class CouponRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Update the specified coupon
-  Future<http.Response> updateCoupon({ 
+  Future<dio.Response> updateCoupon({ 
     required String name, bool active = false, String? description, DiscountType discountType = DiscountType.percentage,
     bool offerDiscount = false, String? discountFixedRate, String? discountPercentageRate, bool offerFreeDelivery = false,
     bool activateUsingCode = false, String? code, bool activateUsingMinimumGrandTotal = false, String? minimumGrandTotal,
@@ -38,7 +38,7 @@ class CouponRepository {
 
     String url = coupon!.links.updateCoupon.href;
     
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
       'active': active,
       'offerDiscount': offerDiscount,
@@ -80,7 +80,7 @@ class CouponRepository {
   }
 
   /// Delete the specified coupon
-  Future<http.Response> deleteCoupon() {
+  Future<dio.Response> deleteCoupon() {
 
     if(coupon == null) throw Exception('The coupon must be set to delete');
     String url = coupon!.links.deleteCoupon.href;

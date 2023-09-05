@@ -1,15 +1,18 @@
-import '../text_form_field/custom_mobile_number_text_form_field.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import '../button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/chips/custom_choice_chip.dart';
+import '../text_form_field/custom_mobile_number_text_form_field.dart';
 import '../../../features/contacts/widgets/contacts_modal_popup.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import '../../../../core/utils/mobile_number.dart';
+import '../button/custom_elevated_button.dart';
 import '../../../../core/utils/snackbar.dart';
 import 'package:collection/collection.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class CustomMultipleMobileNumberForm extends StatefulWidget {
@@ -18,7 +21,7 @@ class CustomMultipleMobileNumberForm extends StatefulWidget {
   final bool Function()? onValidate;
   final void Function(bool)? onLoading;
   final Widget Function(bool)? contentAfterMobileNumbers;
-  final Future<http.Response> Function(List<String>) onRequest;
+  final Future<dio.Response> Function(List<String>) onRequest;
 
   const CustomMultipleMobileNumberForm({
     super.key,
@@ -46,11 +49,14 @@ class _FriendSendInvitationState extends State<CustomMultipleMobileNumberForm> {
   bool Function()? get onValidate => widget.onValidate;
   void Function(bool)? get onLoading => widget.onLoading;
   bool get hasOneMobileNumber => totalMobileNumbers == 1;
-  Future<http.Response> Function(List<String>) get onRequest => widget.onRequest;
+  Future<dio.Response> Function(List<String>) get onRequest => widget.onRequest;
   Widget Function(bool)? get contentAfterMobileNumbers => widget.contentAfterMobileNumbers;
   
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
+
+  /// Reset the server errors
+  void _resetServerErrors() => setState(() => serverErrors = {});
 
   /// Add mobile number field
   void addMobileNumberField() {
@@ -69,16 +75,16 @@ class _FriendSendInvitationState extends State<CustomMultipleMobileNumberForm> {
   }
 
   /// Request to invite friends
-  _startRequest() {
+  _startRequest() async {
 
     _resetServerErrors();
 
-    if(formKey.currentState!.validate()) {
+    await ErrorUtility.validateForm(formKey).then((status) {
 
       /// Check the parent widget validator before making this request
       final isValid = onValidate == null ? true : onValidate!();
 
-      if(isValid) {
+      if(status && isValid) {
 
         _startLoader();
         
@@ -88,19 +94,23 @@ class _FriendSendInvitationState extends State<CustomMultipleMobileNumberForm> {
         /// Make an Api Request
         onRequest(mobileNumbers).then((response) {
 
-          final responseBody = jsonDecode(response.body);
-
           if(response.statusCode == 200) {
 
             _resetMobileNumbers();
 
-          }else if(response.statusCode == 422) {
-
-            handleServerValidation(responseBody['errors']);
-            
           }
 
-        }).whenComplete((){
+        }).onError((dio.DioException exception, stackTrace) {
+
+          ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
+
+        }).catchError((error) {
+
+          printError(info: error.toString());
+
+          SnackbarUtility.showErrorMessage(message: 'Can\'t update address');
+
+        }).whenComplete(() {
 
           _stopLoader();
         
@@ -111,33 +121,8 @@ class _FriendSendInvitationState extends State<CustomMultipleMobileNumberForm> {
 
       }
 
-    }else{
-
-      SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
-
-    }
-
-  }
-
-  /// Handle server validation by setting the serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    mobileNumbers0: [The mobile number must start with one of the following: 267.]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
     });
 
-  }
-
-  /// Reset the serverErrors
-  void _resetServerErrors() {
-    setState(() => serverErrors = {});
   }
 
   /// Reset the mobile numbers

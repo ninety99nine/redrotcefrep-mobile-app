@@ -14,14 +14,15 @@ import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
 import 'package:bonako_demo/features/coupons/models/coupon.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
-import 'dart:convert';
 import 'dart:math';
 
 class CreateOrUpdateCouponForm extends StatefulWidget {
@@ -263,11 +264,9 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
 
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 201) {
 
-          final Coupon createdCoupon = Coupon.fromJson(responseBody);
+          final Coupon createdCoupon = Coupon.fromJson(response.data);
 
           /**
            *  This method must come before the SnackbarUtility.showSuccessMessage()
@@ -280,17 +279,19 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
 
           SnackbarUtility.showSuccessMessage(message: 'Created successfully');
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t create coupon');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -383,11 +384,9 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
         activateForExistingCustomer: couponForm['activateForExistingCustomer'],
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          final Coupon updatedCoupon = Coupon.fromJson(responseBody);
+          final Coupon updatedCoupon = Coupon.fromJson(response.data);
           
           /**
            *  This method must come before the SnackbarUtility.showSuccessMessage()
@@ -401,17 +400,19 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
           SnackbarUtility.showSuccessMessage(message: 'Updated successfully');
 
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t update coupon');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -444,22 +445,26 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
 
       couponProvider.setCoupon(coupon!).couponRepository.deleteCoupon().then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
           /// Notify parent that the coupon has been deleted
           if(onDeletedCoupon != null) onDeletedCoupon!(coupon!);
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
         }
 
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
+
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Failed to delete groups');
+        printError(info: error.toString());
 
-      }).whenComplete((){
+        SnackbarUtility.showErrorMessage(message: 'Failed to delete coupon');
+
+      }).whenComplete(() {
 
         _stopDeleteLoader();
 
@@ -479,22 +484,6 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
       content: 'Are you sure you want to delete ${coupon!.name}?',
       context: context
     );
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    comment: [The comment must be more than 10 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
 
   }
 

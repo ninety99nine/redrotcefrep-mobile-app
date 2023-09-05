@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CloseModalIconButton extends StatelessWidget {
   
@@ -28,7 +29,7 @@ class CloseModalIconButton extends StatelessWidget {
             child: Icon(Icons.cancel, size: 40, color: Theme.of(context).primaryColor,)
           ),
         ),
-        onTap: () => onTap ?? Navigator.of(context).pop(),
+        onTap: () => onTap ?? Get.back(),
       ),
     );
 

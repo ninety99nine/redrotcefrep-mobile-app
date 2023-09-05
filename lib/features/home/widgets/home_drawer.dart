@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../user/widgets/user_profile/user_profile_avatar.dart';
 import '../../../features/introduction/widgets/landing_page.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
@@ -34,18 +36,17 @@ class _HomeDrawerState extends State<HomeDrawer> {
 
       //  Hide logging out loader
       DialogUtility.hideLoader();
-      
-      /// Get the response body
-      final responseBody = jsonDecode(response.body);
 
       if(response.statusCode == 200) {
         
         /// Show the success message
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
         
       }
 
     }).catchError((error) {
+
+      printError(info: error.toString());
 
       /**
        *  Hide logging out loader
@@ -75,10 +76,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
        *  Navigate to the landing page on successful
        *  or unsuccessful signing out.
        */       
-      Navigator.pushReplacementNamed(
-        context,
-        LandingPage.routeName
-      );
+      Get.offAndToNamed(LandingPage.routeName);
 
     });
 

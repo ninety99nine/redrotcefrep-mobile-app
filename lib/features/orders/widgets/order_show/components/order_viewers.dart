@@ -8,8 +8,8 @@ import '../../../../stores/models/shoppable_store.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../providers/order_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../../../models/order.dart';
 
 class OrderViewers extends StatefulWidget {
@@ -38,7 +38,7 @@ class _OrderViewersState extends State<OrderViewers> {
     store: store,
   );
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestShowViewers(int page, String searchWord) {
+  Future<dio.Response> requestShowViewers(int page, String searchWord) {
     return orderProvider.setOrder(order).orderRepository.showViewers(
       searchWord: searchWord,
       page: page

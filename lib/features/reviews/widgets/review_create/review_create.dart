@@ -4,15 +4,17 @@ import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
 import '../../../rating/widgets/rating_selector_using_stars.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../../../core/utils/shake_utility.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../../../../core/utils/snackbar.dart';
 import '../../models/review_rating_options.dart';
-import 'review_subject_selector.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'review_subject_selector.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 
 class ReviewCreate extends StatefulWidget {
   
@@ -74,26 +76,20 @@ class _ReviewCreateState extends State<ReviewCreate> {
       if(!mounted) return;
 
       if( response.statusCode == 200 ) {
-
-        final responseBody = jsonDecode(response.body);
           
-        reviewRatingOptions = ReviewRatingOptions.fromJson(responseBody);
+        reviewRatingOptions = ReviewRatingOptions.fromJson(response.data);
 
         /// Select the first subject by default
         setState(() => subject = reviewRatingOptions!.ratingSubjects.first);
 
-      }else{
-
-        SnackbarUtility.showSuccessMessage(message: 'Can\'t get review options');
-      
       }
-
+      
     }).catchError((error) {
 
-      if(!mounted) return;
+      printError(info: error.toString());
 
       SnackbarUtility.showSuccessMessage(message: 'Can\'t show review options');
-    
+
     }).whenComplete(() {
 
       if(!mounted) return;
@@ -130,25 +126,25 @@ class _ReviewCreateState extends State<ReviewCreate> {
         rating: rating!,
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 201) {
 
           SnackbarUtility.showSuccessMessage(message: 'Thank you for your honestly');
 
           onCreatedReview();
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t create review');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopLoader();
       
@@ -162,22 +158,6 @@ class _ReviewCreateState extends State<ReviewCreate> {
       SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    comment: [The comment must be more than 10 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
 
   }
 

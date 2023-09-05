@@ -1,6 +1,7 @@
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transaction_filters.dart';
+import 'package:get/get.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
@@ -268,13 +269,13 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(OrderTransactionsPage.routeName);
+                Get.toNamed(OrderTransactionsPage.routeName);
               
               }
             ),
@@ -286,7 +287,7 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

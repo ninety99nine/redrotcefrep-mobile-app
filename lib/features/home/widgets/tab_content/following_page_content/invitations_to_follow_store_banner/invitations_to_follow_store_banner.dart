@@ -3,12 +3,13 @@ import 'package:bonako_demo/features/authentication/providers/auth_provider.dart
 import 'package:bonako_demo/features/stores/models/check_store_invitations.dart';
 import 'package:bonako_demo/core/shared_widgets/banners/custom_banner.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:get/get.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/pusher.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class InvitationsToFollowStoreBanner extends StatefulWidget {
@@ -129,15 +130,13 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
 
     _startLoader();
 
-    storeProvider.storeRepository.checkStoreInvitationsToFollow().then((http.Response response) {
+    storeProvider.storeRepository.checkStoreInvitationsToFollow().then((dio.Response response) {
 
       if(!mounted) return response;
 
       if( response.statusCode == 200 ) {
-
-        final responseBody = jsonDecode(response.body);
           
-        checkStoreInvitations = CheckStoreInvitations.fromJson(responseBody);
+        checkStoreInvitations = CheckStoreInvitations.fromJson(response.data);
     
         /// Set the total invitations
         setTotalInvitations(checkStoreInvitations!.totalInvitations);
@@ -148,15 +147,14 @@ class InvitationsToFollowStoreBannerState extends State<InvitationsToFollowStore
 
     }).catchError((error) {
 
-      /// Show the error message
-      SnackbarUtility.showErrorMessage(message: 'Can\'t check invitations');
+      printError(info: error.toString());
 
-      return error;
+      SnackbarUtility.showErrorMessage(message: 'Can\'t check invitations');
 
     }).whenComplete(() {
 
       _stopLoader();
-      
+
     });
 
   }

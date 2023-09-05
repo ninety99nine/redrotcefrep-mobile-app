@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../../../core/shared_widgets/button/proceed_text_button.dart';
 import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
@@ -38,8 +40,7 @@ class _IntroductionRoleSelectionPageState extends State<IntroductionRoleSelectio
 
   void onContinue(BuildContext context) {
 
-    Navigator.pushReplacementNamed(
-      context,
+    Get.offAndToNamed(
       arguments: role,
       IntroductionSlidesPage.routeName,
     );

@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_models/user_store_association.dart';
 import '../../../../core/utils/snackbar.dart';
@@ -43,13 +45,11 @@ class _FollowButtonState extends State<FollowStoreButton> {
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
         setState(() {
           
-          store.attributes.userStoreAssociation!.followerStatus = responseBody['followerStatus'];
+          store.attributes.userStoreAssociation!.followerStatus = response.data['followerStatus'];
 
         });
 
@@ -57,9 +57,11 @@ class _FollowButtonState extends State<FollowStoreButton> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+      
       SnackbarUtility.showErrorMessage(message: 'Can\'t ${isFollowing ? 'unfollow' : 'follow'}');
 
-    }).whenComplete((){
+    }).whenComplete(() {
 
       _stopLoader();
 

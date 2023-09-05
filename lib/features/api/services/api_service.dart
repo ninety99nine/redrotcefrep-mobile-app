@@ -1,25 +1,20 @@
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/utils/snackbar.dart';
 import '../providers/api_provider.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
-import 'dart:convert';
 
 class ApiService {
 
   /// Save the bearer token from the request on to the device storage
-  static Future<http.Response> setBearerTokenFromResponse(http.Response response, ApiProvider apiProvider) async {
+  static Future<dio.Response> setBearerTokenFromResponse(dio.Response response, ApiProvider apiProvider) async {
 
     if( response.statusCode == 200 || response.statusCode == 201 ) {
-      
-      /// Get the response body
-      final responseBody = jsonDecode(response.body);
 
       /// Get the response body token
-      final token = responseBody['accessToken'];
+      final token = response.data['accessToken'];
 
       /// Save the bearer token on to the device storage
       saveBearerTokenOnDeviceStorage(token).then((value) {
@@ -63,74 +58,11 @@ class ApiService {
   }
 
   /// Handle the request failure
-  static void handleRequestFailure({ required http.Response response, bool ignoreValidationErrors = false }) {
-
-    try {
-
-      /// Get the response body
-      final responseBody = jsonDecode(response.body);
-
-      /// If the request status code is 400 or greater
-      if(response.statusCode >= 400) {
-
-        /// Check if this is a 401 Unauthorized Request
-        if(response.statusCode == 401) {
-
-          /// Navigate to the page 
-          Get.toNamed(
-            LandingPage.routeName
-          );
-
-          /// Show the unauthorized message
-          SnackbarUtility.showInfoMessage(message: responseBody['message']);
-
-        }else {
-
-          print(responseBody);
-          print(responseBody['error']);
-
-          /// If the response body contains a message
-          if(responseBody.containsKey('message')) {
-
-            if( !(response.statusCode == 422 && ignoreValidationErrors == true) ) {
-
-              /// Show the error message
-              SnackbarUtility.showErrorMessage(message: responseBody['message']);
-
-            }
-
-          }else{
-
-            /// Throw an exception since we don't have the Api Error Message to show
-            /// using a snackbar. The method responsible for making this Request 
-            /// can catch this Exception and show a more meaningful error.
-            throw Exception('Request Failed');
-
-          }
-
-        }
-
-      }
-
-    } catch (e) {
-
-      print(e);
-      
-      e.printError();
-      
-      /// Show the error message e.g when the jsonDecode(response.body) fails
-      SnackbarUtility.showErrorMessage(message: e.toString());
-
-    }
-
-  }
-
-  /// Handle the request failure
-  static void handleDioRequestFailure({ required dio.DioException exception, bool ignoreValidationErrors = false }) {
+  static void handleRequestFailure({ required dio.DioException exception, bool ignoreValidationErrors = false }) {
 
     try {
       
-      /// Print the error
+      /// Print the external exception error (API error)
       exception.printError();
 
       /// The request was made and the server responded with a status code
@@ -139,9 +71,6 @@ class ApiService {
       if (exception.response != null) {
 
         final int statusCode = exception.response!.statusCode!;
-
-        print(statusCode);
-        print('statusCode');
 
         if(statusCode == 401 || statusCode == 422) {
 
@@ -158,11 +87,7 @@ class ApiService {
 
           }else if(statusCode == 422 && ignoreValidationErrors == false) {
 
-            /// Get the first validation error
-            final firstValidationErrorMessage = (data['errors'] as Map).entries.first.value[0];
-
-            /// Show the error message
-            SnackbarUtility.showErrorMessage(message: firstValidationErrorMessage);
+            ErrorUtility.showFirstServerValidationError(exception);
 
           }
 
@@ -172,10 +97,10 @@ class ApiService {
 
     } catch (e) {
       
-      /// Print the error
+      /// Print the internal exception error (Application error)
       e.printError();
       
-      /// Show the error message e.g when the jsonDecode(response.body) fails
+      /// Show the error message e.g when the handleRequestFailure() logic fails
       SnackbarUtility.showErrorMessage(message: e.toString());
 
     }

@@ -47,12 +47,10 @@ class _OrderOccasionState extends State<OrderOccasion> {
 
     orderProvider.setOrder(widget.order).orderRepository.showOrderOccasion().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         /// Set the occasion on this order
-        order.relationships.occasion = Occasion.fromJson(responseBody);
+        order.relationships.occasion = Occasion.fromJson(response.data);
 
         if(onRequestedOccasion != null) onRequestedOccasion!(order.relationships.occasion!);
 

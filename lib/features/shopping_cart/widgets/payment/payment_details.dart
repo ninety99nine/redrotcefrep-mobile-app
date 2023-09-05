@@ -51,12 +51,10 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
     storeProvider.setStore(store!).storeRepository.showSupportedPaymentMethods().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
         setState(() {
 
-          supportedPaymentMethods = (responseBody['data'] as List).map((paymentMethod) {
+          supportedPaymentMethods = (response.data['data'] as List).map((paymentMethod) {
             return PaymentMethod.fromJson(paymentMethod);
           }).where((paymentMethod) {
             return paymentMethod.attributes.storePaymentMethodAssociation!.active;

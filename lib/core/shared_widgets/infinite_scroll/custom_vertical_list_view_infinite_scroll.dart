@@ -2,11 +2,11 @@ import '../text_form_field/custom_search_text_form_field.dart';
 import '../Loader/custom_circular_progress_indicator.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
 import '../message_alert/custom_message_alert.dart';
-import '../checkbox/custom_checkbox.dart';
 import '../../../core/utils/debouncer.dart';
-import 'package:http/http.dart' as http;
+import '../checkbox/custom_checkbox.dart';
 import '../text/custom_body_text.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 import 'dart:async';
 
@@ -41,7 +41,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final Widget? contentAfterSearchBar;
 
   /// Method to implement the Api Request
-  final Future<http.Response> Function(int page, String searchWord) onRequest;
+  final Future<dio.Response> Function(int page, String searchWord) onRequest;
 
   /// Method to implement conversion of the Api Request
   /// data retrieved into the desired Model data output
@@ -179,7 +179,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   bool get isStartingRequest => requestType == RequestType.startRequest;
   bool get loadedLastPage => lastPage == null ? false : page > lastPage!;
   bool get isContinuingRequest => requestType == RequestType.continueRequest;
-  Future<http.Response> Function(int, String) get onRequest => widget.onRequest;
+  Future<dio.Response> Function(int, String) get onRequest => widget.onRequest;
   bool get isSearching => isStartingRequest && isLoading && searchWord.isNotEmpty;
   Function(bool)? get onLoadingAfterFirstRequest => widget.onLoadingAfterFirstRequest;
   Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
@@ -307,7 +307,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     return makeApiRequest(RequestType.continueRequest);
   }
 
-  Future<http.Response> makeApiRequest(RequestType requestType) async {
+  Future<dio.Response> makeApiRequest(RequestType requestType) async {
 
     /// Disable showing any errors
     if(hasError) setHasError(false);
@@ -334,12 +334,10 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
 
           if( response.statusCode == 200) {
 
-            final responseBody = jsonDecode(response.body);
-
             setState(() {
               
               /// Add the list of items to the existing data items
-              final requestData = (responseBody['data'] as List).map((item) {
+              final requestData = (response.data['data'] as List).map((item) {
 
                 /// Convert the json data into a structured Model
                 return onParseItem(item);
@@ -369,7 +367,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
               }
 
               /// Set the last page
-              lastPage = responseBody['lastPage'];
+              lastPage = response.data['lastPage'];
 
               /// Increment the page to load the next batch of data items
               if(page <= lastPage!) page++;
@@ -383,7 +381,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
 
           }
           
-          if( response.statusCode >= 400 ) {
+          if( response.statusCode! >= 400 ) {
 
             /// We have a server side error
             setHasError(true);

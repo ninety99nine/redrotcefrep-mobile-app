@@ -59,11 +59,9 @@ class _StoreLogoState extends State<StoreLogo> {
       subtitle: 'Your customers love quality logos 👌',
       fileName: 'logo',
       onSubmittedFile: (file, response) {
-
-        final responseBody = jsonDecode(response.body);
         
         /// Set the updated logo from the response
-        setState(() => store.logo = responseBody['logo']);
+        setState(() => store.logo = response.data['logo']);
 
       },
       onDeletedFile: (response) {

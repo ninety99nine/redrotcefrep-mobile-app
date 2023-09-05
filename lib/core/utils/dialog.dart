@@ -60,7 +60,7 @@ class DialogUtility {
                   child: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,)
                 ),
               ),
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () => Get.back(),
             ),
           ),
 
@@ -152,7 +152,7 @@ class DialogUtility {
                 padding: const EdgeInsets.all(16.0),
                 child: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
               ),
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () => Get.back(),
             ),
           ),
 
@@ -218,16 +218,15 @@ class DialogUtility {
 
             setState(() {
 
-              final responseBody = jsonDecode(response.body);
-              code = responseBody['code'].toString();
-              message = responseBody['message'];
+              code = response.data['code'].toString();
+              message = response.data['message'];
 
             });
           
           }else{
 
             /// Close e.g When the resource does not exist
-            Navigator.of(context).pop(false);
+            Get.back(result: false);
 
           }
 
@@ -244,7 +243,7 @@ class DialogUtility {
 
         setState(() => isDeleting = true);
 
-        Map body = {
+        Map<String, dynamic> body = {
           'code': code
         };
 
@@ -252,19 +251,18 @@ class DialogUtility {
 
           if(response.statusCode == 200) {
 
-            final responseBody = jsonDecode(response.body);
-            message = responseBody['message'];
+            message = response.data['message'];
 
             /// Notify parent on deleted
             onDeleted();
 
-            Navigator.of(context).pop(true);
+            Get.back(result: true);
 
             SnackbarUtility.showSuccessMessage(message: message);
 
           }else {
 
-            Navigator.of(context).pop(false);
+            Get.back(result: false);
 
             SnackbarUtility.showSuccessMessage(message: 'Failed to delete');
 
@@ -363,7 +361,7 @@ class DialogUtility {
                     padding: const EdgeInsets.all(16.0),
                     child: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
                   ),
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () => Get.back()
                 ),
               ),
 
@@ -435,7 +433,7 @@ class DialogUtility {
                 CustomTextButton(
                   'No',
                   color: Colors.grey,
-                  onPressed: () => Navigator.of(context).pop(false),
+                  onPressed: () => Get.back(result: false)
                 ),
 
                 /// Spacer
@@ -444,7 +442,7 @@ class DialogUtility {
                 /// Yes action
                 CustomTextButton(
                   'Yes',
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () => Get.back(result: true)
                 ),
                 
               ],

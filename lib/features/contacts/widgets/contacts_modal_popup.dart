@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -162,7 +164,7 @@ List<Contact> contacts = [];
     //// Notify parent
     onSelection(contacts);
     /// Close Modal
-    Navigator.of(context).pop();
+    Get.back();
   }
 
   String get floatingActionButtonLabel {
@@ -260,7 +262,7 @@ List<Contact> contacts = [];
             right: 10,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

@@ -5,8 +5,8 @@ import '../../repositories/search_repository.dart';
 import '../../../../core/shared_models/user.dart';
 import '../../providers/search_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 
 class SearchedFriendsInVerticalListViewInfiniteScroll extends StatefulWidget {
     
@@ -42,7 +42,7 @@ class _SearchedFriendsInVerticalListViewInfiniteScrollState extends State<Search
     onSelectedFriend: onSelectedFriend
   );
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestSearch(int page, String searchWord) {
+  Future<dio.Response> requestSearch(int page, String searchWord) {
     return searchRepository.searchFriends(
       searchWord: searchWord,
       page: page

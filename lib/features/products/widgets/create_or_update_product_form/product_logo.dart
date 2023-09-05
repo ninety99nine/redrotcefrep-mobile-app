@@ -1,18 +1,15 @@
-import 'dart:io';
-
 import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
-import 'package:bonako_demo/features/home/providers/home_provider.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
-import 'package:bonako_demo/features/products/providers/product_provider.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
+import 'package:bonako_demo/features/products/models/product.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'dart:io';
 
 class ProductPhoto extends StatefulWidget {
 
@@ -89,22 +86,32 @@ class _ProductPhotoState extends State<ProductPhoto> {
   Widget get editablePhoto {
     return ImagePickerModalBottomSheet(
       radius: radius,
+      fileName: 'photo',
       title: 'Product Photo',
       subtitle: 'Your customers love quality photos 👌',
-      fileName: 'photo',
       onSubmittedFile: (file, response) {
-
-        final responseBody = jsonDecode(response.body);
         
-        /// Set the updated photo from the response
-        setState(() => product!.photo = responseBody['photo']);
+        /// Set the updated photo from the file system
+        /// We could use the upadated photo from the
+        /// request but this would be slower to load
+        /// e.g the following takes time to show up:
+        /// 
+        /// product!.photo = response.data['photo']
+        setState(() => this.file = file);
 
       },
       onDeletedFile: (response) {
         if(response.statusCode == 200) {
         
-          /// Unset the photo
-          setState(() => product!.photo = null);
+          setState(() {
+
+            /// Unset the file
+            file = null;
+
+            /// Unset the photo
+            product!.photo = null;
+
+          });
 
         }
       },

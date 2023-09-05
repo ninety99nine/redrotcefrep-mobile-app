@@ -3,17 +3,18 @@ import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../../../../core/shared_models/permission.dart';
 import '../../../stores/providers/store_provider.dart';
-import '../../../stores/services/store_services.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../../../core/shared_models/user.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../../../core/utils/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'team_permissions.dart';
-import 'dart:convert';
+import 'package:get/get.dart';
 
 class TeamMemberContent extends StatefulWidget {
   
@@ -139,28 +140,27 @@ class _PermissionsState extends State<Permissions> {
         teamMember: teamMember,
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
-          
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
           
         }
 
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
+
       }).catchError((error) {
+
+        printError(info: error.toString());
 
         SnackbarUtility.showErrorMessage(message: 'Failed to update permissions');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopLoader();
 
       });
-
 
     }else{
 
@@ -183,11 +183,9 @@ class _PermissionsState extends State<Permissions> {
         teamMembers: [teamMember],
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
           
           //  Notify the parent on team member being removed
           onRemovedTeamMember();
@@ -209,21 +207,6 @@ class _PermissionsState extends State<Permissions> {
       content: 'Are you sure you want to remove $removeTeamMemberFirstName?',
       context: context
     );
-  }
-
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    mobileNumbers0: [The mobile number must start with one of the following: 267.]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
-
   }
 
   void _resetServerErrors() {

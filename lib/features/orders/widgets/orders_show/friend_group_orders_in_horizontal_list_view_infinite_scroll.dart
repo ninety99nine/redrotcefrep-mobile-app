@@ -18,9 +18,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../order_show/components/order_status.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
 import 'dart:convert';
 
@@ -79,7 +79,7 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
-  Future<http.Response> requestFriendGroupOrders(int page, String searchWord) {
+  Future<dio.Response> requestFriendGroupOrders(int page, String searchWord) {
 
     return friendGroupProvider.setFriendGroup(friendGroup).friendGroupRepository.showFriendGroupOrders(
       searchWord: searchWord,
@@ -91,12 +91,9 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
       if( response.statusCode == 200 ) {
 
         setState(() {
-          
-          /// Get the response body
-          final responseBody = jsonDecode(response.body);
 
           /// Determine if we have any orders
-          hasOrders = responseBody['total'] > 0;
+          hasOrders = response.data['total'] > 0;
 
         });
         

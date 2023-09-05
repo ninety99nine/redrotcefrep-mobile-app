@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'order_for_users_in_vertical_list_view_infinite_scroll.dart';
@@ -100,13 +102,13 @@ class _OrderForUsersContentState extends State<OrderForUsersContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(OrderForUsersPage.routeName);
+                Get.toNamed(OrderForUsersPage.routeName);
               
               }
             ),
@@ -118,7 +120,7 @@ class _OrderForUsersContentState extends State<OrderForUsersContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
           

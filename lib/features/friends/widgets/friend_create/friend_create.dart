@@ -1,9 +1,11 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/multiple_mobile_number_form/custom_multiple_mobile_number_form.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../../core/utils/snackbar.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FriendCreate extends StatefulWidget {
@@ -28,17 +30,15 @@ class _FriendCreateState extends State<FriendCreate> {
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   
   /// Request to add friends
-  Future<http.Response> _requestCreateFriends(List<String> mobileNumbers) {
+  Future<dio.Response> _requestCreateFriends(List<String> mobileNumbers) {
 
     return authProvider.authRepository.createFriends(
       mobileNumbers: mobileNumbers
     ).then((response) async {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4);
+        SnackbarUtility.showSuccessMessage(message: response.data['message'], duration: 4);
 
         onCreatedFriends();
 
@@ -47,6 +47,8 @@ class _FriendCreateState extends State<FriendCreate> {
       return response;
 
     }).catchError((error) {
+
+      printError(info: error.toString());
 
       SnackbarUtility.showErrorMessage(message: 'Failed to add friends');
 

@@ -1,5 +1,3 @@
-import 'package:bonako_demo/core/shared_models/cart.dart';
-
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -8,8 +6,8 @@ import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 
 class OrderForUsersInVerticalListViewInfiniteScroll extends StatefulWidget {
   
@@ -37,7 +35,7 @@ class _OrderForUsersInVerticalListViewInfiniteScrollState extends State<OrderFor
   
   /// Render each request item as an User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestShowShoppingCartOrderForUsers(int page, String searchWord) {
+  Future<dio.Response> requestShowShoppingCartOrderForUsers(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showShoppingCartOrderForUsers(
       page: page,
       friends: friends,

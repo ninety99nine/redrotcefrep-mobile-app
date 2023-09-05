@@ -1,7 +1,7 @@
 import '../../notifications/models/notification.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 
 class NotificationRepository {
 
@@ -19,7 +19,7 @@ class NotificationRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Mark notification as read
-  Future<http.Response> markNotificationsAsRead({ required List<String> mobileNumbers }) {
+  Future<dio.Response> markNotificationsAsRead({ required List<String> mobileNumbers }) {
 
     if(notification == null) throw Exception('The notification must be set to mark the notification as read');
     

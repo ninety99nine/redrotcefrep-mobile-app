@@ -2,6 +2,7 @@ import 'package:bonako_demo/core/utils/pusher.dart';
 import 'package:bonako_demo/features/notifications/widgets/show_notifications/notifications_modal_bottom_sheet/notifications_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
+import 'package:get/get.dart';
 import '../../search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/user/models/resource_totals.dart';
 import 'tab_content/following_page_content/following_page_content.dart';
@@ -117,11 +118,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
       authProvider.authRepository.showResourceTotals().then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          final ResourceTotals resourceTotals = ResourceTotals.fromJson(responseBody);
+          final ResourceTotals resourceTotals = ResourceTotals.fromJson(response.data);
 
           authProvider.setResourceTotals(resourceTotals);
 
@@ -134,6 +133,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         return response;
 
       }).catchError((error) {
+
+        printError(info: error.toString());
 
         SnackbarUtility.showErrorMessage(message: 'Failed to show resource totals');
 

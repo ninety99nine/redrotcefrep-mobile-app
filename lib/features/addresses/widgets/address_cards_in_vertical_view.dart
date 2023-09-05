@@ -7,6 +7,7 @@ import 'package:bonako_demo/features/addresses/widgets/create_or_update_address/
 import 'package:bonako_demo/features/addresses/widgets/address_card.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import './../models/address.dart';
@@ -77,8 +78,7 @@ class _AddressCardsInVerticalViewState extends State<AddressCardsInVerticalView>
 
           setState(() {
 
-            final responseBody = jsonDecode(response.body);
-            addresses = (responseBody['data'] as List).map((address) => Address.fromJson(address)).toList();
+            addresses = (response.data['data'] as List).map((address) => Address.fromJson(address)).toList();
 
             selectTheFirstAddressOrNoAddress();
 
@@ -86,16 +86,20 @@ class _AddressCardsInVerticalViewState extends State<AddressCardsInVerticalView>
 
         }
 
-    }).catchError((error) {
+      }).catchError((error) {
 
-      SnackbarUtility.showErrorMessage(message: 'Can\'t show addresses');
+        printError(info: error.toString());
 
-    }).whenComplete((){
+        SnackbarUtility.showErrorMessage(message: 'Can\'t show addresses');
 
-      _stopLoader();
-      if(onLoadingAddresses != null) onLoadingAddresses!(false);
+      }).whenComplete(() {
 
-    });
+        _stopLoader();
+
+        /// Notify parent that we are not loading
+        if(onLoadingAddresses != null) onLoadingAddresses!(false);
+
+      });
 
   }
 

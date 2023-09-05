@@ -211,10 +211,10 @@ class _SearchContentState extends State<SearchContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(SearchPage.routeName);
+                Get.toNamed(SearchPage.routeName);
               
               }
             ),
@@ -226,7 +226,7 @@ class _SearchContentState extends State<SearchContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
         ],

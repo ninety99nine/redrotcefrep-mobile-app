@@ -33,11 +33,9 @@ class _OccasionDetailsState extends State<OccasionDetails> {
 
     occasionProvider.occasionRepository.showOccasions().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
         setState(() {
-          occasions = (responseBody['data'] as List).map((occasion) {
+          occasions = (response.data['data'] as List).map((occasion) {
             return Occasion.fromJson(occasion);
           }).toList();
         });

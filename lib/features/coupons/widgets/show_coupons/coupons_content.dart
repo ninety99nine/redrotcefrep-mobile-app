@@ -335,13 +335,13 @@ class _CouponsContentState extends State<CouponsContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(CouponsPage.routeName);
+                Get.toNamed(CouponsPage.routeName);
               
               }
             ),
@@ -353,7 +353,7 @@ class _CouponsContentState extends State<CouponsContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back(),
             ),
           ),
   

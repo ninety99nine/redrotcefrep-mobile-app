@@ -1,7 +1,7 @@
 import '../../../../core/constants/constants.dart' as constants;
 import '../repositories/api_repository.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../models/api_home.dart';
 import 'dart:convert';
 
@@ -21,7 +21,7 @@ class ApiProvider with ChangeNotifier {
   /// Make the Api Call to the Api Home route to acquire the initial payload 
   /// containing guest routes and and the authenticated user provided that
   /// the Bearer Token is valid
-  Future<http.Response> setApiHome() async {
+  Future<dio.Response> setApiHome() async {
     
      /// Make an API Call to the API Home endpoint. This endpoint will provide us with the essential routes
      /// to execute Login, Registation and Logout calls. Since the Bearer token is automatically set on the 
@@ -29,17 +29,14 @@ class ApiProvider with ChangeNotifier {
      /// the user is still logged in since this is made available by the "_apiHome.authenticated" property.
      /// Note: apiRepository.bearerTokenFuture simply makes sure that we wait until the bearer token has
      /// been provided by the device storage before we attempt to make the Api Home API Call.
-      return await apiRepository.bearerTokenFuture.then((value) {
+      return await apiRepository.bearerTokenFuture.then((bearerToken) {
         return apiRepository.get(url: constants.apiHomeUrl)
           .then((response) {
 
             if( response.statusCode == 200 ) {
-              
-              /// Get the response body
-              final responseBody = jsonDecode(response.body);
 
               /// Parse the response body
-              _apiHome = ApiHome.fromJson(responseBody);
+              _apiHome = ApiHome.fromJson(response.data);
               
             }
 

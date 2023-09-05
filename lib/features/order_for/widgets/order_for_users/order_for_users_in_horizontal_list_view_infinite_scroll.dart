@@ -5,8 +5,8 @@ import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 
 class OrderForUsersInHorizontalListViewInfiniteScroll extends StatefulWidget {
   
@@ -82,7 +82,7 @@ class _OrderForUsersInHorizontalListViewInfiniteScrollState extends State<OrderF
   
   /// Render each request item as a User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestShowShoppingCartOrderForUsers(int page, String searchWord) {
+  Future<dio.Response> requestShowShoppingCartOrderForUsers(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showShoppingCartOrderForUsers(
       page: page,
       friends: friends,

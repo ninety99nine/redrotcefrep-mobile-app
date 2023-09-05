@@ -92,8 +92,6 @@ class _AddStoreToGroupButtonState extends State<AddStoreToGroupButton> {
       friendGroups: friendGroups,
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         /// Notify the parent that this store has been added to friend groups
@@ -108,19 +106,22 @@ class _AddStoreToGroupButtonState extends State<AddStoreToGroupButton> {
          */
         Get.back();
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
       }
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+      
       SnackbarUtility.showErrorMessage(message: 'Failed to add to group');
 
-    }).whenComplete((){
+    }).whenComplete(() {
 
       _stopLoader();
 
     });
+    
   }
 
   @override

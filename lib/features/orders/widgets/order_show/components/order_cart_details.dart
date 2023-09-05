@@ -50,10 +50,8 @@ class _OrderCartDetailsState extends State<OrderCartDetails> {
 
     orderProvider.setOrder(order).orderRepository.showOrderCart().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
-        order.relationships.cart = Cart.fromJson(responseBody);
+        order.relationships.cart = Cart.fromJson(response.data);
         if(onRequestedCart != null) onRequestedCart!(order.relationships.cart!);
       }
 

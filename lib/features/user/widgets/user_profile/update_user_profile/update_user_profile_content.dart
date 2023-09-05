@@ -151,13 +151,13 @@ class _UpdateUserProfileContentState extends State<UpdateUserProfileContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the user
                 //userProvider.setStore(user);
                 
                 /// Navigate to the page
-                //Navigator.of(context).pushNamed(ReviewsPage.routeName);
+                /// Get.toNamed(ReviewsPage.routeName);
               
               }
             ),
@@ -169,7 +169,7 @@ class _UpdateUserProfileContentState extends State<UpdateUserProfileContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

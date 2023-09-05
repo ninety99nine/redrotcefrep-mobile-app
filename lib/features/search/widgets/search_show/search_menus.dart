@@ -4,9 +4,9 @@ import '../../models/search_filters.dart' as model;
 import '../../providers/search_provider.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../../enums/search_enums.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class SearchFilters extends StatefulWidget {
@@ -44,13 +44,13 @@ class SearchFiltersState extends State<SearchFilters> {
   /// This will allow us to show filters e.g "Stores", "Friends", "Groups"
   void requestShowSearchFilters() {
     
-    searchRepository.showSearchFilters().then((http.Response response) {
+    searchRepository.showSearchFilters().then((dio.Response response) {
 
       if(!mounted) return;
 
       if( response.statusCode == 200 ) {
 
-        final responseBody = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+        final responseBody = List<Map<String, dynamic>>.from(response.data);
         
         setState(() {
           

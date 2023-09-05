@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/multiple_mobile_number_form/custom_multiple_mobile_number_form.dart';
 import '../../../../core/shared_models/permission.dart';
 import '../../../stores/providers/store_provider.dart';
@@ -5,9 +7,9 @@ import '../../../stores/models/shoppable_store.dart';
 import '../team_member_show/team_permissions.dart';
 import '../../models/team_members_invitations.dart';
 import '../../../../core/utils/snackbar.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class TeamMemberSendInvitation extends StatefulWidget {
@@ -38,20 +40,18 @@ class _TeamMemberSendInvitationState extends State<TeamMemberSendInvitation> {
   void Function(TeamMembersInvitations) get onInviteTeamMembers => widget.onInviteTeamMembers;
 
   /// Request to invite team members
-  Future<http.Response> _requestInviteTeamMembers(List<String> mobileNumbers) {
+  Future<dio.Response> _requestInviteTeamMembers(List<String> mobileNumbers) {
 
     return storeProvider.setStore(store).storeRepository.inviteTeamMembers(
       permissions: selectedPermissions,
       mobileNumbers: mobileNumbers,
     ).then((response) async {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message'], duration: 4);
+        SnackbarUtility.showSuccessMessage(message: response.data['message'], duration: 4);
 
-        teamMembersInvitations = TeamMembersInvitations.fromJson(responseBody['invitations']);
+        teamMembersInvitations = TeamMembersInvitations.fromJson(response.data['invitations']);
 
         onInviteTeamMembers(teamMembersInvitations!);
 
@@ -61,6 +61,9 @@ class _TeamMemberSendInvitationState extends State<TeamMemberSendInvitation> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+
+      /// Show the error message
       SnackbarUtility.showErrorMessage(message: 'Failed to invite friends');
 
     });

@@ -4,10 +4,10 @@ import 'package:bonako_demo/features/orders/models/order.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../enums/store_enums.dart';
+import 'package:dio/dio.dart' as dio;
 import 'store_card/store_card.dart';
 
 class StoreCards extends StatefulWidget {
@@ -106,7 +106,7 @@ class StoreCardsState extends State<StoreCards> {
   }
 
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
-  Future<http.Response> requestShowStores(int page, String searchWord) {
+  Future<dio.Response> requestShowStores(int page, String searchWord) {
 
     if(storesUrl == null) {
 

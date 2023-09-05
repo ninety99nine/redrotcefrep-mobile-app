@@ -7,12 +7,11 @@ import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import './order_transactions_dialog/order_transactions_dialog.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class OrderTransactionsInHorizontalListViewInfiniteScroll extends StatefulWidget {
@@ -63,7 +62,7 @@ class OrderTransactionsInHorizontalListViewInfiniteScrollState extends State<Ord
 
   /// Render each request item as a Transaction
   Transaction onParseItem(transaction) => Transaction.fromJson(transaction);
-  Future<http.Response> requestOrderTransactions(int page, String searchWord) {
+  Future<dio.Response> requestOrderTransactions(int page, String searchWord) {
     
     /// Request the order transactions
     return orderProvider.setOrder(order).orderRepository.showTransactions(
@@ -76,8 +75,7 @@ class OrderTransactionsInHorizontalListViewInfiniteScrollState extends State<Ord
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-        setState(() => totalTransactions = responseBody['total']);
+        setState(() => totalTransactions = response.data['total']);
 
       }
 

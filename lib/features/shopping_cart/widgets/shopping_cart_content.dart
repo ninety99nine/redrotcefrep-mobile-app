@@ -5,9 +5,9 @@ import 'package:bonako_demo/features/shopping_cart/widgets/occassion/occasion_de
 import 'package:bonako_demo/features/shopping_cart/widgets/special_note/special_note.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/payment/payment_details.dart';
 import '../../products/widgets/shoppable_product_cards/shoppable_product_cards.dart';
-import 'package:bonako_demo/features/stores/widgets/store_dialog_header.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../../../core/utils/api_conflict_resolver.dart';
 import '../../order_for/widgets/order_for_details.dart';
 import '../../friend_groups/models/friend_group.dart';
@@ -21,8 +21,9 @@ import 'package:collection/collection.dart';
 import '../../../core/utils/snackbar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 import 'cart_details.dart';
-import 'dart:convert';
 
 class ShoppingCartContent extends StatefulWidget {
 
@@ -242,12 +243,10 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
           if( response.statusCode == 200 ) {
 
-            final responseBody = jsonDecode(response.body);
-
             setState(() {
 
               /// Capture the shopping cart
-              final Cart shoppingCart = Cart.fromJson(responseBody);
+              final Cart shoppingCart = Cart.fromJson(response.data);
 
               /// Set the shopping cart on the Shoppable Store Model
               /// Don't notify listeners, since this will be
@@ -318,11 +317,9 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
       if(!mounted) return;
 
-      final responseBody = jsonDecode(response.body);
-
       if( response.statusCode == 201 ) {
 
-        final Order createdOrder = Order.fromJson(responseBody);
+        final Order createdOrder = Order.fromJson(response.data);
 
         /// Set the store relationship
         createdOrder.relationships.store = store;
@@ -364,40 +361,22 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
         }
 
-      }else if(response.statusCode == 422) {
-
-        handleServerValidation(responseBody['errors']);
-        
       }
+
+    }).onError((dio.DioException exception, stackTrace) {
+
+      ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
     }).catchError((error) {
 
-      if(!mounted) return;
+      printError(info: error.toString());
 
       SnackbarUtility.showErrorMessage(message: 'Can\'t show placed order');
-      
-    }).whenComplete(() {
 
-      if(!mounted) return;
+    }).whenComplete(() {
 
       _stopSubmittionLoader();
 
-    });
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    comment: [The comment must be more than 10 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
     });
 
   }

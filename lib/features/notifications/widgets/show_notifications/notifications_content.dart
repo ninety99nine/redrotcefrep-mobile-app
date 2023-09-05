@@ -1,5 +1,6 @@
 import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
 import 'package:bonako_demo/features/notifications/models/notification.dart' as model;
+import 'package:get/get.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -247,13 +248,13 @@ class _NotificationsContentState extends State<NotificationsContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 if(store != null) storeProvider.setStore(store!);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(NotificationsPage.routeName);
+                Get.toNamed(NotificationsPage.routeName);
               
               }
             ),
@@ -265,7 +266,7 @@ class _NotificationsContentState extends State<NotificationsContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

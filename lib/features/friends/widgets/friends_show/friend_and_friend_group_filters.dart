@@ -4,9 +4,9 @@ import '../../../authentication/providers/auth_provider.dart';
 import '../../models/friend_menus.dart' as model;
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../../enums/friend_enums.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FriendAndFriendGroupFilters extends StatefulWidget {
@@ -44,13 +44,13 @@ class FriendAndFriendGroupFiltersState extends State<FriendAndFriendGroupFilters
   /// This will allow us to show menus e.g "Friend", "Groups", "Friend Groups"
   void requestShowFriendAndFriendGroupFilters() {
     
-    authRepository.showFriendAndFriendGroupFilters().then((http.Response response) {
+    authRepository.showFriendAndFriendGroupFilters().then((dio.Response response) {
 
       if(!mounted) return;
 
       if( response.statusCode == 200 ) {
 
-        final responseBody = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+        final responseBody = List<Map<String, dynamic>>.from(response.data);
         
         setState(() {
           

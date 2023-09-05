@@ -2,6 +2,7 @@ import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bot
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:get/get.dart';
 import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import '../../../../../stores/widgets/store_cards/store_cards.dart';
@@ -43,20 +44,20 @@ class MyPlugStoresContentState extends State<MyPlugStoresContent> {
         status: 'Following'   //  Always make sure that we follow (i.e never unfollow)
       ).then((response) {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
           refreshStores();
 
         }
-
+        
       }).catchError((error) {
+
+        printError(info: error.toString());
 
         SnackbarUtility.showErrorMessage(message: 'Failed to add to group');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopLoader();
 

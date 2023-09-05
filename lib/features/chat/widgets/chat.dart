@@ -1,11 +1,11 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
-
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import '../../../core/constants/constants.dart' as constants;
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import './../models/chat_message.dart';
 import './../models/prompt.dart';
@@ -28,6 +28,8 @@ class ChatState extends State<Chat> {
 
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
+
+  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
 
   /// This allows us to access the state of CustomTextFormFieldState widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -128,23 +130,27 @@ class ChatState extends State<Chat> {
     });
 
     /// Get response from OpenAI
-    final response = await http.post(
+    final response = await apiProvider.apiRepository.post(
 
-      /// OpenAI API URL
-      Uri.parse(openaiApiUrl),
+      /// url: openaiApiUrl,
+      /// headers: headers,
+      /// body: body,
 
-      /// Headers
-      headers: headers,
-
-      /// Body
-      body: body
+      /// I changed how this works. Instead of directly making a
+      /// request to openai, lets make a api request directly to 
+      /// our API and then from our API we can then call the 
+      /// openai API. This is a better approach since we can
+      /// set the openai bearer token on the server side
+      /// rather than on the client side.
+      /// 
+      url: openaiApiUrl /// This should be our AI-Chat endpoint
 
     );
 
     if (response.statusCode == 200) {
 
       /// Decode response
-      final data = json.decode(response.body);
+      final data = json.decode(response.data);
 
       /// Get role
       final role = data['choices'][0]['message']['role'];

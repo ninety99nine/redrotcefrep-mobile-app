@@ -7,8 +7,8 @@ import '../../../stores/models/shoppable_store.dart';
 import '../../repositories/search_repository.dart';
 import '../../providers/search_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 
 class SearchedStoresInVerticalListViewInfiniteScroll extends StatefulWidget {
   
@@ -44,7 +44,7 @@ class _SearchedStoresInVerticalListViewInfiniteScrollState extends State<Searche
     onSelectedStore: onSelectedStore
   );
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
-  Future<http.Response> requestSearch(int page, String searchWord) {
+  Future<dio.Response> requestSearch(int page, String searchWord) {
     return searchRepository.searchStores(
       searchWord: searchWord,
       page: page

@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../friend_groups/widgets/friend_groups_show/friend_groups_in_vertical_list_view_infinite_scroll.dart';
 import '../../../friend_groups/widgets/friend_group_create_or_update/friend_group_create_or_update.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
@@ -254,7 +256,7 @@ class _FriendsContentState extends State<FriendsContent> {
     requestUpdateLastSelectedFriends();
 
     /// Close the Modal Bottom Sheet
-    Navigator.of(context).pop();
+    Get.back();
 
     if(widget.onDoneSelectingFriends != null) {
 
@@ -291,7 +293,7 @@ class _FriendsContentState extends State<FriendsContent> {
     requestUpdateLastSelectedFriendGroups();
 
     /// Close the Modal Bottom Sheet
-    Navigator.of(context).pop();
+    Get.back();
 
   }
 
@@ -460,10 +462,10 @@ class _FriendsContentState extends State<FriendsContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(FriendsPage.routeName);
+                Get.toNamed(FriendsPage.routeName);
               
               }
             ),
@@ -475,7 +477,7 @@ class _FriendsContentState extends State<FriendsContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

@@ -2,6 +2,7 @@ import 'package:bonako_demo/features/authentication/providers/auth_provider.dart
 import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:get/get.dart';
 import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
@@ -44,20 +45,20 @@ class BrandStoresContentState extends State<BrandStoresContent> {
 
       storeProvider.setStore(store).storeRepository.addToBrandStores().then((response) {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
           refreshStores();
 
         }
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Failed to add to brand stores');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopLoader();
 

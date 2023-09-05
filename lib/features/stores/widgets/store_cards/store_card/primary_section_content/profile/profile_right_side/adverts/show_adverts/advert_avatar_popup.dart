@@ -92,7 +92,7 @@ Future<void> showAdvertDialog(ShoppableStore store, BuildContext context) {
                 width: 16, 
                 prefixIconSize: 12, 
                 prefixIcon: Icons.close, 
-                onPressed: () => Navigator.of(context).pop()
+                onPressed: () => Get.back()
               )
               
             ],
@@ -124,11 +124,9 @@ Future<void> showAdvertDialog(ShoppableStore store, BuildContext context) {
       subtitle: 'Your customers love quality adverts 👌',
       fileName: 'advert',
       onSubmittedFile: (file, response) {
-
-        final responseBody = jsonDecode(response.body);
         
         /// Set the updated advert from the response
-        setState(() => store.adverts.add(responseBody['advert']));
+        setState(() => store.adverts.add(response.data['advert']));
 
       },
       submitMethod: SubmitMethod.post,

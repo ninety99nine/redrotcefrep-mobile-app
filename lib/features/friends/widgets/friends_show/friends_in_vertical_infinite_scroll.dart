@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_models/user_friend_group_association.dart';
@@ -11,8 +13,8 @@ import '../../../../core/shared_models/user.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../../../core/utils/dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class FriendsInVerticalListViewInfiniteScroll extends StatefulWidget {
@@ -74,9 +76,9 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
   
   /// Render each request item as an User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestFriends(int page, String searchWord) {
+  Future<dio.Response> requestFriends(int page, String searchWord) {
 
-    Future<http.Response> request;
+    Future<dio.Response> request;
 
     if(friendGroup == null) {
       request = authProvider.authRepository.showFriends();
@@ -142,7 +144,7 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
       /// Notify parent that we are starting the removing process
       if(onRemovingFriends != null) onRemovingFriends!(true);
 
-      Future<http.Response> request;
+      Future<dio.Response> request;
 
       if(friendGroup == null) {
         request = authProvider.authRepository.removeFriends(
@@ -156,11 +158,9 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
 
       request.then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           //  Refresh the friends
           customInfiniteScrollCurrentState.startRequest();
@@ -171,9 +171,11 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Failed to remove friends');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopRemoveLoader();
 

@@ -1,7 +1,7 @@
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 
 class UserRepository {
 
@@ -19,7 +19,7 @@ class UserRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Get the order filters of the specified user
-  Future<http.Response> showOrderFilters() {
+  Future<dio.Response> showOrderFilters() {
 
     if(user == null) throw Exception('The user must be set to show order filters');
 
@@ -30,7 +30,7 @@ class UserRepository {
   }
 
   /// Get the orders of the specified user
-  Future<http.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, int? storeId, bool withStore = false, bool withCustomer = false, bool withOccasion = false, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, int? storeId, bool withStore = false, bool withCustomer = false, bool withOccasion = false, String searchWord = '', int page = 1 }) {
 
     if(user == null) throw Exception('The user must be set to show orders');
 
@@ -58,6 +58,9 @@ class UserRepository {
 
     /// Only orders matching the specified store id
     if(storeId != null) queryParams.addAll({'store_id': storeId.toString()});
+
+    /// Page
+    queryParams.addAll({'page': page.toString()});
     
     /// Filter orders by the specified status
     if(filter != null) queryParams.addAll({'filter': filter});
@@ -65,18 +68,18 @@ class UserRepository {
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
     
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Create user address
-  Future<http.Response> createAddress({ required String name, required String addressLine }){
+  Future<dio.Response> createAddress({ required String name, required String addressLine }){
 
     if(user == null) throw Exception('The user must be set to show addresses');
 
     String url = user!.links.createAddresses.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       'name': name,
       'addressLine': addressLine
     };
@@ -86,28 +89,32 @@ class UserRepository {
   }
 
   /// Show the user addresses
-  Future<http.Response> showAddresses({ String searchWord = '', int? page = 1 }){
+  Future<dio.Response> showAddresses({ String searchWord = '', int page = 1 }){
 
     if(user == null) throw Exception('The user must be set to show addresses');
 
     String url =  user!.links.showAddresses.href;
+    
     Map<String, String> queryParams = {};
+
+    /// Page
+    queryParams.addAll({'page': page.toString()});
 
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
-    return apiRepository.get(url: url, page: page, queryParams: queryParams);
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Join a store
-  Future<http.Response> joinStore({ required String teamMemberJoinCode }){
+  Future<dio.Response> joinStore({ required String teamMemberJoinCode }){
 
     if(user == null) throw Exception('The user must be set to join a store');
 
     String url = user!.links.joinStores.href;
 
-    Map body = {
+    Map<String, dynamic> body = {
       'team_member_join_code': teamMemberJoinCode
     };
 

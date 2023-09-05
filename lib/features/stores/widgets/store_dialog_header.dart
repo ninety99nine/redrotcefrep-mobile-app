@@ -3,6 +3,7 @@ import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.da
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class StoreDialogHeader extends StatelessWidget {
   
@@ -83,7 +84,7 @@ class StoreDialogHeader extends StatelessWidget {
             top: 8,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           )
 

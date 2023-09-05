@@ -10,6 +10,7 @@ import '../../../friend_groups/repositories/friend_group_repository.dart';
 import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../../../core/utils/shake_utility.dart';
 import '../../../friends/enums/friend_enums.dart';
@@ -17,7 +18,8 @@ import '../../../../core/shared_models/user.dart';
 import '../../../../core/utils/snackbar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 
 class FriendGroupCreateOrUpdate extends StatefulWidget {
   
@@ -114,30 +116,30 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
         canAddFriends: canAddFriends,
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 201) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           if(onCreatedFriendGroup != null) onCreatedFriendGroup!();
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
-        SnackbarUtility.showErrorMessage(message: 'Can\'t update group');
+        printError(info: error.toString());
 
-      }).whenComplete((){
+        SnackbarUtility.showErrorMessage(message: 'Can\'t create group');
+
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
         /// Notify parent that we are not loading
-      if(onSubmitting != null) onSubmitting!(false);
+        if(onSubmitting != null) onSubmitting!(false);
 
       });
 
@@ -169,31 +171,31 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
         canAddFriends: canAddFriends,
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
           if(onUpdatedFriendGroup != null) onUpdatedFriendGroup!();
 
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t update group');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
         /// Notify parent that we are not loading
-      if(onSubmitting != null) onSubmitting!(false);
+        if(onSubmitting != null) onSubmitting!(false);
 
       });
 
@@ -217,22 +219,6 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
     }
 
     return true;
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    comment: [The comment must be more than 10 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
 
   }
 

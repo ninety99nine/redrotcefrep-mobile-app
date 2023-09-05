@@ -105,9 +105,7 @@ class _OrderCollectionSellerConfirmationState extends State<OrderCollectionSelle
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
-        final order = Order.fromJson(responseBody);
+        final order = Order.fromJson(response.data);
 
         /// Play success sound
         if(isCompleted) audioPlayer.play(AssetSource('sounds/success.mp3'));

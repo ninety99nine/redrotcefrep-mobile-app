@@ -12,8 +12,8 @@ import '../../../authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
 import 'dart:convert';
 
@@ -100,9 +100,9 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
-  Future<http.Response> requestStoreOrders(int page, String searchWord) {
+  Future<dio.Response> requestStoreOrders(int page, String searchWord) {
     
-    Future<http.Response> request;
+    Future<dio.Response> request;
 
     /// If the store is not provided
     if( store == null ) {
@@ -136,12 +136,10 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
 
         if(response.statusCode == 200) {
 
-          final responseBody = jsonDecode(response.body);
-
           /// If the response order count does not match the store order count
-          if(orderId == null && searchWord.isEmpty && orderFilter == 'All' && store!.ordersCount != responseBody['total']) {
+          if(orderId == null && searchWord.isEmpty && orderFilter == 'All' && store!.ordersCount != response.data['total']) {
 
-            store!.ordersCount = responseBody['total'];
+            store!.ordersCount = response.data['total'];
             store!.runNotifyListeners();
 
           }

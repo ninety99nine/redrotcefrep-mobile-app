@@ -26,8 +26,7 @@ class StoreServices {
       filter: 'Visible'
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-      final List<Product> products = List<Product>.from(responseBody['data'].map((product) => Product.fromJson(product)));
+      final List<Product> products = List<Product>.from(response.data['data'].map((product) => Product.fromJson(product)));
       store.setProducts(products);
 
     });

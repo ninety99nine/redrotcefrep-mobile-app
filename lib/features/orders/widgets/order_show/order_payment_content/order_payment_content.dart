@@ -86,11 +86,9 @@ class OrderPaymentContentState extends State<OrderPaymentContent> {
       withDeliveryAddress: order.deliveryAddressId == null ? false : true,
     ).then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
         
-        _onUpdatedOrder(Order.fromJson(responseBody));
+        _onUpdatedOrder(Order.fromJson(response.data));
 
       }
 

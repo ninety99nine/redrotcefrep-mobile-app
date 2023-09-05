@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../../user/widgets/team_member_profile/team_member_profile_avatar.dart';
 import '../team_member_invitations_show/team_member_invitations_content.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
@@ -313,13 +315,13 @@ class _TeamMembersContentState extends State<TeamMembersContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 storeProvider.setStore(store);
                 
                 /// Navigate to the page
-                Navigator.of(context).pushNamed(TeamMembersPage.routeName);
+                Get.toNamed(TeamMembersPage.routeName);
               
               }
             ),
@@ -331,7 +333,7 @@ class _TeamMembersContentState extends State<TeamMembersContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

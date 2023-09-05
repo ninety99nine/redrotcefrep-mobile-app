@@ -1,16 +1,14 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/features/addresses/widgets/address_cards_in_vertical_view.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/authentication/repositories/auth_repository.dart';
-import 'package:bonako_demo/features/user/providers/user_provider.dart';
-import 'package:bonako_demo/features/user/repositories/user_repository.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 
 class UpdateUserProfileForm extends StatefulWidget {
   
@@ -82,28 +80,29 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
         lastName: userForm['lastName'],
       ).then((response) async {
 
-        final responseBody = jsonDecode(response.body);
-
         if(response.statusCode == 200) {
 
-          final User updatedUser = User.fromJson(responseBody);
+          final User updatedUser = User.fromJson(response.data);
 
           /// Notify parent on update user
           if(onUpdatedUser != null) onUpdatedUser!(updatedUser);
 
           SnackbarUtility.showSuccessMessage(message: 'Updated successfully');
 
-        }else if(response.statusCode == 422) {
-
-          handleServerValidation(responseBody['errors']);
-          
         }
+
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
 
+        printError(info: error.toString());
+
         SnackbarUtility.showErrorMessage(message: 'Can\'t update profile');
 
-      }).whenComplete((){
+      }).whenComplete(() {
 
         _stopSubmittionLoader();
       
@@ -117,22 +116,6 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
       SnackbarUtility.showErrorMessage(message: 'We found some mistakes');
 
     }
-
-  }
-
-  /// Set the validation errors as serverErrors
-  void handleServerValidation(Map errors) {
-
-    /**
-     *  errors = {
-     *    firstName: [The first name must be more than 3 characters]
-     * }
-     */
-    setState(() {
-      errors.forEach((key, value) {
-        serverErrors[key] = value[0];
-      });
-    });
 
   }
 

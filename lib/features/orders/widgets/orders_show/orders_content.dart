@@ -241,7 +241,7 @@ class _OrdersContentState extends State<OrdersContent> {
               onPressed: () {
                 
                 /// Close the Modal Bottom Sheet
-                Navigator.of(context).pop();
+                Get.back();
 
                 /// Set the store
                 if(store != null) storeProvider.setStore(store!);
@@ -265,7 +265,7 @@ class _OrdersContentState extends State<OrdersContent> {
             top: 8 + topPadding,
             child: IconButton(
               icon: Icon(Icons.cancel, size: 28, color: Theme.of(context).primaryColor,),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back()
             ),
           ),
   

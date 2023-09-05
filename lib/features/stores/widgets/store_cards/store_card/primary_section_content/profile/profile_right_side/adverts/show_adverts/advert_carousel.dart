@@ -1,12 +1,10 @@
-import 'dart:convert';
-
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
 import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import '../../../../../../../../../../core/shared_widgets/full_screen_image/main.dart';
+import '../../../../../../../../../../../core/constants/constants.dart' as constants;
+import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../../../../../../../../core/constants/constants.dart' as constants;
-import '../../../../../../../../../../core/shared_widgets/full_screen_image/main.dart';
 import '../../../../../../../../models/shoppable_store.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -97,11 +95,9 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
         'position': (itemIndex + 1).toString()
       },
       onSubmittedFile: (file, response) {
-
-        final responseBody = jsonDecode(response.body);
         
         /// Set the updated advert from the response
-        setState(() => store.adverts[itemIndex] = responseBody['advert']);
+        setState(() => store.adverts[itemIndex] = response.data['advert']);
 
         /**
          *  The reason we use a Future.delayed here is because the carouselController.jumpToPage() 
@@ -142,11 +138,9 @@ class _StoreAdvertCarouselState extends State<StoreAdvertCarousel> {
         subtitle: 'Your customers love quality adverts 👌',
         fileName: 'advert',
         onSubmittedFile: (file, response) {
-
-          final responseBody = jsonDecode(response.body);
           
           /// Set the updated advert from the response
-          setState(() => store.adverts.add(responseBody['advert']));
+          setState(() => store.adverts.add(response.data['advert']));
 
           /**
            *  The reason we use a Future.delayed here is because the carouselController.jumpToPage() 

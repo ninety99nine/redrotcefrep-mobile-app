@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_models/user_store_association.dart';
@@ -10,8 +8,9 @@ import '../../../stores/models/shoppable_store.dart';
 import '../../../../core/shared_models/user.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
+import 'dart:convert';
 
 class FollowersInVerticalListViewInfiniteScroll extends StatefulWidget {
   
@@ -44,7 +43,7 @@ class _FollowersInVerticalListViewInfiniteScrollState extends State<FollowersInV
   
   /// Render each request item as an User
   User onParseItem(user) => User.fromJson(user);
-  Future<http.Response> requestStoreFollowers(int page, String searchWord) {
+  Future<dio.Response> requestStoreFollowers(int page, String searchWord) {
     return storeProvider.setStore(store).storeRepository.showFollowers(
       /// Filter by the follower filter specified (followerFilter)
       filter: followerFilter,
@@ -54,12 +53,10 @@ class _FollowersInVerticalListViewInfiniteScrollState extends State<FollowersInV
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
         /// If the response follower count does not match the store follower count
-        if(followerFilter == 'Following' && store.followersCount != responseBody['total']) {
+        if(followerFilter == 'Following' && store.followersCount != response.data['total']) {
 
-          store.followersCount = responseBody['total'];
+          store.followersCount = response.data['total'];
           store.runNotifyListeners();
 
         }

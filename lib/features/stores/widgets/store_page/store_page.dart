@@ -8,6 +8,7 @@ import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/user_orders_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:get/get.dart';
 
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import '../store_menu/store_menu_modal_bottom_sheet/store_menu_modal_bottom_sheet.dart';
@@ -190,12 +191,10 @@ class _StorePageContentState extends State<StorePageContent> {
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
         setState(() {
         
           /// Set the response store as the local store
-          store = ShoppableStore.fromJson(responseBody);
+          store = ShoppableStore.fromJson(response.data);
 
         });
 
@@ -221,7 +220,7 @@ class _StorePageContentState extends State<StorePageContent> {
             children: [
   
               /// Back Arrow
-              IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
+              IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Get.back()),
 
             ],
           ),
@@ -279,7 +278,7 @@ class Content extends StatelessWidget {
                     children: [
                               
                       /// Back Arrow
-                      IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
+                      IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Get.back()),
                             
                       /// Menu Modal Bottom Sheet
                       StoreMenuModalBottomSheet(

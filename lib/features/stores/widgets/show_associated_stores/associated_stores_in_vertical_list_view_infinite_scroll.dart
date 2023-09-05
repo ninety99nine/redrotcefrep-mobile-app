@@ -1,22 +1,19 @@
-import 'dart:convert';
-
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_left_side/store_name.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:get/get.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
+import 'dart:convert';
 
 class AssociatedStoresInVerticalListViewInfiniteScroll extends StatefulWidget {
 
@@ -49,7 +46,7 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
   
   /// Render each request item as an Store
   ShoppableStore onParseItem(store) => ShoppableStore.fromJson(store);
-  Future<http.Response> requestAssociatedStores(int page, String searchWord) {
+  Future<dio.Response> requestAssociatedStores(int page, String searchWord) {
     return storeProvider.storeRepository.showUserStores(
       userAssociation: UserAssociation.assigned,
       user: authProvider.user!,
@@ -231,11 +228,9 @@ class _StoreItemState extends State<StoreItem> {
 
     storeProvider.setStore(store).storeRepository.removeFromAssignedStores().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
-        SnackbarUtility.showSuccessMessage(message: responseBody['message']);
+        SnackbarUtility.showSuccessMessage(message: response.data['message']);
 
         refreshStores();
 
@@ -243,13 +238,16 @@ class _StoreItemState extends State<StoreItem> {
 
     }).catchError((error) {
 
+      printError(info: error.toString());
+      
       SnackbarUtility.showErrorMessage(message: 'Failed to remove store');
 
-    }).whenComplete((){
+    }).whenComplete(() {
 
       onDeleting(false);
 
     });
+    
   }
 
   @override

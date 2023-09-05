@@ -33,6 +33,15 @@ class ShoppableStore extends Store with ChangeNotifier {
   bool get hasShoppingCart => shoppingCart != null;
   bool get hasSelectedProducts => selectedProducts.isNotEmpty;
 
+  bool get hasCoverPhoto => coverPhoto != null;
+  bool get doesNotHaveCoverPhoto => coverPhoto == null;
+
+  int get totalProductPhotos => productPhotos.length;
+  bool get hasProductPhotos => productPhotos.isNotEmpty;
+  bool get doesNotHaveProductPhotos => productPhotos.isEmpty;
+  List<String> get productPhotos => productsWithPhotos.map((product) => product.photo!).toList();
+  List<Product> get productsWithPhotos => relationships.products.where((product) => product.photo != null).toList();
+  
   int? totalPeople;
   String orderFor = 'Me';
   List<User> friends = [];

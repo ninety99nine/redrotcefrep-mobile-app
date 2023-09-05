@@ -1,6 +1,7 @@
 library full_screen_image_null_safe;
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// This is an official flutter package that
 /// was downloaded and customized by Julian
@@ -9,6 +10,7 @@ class FullScreenWidget extends StatelessWidget {
   const FullScreenWidget({
     this.backgroundColor = Colors.black,
     this.backgroundIsTransparent = true,
+    this.fullScreenChild,
     required this.child,
     this.disposeLevel,
     super.key, 
@@ -16,6 +18,7 @@ class FullScreenWidget extends StatelessWidget {
 
   final Widget child;
   final Color backgroundColor;
+  final Widget? fullScreenChild;
   final bool backgroundIsTransparent;
   final DisposeLevel? disposeLevel;
 
@@ -24,20 +27,22 @@ class FullScreenWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context,
-            PageRouteBuilder(
-                opaque: false,
-                barrierColor: backgroundIsTransparent
-                    ? Colors.white.withOpacity(0)
-                    : backgroundColor,
-                pageBuilder: (BuildContext context, _, __) {
-                  return FullScreenPage(
-                    backgroundIsTransparent: backgroundIsTransparent,
-                    backgroundColor: backgroundColor,
-                    disposeLevel: disposeLevel,
-                    child: child,
-                  );
-                }));
+          context,
+          PageRouteBuilder(
+            opaque: false,
+            barrierColor: backgroundIsTransparent
+                ? Colors.white.withOpacity(0)
+                : backgroundColor,
+            pageBuilder: (BuildContext context, _, __) {
+              return FullScreenPage(
+                backgroundIsTransparent: backgroundIsTransparent,
+                backgroundColor: backgroundColor,
+                disposeLevel: disposeLevel,
+                child: fullScreenChild ?? child,
+              );
+            }
+          )
+        );
       },
       child: child,
     );
@@ -203,7 +208,7 @@ class FullScreenPageState extends State<FullScreenPage> {
                       IconButton(
                         icon: const Icon(Icons.cancel, size: 40, color: Colors.white,),
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Get.back();
                         }, 
                       ),
                     ],

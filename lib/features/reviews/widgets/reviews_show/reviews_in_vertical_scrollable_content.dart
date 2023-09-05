@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -10,9 +8,10 @@ import '../../../../../core/shared_models/user.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import '../../models/review.dart';
+import 'dart:convert';
 
 class ReviewsInVerticalScrollableContent extends StatefulWidget {
   
@@ -68,7 +67,7 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
 
   /// Render each request item as an Review
   Review onParseItem(review) => Review.fromJson(review);
-  Future<http.Response> requestStoreReviews(int page, String searchWord) {
+  Future<dio.Response> requestStoreReviews(int page, String searchWord) {
 
     final int? userId = reviewer == null ? null : reviewer!.id;
 
@@ -82,12 +81,10 @@ class ReviewsScrollableContentState extends State<ReviewsInVerticalScrollableCon
 
       if(response.statusCode == 200) {
 
-        final responseBody = jsonDecode(response.body);
-
         /// If the response review count does not match the store review count
-        if(searchWord.isEmpty && reviewFilter == 'All' && store.reviewsCount != responseBody['total']) {
+        if(searchWord.isEmpty && reviewFilter == 'All' && store.reviewsCount != response.data['total']) {
 
-          store.reviewsCount = responseBody['total'];
+          store.reviewsCount = response.data['total'];
           store.runNotifyListeners();
 
         }

@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../services/introduction_service.dart';
 import 'package:intro_slider/intro_slider.dart';
 import '../enums/introduction_enums.dart';
@@ -20,7 +22,7 @@ class IntroductionSlidesPage extends StatelessWidget {
       introductionServices.saveHasSeenBuyerIntroOnDeviceStorage(true);
     }
 
-    Navigator.of(context).pushReplacementNamed(LandingPage.routeName);
+    Get.offAndToNamed(LandingPage.routeName);
 
   }
 

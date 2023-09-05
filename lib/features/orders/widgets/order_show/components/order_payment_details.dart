@@ -2,6 +2,7 @@ import 'package:bonako_demo/features/transactions/widgets/order_transactions/ord
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_dialog/order_transactions_dialog.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
+import 'package:bonako_demo/core/shared_widgets/progress_bar/progress_bar.dart';
 import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
 import 'order_payment/order_request_payment/order_request_payment_button.dart';
@@ -68,12 +69,10 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
 
     orderProvider.setOrder(order).orderRepository.showOrderTransactionsCount().then((response) {
 
-      final responseBody = jsonDecode(response.body);
-
       if(response.statusCode == 200) {
 
         /// Set the total transactions on this order
-        setState(() => order.transactionsCount = responseBody['total']);
+        setState(() => order.transactionsCount = response.data['total']);
 
         if(onRequestedTransactionsCount != null) onRequestedTransactionsCount!(order.transactionsCount!);
 
@@ -165,7 +164,7 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
           const SizedBox(height: 8),
 
           /// Progress Bar
-          progressBar
+          CustomProgressBar(percentage: order.amountPaidPercentage.value)
 
         ],
       )
@@ -199,18 +198,6 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
         CustomBodyText('${order.amountPaid.amountWithCurrency} (${order.amountPaidPercentage.valueSymbol})'),
 
       ],
-    );
-  }
-
-  Widget get progressBar {
-    return ClipRRect(
-      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-      child: LinearProgressIndicator(
-        minHeight: 8,
-        color: Colors.green,
-        backgroundColor: Colors.grey.shade200,
-        value: (50 / 100),
-      ),
     );
   }
 
