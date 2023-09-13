@@ -108,6 +108,7 @@ flutter:
     - assets/images/auth/
     - assets/images/orders/
     - assets/images/groups/
+    - assets/images/products/
     - assets/images/welcome/
     - assets/images/following/
     - assets/images/my_stores/

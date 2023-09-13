@@ -19,13 +19,14 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   
   ShoppableStore? store;
   bool isLoading = false;
+  bool hasRequestedSupportedPaymentMethods = false;
   List<PaymentMethod> supportedPaymentMethods = [];
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
 
-  bool get hasPaymentMethods => supportedPaymentMethods.isNotEmpty;
   bool get hasSelectedPaymentMethod => store!.paymentMethod != null;
   bool get hasMultiplePaymentMethods => supportedPaymentMethods.length > 1;
+  bool get hasSupportedPaymentMethods => supportedPaymentMethods.isNotEmpty;
   bool get hasSelectedProducts => store == null ? false : store!.hasSelectedProducts;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get hasPaymentMethodInstruction => hasSelectedPaymentMethod && 
@@ -40,7 +41,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     store = Provider.of<ShoppableStore>(context, listen: false);
 
     /// If we have selected products and we don't have payment methods and we are not loading
-    if(hasSelectedProducts && !hasPaymentMethods && !isLoading) {
+    if(hasSelectedProducts && !hasRequestedSupportedPaymentMethods && !isLoading) {
       _requestSupportedPaymentMethods();
     }
   }
@@ -52,7 +53,11 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     storeProvider.setStore(store!).storeRepository.showSupportedPaymentMethods().then((response) {
 
       if(response.statusCode == 200) {
+
         setState(() {
+
+          /// Indicate that we have requested the supported payment methods
+          hasRequestedSupportedPaymentMethods = true;
 
           supportedPaymentMethods = (response.data['data'] as List).map((paymentMethod) {
             return PaymentMethod.fromJson(paymentMethod);
@@ -60,14 +65,16 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             return paymentMethod.attributes.storePaymentMethodAssociation!.active;
           }).toList();
 
-          /// If we only have payment methods
-          if(hasPaymentMethods) {
+          /// If we only one or more supported payment methods
+          if(hasSupportedPaymentMethods) {
 
             /// Set the first payment method as the selected payment method
             store!.updatePaymentMethod(supportedPaymentMethods.first);
 
           }
+
         });
+        
       }
 
     }).whenComplete(() {
@@ -95,7 +102,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         switchOutCurve: Curves.easeOut,
         duration: const Duration(milliseconds: 500),
         child: Column(
-          children: hasSelectedProducts && hasPaymentMethods ? [
+          children: hasSelectedProducts && hasSupportedPaymentMethods ? [
             
             //  Divider
             const Divider(),

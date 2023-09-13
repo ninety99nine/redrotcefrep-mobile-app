@@ -108,7 +108,7 @@ class _OrderCollectionSellerConfirmationState extends State<OrderCollectionSelle
         final order = Order.fromJson(response.data);
 
         /// Play success sound
-        if(isCompleted) audioPlayer.play(AssetSource('sounds/success.mp3'));
+        if(isCompleted) audioPlayer.play(AssetSource('sounds/success.mp3'), mode: PlayerMode.lowLatency);
 
         SnackbarUtility.showSuccessMessage(message: 'Completed');
 
@@ -125,7 +125,7 @@ class _OrderCollectionSellerConfirmationState extends State<OrderCollectionSelle
       }else {
 
         /// Play error sound
-        if(isCompleted) audioPlayer.play(AssetSource('sounds/error.mp3'));
+        if(isCompleted) audioPlayer.play(AssetSource('sounds/error.mp3'), mode: PlayerMode.lowLatency);
 
         /// Update failed
         return false;

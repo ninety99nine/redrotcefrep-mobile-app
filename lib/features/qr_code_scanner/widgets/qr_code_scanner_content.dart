@@ -92,7 +92,7 @@ class _QRCodeScannerContentState extends State<QRCodeScannerContent> {
         if(response.statusCode == 200) {
 
           /// Play success sound
-          audioPlayer.play(AssetSource('sounds/success.mp3'));
+          audioPlayer.play(AssetSource('sounds/success.mp3'), mode: PlayerMode.lowLatency);
 
           /// Set the updated order
           setState(() => order = Order.fromJson(response.data));
@@ -103,7 +103,7 @@ class _QRCodeScannerContentState extends State<QRCodeScannerContent> {
         }else{
 
           /// Play error sound
-          audioPlayer.play(AssetSource('sounds/error.mp3'));
+          audioPlayer.play(AssetSource('sounds/error.mp3'), mode: PlayerMode.lowLatency);
 
         }
 

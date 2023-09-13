@@ -20,12 +20,14 @@ class ProductsContent extends StatefulWidget {
   final Product? product;
   final ShoppableStore store;
   final bool showingFullPage;
+  final Function(Product)? onUpdatedProduct;
   final ProductContentView? productContentView;
 
   const ProductsContent({
     super.key,
     this.product,
     required this.store,
+    this.onUpdatedProduct,
     this.productContentView,
     this.showingFullPage = false,
   });
@@ -42,6 +44,7 @@ class _ProductsContentState extends State<ProductsContent> {
   String productFilter = 'All';
   int onSendProgressPercentage = 0;
   bool disableFloatingActionButton = false;
+  bool get isVariation => product?.attributes.isVariation ?? false;
   ProductContentView productContentView = ProductContentView.viewingProducts;
 
   /// This allows us to access the state of UpdateStoreForm widget using a Global key. 
@@ -57,11 +60,24 @@ class _ProductsContentState extends State<ProductsContent> {
   ShoppableStore get store => widget.store;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
+  Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get isViewingProducts => productContentView == ProductContentView.viewingProducts;
   bool get isCreatingProduct => productContentView == ProductContentView.creatingProduct;
   bool get isEditingProduct => productContentView == ProductContentView.editingProduct;
   bool get canShowProgressBar => (isCreatingProduct || isEditingProduct) && isSubmitting && onSendProgressPercentage > 0;
+  
+  String get title {
+    if(isViewingProducts) {
+        return 'Products';
+    }else if(isCreatingProduct) {
+      return 'Create Product';
+    }else{
+      return product!.name;
+    }
+
+  }
+
   String get subtitle {
 
     if(isViewingProducts) {
@@ -101,6 +117,8 @@ class _ProductsContentState extends State<ProductsContent> {
 
     /// If we want to view the products content
     if(isViewingProducts) {
+    
+      print('show ProductsInVerticalListViewInfiniteScroll()');
 
       /// Show products view
       return ProductsInVerticalListViewInfiniteScroll(
@@ -113,16 +131,20 @@ class _ProductsContentState extends State<ProductsContent> {
     /// If we want to view the create product content
     }else {
       
+      print('show CreateOrUpdateProductForm()');
+
       return CreateOrUpdateProductForm(
         store: store,
         product: product,
+        onLoading: (_)=>{},
         onDeleting: onDeleting,
         onSubmitting: onSubmitting,
         key: _createProductFormState,
         onSendProgress: onSendProgress,
         onDeletedProduct: onDeletedProduct,
         onCreatedProduct: onCreatedProduct,
-        onUpdatedProduct: onUpdatedProduct,
+        onUpdatedProduct: _onUpdatedProduct,
+        onRefreshedProduct: onRefreshedProduct
       );
 
     }
@@ -157,10 +179,29 @@ class _ProductsContentState extends State<ProductsContent> {
     changeProductContentView(ProductContentView.viewingProducts);
   }
 
-  void onUpdatedProduct(Product product){
-    this.product = null;
-    StoreServices.refreshProducts(store, storeProvider);
-    changeProductContentView(ProductContentView.viewingProducts);
+  void onRefreshedProduct(Product product){
+    setState(() => this.product = product);
+  }
+
+  void _onUpdatedProduct(Product product) {
+
+    if(onUpdatedProduct != null) onUpdatedProduct!(product);
+
+    /// Check if this product is a variation product
+    if(isVariation) {
+
+      /// Simply close the dialog
+      Get.back();
+      
+    /// If this product is not a variation product
+    }else{
+
+      this.product = null;
+      StoreServices.refreshProducts(store, storeProvider);
+      changeProductContentView(ProductContentView.viewingProducts);
+
+    }
+
   }
 
   void onDeletedProduct(Product product){
@@ -190,7 +231,7 @@ class _ProductsContentState extends State<ProductsContent> {
     return Row(
       children: [
 
-        if( productContentView != ProductContentView.viewingProducts ) ...[
+        if( productContentView != ProductContentView.viewingProducts && !isVariation ) ...[
 
           /// Back button
           SizedBox(
@@ -301,7 +342,7 @@ class _ProductsContentState extends State<ProductsContent> {
                     children: [
                 
                       /// Title
-                      const CustomTitleMediumText('Products', padding: EdgeInsets.only(bottom: 8),),
+                      CustomTitleMediumText(title, overflow: TextOverflow.ellipsis, maxLines: 1, padding: const EdgeInsets.only(bottom: 8),),
                       
                       /// Subtitle
                       AnimatedSwitcher(

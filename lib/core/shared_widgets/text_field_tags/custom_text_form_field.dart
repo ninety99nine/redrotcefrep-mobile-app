@@ -5,6 +5,7 @@ import 'package:textfield_tags/textfield_tags.dart';
 class CustomTextFieldTags extends StatelessWidget {
   
   final bool enabled;
+  final int? maxLength;
   final String? hintText;
   final String? errorText;
   final String? labelText;
@@ -21,8 +22,9 @@ class CustomTextFieldTags extends StatelessWidget {
   final Function(String)? onRemovedTag;
   final String validatorOnDuplicateText;
   final Function(String)? onSelectedTag;
-  final String? Function(String?)? validator;
+  final void Function()? onEditingComplete;
   final TextfieldTagsController? textfieldTagsController;
+  final String? Function(String?, String? Function(String?))? validator;
 
   const CustomTextFieldTags( 
     {
@@ -31,6 +33,7 @@ class CustomTextFieldTags extends StatelessWidget {
       this.labelText,
       this.validator,
       this.onChanged,
+      this.maxLength,
       this.helperText,
       this.initialTags,
       this.onSubmitted,
@@ -38,6 +41,7 @@ class CustomTextFieldTags extends StatelessWidget {
       this.onSelectedTag,
       this.enabled = true,
       this.textSeparators,
+      this.onEditingComplete,
       this.hintText = 'Enter tag',
       this.allowDuplicates = false,
       this.borderRadiusAmount = 50.0,
@@ -49,6 +53,34 @@ class CustomTextFieldTags extends StatelessWidget {
     }
   );
 
+  String? defaultValidation(String? tag) {
+    if (
+      allowDuplicates == false && 
+      textfieldTagsController != null && 
+      textfieldTagsController!.getTags != null && 
+      textfieldTagsController!.getTags!.contains(tag)
+    ) {
+      
+      /// Duplicate tag error
+      return validatorOnDuplicateText;
+
+    }else if(
+        validatorOnEmptyText.isNotEmpty && 
+        textfieldTagsController != null && 
+        textfieldTagsController!.getTags != null && 
+        textfieldTagsController!.getTags!.isEmpty
+      ) {
+      
+      /// Empty tag error
+      return validatorOnEmptyText;
+
+    }else{
+
+      return null;
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -59,63 +91,38 @@ class CustomTextFieldTags extends StatelessWidget {
       initialTags: initialTags,
       textSeparators: textSeparators,
       textfieldTagsController: textfieldTagsController,
-      validator: validator ?? (String tag) {
-
-        if (
-          allowDuplicates == false && 
-          textfieldTagsController != null && 
-          textfieldTagsController!.getTags != null && 
-          textfieldTagsController!.getTags!.contains(tag)
-        ) {
-          
-          /// Duplicate tag error
-          return validatorOnDuplicateText;
-
-        }else if(
-            validatorOnEmptyText.isNotEmpty && 
-            textfieldTagsController != null && 
-            textfieldTagsController!.getTags != null && 
-            textfieldTagsController!.getTags!.isEmpty
-          ) {
-          
-          /// Empty tag error
-          return validatorOnEmptyText;
-
-        }else{
-
-          return null;
-
-        }
-      },
+      validator: (value) => validator == null ? defaultValidation(value) : validator!(value, defaultValidation),
       inputfieldBuilder: (context, tec, fn, error, onChangedCallback, onSubmittedCallback) {
         return ((context, sc, tags, onTagDelete) {
           return TextField(
             focusNode: fn,
             controller: tec,
             enabled: enabled,
+            maxLength: maxLength,
             keyboardType: keyboardType,
             style: bodyLarge.copyWith(
               color: enabled ? Colors.black : Colors.grey.shade400,
               fontWeight: FontWeight.normal,
             ),
             onChanged: (value) {
-
+          
               /// Internal action
               if(onChangedCallback != null) onChangedCallback(value);
-
+          
               /// Notify parent widget
               if(onChanged != null) onChanged!(value);
-
+          
             },
             onSubmitted: (value) {
-
+          
               /// Internal action
               if(onSubmittedCallback != null) onSubmittedCallback(value);
-
+          
               /// Notify parent widget
               if(onSubmitted != null) onSubmitted!(value);
-
+          
             },
+            onEditingComplete: onEditingComplete,
             decoration: InputDecoration(
               filled: true,
               errorMaxLines: 2,
@@ -124,19 +131,21 @@ class CustomTextFieldTags extends StatelessWidget {
               hintText: textfieldTagsController == null ? hintText : (textfieldTagsController!.hasTags ? '  Add' : hintText),
               prefixIcon: tags.isNotEmpty
                 /// Tags in a horizontal scrollable list
-                ? ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8.0),
-                    topRight: Radius.circular(20.0),
-                    bottomLeft: Radius.circular(8.0),
-                    bottomRight: Radius.circular(20.0),
-                  ),
-                  child: SingleChildScrollView(
-                    controller: sc,
-                    scrollDirection: Axis.horizontal,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
+                ? ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8.0),
+                        topRight: Radius.circular(20.0),
+                        bottomLeft: Radius.circular(8.0),
+                        bottomRight: Radius.circular(20.0),
+                      ),
+                      child: SingleChildScrollView(
+                        controller: sc,
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
                           children: tags.map((String tag) {
                             return CustomTag(
                               tag,
@@ -149,6 +158,7 @@ class CustomTextFieldTags extends StatelessWidget {
                               },
                             );
                         }).toList()),
+                      ),
                     ),
                   ),
                 )
@@ -173,7 +183,7 @@ class CustomTextFieldTags extends StatelessWidget {
                   width: 1.0,
                 ),
               ),
-
+          
               //  Border enabled (i.e enabled = true)
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(borderRadiusAmount),
@@ -182,7 +192,7 @@ class CustomTextFieldTags extends StatelessWidget {
                   width: 1.0,
                 ),
               ),
-
+          
               //  Border focused (i.e while typing - onFocus)
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(borderRadiusAmount),
@@ -191,7 +201,7 @@ class CustomTextFieldTags extends StatelessWidget {
                   width: 1.0,
                 ),
               ),
-
+          
               //  Border error onfocused (i.e validation error showing while not typing - onblur)
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(borderRadiusAmount),
@@ -200,7 +210,7 @@ class CustomTextFieldTags extends StatelessWidget {
                   width: 1.0,
                 ),
               ),
-
+          
               //  Border error focused (i.e validation error showing while typing - onFocus)
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(borderRadiusAmount),

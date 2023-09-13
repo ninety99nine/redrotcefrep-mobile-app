@@ -334,11 +334,16 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
             canNotifyListeners: true
           );
 
-          /// If the store has the onCreatedOrder method
-          if(store!.onCreatedOrder != null) {
+          /// If the store has any onCreatedOrderCallbacks
+          if(store!.onCreatedOrderCallbacks.isNotEmpty) {
 
-            /// Trigger this onCreatedOrder method and pass this order
-            store!.onCreatedOrder!(createdOrder);
+            /// Foreach onCreatedOrderCallback
+            for (var i = 0; i < store!.onCreatedOrderCallbacks.length; i++) {
+
+              /// Trigger this onCreatedOrderCallback
+              store!.onCreatedOrderCallbacks[i](createdOrder);
+
+            }
 
           }
 

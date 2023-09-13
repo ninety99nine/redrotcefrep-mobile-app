@@ -1,3 +1,6 @@
+import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:get/get.dart';
+
 import '../../../../stores/providers/store_provider.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
@@ -18,15 +21,27 @@ class ProductsPage extends StatefulWidget {
 
 class _ProductsPageState extends State<ProductsPage> {
 
-  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  ShoppableStore get store => storeProvider.store!;
-
   @override
   Widget build(BuildContext context) {
+
+    /// Get the route arguments
+    final arguments = Get.arguments;
+
+    /// Set the "product" (if provided)
+    Product? product = arguments['product'] as Product?;
+
+    /// Set the "store" (if provided)
+    ShoppableStore store = arguments['store'] as ShoppableStore;
+
+    /// Set the "onUpdatedProduct" (if provided)
+    Function(Product)? onUpdatedProduct = arguments['onUpdatedProduct'] as Function(Product)?;
+
     return Scaffold(
       body: ProductsContent(
         store: store,
-        showingFullPage: true
+        product: product,
+        showingFullPage: true,
+        onUpdatedProduct: onUpdatedProduct,
       ),
     );
   }

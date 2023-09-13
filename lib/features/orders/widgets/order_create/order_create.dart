@@ -1,9 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/features/shopping_cart/widgets/shopping_cart_content.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +33,18 @@ class _OrderCreateState extends State<OrderCreate> {
   void Function(Order)? get onCreatedOrder => widget.onCreatedOrder;
 
   @override
+  void initState() {
+    super.initState();
+    if(onCreatedOrder != null) store.onCreatedOrderCallbacks.add(onCreatedOrder!);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    store.onCreatedOrderCallbacks.removeWhere((callback) => callback == onCreatedOrder);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
@@ -44,9 +52,7 @@ class _OrderCreateState extends State<OrderCreate> {
         padding: widget.padding,
         child: ListenableProvider.value(
           value: store,
-          child: Content(
-            onCreatedOrder: onCreatedOrder
-          )
+          child: const Content()
         )
       )
     );
@@ -55,11 +61,8 @@ class _OrderCreateState extends State<OrderCreate> {
 
 class Content extends StatelessWidget {
 
-  final void Function(Order)? onCreatedOrder;
-
   const Content({
     super.key,
-    this.onCreatedOrder
   });
 
   @override
@@ -75,7 +78,6 @@ class Content extends StatelessWidget {
      *  which is a descendant widget of this widget.
      */
     ShoppableStore store = Provider.of<ShoppableStore>(context, listen: true);
-    store.onCreatedOrder = onCreatedOrder;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

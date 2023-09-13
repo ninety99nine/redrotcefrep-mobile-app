@@ -34,6 +34,7 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
   ShoppableStore get store => widget.store;
   double? get logoRadius => widget.logoRadius;
   bool get hasCoverPhoto => store.hasCoverPhoto;
+  bool get hasProductPhotos => store.hasProductPhotos;
   bool get showProfileRightSide => widget.showProfileRightSide;
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
   bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
@@ -107,7 +108,7 @@ class _StorePrimarySectionContentState extends State<StorePrimarySectionContent>
                     children: [
                       
                       /// Access Denied For Team Member
-                      if(hasCoverPhoto) ...[
+                      if(hasCoverPhoto || hasProductPhotos) ...[
                         SubscribeToStoreModalBottomSheet(
                           store: widget.store,
                           subscribeButtonAlignment: subscribeButtonAlignment,

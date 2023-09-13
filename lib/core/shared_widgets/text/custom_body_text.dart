@@ -7,6 +7,7 @@ class CustomBodyText extends StatefulWidget {
   final bool isError;
   final Color? color;
   final int? maxLines;
+  final bool isWarning;
   final double? height;
   final bool lightShade;
   final double? fontSize;
@@ -32,6 +33,7 @@ class CustomBodyText extends StatefulWidget {
       this.fontStyle,
       this.isLink = false,
       this.isError = false,
+      this.isWarning = false,
       this.lightShade = false,
       this.fontWeight = FontWeight.normal
     }
@@ -52,6 +54,8 @@ class _CustomBodyTextState extends State<CustomBodyText> {
       return Theme.of(context).primaryColor;
     }else if(widget.isError) {
       return Colors.red;
+    }else if(widget.isWarning) {
+      return Colors.orange.shade700;
     }else if(widget.lightShade) {
       return Colors.grey;
     }else {

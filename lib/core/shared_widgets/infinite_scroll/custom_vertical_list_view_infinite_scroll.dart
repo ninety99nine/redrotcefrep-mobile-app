@@ -28,6 +28,9 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final EdgeInsets headerPadding;
   final Widget? separator;
 
+  /// Parent ScrollController
+  final ScrollController? scrollController;
+
   /// Indication that we can reoder
   final bool canReorder;
 
@@ -63,6 +66,9 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
 
   /// Mesage to show when there is no more content to show
   final String noMoreContent;
+
+  /// Widget to show when there is no content to show
+  final Widget? noContentWidget;
 
   /// Show the no more content text when we don't have
   /// anymore content to load while scrolling down
@@ -109,7 +115,9 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
     this.onLoading,
     this.searchWord,
     this.onSearching,
+    this.noContentWidget,
     this.onSelectedItems,
+    this.scrollController,
     this.disabled = false,
     this.selectedAllAction,
     this.canReorder = false,
@@ -142,8 +150,8 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
 
   final ApiConflictResolverUtility apiConflictResolverUtility = ApiConflictResolverUtility();
   final DebouncerUtility debouncerUtility = DebouncerUtility(milliseconds: 1000);
-  final ScrollController scrollController = ScrollController();
   RequestType requestType = RequestType.startRequest;
+  late ScrollController scrollController;
   
   bool hasShownSearchBarBefore = false;
   bool sentFirstRequest = false;
@@ -168,6 +176,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   Function(bool)? get onLoading => widget.onLoading;
   EdgeInsets get loaderMargin => widget.loaderMargin;
   Function(Map) get onParseItem => widget.onParseItem;
+  Widget? get noContentWidget => widget.noContentWidget;
   Function(bool)? get onSearching => widget.onSearching;
   Function(int, int)? get onReorder => widget.onReorder;
   bool get showNoMoreContent => widget.showNoMoreContent;
@@ -178,6 +187,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
   bool get isStartingRequest => requestType == RequestType.startRequest;
   bool get loadedLastPage => lastPage == null ? false : page > lastPage!;
+  bool get isUsingParentScrollController => widget.scrollController != null;
   bool get isContinuingRequest => requestType == RequestType.continueRequest;
   Future<dio.Response> Function(int, String) get onRequest => widget.onRequest;
   bool get isSearching => isStartingRequest && isLoading && searchWord.isNotEmpty;
@@ -208,6 +218,19 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   void initState() {
     
     super.initState();
+
+    /// If the scroll controller is provided
+    if(isUsingParentScrollController) {
+
+      /// Use the provided scroll controller
+      scrollController = widget.scrollController!;
+
+    }else{
+      
+      /// Create a new scroll controller
+      scrollController = ScrollController();
+      
+    }
 
     /// Set the local state searchWord using the widget searchWord (if provided)
     if(widget.searchWord != null) searchWord = widget.searchWord!; 
@@ -249,7 +272,9 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   @override
   void dispose() {
     super.dispose();
-    scrollController.dispose();
+
+    /// If we created the scroll controller on this widget, then let us dispose of it
+    if(!isUsingParentScrollController) scrollController.dispose();
   }
   
   @override
@@ -596,14 +621,14 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     }
   }
 
-  Widget get noContentWidget {
-    return Center(
+  Widget get _noContentWidget {
+    return noContentWidget == null ? Center(
       child: CustomBodyText(
         noContent, 
         textAlign: TextAlign.center, 
         margin: const EdgeInsets.only(top: 20, bottom: 100),
       ),
-    );
+    ) : noContentWidget!;
   }
 
   Widget get searchInputField {  
@@ -644,7 +669,15 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     return Align(
       alignment: Alignment.topLeft,
       child: SingleChildScrollView(
-        controller: scrollController,
+        /**
+         *  Check if the widget.scrollController is provided. If it is provided then we know that the scrollController is provided
+         *  by the parent widget and therefore has already been assigned to the parent widget's SingleChildScrollView() controller.
+         *  This means we should avoid re-assigning the same widget.scrollController to this SingleChildScrollView() and we should
+         *  disable the scrolling functionality using NeverScrollableScrollPhysics() so that we are only listening to the scroll
+         *  activity on the parent widget's SingleChildScrollView() widget.
+         */
+        controller: isUsingParentScrollController ? null : scrollController,
+        physics: isUsingParentScrollController ? const NeverScrollableScrollPhysics() : null,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -688,7 +721,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
                   if(sentFirstRequest && showNoContent) AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
                     opacity: isLoading ? 0.3 : 1,
-                    child: data.isEmpty ? noContentWidget : null,
+                    child: data.isEmpty ? _noContentWidget : null,
                   ),
       
                 ],

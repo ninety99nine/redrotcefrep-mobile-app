@@ -45,6 +45,7 @@ class CustomTag extends StatelessWidget {
       margin: margin,
       padding: padding,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
 
@@ -53,25 +54,29 @@ class CustomTag extends StatelessWidget {
             onTap: onTap,
             child: Text(
               text, 
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14,
                 color: selectedFill ? Colors.white : color
               )
             ),
           ),
+          if(showCancelIcon) ...[
 
-          /// Spacer
-          const SizedBox(width: 4.0),
+            /// Spacer
+            const SizedBox(width: 4.0),
 
-          /// Cancel Icon
-          if(showCancelIcon) InkWell(
-            onTap: onCancel,
-            child: Icon(
-              size: 14.0,
-              Icons.cancel,
-              color: selectedFill ? const Color.fromARGB(255, 233, 233, 233) : color,
-            ),
-          )
+            /// Cancel Icon
+            InkWell(
+              onTap: onCancel,
+              child: Icon(
+                size: 14.0,
+                Icons.cancel,
+                color: selectedFill ? const Color.fromARGB(255, 233, 233, 233) : color,
+              ),
+            )
+
+          ]
 
         ],
       ),

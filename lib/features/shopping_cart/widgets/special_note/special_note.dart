@@ -36,48 +36,51 @@ class _SpecialNoteState extends State<SpecialNote> {
     /// can place an order.
     store = Provider.of<ShoppableStore>(context, listen: true);
     
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 500),
-      child: AnimatedSwitcher(
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
+    return SizedBox(
+      width: double.infinity,
+      child: AnimatedSize(
         duration: const Duration(milliseconds: 500),
-        child: Column(
-          children: hasSelectedProducts ? [
-
-              /// Description
-              CustomTextFormField(
-                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                hintText: 'Do you have a special request?',
-                labelText: 'Special Request',
-                borderRadiusAmount: 16,
-                maxLength: 400,
-                minLines: 2,
-                onChanged: (value) {
-                  debouncerUtility.run(() {
-                    setState(() => store!.updateSpecialNote(value)); 
-                  });
-                },
-                validator: (value) {
-                  return null;
-                }
-              ),
-        
-              if(specialNoteErrorText != null) ...[
-
+        child: AnimatedSwitcher(
+          switchInCurve: Curves.easeIn,
+          switchOutCurve: Curves.easeOut,
+          duration: const Duration(milliseconds: 500),
+          child: Column(
+            children: hasSelectedProducts ? [
+    
+                /// Description
+                CustomTextFormField(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  hintText: 'Do you have a special request?',
+                  labelText: 'Special Request',
+                  borderRadiusAmount: 16,
+                  maxLength: 400,
+                  minLines: 2,
+                  onChanged: (value) {
+                    debouncerUtility.run(() {
+                      setState(() => store!.updateSpecialNote(value)); 
+                    });
+                  },
+                  validator: (value) {
+                    return null;
+                  }
+                ),
+          
+                if(specialNoteErrorText != null) ...[
+    
+                  /// Spacer
+                  const SizedBox(height: 16),
+    
+                  /// Special note error text
+                  CustomBodyText(specialNoteErrorText, isError: true),
+    
+                ],
+                
                 /// Spacer
                 const SizedBox(height: 16),
-
-                /// Special note error text
-                CustomBodyText(specialNoteErrorText, isError: true),
-
-              ],
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-          ] : [],
-        )
+    
+            ] : [],
+          )
+        ),
       ),
     );
   }

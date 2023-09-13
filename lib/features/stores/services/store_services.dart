@@ -21,7 +21,7 @@ class StoreServices {
 
   /// Refresh the products of the specified store
   static void refreshProducts(ShoppableStore store, StoreProvider storeProvider) {
-
+    print('refreshProducts');
     storeProvider.setStore(store).storeRepository.showProducts(
       filter: 'Visible'
     ).then((response) {
@@ -50,6 +50,11 @@ class StoreServices {
   /// Check if the user has the permission to manage orders on the store
   static bool canManageProducts(ShoppableStore store) {
     return getUserStoreAssociation(store)?.canManageProducts ?? false;
+  }
+
+  /// Check if the user has the permission to manage coupons on the store
+  static bool canManageCoupons(ShoppableStore store) {
+    return getUserStoreAssociation(store)?.canManageCoupons ?? false;
   }
 
   /// Check if the user has the permission to manage team members on the store

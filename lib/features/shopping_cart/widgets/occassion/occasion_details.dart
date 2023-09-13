@@ -5,7 +5,6 @@ import 'package:bonako_demo/features/occasions/models/occasion.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 
 class OccasionDetails extends StatefulWidget {
   const OccasionDetails({super.key});
@@ -72,102 +71,105 @@ class _OccasionDetailsState extends State<OccasionDetails> {
     /// can place an order.
     store = Provider.of<ShoppableStore>(context, listen: true);
     
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 500),
-      child: AnimatedSwitcher(
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
+    return SizedBox(
+      width: double.infinity,
+      child: AnimatedSize(
         duration: const Duration(milliseconds: 500),
-        child: Column(
-          children: hasSelectedProducts && hasOccasions ? [
-            
-            //  Divider
-            const Divider(),
-
-            /// Spacer
-            const SizedBox(height: 8),
-            
-            /// Title
-            const CustomTitleSmallText('What\'s the occasion?'),
-
-            /// Spacer
-            const SizedBox(height: 8),
-
-            /// Occasions (🥳 Happy Birthday | 🏥 Get Well Soon | 🌼 Mothers Day)
-            ClipRRect(
-              clipBehavior: Clip.antiAlias,
-              borderRadius: BorderRadius.circular(24),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      // First Row of Chips
-                      Row(
-                        children: [
-                          CustomChoiceChip(
-                            label: 'None',
-                            selected: !hasSelectedOccasion,
-                            selectedColor: Colors.green.shade700,
-                            onSelected: (bool isSelected) {
-                              if (isSelected) {
-                                store!.updateOccasion(null);
-                              }
-                            },
-                          ),
-
-                          /// Spacing
-                          const SizedBox(width: 4),
-
-                          for (int i = 0; i < occasions.length; i++) ...[
-
+        child: AnimatedSwitcher(
+          switchInCurve: Curves.easeIn,
+          switchOutCurve: Curves.easeOut,
+          duration: const Duration(milliseconds: 500),
+          child: Column(
+            children: hasSelectedProducts && hasOccasions ? [
+              
+              //  Divider
+              const Divider(),
+    
+              /// Spacer
+              const SizedBox(height: 8),
+              
+              /// Title
+              const CustomTitleSmallText('What\'s the occasion?'),
+    
+              /// Spacer
+              const SizedBox(height: 8),
+    
+              /// Occasions (🥳 Happy Birthday | 🏥 Get Well Soon | 🌼 Mothers Day)
+              ClipRRect(
+                clipBehavior: Clip.antiAlias,
+                borderRadius: BorderRadius.circular(24),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+    
+                        // First Row of Chips
+                        Row(
+                          children: [
+                            CustomChoiceChip(
+                              label: 'None',
+                              selected: !hasSelectedOccasion,
+                              selectedColor: Colors.green.shade700,
+                              onSelected: (bool isSelected) {
+                                if (isSelected) {
+                                  store!.updateOccasion(null);
+                                }
+                              },
+                            ),
+    
                             /// Spacing
                             const SizedBox(width: 4),
-
-                            /// Display every other occasion in the first row
-                            if (i % 2 == 0)
-                              CustomChoiceChip(
-                                selected: store!.occasion?.name == occasions[i].name,
-                                label: occasions[i].name,
-                                selectedColor: Colors.green.shade700,
-                                onSelected: (bool isSelected) =>
-                                    store!.updateOccasion(occasions[i]),
-                              ),
+    
+                            for (int i = 0; i < occasions.length; i++) ...[
+    
+                              /// Spacing
+                              const SizedBox(width: 4),
+    
+                              /// Display every other occasion in the first row
+                              if (i % 2 == 0)
+                                CustomChoiceChip(
+                                  selected: store!.occasion?.name == occasions[i].name,
+                                  label: occasions[i].name,
+                                  selectedColor: Colors.green.shade700,
+                                  onSelected: (bool isSelected) =>
+                                      store!.updateOccasion(occasions[i]),
+                                ),
+                            ],
                           ],
-                        ],
-                      ),
-                      
-                      // Second Row of Chips
-                      Row(
-                        children: [
-                          for (int i = 0; i < occasions.length; i++) ...[
-
-                            /// Spacing
-                            if(i != 0) const SizedBox(width: 4),
-
-                            /// Display the remaining occasions in the second row
-                            if (i % 2 != 0)
-                              CustomChoiceChip(
-                                selected: store!.occasion?.name == occasions[i].name,
-                                label: occasions[i].name,
-                                selectedColor: Colors.green.shade700,
-                                onSelected: (bool isSelected) =>
-                                    store!.updateOccasion(occasions[i]),
-                              ),
+                        ),
+                        
+                        // Second Row of Chips
+                        Row(
+                          children: [
+                            for (int i = 0; i < occasions.length; i++) ...[
+    
+                              /// Spacing
+                              if(i != 0) const SizedBox(width: 4),
+    
+                              /// Display the remaining occasions in the second row
+                              if (i % 2 != 0)
+                                CustomChoiceChip(
+                                  selected: store!.occasion?.name == occasions[i].name,
+                                  label: occasions[i].name,
+                                  selectedColor: Colors.green.shade700,
+                                  onSelected: (bool isSelected) =>
+                                      store!.updateOccasion(occasions[i]),
+                                ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ],
-                  )
+                        ),
+                      ],
+                    )
+                ),
               ),
-            ),
-
-            /// Spacer
-            const SizedBox(height: 8),
-
-          ] : [],
-        )
+    
+              /// Spacer
+              const SizedBox(height: 8),
+    
+            ] : [],
+          )
+        ),
       ),
     );
   }

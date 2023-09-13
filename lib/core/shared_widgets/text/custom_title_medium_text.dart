@@ -4,6 +4,7 @@ class CustomTitleMediumText extends StatelessWidget {
   
   final String text;
   final Color? color;
+  final int? maxLines;
   final EdgeInsets? margin;
   final EdgeInsets? padding;
   final TextOverflow? overflow;
@@ -14,6 +15,7 @@ class CustomTitleMediumText extends StatelessWidget {
     this.margin,
     this.padding,
     this.overflow,
+    this.maxLines,
   });
 
   @override
@@ -23,6 +25,7 @@ class CustomTitleMediumText extends StatelessWidget {
       padding: padding,
       child: Text(
         text,
+        maxLines: maxLines,
         overflow: overflow,
         style: Theme.of(context).textTheme.titleMedium!.copyWith(
           color: color,

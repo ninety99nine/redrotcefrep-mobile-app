@@ -54,8 +54,8 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   List<PaymentMethod> supportedPaymentMethods = [];
   List<PaymentMethod> availablePaymentMethods = [];
   late List<String> availableInstallmentPercentages;
-  final TextfieldTagsController _pickupDestinationsController = TextfieldTagsController();
-  final TextfieldTagsController _deliveryDestinationsController = TextfieldTagsController();
+  late TextfieldTagsController _pickupDestinationsController = TextfieldTagsController();
+  late TextfieldTagsController _deliveryDestinationsController = TextfieldTagsController();
   
   ShoppableStore get store => widget.store;
   Function(bool) get onSubmitting => widget.onSubmitting;
@@ -64,6 +64,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get allowFreeDelivery => storeForm.isEmpty ? false : storeForm['allowFreeDelivery'];
+  String get mobileNumberWithExtension => MobileNumberUtility.addMobileNumberExtension(storeForm['mobileNumber']);
   bool get hasPickupDestinations => storeForm.isEmpty ? false : (storeForm['pickupDestinations'] as List<Map>).isNotEmpty;
   bool get hasDeliveryDestinations => storeForm.isEmpty ? false : (storeForm['deliveryDestinations'] as List<Map>).isNotEmpty;
   bool get hasSupportedPaymentMethods => storeForm.isEmpty ? false : (storeForm['supportedPaymentMethods'] as List<Map>).isNotEmpty;
@@ -79,19 +80,15 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   @override
   void initState() {
     super.initState();
+
+    _pickupDestinationsController = TextfieldTagsController();
+    _deliveryDestinationsController = TextfieldTagsController();
     
     setStoreForm();
     requestSupportedPaymentMethods();
     requestAvailablePaymentMethods();
     availableDepositPercentages = generateDepositPercentages();
     availableInstallmentPercentages = generateInstallmentPercentages();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _pickupDestinationsController.dispose();
-    _deliveryDestinationsController.dispose();
   }
 
   List<String> generateDepositPercentages() {
@@ -204,6 +201,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
     _startSupportedPaymentMethodsLoader();
 
+    print('_requestSupportedPaymentMethods ????');
     storeProvider.setStore(store).storeRepository.showSupportedPaymentMethods().then((response) async {
 
       if(response.statusCode == 200) {
@@ -267,10 +265,13 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         pickupNote: storeForm['pickupNote'],
         allowPickup: storeForm['allowPickup'],
         description: storeForm['description'],
+        mobileNumber: mobileNumberWithExtension,
         deliveryNote: storeForm['deliveryNote'],
         allowDelivery: storeForm['allowDelivery'],
         offlineMessage: storeForm['offlineMessage'],
+        dpoCompanyToken: storeForm['dpoCompanyToken'],
         deliveryFlatFee: storeForm['deliveryFlatFee'],
+        dpoPaymentEnabled: storeForm['dpoPaymentEnabled'],
         allowFreeDelivery: storeForm['allowFreeDelivery'],
         depositPercentages: storeForm['depositPercentages'],
         pickupDestinations: storeForm['pickupDestinations'],
@@ -532,7 +533,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                         textfieldTagsController: _deliveryDestinationsController,
                         initialTags: List<String>.from(storeForm['deliveryDestinations'].map((e) => e['name']).toList()),
                         errorText: serverErrors.containsKey('deliveryDestinations') ? serverErrors['deliveryDestinations'] : null,
-                        onSubmitted: (value) {
+                        onSelectedTag: (value) {
                           setState(() {
                             (storeForm['deliveryDestinations'] as List).add({
                               'cost': '0.00',

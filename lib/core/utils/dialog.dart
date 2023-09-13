@@ -395,7 +395,7 @@ class DialogUtility {
 
 
   /// Show a dialog that allows us to confirm an action
-  static Future<bool?> showConfirmDialog({ required content, String title = 'Confirm', required BuildContext context }) {
+  static Future<bool?> showConfirmDialog({ required content, String title = 'Confirm', String yesText = 'Yes', String noText = 'No', Color? yesColor, Color? noColor, required BuildContext context }) {
 
     Widget confirmContent() {
       return Column(
@@ -410,7 +410,8 @@ class DialogUtility {
         children: [
             CustomTitleSmallText(title),
             const Divider(height: 24,),
-            CustomBodyText(content),
+            if(content.runtimeType == RichText) content,
+            if(content.runtimeType == String) CustomBodyText(content),
         ],
       );
     }
@@ -421,7 +422,7 @@ class DialogUtility {
         return AlertDialog(
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
           contentPadding: const EdgeInsets.all(24.0),
-          content: content.runtimeType == String ? confirmContent() : content,
+          content: [String, RichText].contains(content.runtimeType) ? confirmContent() : content,
           actionsPadding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
           actions: [
 
@@ -431,8 +432,8 @@ class DialogUtility {
 
                 /// No action
                 CustomTextButton(
-                  'No',
-                  color: Colors.grey,
+                  noText,
+                  color: noColor ?? Colors.grey,
                   onPressed: () => Get.back(result: false)
                 ),
 
@@ -441,7 +442,8 @@ class DialogUtility {
 
                 /// Yes action
                 CustomTextButton(
-                  'Yes',
+                  yesText,
+                  color: yesColor,
                   onPressed: () => Get.back(result: true)
                 ),
                 

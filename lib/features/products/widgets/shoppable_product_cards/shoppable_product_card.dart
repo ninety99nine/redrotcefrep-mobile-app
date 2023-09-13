@@ -1,8 +1,11 @@
-import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import '../../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import '../../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/products/widgets/shoppable_product_cards/select_product_variation_dialog.dart';
+import 'shoppable_product_variation_cards/shoppable_product_variation_cards.dart';
+import 'components/name_price_and_product_quantity_adjuster.dart';
+import 'components/name_and_total_variation_options.dart';
 import '../../../stores/models/shoppable_store.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'components/product_description.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../models/product.dart';
@@ -30,9 +33,10 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
 
   bool get selected => widget.selected;
   Product get product => widget.product;
-  bool get canShowDescription => product.showDescription.status && selected && product.description != null;
-    
   AudioPlayer audioPlayer = AudioPlayer();
+  bool get allowVariations => product.allowVariations.status;
+  bool get hasSelectedVariationProducts => store.getSelectedVariationProducts(product).isNotEmpty;
+  bool get canShowDescription => product.showDescription.status && selected && product.description != null;
 
   /// Capture the store that was passed on ListenableProvider.value()
   /// of the StoreCard. This store is accessible if the StoreCard is
@@ -52,152 +56,6 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
     audioPlayer.dispose();
   }
 
-  Widget get namePriceAndQuantityAdjuster {
-    return Column(
-      children: [
-        Row(
-          //  crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-
-            //  Product Name
-            Expanded(
-              child: CustomBodyText(
-                product.name, 
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-
-            //  Product Price And Quantity Adjuster
-            priceAndQuantityAdjuster
-
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget get priceAndQuantityAdjuster { 
-    /**
-     *  AnimatedSize helps to animate the sizing from a bigger height
-     *  to a smaller height. When hiding or showing the content, the 
-     *  transition will be jumpy since the height is not the same.
-     *  This helps animate those height differences
-     */
-    return AnimatedSize(
-      clipBehavior: Clip.none,
-      duration: const Duration(milliseconds: 500),
-      child: Container(
-        key: ValueKey(selected),
-        child: 
-          Column(
-            children: [
-    
-              //  Product Quantity Adjuster
-              if(selected) quantityAdjuster,
-    
-              //  Spacer
-              if(selected) const SizedBox(height: 4,),
-    
-              //  Calculated Unit Price
-              calculatedUnitPriceWidget,
-    
-            ],
-          )
-      ),
-    );
-  }
-
-  Widget get quantityAdjuster {
-    return Row(
-      children: [
-
-        //  Subtract Button
-        subtractButtonWidget,
-
-        //  Product Quantity
-        quantityWidget,
-
-        //  Add Button
-        addButtonWidget,
-
-      ],
-    );
-  }
-
-  void reduceQuantity() {
-    if( product.quantity > 1 ) {
-      store.updateSelectedProductQuantity(product, product.quantity - 1);
-    }else{
-      store.addOrRemoveSelectedProduct(product);
-    }
-  }
-
-  Widget get subtractButtonWidget {
-
-    return GestureDetector(
-      onTap: reduceQuantity,
-      child: const Icon(Icons.remove_circle_sharp, size: 24, color: Colors.green,)
-    );
-
-  }
-
-  void increaseQuantity() {
-    store.updateSelectedProductQuantity(product, product.quantity + 1);
-  }
-
-  Widget get addButtonWidget {
-
-    return GestureDetector(
-      onTap: increaseQuantity,
-      child: const Icon(Icons.add_circle_sharp, size: 24, color: Colors.green,)
-    );
-    
-  }
-
-  Widget get quantityWidget {
-    return Container(
-      width: 40,
-      alignment: Alignment.center,
-      child: CustomTitleMediumText(product.quantity.toString()),
-    );
-  }
-
-  Widget get calculatedUnitPriceWidget {
-    return CustomTitleSmallText(
-      selected
-        ? 'P${(product.unitPrice.amount * product.quantity).toStringAsFixed(2)}'
-        : product.unitPrice.amountWithCurrency
-    );
-  }
-
-  Widget get descriptionAnimatedWidget {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 500),
-      child: AnimatedSwitcher(
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
-        duration: const Duration(milliseconds: 500),
-        child: SizedBox(
-          key: ValueKey(canShowDescription),
-          height: canShowDescription ? null : 0,
-          child: descriptionWidget,
-        ),
-      ),
-    );
-  }
-
-  Widget get descriptionWidget {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(),
-        CustomBodyText(widget.product.description.toString())
-      ],
-    );
-  }
-
   Widget get checkmarkIcon {
     return const Positioned(
       top: 2,
@@ -212,14 +70,32 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
 
   void onTap() {
 
-    if(store.checkIfSelectedProductExists(product) == false) {
+    /// Check if this product supports variations
+    if(product.allowVariations.status) {
 
-      /// Play success sound
-      audioPlayer.play(AssetSource('sounds/success.mp3'));
+      DialogUtility.showInfiniteScrollContentDialog(
+        context: context,
+        heightRatio: 0.9,
+        showCloseIcon: false,
+        backgroundColor: Colors.transparent,
+        content: ListenableProvider.value(
+          value: store,
+          child: SelectProductVariationDialog(parentProduct: product)
+        ), 
+      );
+
+    }else{
+
+      if(store.checkIfSelectedProductExists(product) == false) {
+
+        /// Play success sound
+        audioPlayer.play(AssetSource('sounds/success.mp3'), mode: PlayerMode.lowLatency);
+
+      }
+
+      store.addOrRemoveSelectedProduct(product);
 
     }
-
-    store.addOrRemoveSelectedProduct(product);
   }
 
   @override
@@ -229,6 +105,7 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
       children: [
         Container(
           margin: widget.margin,
+          width: double.infinity,
           child: Material(
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
@@ -246,11 +123,27 @@ class _ShoppableProductCardState extends State<ShoppableProductCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      //  Product Name, Price And Quantity
-                      namePriceAndQuantityAdjuster,
+                      //  Product without variations
+                      if(!allowVariations) ...[
+                        
+                        //  Product Name, Price And Quantity
+                        NamePriceAndProductQuantityAdjuster(store: store, product: product, selected: selected),
                       
-                      //  Product Description
-                      descriptionAnimatedWidget,
+                        //  Product Description
+                        ProductDescription(product: product),
+
+                      ],
+
+                      //  Product with variations
+                      if(allowVariations) ...[
+                        
+                        //  Product Name And Total Variation Options
+                        NameAndTotalVariationOptions(store: store, product: product, selected: selected),
+
+                        //  Product Variation Cards
+                        if(hasSelectedVariationProducts) ShoppableProductVariationCards(product: product)
+
+                      ],
 
                     ],
                   ),

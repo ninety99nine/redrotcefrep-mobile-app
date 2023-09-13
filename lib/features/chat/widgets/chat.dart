@@ -162,7 +162,7 @@ class ChatState extends State<Chat> {
       _prompts.add(Prompt(content: content, role: role));
 
       /// Play success sound
-      audioPlayer.play(AssetSource('sounds/success.mp3'));
+      audioPlayer.play(AssetSource('sounds/success.mp3'), mode: PlayerMode.lowLatency);
 
       /// Stop loader
       _stopLoader();

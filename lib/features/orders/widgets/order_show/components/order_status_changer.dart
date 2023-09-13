@@ -73,7 +73,7 @@ class _OrderStatusChangerState extends State<OrderStatusChanger> {
           final order = Order.fromJson(response.data);
 
           /// Play success sound
-          if(isCompleted) audioPlayer.play(AssetSource('sounds/success.mp3'));
+          if(isCompleted) audioPlayer.play(AssetSource('sounds/success.mp3'), mode: PlayerMode.lowLatency);
 
           SnackbarUtility.showSuccessMessage(message: selectedFollowUpStatus!.name);
 
@@ -90,7 +90,7 @@ class _OrderStatusChangerState extends State<OrderStatusChanger> {
         }else {
 
           /// Play error sound
-          if(isCompleted) audioPlayer.play(AssetSource('sounds/error.mp3'));
+          if(isCompleted) audioPlayer.play(AssetSource('sounds/error.mp3'), mode: PlayerMode.lowLatency);
 
           /// Update failed
           return false;

@@ -38,6 +38,8 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
   bool get hasCoverPhoto => store.hasCoverPhoto;
   EdgeInsetsGeometry get padding => widget.padding;
   bool get canShowAdverts => widget.canShowAdverts;
+  bool get hasProductPhotos => store.hasProductPhotos;
+  bool get doesNotHaveCoverPhoto => store.doesNotHaveCoverPhoto;
   bool get hasProducts => store.relationships.products.isNotEmpty;
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
   bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
@@ -67,7 +69,7 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
           key: ValueKey('$showEditableMode $teamMemberWantsToViewAsCustomer'),
           children: [
               
-            if(showEditableMode) ...[
+            if(showEditableMode && doesNotHaveProductPhotos) ...[
       
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: isShowingStorePage ? 16.0 : 0),
@@ -114,21 +116,21 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
       
             ],
 
-            if(true) ...[
+            if(hasProductPhotos) ...[
 
               /// Store Product Carousel
               StoreProductCarousel(store: store),
-        
-              /// Spacer
-              const SizedBox(height: 16,),
 
             ],
       
-            if(showEditableMode || (hasProducts && !showEditableMode)) Padding(
+            if(showEditableMode || (hasProducts && !showEditableMode && canAccessAsShopper)) Padding(
               padding: padding,
               child: Column(
                 children: [
               
+                  /// Spacer
+                  if(hasProductPhotos) const SizedBox(height: 16,),
+                  
                   /// Edit Product Cards
                   if(showEditableMode)  ...[
       
@@ -139,7 +141,7 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
                   ],
       
                   /// Shopping Cart
-                  if(!showEditableMode) ...[
+                  if(!showEditableMode && canAccessAsShopper) ...[
       
                     /// Spacer
                     if(teamMemberWantsToViewAsCustomer) const SizedBox(height: 16,),
@@ -159,10 +161,7 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
               children: [
             
                 /// Access Denied For Team Member
-                if(!hasCoverPhoto) ...[
-      
-                  /// Spacer
-                  if(!teamMemberWantsToViewAsCustomer) const SizedBox(height: 16,),
+                if(doesNotHaveCoverPhoto && doesNotHaveProductPhotos) ...[
       
                   SubscribeToStoreModalBottomSheet(
                     store: widget.store,

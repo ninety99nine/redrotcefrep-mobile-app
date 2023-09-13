@@ -59,6 +59,7 @@ class _ProductsInVerticalListViewInfiniteScrollState extends State<ProductsInVer
   /// Render each request item as an Product
   Product onParseItem(product) => Product.fromJson(product);
   Future<dio.Response> requestStoreProducts(int page, String searchWord) {
+    print('requestStoreProducts');
     return storeProvider.setStore(store).storeRepository.showProducts(
       /// Filter by the product filter specified (productFilter)
       filter: productFilter,

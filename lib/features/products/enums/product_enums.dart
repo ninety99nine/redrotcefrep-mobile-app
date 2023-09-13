@@ -3,3 +3,8 @@ enum ProductContentView {
   creatingProduct,
   editingProduct,
 }
+
+enum ProductVariationsContentView {
+  viewingProductVariations,
+  creatingProductVariation
+}

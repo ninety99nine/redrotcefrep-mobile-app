@@ -31,6 +31,7 @@ class ShoppableStore extends Store with ChangeNotifier {
   bool teamMemberWantsToViewAsCustomer = false;
 
   bool get hasShoppingCart => shoppingCart != null;
+  int get totalSelectedProducts => selectedProducts.length;
   bool get hasSelectedProducts => selectedProducts.isNotEmpty;
 
   bool get hasCoverPhoto => coverPhoto != null;
@@ -63,8 +64,11 @@ class ShoppableStore extends Store with ChangeNotifier {
 
   String? specialNote;
 
-  /// Functions
-  Function(Order)? onCreatedOrder;
+  /// Callbacks
+  List<Function(Order)> onCreatedOrderCallbacks = [];
+  List<Function(Product)> onSelectedProductCallbacks = [];
+  List<Function(Product)> onChangedProductQuantityCallbacks = [];
+  List<Function(Product)> addOrRemoveSelectedProductCallbacks = [];
   
   ShoppableStore.fromJson(super.json) : super.fromJson();
 
@@ -138,6 +142,11 @@ class ShoppableStore extends Store with ChangeNotifier {
     if(canNotifyListeners) notifyListeners();
   }
 
+  /// Get the selected variations products matching the given parent product
+  List<Product> getSelectedVariationProducts(Product product) {
+    return selectedProducts.where((currProduct) => currProduct.variationAncestors.map((variationAncestor) => variationAncestor.id).contains(product.id)).toList();
+  }
+
   /// Set the shopping cart
   setTotalPeople(int totalPeople, { canNotifyListeners = true }) {
     this.totalPeople = totalPeople;
@@ -152,13 +161,38 @@ class ShoppableStore extends Store with ChangeNotifier {
 
   /// Update the selected product quantity by referencing using the product id
   void updateSelectedProductQuantity(Product selectedProduct, int quantity) {
-    final index = selectedProducts.indexWhere((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id);
-    selectedProducts[index].quantity = quantity;
+    selectedProduct.quantity = quantity;
+
+    /// Call all callbacks registered on this shoppable store for whenever we change the product quantity
+    for (var onChangedProductQuantityCallback in onChangedProductQuantityCallbacks) {
+      onChangedProductQuantityCallback(selectedProduct);
+    }
+
     notifyListeners();
   }
 
   bool checkIfSelectedProductExists(Product selectedProduct) {
     return selectedProducts.where((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id).isNotEmpty;
+  }
+
+  /// Add the selected product
+  void addSelectedProduct(Product selectedProduct) {
+    final bool selectedProductAlreadyExists = checkIfSelectedProductExists(selectedProduct);
+
+    if(selectedProductAlreadyExists) {
+      int index = selectedProducts.indexWhere((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id);
+      selectedProducts[index] = selectedProduct;
+    }else{
+      selectedProducts.add(selectedProduct);
+    }
+    
+    notifyListeners();
+  }
+
+  /// Remove the selected product
+  void removeSelectedProduct(Product selectedProduct) {
+    selectedProducts.removeWhere((currSelectedProduct) => currSelectedProduct.id == selectedProduct.id);
+    notifyListeners();
   }
 
   /// Remove the selected product
@@ -170,6 +204,11 @@ class ShoppableStore extends Store with ChangeNotifier {
       : selectedProducts.add(selectedProduct);
 
     if(selectedProducts.isEmpty) resetShoppingCart(canNotifyListeners: false);
+
+    /// Call all callbacks registered on this shoppable store for whenever we add or remove a product
+    for (var addOrRemoveSelectedProductCallback in addOrRemoveSelectedProductCallbacks) {
+      addOrRemoveSelectedProductCallback(selectedProduct);
+    }
     
     notifyListeners();
   }
@@ -177,6 +216,12 @@ class ShoppableStore extends Store with ChangeNotifier {
   /// Select this product available on the store
   void selectProduct(Product selectedProduct, { canNotifyListeners = true }) {
     selectedProducts.add(selectedProduct);
+
+    /// Call all callbacks registered on this shoppable store for whenever we select a product
+    for (var onSelectedProductCallback in onSelectedProductCallbacks) {
+      onSelectedProductCallback(selectedProduct);
+    }
+
     if(canNotifyListeners) notifyListeners();
   }
 

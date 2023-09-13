@@ -5,8 +5,11 @@ import 'package:bonako_demo/features/coupons/widgets/show_coupons/coupons_modal_
 import '../../../../../../../orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
 import '../../../../../../../reviews/widgets/reviews_show/reviews_modal_bottom_sheet/reviews_modal_popup.dart';
 import '../../../../../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import '../../../../../../services/store_services.dart';
 import '../../../../../../models/shoppable_store.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'store_visit_shortcode.dart';
 import 'store_name.dart';
@@ -28,12 +31,18 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
 
   ShoppableStore get store => widget.store;
   bool get hasDescription => store.description != null;
+  bool get isShowingStorePage => storeProvider.isShowingStorePage;
+  bool get hasSelectedMyStores => homeProvider.hasSelectedMyStores;
+  bool get canManageCoupons => StoreServices.canManageCoupons(store);
   bool get canManageProducts => StoreServices.canManageProducts(store);
   bool get canAccessAsShopper => StoreServices.canAccessAsShopper(store);
   bool get canManageTeamMembers => StoreServices.canManageTeamMembers(store);
   bool get canAccessAsTeamMember => StoreServices.canAccessAsTeamMember(store);
   bool get teamMemberWantsToViewAsCustomer => store.teamMemberWantsToViewAsCustomer;
   bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
+  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
 
   @override
   Widget build(BuildContext context) {
@@ -82,16 +91,16 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
               children: [
                       
                 /// Followers
-                FollowersModalBottomSheet(store: store),
+                if(showEditableMode) FollowersModalBottomSheet(store: store),
           
                 /// Team Members
-                if(!teamMemberWantsToViewAsCustomer && canManageTeamMembers) TeamMembersModalBottomSheet(store: store),
+                if(showEditableMode && canManageTeamMembers) TeamMembersModalBottomSheet(store: store),
               
                 /// Coupons
-                CouponsModalBottomSheet(store: store),
+                if(showEditableMode && canManageCoupons) CouponsModalBottomSheet(store: store),
                 
                 /// Products
-                if(!teamMemberWantsToViewAsCustomer && canManageProducts) ProductsModalBottomSheet(store: store),
+                if(showEditableMode && canManageProducts) ProductsModalBottomSheet(store: store),
           
                 /// Reviews
                 ReviewsModalBottomSheet(store: store),
@@ -122,8 +131,19 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
         /// Access Denied For Team Member
         if(isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer && !canAccessAsTeamMember) ...[
 
+          /// Spacer
+          const SizedBox(height: 4),
+
           /// Reason for denied access e.g "Subscribe to start selling"
-          CustomBodyText(store.attributes.teamMemberAccess!.description, margin: const EdgeInsets.symmetric(vertical: 4), lightShade: true),
+          Row(
+            children: [
+              Icon(Icons.info_outline_rounded, size: 16, color: Colors.orange.shade700,),
+              const SizedBox(width: 4),
+              CustomBodyText(
+                store.attributes.teamMemberAccess!.description, margin: const EdgeInsets.symmetric(vertical: 4), isWarning: true
+              ),
+            ],
+          )
 
         ],
         

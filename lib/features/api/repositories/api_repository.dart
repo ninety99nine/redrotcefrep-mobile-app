@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:image_picker/image_picker.dart';
 
 import '../services/api_service.dart';
@@ -46,13 +48,15 @@ class ApiRepository {
 
     try {
       
-      return await Dio().get(
+      dio.Response response = await Dio().get(
         url,
         options: Options(
           headers: apiHeaders
         ),
         queryParameters: queryParams,
       );
+
+      return response;
       
     } on DioException catch (exception) {
 
@@ -77,32 +81,73 @@ class ApiRepository {
     print('post body');
     print(body);
 
-    final FormData formData = FormData();
+    FormData? formData;
 
-    // Add regular fields if available
-    formData.fields.addAll((body ?? {}).entries.where((entry) => entry.value.runtimeType != XFile).map(
-      (entry) => MapEntry(entry.key, entry.value.toString()),
-    ));
+    /// Check if this data has files
+    final hasFiles = (body ?? {}).entries.where((entry) => entry.value.runtimeType == XFile).isNotEmpty;
 
-    // Add uploadable files if available
-    await Future.wait((body ?? {}).entries.where((entry) => entry.value.runtimeType == XFile).map(
-      (entry) async {
-        final xFile = entry.value as XFile;
-        formData.files.add(MapEntry(
-          entry.key,
-          await MultipartFile.fromFile(xFile.path, filename: xFile.name),
-        ));
-      },
-    ));
+    /// If this data has files
+    if(hasFiles) {
+
+      /// Set the FormData object
+      formData = FormData();
+
+      /// Check if this data has fields
+      final hasFields = (body ?? {}).entries.where((entry) => entry.value.runtimeType != XFile).isNotEmpty;
+
+      /// Add regular fields if available
+      /// Convert non-string values to strings
+      /// formData.fields.addAll((body ?? {}).entries.where((entry) => entry.value.runtimeType != XFile).map(
+      ///   (entry) => MapEntry(entry.key, entry.value.toString()),
+      /// ));
+    
+      if(hasFields) {
+
+        print('stage 1');
+
+        /// Get the JSON data to be sent
+        final Map<String, dynamic> json = Map.fromEntries((body ?? {}).entries.where((entry) => entry.value.runtimeType != XFile));
+
+        print('stage 2');
+
+        /// Since FormData requires that data is sent as String values,
+        /// we need to JSON encode the data so that we can send it as
+        /// a string while preserving the data types when recevied by
+        /// the API server e.g Integers, Booleans and Arrays can be
+        /// properly transmitted over our API with the assurance
+        /// that this data will be reconverted from JSON string
+        /// to its respective data types. The API server
+        /// requires that the data is encapsulated using
+        /// a property called "json" so that the server
+        /// can know that these information must be
+        /// JSON decoded before processing
+        formData.fields.add(MapEntry('json', jsonEncode(json)));
+
+        print('stage 3');
+
+      }
+
+      // Add uploadable files if available
+      await Future.wait((body ?? {}).entries.where((entry) => entry.value.runtimeType == XFile).map(
+        (entry) async {
+          final xFile = entry.value as XFile;
+          formData!.files.add(MapEntry(
+            entry.key,
+            await MultipartFile.fromFile(xFile.path, filename: xFile.name),
+          ));
+        },
+      ));
+
+    }
 
     try {
       
       return await Dio().post(
         url,
-        data: formData,
         options: Options(
           headers: apiHeaders
         ),
+        data: formData ?? body,
         queryParameters: queryParams,
         onSendProgress: onSendProgress,
       );
@@ -130,13 +175,11 @@ class ApiRepository {
     print('put body');
     print(body);
 
-    final dio.FormData formData = dio.FormData.fromMap(body ?? {});
-
     try {
       
       return await Dio().put(
         url,
-        data: formData,
+        data: body,
         options: Options(
           headers: apiHeaders
         ),
@@ -167,13 +210,11 @@ class ApiRepository {
     print('patch body');
     print(body);
 
-    final dio.FormData formData = dio.FormData.fromMap(body ?? {});
-
     try {
       
       return await Dio().patch(
         url,
-        data: formData,
+        data: body,
         options: Options(
           headers: apiHeaders
         ),
@@ -204,13 +245,11 @@ class ApiRepository {
     print('delete body');
     print(body);
 
-    final dio.FormData formData = dio.FormData.fromMap(body ?? {});
-
     try {
       
       return await Dio().delete(
         url,
-        data: formData,
+        data: body,
         options: Options(
           headers: apiHeaders
         ),

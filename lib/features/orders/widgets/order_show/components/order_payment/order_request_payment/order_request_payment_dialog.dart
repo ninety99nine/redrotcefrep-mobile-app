@@ -37,7 +37,6 @@ class _OrderRequestPaymentDialogState extends State<OrderRequestPaymentDialog> {
           child: Container(
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: Colors.red,
               borderRadius: BorderRadius.circular(18.0),
             ),
             margin: const EdgeInsets.symmetric(horizontal: 4),

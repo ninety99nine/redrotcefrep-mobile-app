@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/products/widgets/show_product_variations/product_variations_modal_bottom_sheet/product_variations_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/products/widgets/show_product_variations/product_variations_in_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/product_logo.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
@@ -11,6 +13,7 @@ import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
 import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'create_or_update_product_variations_form.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,12 +26,14 @@ class CreateOrUpdateProductForm extends StatefulWidget {
   
   final Product? product;
   final ShoppableStore store;
+  final Function(bool) onLoading;
   final Function(bool) onDeleting;
   final Function(bool) onSubmitting;
   final Function(int, int) onSendProgress;
   final Function(Product)? onDeletedProduct;
   final Function(Product)? onUpdatedProduct;
   final Function(Product)? onCreatedProduct;
+  final Function(Product)? onRefreshedProduct;
 
   const CreateOrUpdateProductForm({
     super.key,
@@ -37,6 +42,8 @@ class CreateOrUpdateProductForm extends StatefulWidget {
     this.onDeletedProduct,
     this.onUpdatedProduct,
     this.onCreatedProduct,
+    this.onRefreshedProduct,
+    required this.onLoading,
     required this.onDeleting,
     required this.onSubmitting,
     required this.onSendProgress,
@@ -51,14 +58,17 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
   XFile? photo;
   Map productForm = {};
   Map serverErrors = {};
-  bool isDeleting= false;
+  bool isLoading = false;
+  bool isDeleting = false;
   bool isSubmitting = false;
   final _formKey = GlobalKey<FormState>();
+  final ScrollController scrollController = ScrollController();
   
   bool get isEditing => product != null;
   bool get isCreating => product == null;
   Product? get product => widget.product;
   ShoppableStore get store => widget.store;
+  Function(bool) get onLoading => widget.onLoading;
   Function(bool) get onDeleting => widget.onDeleting;
   Function(bool) get onSubmitting => widget.onSubmitting;
   Function(int, int) get onSendProgress => widget.onSendProgress;
@@ -66,10 +76,18 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
   Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
   StoreRepository get storeRepository => storeProvider.storeRepository;
+  Function(Product)? get onRefreshedProduct => widget.onRefreshedProduct;
   ProductRepository get productRepository => productProvider.productRepository;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   ProductProvider get productProvider => Provider.of<ProductProvider>(context, listen: false);
 
+  /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  final GlobalKey<ProductVariationsInVerticalListViewInfiniteScrollState> _productVariationsInVerticalListViewInfiniteScrollState = GlobalKey<ProductVariationsInVerticalListViewInfiniteScrollState>();
+
+  void _startLoader() => setState(() => isLoading = true);
+  void _stopLoader() => setState(() => isLoading = false);
   void _startDeleteLoader() => setState(() => isDeleting = true);
   void _stopDeleteLoader() => setState(() => isDeleting = false);
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
@@ -86,6 +104,33 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
       setProductForm();
 
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+    _formKey.currentState?.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant CreateOrUpdateProductForm oldWidget) {
+
+    super.didUpdateWidget(oldWidget);
+
+    /// If the allow variations changed 
+    /// This happens after creating variations which then calls requestShowProduct() to refresh
+    /// the product and as a result the onRefreshedProduct() callaback is called to set the
+    /// updated product on the parent widget. Once this happens then this didUpdateWidget
+    /// will be triggered where we can then confirm the changes and then update the
+    /// productForm to pickup the latest changes.
+    if(widget.product?.allowVariations.status != oldWidget.product?.allowVariations.status) {
+      
+      /// Update the productForm
+      setProductForm();
+
+    }
+
   }
 
   setProductForm() {
@@ -135,7 +180,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
   requestCreateProduct() {
 
-    if(isDeleting || isSubmitting) return;
+    if(isLoading || isDeleting || isSubmitting) return;
 
     _resetServerErrors();
 
@@ -168,11 +213,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
         if(response.statusCode == 201) {
 
-          print('success 2');
-
           final Product createdProduct = Product.fromJson(response.data);
-
-          print('success 3');
 
           /**
            *  This method must come before the SnackbarUtility.showSuccessMessage()
@@ -215,9 +256,54 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
   }
 
+  requestShowProduct() {
+
+    if(isLoading || isDeleting || isSubmitting) return;
+
+    _resetServerErrors();
+
+    _startLoader();
+    
+    /// Notify parent that we are loading
+    onLoading(true);
+
+    productProvider.setProduct(product!).productRepository.showProduct().then((response) async {
+
+      if(response.statusCode == 200) {
+
+        final Product updatedProduct = Product.fromJson(response.data);
+
+        /// Refresh the product variations
+        refreshProductVariations();
+
+        if(onRefreshedProduct != null) onRefreshedProduct!(updatedProduct);
+
+      }
+
+    }).catchError((error) {
+
+      printError(info: error.toString());
+
+      SnackbarUtility.showErrorMessage(message: 'Can\'t show product');
+
+    }).whenComplete(() {
+
+      _stopLoader();
+    
+      /// Notify parent that we are not loading
+      onLoading(false);
+
+    });
+
+  }
+
+  void refreshProductVariations() {
+    _productVariationsInVerticalListViewInfiniteScrollState.currentState?.startRequest();
+  }
+
   requestUpdateProduct() {
 
-    if(isDeleting || isSubmitting) return;
+    if(isLoading || isDeleting || isSubmitting) return;
 
     _resetServerErrors();
 
@@ -244,6 +330,8 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
         stockQuantityType: productForm['stockQuantityType'],
         allowedQuantityPerOrder: productForm['allowedQuantityPerOrder'],
         maximumAllowedQuantityPerOrder: productForm['maximumAllowedQuantityPerOrder'],
+
+        withVariables: product!.attributes.isVariation
       ).then((response) async {
 
         if(response.statusCode == 200) {
@@ -293,7 +381,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
   void _requestDeleteProduct() async {
 
-    if(isDeleting || isSubmitting) return;
+    if(isLoading || isDeleting || isSubmitting) return;
 
     final bool? confirmation = await confirmDelete();
 
@@ -350,18 +438,19 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
   
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0,),
-        child: Form(
-          key: _formKey,
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        controller: scrollController,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0,),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: productForm.isEmpty ? [] : [
               
               /// Spacer
               const SizedBox(height: 8),
-
+                  
               ProductPhoto(
                 radius: 60,
                 store: store,
@@ -369,35 +458,56 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                 canChangePhoto: true,
                 onPickedFile: (file) {
                   photo = file;
-
-                  print('file');
-                  print(file);
-                  print('file.runtimeType');
-                  print(file.runtimeType);
+                }
+              ),
+              
+              /// Spacer
+              const SizedBox(height: 16),
                   
-                }
+              Row(
+                children: [
+                  
+                  /// Visible Checkbox
+                  Expanded(
+                    child: CustomCheckbox(
+                      value: productForm['visible'],
+                      disabled: isSubmitting,
+                      text: 'Show product',
+                      onChanged: (value) {
+                        setState(() => productForm['visible'] = value ?? false); 
+                      }
+                    ),
+                  ),
+                  
+                  if(isEditing) ...[
+                    
+                    /// Spacer
+                    const SizedBox(width: 8),
+                  
+                    /// Allow Variations Checkbox
+                    Expanded(
+                      child: CustomCheckbox(
+                        value: productForm['allowVariations'],
+                        disabled: isSubmitting,
+                        text: 'Allow variations',
+                        onChanged: (value) {
+                          setState(() => productForm['allowVariations'] = value ?? false); 
+                        }
+                      ),
+                    ),
+                  
+                  ],
+                  
+                ]
               ),
               
               /// Spacer
               const SizedBox(height: 16),
-
-              /// Visible Checkbox
-              CustomCheckbox(
-                value: productForm['visible'],
-                disabled: isSubmitting,
-                text: 'Show product',
-                onChanged: (value) {
-                  setState(() => productForm['visible'] = value ?? false); 
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
+                  
               /// Name
               CustomTextFormField(
                 errorText: serverErrors.containsKey('name') ? serverErrors['name'] : null,
-                enabled: !isSubmitting && !isDeleting,
+                enabled: !isLoading && !isSubmitting && !isDeleting,
                 initialValue: productForm['name'],
                 hintText: 'Standard Ticket',
                 borderRadiusAmount: 16,
@@ -407,239 +517,243 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   setState(() => productForm['name'] = value); 
                 }
               ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Show Description Checkbox
-              CustomCheckbox(
-                value: productForm['showDescription'],
-                disabled: isSubmitting,
-                text: 'Show description',
-                onChanged: (value) {
-                  setState(() => productForm['showDescription'] = value ?? false); 
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Description
-              CustomTextFormField(
-                errorText: serverErrors.containsKey('description') ? serverErrors['description'] : null,
-                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                hintText: '1 day show with popular artists',
-                initialValue: productForm['description'],
-                enabled: !isSubmitting && !isDeleting,
-                labelText: 'Description',
-                borderRadiusAmount: 16,
-                maxLength: 200,
-                minLines: 1,
-                onChanged: (value) {
-                  setState(() => productForm['description'] = value); 
-                },
-                validator: (value) {
-                  return null;
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Free Product Checkbox
-              CustomCheckbox(
-                value: productForm['isFree'],
-                disabled: isSubmitting,
-                text: 'This is a free product',
-                onChanged: (value) {
-                  setState(() => productForm['isFree'] = value ?? false); 
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Unit Regular Price
-              CustomMoneyTextFormField(
-                errorText: serverErrors.containsKey('unitRegularPrice') ? serverErrors['unitRegularPrice'] : null,
-                enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
-                initialValue: productForm['unitRegularPrice'],
-                labelText: 'Regular Price',
-                hintText: '100.00',
-                onChanged: (value) {
-                  setState(() => productForm['unitRegularPrice'] = value); 
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Unit Sale Price
-              CustomMoneyTextFormField(
-                errorText: serverErrors.containsKey('unitSalePrice') ? serverErrors['unitSalePrice'] : null,
-                enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
-                initialValue: productForm['unitSalePrice'],
-                labelText: 'Sale Price',
-                hintText: '50.00',
-                onChanged: (value) {
-                  setState(() => productForm['unitSalePrice'] = value); 
-                },
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Unit Cost Price
-              CustomMoneyTextFormField(
-                errorText: serverErrors.containsKey('unitCostPrice') ? serverErrors['unitCostPrice'] : null,
-                enabled: !isSubmitting && !isDeleting && !productForm['isFree'],
-                initialValue: productForm['unitCostPrice'],
-                labelText: 'Cost Price',
-                hintText: '25.00',
-                onChanged: (value) {
-                  setState(() => productForm['unitCostPrice'] = value); 
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Allowed Quantity Per Order
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const CustomBodyText('Quantities Per Order'),
-                  DropdownButton(
-                    value: productForm['allowedQuantityPerOrder'],
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'limited',
-                        child: CustomBodyText('Limited'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'unlimited',
-                        child: CustomBodyText('Unlimited'),
-                      )
-                    ],
-                    onChanged: (value) {
-                      setState(() => productForm['allowedQuantityPerOrder'] = value); 
-                    },
-                  ),
-                ],
-              ),
-
-              if(productForm['allowedQuantityPerOrder'] == 'limited') ...[
+                  
+              if(productForm['allowVariations'] == false) ...[
               
                 /// Spacer
-                const SizedBox(height: 8),
-
-                /// Maximum Allowed Quantity Per Order
-                CustomTextFormField(
-                  errorText: serverErrors.containsKey('maximumAllowedQuantityPerOrder') ? serverErrors['maximumAllowedQuantityPerOrder'] : null,
-                  initialValue: productForm['maximumAllowedQuantityPerOrder'],
-                  labelText: 'Maximum Quantities Per Order',
-                  enabled: !isSubmitting && !isDeleting,
-                  borderRadiusAmount: 16,
-                  hintText: '10',
-                  maxLength: 6,
+                const SizedBox(height: 16),
+                  
+                /// Show Description Checkbox
+                CustomCheckbox(
+                  value: productForm['showDescription'],
+                  disabled: isSubmitting,
+                  text: 'Show description',
                   onChanged: (value) {
-                    setState(() => productForm['maximumAllowedQuantityPerOrder'] = value); 
+                    setState(() => productForm['showDescription'] = value ?? false); 
+                  }
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Description
+                CustomTextFormField(
+                  errorText: serverErrors.containsKey('description') ? serverErrors['description'] : null,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  hintText: '1 day show with popular artists',
+                  initialValue: productForm['description'],
+                  enabled: !isLoading && !isSubmitting && !isDeleting,
+                  labelText: 'Description',
+                  borderRadiusAmount: 16,
+                  maxLength: 200,
+                  minLines: 1,
+                  onChanged: (value) {
+                    setState(() => productForm['description'] = value); 
                   },
+                  validator: (value) {
+                    return null;
+                  }
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Free Product Checkbox
+                CustomCheckbox(
+                  value: productForm['isFree'],
+                  disabled: isSubmitting,
+                  text: 'This is a free product',
+                  onChanged: (value) {
+                    setState(() => productForm['isFree'] = value ?? false); 
+                  }
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Unit Regular Price
+                CustomMoneyTextFormField(
+                  errorText: serverErrors.containsKey('unitRegularPrice') ? serverErrors['unitRegularPrice'] : null,
+                  enabled: !isLoading && !isSubmitting && !isDeleting && !productForm['isFree'],
+                  initialValue: productForm['unitRegularPrice'],
+                  labelText: 'Regular Price',
+                  hintText: '100.00',
+                  onChanged: (value) {
+                    setState(() => productForm['unitRegularPrice'] = value); 
+                  }
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Unit Sale Price
+                CustomMoneyTextFormField(
+                  errorText: serverErrors.containsKey('unitSalePrice') ? serverErrors['unitSalePrice'] : null,
+                  enabled: !isLoading && !isSubmitting && !isDeleting && !productForm['isFree'],
+                  initialValue: productForm['unitSalePrice'],
+                  labelText: 'Sale Price',
+                  hintText: '50.00',
+                  onChanged: (value) {
+                    setState(() => productForm['unitSalePrice'] = value); 
+                  },
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Unit Cost Price
+                CustomMoneyTextFormField(
+                  errorText: serverErrors.containsKey('unitCostPrice') ? serverErrors['unitCostPrice'] : null,
+                  enabled: !isLoading && !isSubmitting && !isDeleting && !productForm['isFree'],
+                  initialValue: productForm['unitCostPrice'],
+                  labelText: 'Cost Price',
+                  hintText: '25.00',
+                  onChanged: (value) {
+                    setState(() => productForm['unitCostPrice'] = value); 
+                  }
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Allowed Quantity Per Order
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const CustomBodyText('Quantities Per Order'),
+                    DropdownButton(
+                      value: productForm['allowedQuantityPerOrder'],
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'limited',
+                          child: CustomBodyText('Limited'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'unlimited',
+                          child: CustomBodyText('Unlimited'),
+                        )
+                      ],
+                      onChanged: (value) {
+                        setState(() => productForm['allowedQuantityPerOrder'] = value); 
+                      },
+                    ),
+                  ],
+                ),
+                  
+                if(productForm['allowedQuantityPerOrder'] == 'limited') ...[
+                
+                  /// Spacer
+                  const SizedBox(height: 8),
+                  
+                  /// Maximum Allowed Quantity Per Order
+                  CustomTextFormField(
+                    errorText: serverErrors.containsKey('maximumAllowedQuantityPerOrder') ? serverErrors['maximumAllowedQuantityPerOrder'] : null,
+                    initialValue: productForm['maximumAllowedQuantityPerOrder'],
+                    labelText: 'Maximum Quantities Per Order',
+                    enabled: !isLoading && !isSubmitting && !isDeleting,
+                    borderRadiusAmount: 16,
+                    hintText: '10',
+                    maxLength: 6,
+                    onChanged: (value) {
+                      setState(() => productForm['maximumAllowedQuantityPerOrder'] = value); 
+                    },
+                  ),
+                
+                  /// Spacer
+                  const SizedBox(height: 8),
+                  
+                ],
+                  
+                /// Stock Quantity Type
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const CustomBodyText('Available Stock'),
+                    DropdownButton(
+                      value: productForm['stockQuantityType'],
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'limited',
+                          child: CustomBodyText('Limited'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'unlimited',
+                          child: CustomBodyText('Unlimited'),
+                        )
+                      ],
+                      onChanged: (value) {
+                        setState(() => productForm['stockQuantityType'] = value); 
+                      },
+                    ),
+                  ],
+                ),
+                  
+                if(productForm['stockQuantityType'] == 'limited') ...[
+                
+                  /// Spacer
+                  const SizedBox(height: 8),
+                  
+                  /// Stock Quantity
+                  CustomTextFormField(
+                    errorText: serverErrors.containsKey('stockQuantity') ? serverErrors['stockQuantity'] : null,
+                    initialValue: productForm['stockQuantity'],
+                    enabled: !isLoading && !isSubmitting && !isDeleting,
+                    labelText: 'Stock Quantity',
+                    borderRadiusAmount: 16,
+                    hintText: '10',
+                    maxLength: 6,
+                    onChanged: (value) {
+                      setState(() => productForm['stockQuantity'] = value); 
+                    },
+                  ),
+                  
+                ],
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// SKU
+                CustomTextFormField(
+                  errorText: serverErrors.containsKey('sku') ? serverErrors['sku'] : null,
+                  enabled: !isLoading && !isSubmitting && !isDeleting,
+                  initialValue: productForm['sku'],
+                  borderRadiusAmount: 16,
+                  hintText: 'std-ticket',
+                  labelText: 'SKU',
+                  maxLength: 100,
+                  onChanged: (value) {
+                    setState(() => productForm['sku'] = value); 
+                  },
+                  validator: (value) {
+                    return null;
+                  }
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Barcode
+                CustomTextFormField(
+                  errorText: serverErrors.containsKey('barcode') ? serverErrors['barcode'] : null,
+                  enabled: !isLoading && !isSubmitting && !isDeleting,
+                  initialValue: productForm['barcode'],
+                  borderRadiusAmount: 16,
+                  hintText: '123456789',
+                  labelText: 'Barcode',
+                  maxLength: 100,
+                  onChanged: (value) {
+                    setState(() => productForm['barcode'] = value); 
+                  },
+                  validator: (value) {
+                    return null;
+                  }
                 ),
               
                 /// Spacer
-                const SizedBox(height: 8),
-
+                const SizedBox(height: 16),
+                  
               ],
-
-              /// Stock Quantity Type
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const CustomBodyText('Available Stock'),
-                  DropdownButton(
-                    value: productForm['stockQuantityType'],
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'limited',
-                        child: CustomBodyText('Limited'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'unlimited',
-                        child: CustomBodyText('Unlimited'),
-                      )
-                    ],
-                    onChanged: (value) {
-                      setState(() => productForm['stockQuantityType'] = value); 
-                    },
-                  ),
-                ],
-              ),
-
-              if(productForm['stockQuantityType'] == 'limited') ...[
-              
-                /// Spacer
-                const SizedBox(height: 8),
-
-                /// Stock Quantity
-                CustomTextFormField(
-                  errorText: serverErrors.containsKey('stockQuantity') ? serverErrors['stockQuantity'] : null,
-                  initialValue: productForm['stockQuantity'],
-                  enabled: !isSubmitting && !isDeleting,
-                  labelText: 'Stock Quantity',
-                  borderRadiusAmount: 16,
-                  hintText: '10',
-                  maxLength: 6,
-                  onChanged: (value) {
-                    setState(() => productForm['stockQuantity'] = value); 
-                  },
-                ),
-
-              ],
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// SKU
-              CustomTextFormField(
-                errorText: serverErrors.containsKey('sku') ? serverErrors['sku'] : null,
-                enabled: !isSubmitting && !isDeleting,
-                initialValue: productForm['sku'],
-                borderRadiusAmount: 16,
-                hintText: 'std-ticket',
-                labelText: 'SKU',
-                maxLength: 100,
-                onChanged: (value) {
-                  setState(() => productForm['sku'] = value); 
-                },
-                validator: (value) {
-                  return null;
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
-              /// Barcode
-              CustomTextFormField(
-                errorText: serverErrors.containsKey('barcode') ? serverErrors['barcode'] : null,
-                enabled: !isSubmitting && !isDeleting,
-                initialValue: productForm['barcode'],
-                borderRadiusAmount: 16,
-                hintText: '123456789',
-                labelText: 'Barcode',
-                maxLength: 100,
-                onChanged: (value) {
-                  setState(() => productForm['barcode'] = value); 
-                },
-                validator: (value) {
-                  return null;
-                }
-              ),
-              
-              /// Spacer
-              const SizedBox(height: 16),
-
+                  
               if(isEditing) CustomElevatedButton(
                 'Delete',
                 width: 120,
@@ -648,7 +762,29 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                 alignment: Alignment.center,
                 onPressed: _requestDeleteProduct
               ),
-
+                  
+              if(productForm['allowVariations'] == true) ...[
+              
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                CreateOrUpdateProductVariationsForm(
+                  product: product!,
+                  onSubmitting: onSubmitting,
+                  onCreatedProductVariations: (products) {
+                    requestShowProduct();
+                  }
+                ),
+                
+                ProductVariationsInVerticalListViewInfiniteScroll(
+                  key: _productVariationsInVerticalListViewInfiniteScrollState,
+                  scrollController: scrollController,
+                  product: product!,
+                  store: store,
+                ),
+                  
+              ],
+                  
               /// Spacer
               const SizedBox(height: 100)
               

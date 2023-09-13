@@ -1,9 +1,10 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../../../../../../../../../../core/shared_widgets/full_screen_image/main.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:bonako_demo/features/home/providers/home_provider.dart';
@@ -42,13 +43,41 @@ class _StoreProductCarouselState extends State<StoreProductCarousel> {
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
   bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
 
+  @override
+  void initState() {
+    super.initState();
+    store.onSelectedProductCallbacks.add(scrollToPhoto);
+    store.onChangedProductQuantityCallbacks.add(scrollToPhoto);
+    store.addOrRemoveSelectedProductCallbacks.add(scrollToPhoto);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    store.onSelectedProductCallbacks.removeWhere((callback) => callback == scrollToPhoto);
+    store.onChangedProductQuantityCallbacks.removeWhere((callback) => callback == scrollToPhoto);
+    store.addOrRemoveSelectedProductCallbacks.removeWhere((callback) => callback == scrollToPhoto);
+  }
+
+  void scrollToPhoto(Product product) {
+
+    final int index = productsWithPhotos.indexWhere((productWithPhoto) => productWithPhoto.id == product.id);
+
+    /// If we have a matching product
+    if(index >= 0) {
+
+      /// Animate scroll to this product
+      carouselController.animateToPage(index);
+
+    }
+
+  }
+
   double get viewportFraction {
     if(totalProductPhotos == 1) {
       return 1;
-    }else if(totalProductPhotos == 2) {
-      return 0.5;
     }else {
-      return 0.7;
+      return 0.9;
     }
   }
 
@@ -56,18 +85,20 @@ class _StoreProductCarouselState extends State<StoreProductCarousel> {
     return selectedProducts.map((product) => product.id).contains(productsWithPhotos[itemIndex].id);
   }
 
-  Widget centeredImage(itemIndex, boxFit, isFullScreen) {
+  Widget centeredImage(itemIndex, boxFit) {
 
-    String productName = store.relationships.products[itemIndex].name;
-    String? productDescription = store.relationships.products[itemIndex].description;
-    bool hasProductDescription = productDescription != null;
+    final Product product = productsWithPhotos[itemIndex];
+    final bool hasMoreThanOneQuantity = product.quantity > 1;
+    final bool isSelected = selectedProducts.map((selectedProduct) => selectedProduct.id).contains(product.id);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: totalProductPhotos == 1 ? 0 : 4),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Stack(
           children: [
+            
+            /// Product Image
             CachedNetworkImage(
               placeholder: (context, url) => const CustomCircularProgressIndicator(),
               imageUrl: productsWithPhotos[itemIndex].photo!,
@@ -75,66 +106,93 @@ class _StoreProductCarouselState extends State<StoreProductCarousel> {
               width: double.infinity,
               fit: boxFit,
             ),
-            if (showEditableMode)
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.mode_edit_outlined,
-                    color: Colors.white,
-                  ),
+
+            /// Edit Mode Icon
+            if(showEditableMode) Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(8)
                 ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.mode_edit_outlined, color: Colors.white,)
               ),
-            if (!isFullScreen)
-              Align(
+            ),
+
+            /// Checkmark & Selected Product Quantity
+            AnimatedSwitcher(
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              duration: const Duration(milliseconds: 500),
+              child: isSelected ? Align(
+                key: ValueKey('${product.quantity}'),
                 alignment: Alignment.topRight,
                 child: Container(
-                  margin: const EdgeInsets.all(4),
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  child: const Icon(
-                    size: 24,
-                    Icons.check_circle,
-                    color: Colors.green,
-                  ),
+                  child: CustomTitleLargeText('x${product.quantity}', height: 1, color: Colors.green),
                 ),
-              ),
-            if (isFullScreen)
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  margin: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CustomTitleMediumText(productName, overflow: TextOverflow.ellipsis),
-                      if(hasProductDescription) ...[
-                        const SizedBox(height: 4),
-                        CustomBodyText(productDescription, overflow: TextOverflow.ellipsis, maxLines: 3)
-                      ]
-                    ],
-                  ),
-                ),
-              ),
+              ) : null,
+            ),
+    
           ],
         ),
       ),
     );
   }
 
-  Widget expandableAdvert(itemIndex) {
+  Widget fullImage(itemIndex) {
+
+    String productName = store.relationships.products[itemIndex].name;
+    String? productDescription = store.relationships.products[itemIndex].description;
+    bool hasProductDescription = productDescription != null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Stack(
+        children: [
+          
+          CachedNetworkImage(
+            placeholder: (context, url) => const CustomCircularProgressIndicator(),
+            imageUrl: productsWithPhotos[itemIndex].photo!,
+            height: double.infinity,
+            width: double.infinity,
+            fit: BoxFit.contain,
+          ),
+
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Container(
+              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomTitleMediumText(productName, overflow: TextOverflow.ellipsis),
+                  if(hasProductDescription) ...[
+                    const SizedBox(height: 4),
+                    CustomBodyText(productDescription, overflow: TextOverflow.ellipsis, maxLines: 4)
+                  ]
+                ],
+              ),
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
+
+  Widget expandablePhoto(itemIndex) {
     /**
      *  FullScreenWidget - This is a custom widget that allows
      *  us to click of the individual image to be displayed in
@@ -147,12 +205,12 @@ class _StoreProductCarouselState extends State<StoreProductCarousel> {
     return FullScreenWidget(
       backgroundIsTransparent: true,
       backgroundColor: Colors.transparent,
-      fullScreenChild: centeredImage(itemIndex, BoxFit.contain, true),
-      child: centeredImage(itemIndex, BoxFit.cover, false),
+      fullScreenChild: fullImage(itemIndex),
+      child: centeredImage(itemIndex, BoxFit.cover),
     );
   }
 
-  Widget editableAdvert(itemIndex) {
+  Widget editablePhoto(itemIndex) {
     return ImagePickerModalBottomSheet(
       fileName: 'photo',
       title: 'Product Photo',
@@ -193,7 +251,7 @@ class _StoreProductCarouselState extends State<StoreProductCarousel> {
         onTap: () {
           openBottomModalSheet();
         },
-        child: centeredImage(itemIndex, BoxFit.cover, false)
+        child: centeredImage(itemIndex, BoxFit.cover)
       ),
     );
   }
@@ -213,19 +271,19 @@ class _StoreProductCarouselState extends State<StoreProductCarousel> {
               //autoPlay: true,              
               aspectRatio: 3/2,
               //pageSnapping: true,
-              viewportFraction: 0.9,
               //clipBehavior: Clip.none,
               //enlargeCenterPage: true,
               enableInfiniteScroll: false,
-              //initialPage: adverts.length >= 2 ? 1 : 0,
+              viewportFraction: viewportFraction,
+              //initialPage: productPhotos.length >= 2 ? 1 : 0,
               //autoPlayInterval: const Duration(seconds: 10),
               //autoPlayAnimationDuration: const Duration(seconds: 1),
             ),
             itemCount: productsWithPhotos.length,
             itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
                 
-              /// Return the advert
-              return showEditableMode ? editableAdvert(itemIndex) : expandableAdvert(itemIndex);
+              /// Return the product photos
+              return showEditableMode ? editablePhoto(itemIndex) : expandablePhoto(itemIndex);
 
             }
           ),

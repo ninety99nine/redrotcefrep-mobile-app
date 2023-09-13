@@ -36,6 +36,7 @@ class UserStoreAssociation {
   late bool canManageOrders;
   late bool canManageProducts;
   late bool canManageCustomers;
+  late bool canManageCoupons;
   late bool canManageTeamMembers;
   late bool canManageInstantCarts;
   late bool canManageSettings;
@@ -79,6 +80,7 @@ class UserStoreAssociation {
     canManageEverything = json['canManageEverything'];
     canManageOrders = json['canManageOrders'];
     canManageProducts = json['canManageProducts'];
+    canManageCoupons = json['canManageCoupons'];
     canManageCustomers = json['canManageCustomers'];
     canManageTeamMembers = json['canManageTeamMembers'];
     canManageInstantCarts = json['canManageInstantCarts'];

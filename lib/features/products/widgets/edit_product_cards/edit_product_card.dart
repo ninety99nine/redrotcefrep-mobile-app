@@ -25,6 +25,8 @@ class _EditProductCardState extends State<EditProductCard> {
 
   Product get product => widget.product;
   ShoppableStore get store => widget.store;
+  bool get allowVariations => product.allowVariations.status;
+  int get totalVisibleVariations => product.totalVisibleVariations!;
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +60,26 @@ class _EditProductCardState extends State<EditProductCard> {
     
                         /// Spacer
                         const SizedBox(width: 8,),
-    
-                        /// Unit Price
-                        CustomBodyText(product.unitPrice.amountWithCurrency, margin: const EdgeInsets.only(right: 16),),
+
+                        if(!allowVariations) ...[
+
+                          /// Unit Price
+                          CustomBodyText(
+                            product.unitPrice.amountWithCurrency, 
+                            margin: const EdgeInsets.only(right: 16),
+                          ),
+
+                        ],
+
+                        if(allowVariations) ...[
+
+                          //  Total Variation Options
+                          CustomBodyText(
+                            margin: const EdgeInsets.only(right: 16),
+                            '$totalVisibleVariations ${totalVisibleVariations == 1 ? 'option' : 'options'}'
+                          ),
+
+                        ],
     
                       ],
                     ),

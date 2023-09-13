@@ -55,21 +55,20 @@ class CustomTextFormField extends StatefulWidget {
 
 class CustomTextFormFieldState extends State<CustomTextFormField> {
 
-  late TextEditingController controller;
-
+  TextEditingController? controller;
+  
   @override
   void initState() {
-    
     super.initState();
-
-    if(widget.controller != null) {
-      controller = widget.controller!;
-    } else {
-      controller = TextEditingController(text: widget.initialValue);
-    }
-
+    controller = TextEditingController(text: widget.initialValue);
   }
-  
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller!.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -88,7 +87,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         color: widget.enabled ? Colors.black : Colors.grey.shade400,
         fontWeight: FontWeight.normal,
       ),
-      maxLength: controller.text.isNotEmpty ? widget.maxLength : null,
+      maxLength: controller!.text.isNotEmpty ? widget.maxLength : null,
       obscureText: widget.obscureText,
       decoration: InputDecoration(
         filled: true,

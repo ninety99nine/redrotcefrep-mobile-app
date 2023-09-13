@@ -135,6 +135,7 @@ class StoreRepository {
     List<Map>? supportedPaymentMethods, bool? allowDepositPayments,
     List<String>? depositPercentages, bool? allowInstallmentPayments,
     List<String>? installmentPercentages, List<Map>? pickupDestinations,
+    bool? dpoPaymentEnabled, String? dpoCompanyToken, String? mobileNumber
   }) {
 
     if(store == null) throw Exception('The store must be set to update');
@@ -174,6 +175,18 @@ class StoreRepository {
 
     if(supportedPaymentMethods != null && supportedPaymentMethods.isNotEmpty) {
       body['supportedPaymentMethods'] = supportedPaymentMethods;
+    }
+
+    if(dpoPaymentEnabled != null) {
+      body['dpoPaymentEnabled'] = dpoPaymentEnabled;
+    }
+
+    if(dpoCompanyToken != null) {
+      body['dpoCompanyToken'] = dpoCompanyToken;
+    }
+
+    if(mobileNumber != null) {
+      body['mobileNumber'] = mobileNumber;
     }
 
     return apiRepository.put(url: url, body: body);

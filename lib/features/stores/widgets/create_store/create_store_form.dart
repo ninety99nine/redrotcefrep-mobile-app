@@ -31,9 +31,9 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
   String name = '';
   Map serverErrors = {};
   String description = '';
+  late String mobileNumber;
   bool isSubmitting = false;
   String callToAction = 'Buy';
-  late String mobileNumber;
   final _formKey = GlobalKey<FormState>();
 
   Function(ShoppableStore)? get onCreatedStore => widget.onCreatedStore;

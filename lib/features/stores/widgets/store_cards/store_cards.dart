@@ -90,12 +90,18 @@ class StoreCardsState extends State<StoreCards> {
     /// Check if the onCreatedOrder method is provided
     if(onCreatedOrder != null) {
 
-      /**
-       *  Set the onCreatedOrder method on this store.
-       *  Whenever an order is created, we can then call this method to pass the created order
-       *  so that the parent widget can be notified of the created order.
-       */
-      store.onCreatedOrder = onCreatedOrder;
+      final bool onCreatedOrderCallbackDoesNotExist = (store as ShoppableStore).onCreatedOrderCallbacks.contains(onCreatedOrder!) == false;
+
+      if(onCreatedOrderCallbackDoesNotExist) {
+
+        /**
+         *  Set the onCreatedOrder method on this store.
+         *  Whenever an order is created, we can then call this method to pass the created order
+         *  so that the parent widget can be notified of the created order.
+         */
+        store.onCreatedOrderCallbacks.add(onCreatedOrder!);
+
+      }
 
     }
 
