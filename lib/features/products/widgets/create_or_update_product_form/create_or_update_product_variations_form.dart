@@ -9,7 +9,6 @@ import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dar
 import 'package:bonako_demo/core/shared_widgets/text_field_tags/custom_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/undo_icon_button.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/features/products/providers/product_provider.dart';
 import 'package:bonako_demo/core/shared_models/variant_attribute.dart';
@@ -45,6 +44,7 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
   Map serverErrors = {};
   bool isSubmitting = false;
   final _formKey = GlobalKey<FormState>();
+  List<ScrollController> scrollControllers = [];
   List<Map<String, dynamic>> variantAttributesForm = [];
   List<Map<String, dynamic>> originalVariantAttributesForm = [];
   
@@ -84,6 +84,55 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
     if(variantAttributes.isNotEmpty) {
       variantAttributesForm = variantAttributes.map((variantAttribute) => variantAttribute.toJson()).toList();
       originalVariantAttributesForm = variantAttributes.map((variantAttribute) => variantAttribute.toJson()).toList();
+    }
+
+    addScrollControllers();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    disposeScrollControllers();
+  }
+
+  void addScrollControllers() {
+    final existingControllersCount = scrollControllers.length;
+    final requiredControllersCount = variantAttributes.length;
+
+    if (requiredControllersCount > existingControllersCount) {
+      // Add new controllers for the additional variantAttributes
+      for (var i = existingControllersCount; i < requiredControllersCount; i++) {
+        scrollControllers.add(ScrollController());
+      }
+    } else if (requiredControllersCount < existingControllersCount) {
+      // Remove extra controllers if there are more existing controllers than required
+      for (var i = existingControllersCount - 1; i >= requiredControllersCount; i--) {
+        scrollControllers[i].dispose();
+        scrollControllers.removeAt(i);
+      }
+    }
+  }
+
+  void disposeScrollControllers() {
+    for (var i = 0; i < scrollControllers.length; i++) {
+      scrollControllers[i].dispose();
+    }
+  }
+
+  void scrollToRightForAllScrollControllers() {
+    for (var i = 0; i < scrollControllers.length; i++) {
+      /**
+       *  We use the Future.delayed() method to give the scrollController time 
+       *  to know the maxScrollExtent before we actually start scrolling. This
+       *  way we can know the maximum scroll extent before scrolling.
+       */
+      Future.delayed(const Duration(milliseconds: 500)).then((_) {
+        scrollControllers[i].animateTo( 
+          curve: Curves.easeOut,
+          scrollControllers[i].position.maxScrollExtent,
+          duration: const Duration(milliseconds: 500),
+        );
+      });
     }
   }
 
@@ -243,6 +292,7 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
   
   void _showCreateOrUpdateVariantAttributeDialog({ int? index }) async {
 
+    String? newValue;
     bool isEditing= index != null;
 
     /// Note that jsonDecode(jsonEncode(()) simply creates a deep clone
@@ -321,6 +371,7 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
                 updateSelectedTags(variantAttributeForm);
               },
               onChanged: (value) {  /// Triggered as we are typing
+                newValue = value;
                 updateSelectedTags(variantAttributeForm);
               },
               onRemovedTag: (String tag) {
@@ -337,6 +388,23 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
           isEditing ? 'Update' : 'Add Option',
           onPressed: () async {
 
+            /**
+             *  Currently we can only add a tag if we hit the "Done" button of the keyboard
+             *  or the comma "," character of the keyboard. These commands add a tag. The
+             *  problem is that the user may hit the "Done" button of the keyboard or the 
+             *  comma "," character of the keyboard when adding the first few values, but
+             *  after adding the last value, then will hit the "Update/Add Option" button
+             *  without hitting the "Done" button comma "," character of the keyboard.
+             *  This means that only the first few values are captured without the
+             *  last value. To make sure that the last value is always captured,
+             *  we can just check if we have typed anything and then see if that
+             *  value exists before adding it. This way we can always capture
+             *  the last thing that was typed as well.
+             */
+            if(newValue != null && newValue!.isNotEmpty && _textfieldTagController.getTags!.contains(newValue) == false) {
+              (variantAttributeForm['values'] as List).add(newValue);
+            }
+
             await ErrorUtility.validateForm(_formKey).then((status) {
               
               if(status) {
@@ -344,6 +412,7 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
                 Get.back(closeOverlays: true);
 
                 setState(() {
+                  
                   if(isEditing) {
 
                     variantAttributesForm[index] = variantAttributeForm;
@@ -352,7 +421,14 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
 
                     _addOption(variantAttributeForm);
 
+                    /// Add additional scroll controllers so that we can scroll to the right on the variant attribute values 
+                    addScrollControllers();
+
                   }
+
+                  /// Scroll to the right on the variant attribute values (This allows us to see the last value of the variant attribute values)
+                  scrollToRightForAllScrollControllers();
+
                 });
 
               }
@@ -417,6 +493,7 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
 
                             /// Value Tags      
                             SingleChildScrollView(
+                              controller: scrollControllers[index],
                               scrollDirection: Axis.horizontal,
                               child: Wrap(
                                 spacing: 4,

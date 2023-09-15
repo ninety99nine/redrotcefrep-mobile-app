@@ -43,6 +43,7 @@ class _SelectProductVariationDialogState extends State<SelectProductVariationDia
   List <Product> variationAncestors = [];
   AudioPlayer audioPlayer = AudioPlayer();
   Product? get parentProduct => widget.parentProduct;
+  ScrollController scrollController = ScrollController();
   bool get hasProductVariation => productVariation != null;
   Product? get productVariation => widget.productVariation;
   Map<int, Map<String, String>> selectedVariantAttributes = {};
@@ -118,6 +119,7 @@ class _SelectProductVariationDialogState extends State<SelectProductVariationDia
   void dispose() {
     super.dispose();
     audioPlayer.dispose();
+    scrollController.dispose();
   }
 
   void updateSelectedVariantAttributes({ required Product variationAncestor, required String name, required String value, required index }) {
@@ -247,6 +249,9 @@ class _SelectProductVariationDialogState extends State<SelectProductVariationDia
               selectedProductVariation = productVariations.firstOrNull;
 
             }
+
+            /// Scroll to the bottom to show the variation option
+            scrollToBottom();
             
           }
 
@@ -261,6 +266,24 @@ class _SelectProductVariationDialogState extends State<SelectProductVariationDia
       _stopLoader();
 
     });
+  }
+
+  void scrollToBottom() {
+
+    /**
+     *  We use the Future.delayed() method to wait until the 500 milliseconds
+     *  duration required to animated the widgets whenever the UI is updated.
+     *  This gives the scrollController time to know the maxScrollExtent
+     *  before we actually start scrolling.
+     */
+    Future.delayed(const Duration(milliseconds: 500)).then((_) {
+      scrollController.animateTo( 
+        curve: Curves.easeOut,
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+      );
+    });
+
   }
   
   Widget get noProductVariation {
@@ -344,7 +367,9 @@ class _SelectProductVariationDialogState extends State<SelectProductVariationDia
   }
 
   void onUpdateProductQuantity(int quantity) {
-    setState(() => selectedProductVariation!.quantity = quantity);
+    setState(() {
+      selectedProductVariation!.quantity = quantity;
+    });
   }
 
   @override
@@ -367,6 +392,7 @@ class _SelectProductVariationDialogState extends State<SelectProductVariationDia
         
                 Expanded(
                   child: SingleChildScrollView(
+                    controller: scrollController,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0,),
                       child: Column(

@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/products/widgets/shoppable_product_cards/components/total_variation_options.dart';
 import 'package:bonako_demo/features/products/widgets/show_products/products_modal_bottom_sheet/products_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
@@ -101,7 +102,36 @@ class ProductVariationsInVerticalListViewInfiniteScrollState extends State<Produ
   }
 
   Widget contentBeforeSearchBar(bool isLoading, int totalProducts) {
-    return totalProducts >= 1 ? const CustomMessageAlert('Update your product variations during times when people are not shopping so that you don\'t disrupt their shopping experience.', margin: EdgeInsets.only(bottom: 16),) : const SizedBox();
+    return totalProducts >= 1 ? Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+
+        const CustomMessageAlert('Update your product variations during times when people are not shopping so that you don\'t disrupt their shopping experience.'),
+                              
+        /// Spacer
+        const SizedBox(height: 16,),
+
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            /// Icon
+            const Icon(Icons.call_split_rounded, size: 16,),
+
+            /// Spacer
+            const SizedBox(width: 4,),
+            
+            //  Total Variation Options
+            TotalVariationOptions(product: product),
+
+          ],
+        ),
+
+        /// Spacer
+        const SizedBox(height: 8,),
+
+      ],
+    ) : const SizedBox();
   }
     
   Widget get noProductVariations {
@@ -140,7 +170,7 @@ class ProductVariationsInVerticalListViewInfiniteScrollState extends State<Produ
       key: customVerticalListViewInfiniteScrollState,
       catchErrorMessage: 'Can\'t show product variations',
       onRequest: (page, searchWord) => requestProductVariations(page, searchWord),
-      headerPadding: EdgeInsets.only(top: hasProductVariations == true ? 40 : 0, bottom: 0, left: 16, right: 16),
+      headerPadding: EdgeInsets.only(top: hasProductVariations == true ? 16 : 0, bottom: 0, left: 0, right: 0),
     );
   }
 }
@@ -188,7 +218,7 @@ class ProductVariationItem extends StatelessWidget {
         onTap: () {
           openBottomModalSheet();
         },
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 0),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -224,7 +254,7 @@ class ProductVariationItem extends StatelessWidget {
                       ...(product.relationships.variables ?? []).map((variable) {
                         
                         /// Value Tag
-                        return CustomTag(variable.value, showCancelIcon: false);
+                        return CustomTag(variable.value, textMaxLength: 20, showCancelIcon: false);
     
                       }).toList(),
                     ],

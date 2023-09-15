@@ -28,14 +28,14 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final EdgeInsets headerPadding;
   final Widget? separator;
 
-  /// Parent ScrollController
-  final ScrollController? scrollController;
-
   /// Indication that we can reoder
   final bool canReorder;
 
   /// Method to call on reorder
   final Function(int, int)? onReorder;
+
+  /// Parent ScrollController
+  final ScrollController? scrollController;
 
   /// Content to show above the search bar
   final Widget Function(bool, int)? contentBeforeSearchBar;

@@ -66,6 +66,12 @@ class _AddressCardsInVerticalViewState extends State<AddressCardsInVerticalView>
     _requestShowAddresses();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
+
   _requestShowAddresses() {
 
     _startLoader();

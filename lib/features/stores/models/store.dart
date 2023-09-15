@@ -31,6 +31,7 @@ class Store {
   late int? teamMembersCount;
   late String offlineMessage;
   late Attributes attributes;
+  late String? smsSenderName;
   late bool isInfluencerStore;
   late bool dpoPaymentEnabled;
   late String? dpoCompanyToken;
@@ -68,6 +69,7 @@ class Store {
     reviewsCount = json['reviewsCount'];
     deliveryNote = json['deliveryNote'];
     isBrandStore = json['isBrandStore'];
+    smsSenderName = json['smsSenderName'];
     productsCount = json['productsCount'];
     allowDelivery = json['allowDelivery'];
     links = Links.fromJson(json['links']);

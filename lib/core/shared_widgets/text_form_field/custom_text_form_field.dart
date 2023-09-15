@@ -13,6 +13,7 @@ class CustomTextFormField extends StatefulWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final String? initialValue;
+  final bool validateOnEmptyText;
   final double borderRadiusAmount;
   final EdgeInsets contentPadding;
   final TextInputType? keyboardType;
@@ -43,6 +44,7 @@ class CustomTextFormField extends StatefulWidget {
       this.onFieldSubmitted,
       this.obscureText = false,
       this.borderRadiusAmount = 50.0,
+      this.validateOnEmptyText = true,
       this.keyboardType = TextInputType.text,
       this.validatorOnEmptyText = 'This field is required',
       this.contentPadding = const EdgeInsets.symmetric(vertical: 8, horizontal: 20)
@@ -155,7 +157,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
       ),
       validator: widget.validator ?? (value) {
         
-        if(value == null || value.isEmpty){
+        if(widget.validateOnEmptyText && (value == null || value.isEmpty)) {
           return widget.validatorOnEmptyText;
         }else if(widget.errorText != null){
           return widget.errorText;

@@ -9,6 +9,7 @@ class CustomTag extends StatelessWidget {
   
   final String text;
   final Color? color;
+  final int? textMaxLength;
   final EdgeInsets? margin;
   final EdgeInsets? padding;
   final bool showCancelIcon;
@@ -21,11 +22,26 @@ class CustomTag extends StatelessWidget {
     this.onTap,
     this.color,
     this.onCancel,
+    this.textMaxLength,
     this.showCancelIcon = true,
     this.customTagType = CustomTagType.fill,
     this.margin = const EdgeInsets.only(right: 4.0),
     this.padding = const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
   });
+
+  String get finalText {
+
+    if(textMaxLength != null) {
+
+      return text.length > textMaxLength! ? text.substring(0, textMaxLength) + '...' : text;
+
+    }else{
+
+      return text;
+
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +69,7 @@ class CustomTag extends StatelessWidget {
           InkWell(
             onTap: onTap,
             child: Text(
-              text, 
+              finalText, 
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14,
@@ -61,6 +77,7 @@ class CustomTag extends StatelessWidget {
               )
             ),
           ),
+          
           if(showCancelIcon) ...[
 
             /// Spacer

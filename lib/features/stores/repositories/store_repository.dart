@@ -129,7 +129,7 @@ class StoreRepository {
 
   /// Update the specified store
   Future<dio.Response> updateStore({
-    String? name, bool? online, String? description, String? offlineMessage, String? deliveryNote,
+    String? name, bool? online, String? description, String? smsSenderName, String? offlineMessage, String? deliveryNote,
     bool? allowDelivery, bool? allowFreeDelivery, List<Map>? deliveryDestinations, 
     String? deliveryFlatFee, String? pickupNote, bool? allowPickup,
     List<Map>? supportedPaymentMethods, bool? allowDepositPayments,
@@ -156,6 +156,10 @@ class StoreRepository {
     if(offlineMessage != null && offlineMessage.isNotEmpty) body['offlineMessage'] = offlineMessage;
     if(allowInstallmentPayments != null) body['allowInstallmentPayments'] = allowInstallmentPayments;
     if(deliveryFlatFee != null && deliveryFlatFee.isNotEmpty) body['deliveryFlatFee'] = deliveryFlatFee;
+
+    if((smsSenderName != null && smsSenderName.isEmpty) || smsSenderName == null) {
+      body['smsSenderName'] = null;
+    }
 
     if(depositPercentages != null && depositPercentages.isNotEmpty) {
       body['depositPercentages'] = depositPercentages.map((depositPercentage) => int.parse(depositPercentage)).toList();

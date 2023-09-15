@@ -1,4 +1,5 @@
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/products/widgets/shoppable_product_cards/components/total_variation_options.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class NameAndTotalVariationOptions extends StatelessWidget {
         ),
 
         //  Total Variation Options
-        CustomBodyText('$totalVisibleVariations ${totalVisibleVariations == 1 ? 'option' : 'options'}'),
+        TotalVariationOptions(product: product,),
 
       ],
     );

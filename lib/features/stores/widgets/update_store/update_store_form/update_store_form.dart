@@ -152,6 +152,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         'allowInstallmentPayments': store.allowInstallmentPayments,
         'installmentPercentages': List<String>.from(store.installmentPercentages.map((installmentPercentage) => installmentPercentage.toString())),
 
+        /// Sms
+        'smsSenderName': store.smsSenderName,
+
       };
 
     });
@@ -267,6 +270,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         description: storeForm['description'],
         mobileNumber: mobileNumberWithExtension,
         deliveryNote: storeForm['deliveryNote'],
+        smsSenderName: storeForm['smsSenderName'],
         allowDelivery: storeForm['allowDelivery'],
         offlineMessage: storeForm['offlineMessage'],
         dpoCompanyToken: storeForm['dpoCompanyToken'],
@@ -1242,6 +1246,24 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                 ),
 
               ],
+              
+              /// Spacer
+              const SizedBox(height: 16),
+
+              /// Name
+              CustomTextFormField(
+                errorText: serverErrors.containsKey('smsSenderName') ? serverErrors['smsSenderName'] : null,
+                initialValue: storeForm['smsSenderName'],
+                labelText: 'SMS Sender Name',
+                validateOnEmptyText: false,
+                hintText: 'Baby Cakes',
+                borderRadiusAmount: 16,
+                enabled: !isSubmitting,
+                maxLength: 11,
+                onChanged: (value) {
+                  setState(() => storeForm['smsSenderName'] = value); 
+                },
+              ),
 
               /// Spacer
               const SizedBox(height: 100)
