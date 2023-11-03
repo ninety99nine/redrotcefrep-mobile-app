@@ -142,7 +142,10 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
         /// Payment
         'dpoCompanyToken': store.dpoCompanyToken,
+        'perfectPayEnabled': store.perfectPayEnabled,
         'dpoPaymentEnabled': store.dpoPaymentEnabled,
+        'orangeMoneyMerchantCode': store.orangeMoneyMerchantCode,
+        'orangeMoneyPaymentEnabled': store.orangeMoneyPaymentEnabled,
   
         'supportedPaymentMethods': [],
 
@@ -204,7 +207,6 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
     _startSupportedPaymentMethodsLoader();
 
-    print('_requestSupportedPaymentMethods ????');
     storeProvider.setStore(store).storeRepository.showSupportedPaymentMethods().then((response) async {
 
       if(response.statusCode == 200) {
@@ -275,6 +277,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         offlineMessage: storeForm['offlineMessage'],
         dpoCompanyToken: storeForm['dpoCompanyToken'],
         deliveryFlatFee: storeForm['deliveryFlatFee'],
+        perfectPayEnabled: storeForm['perfectPayEnabled'],
         dpoPaymentEnabled: storeForm['dpoPaymentEnabled'],
         allowFreeDelivery: storeForm['allowFreeDelivery'],
         depositPercentages: storeForm['depositPercentages'],
@@ -282,8 +285,10 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         deliveryDestinations: storeForm['deliveryDestinations'],
         allowDepositPayments: storeForm['allowDepositPayments'],
         installmentPercentages: storeForm['installmentPercentages'],
+        orangeMoneyMerchantCode: storeForm['orangeMoneyMerchantCode'],
         supportedPaymentMethods: storeForm['supportedPaymentMethods'],
         allowInstallmentPayments: storeForm['allowInstallmentPayments'],
+        orangeMoneyPaymentEnabled: storeForm['orangeMoneyPaymentEnabled'],
       ).then((response) async {
 
         if(response.statusCode == 200) {
@@ -339,6 +344,26 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
   /// Reset the server errors
   void _resetServerErrors() => setState(() => serverErrors = {});
+
+  Widget subheading({ required String name, EdgeInsetsGeometry margin = const EdgeInsets.symmetric(vertical: 16.0) }) {
+    return Container(
+      margin: margin,
+      child: Row(
+          children: [
+    
+            /// Heading
+            CustomTitleSmallText(name),
+        
+            /// Spacer
+            const SizedBox(width: 16),
+    
+            /// Divider
+            const Expanded(child: Divider())
+    
+          ],
+        ),
+    );
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -440,7 +465,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
               CustomTextFormField(
                 errorText: serverErrors.containsKey('description') ? serverErrors['description'] : null,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                hintText: 'The sweetest and softed cakes in the world 🍰',
+                hintText: 'The sweetest cakes in the world 🍰',
                 initialValue: storeForm['description'],
                 labelText: 'Description',
                 enabled: !isSubmitting,
@@ -450,7 +475,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                 onChanged: (value) {
                   setState(() => storeForm['description'] = value); 
                 },
-                validator: (value) {
+                validator: (value, originalValidator) {
                   return null;
                 }
               ),
@@ -472,9 +497,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                 },
                 //// onSaved: update
               ),
-              
-              /// Spacer
-              const SizedBox(height: 8),
+
+              /// Sub-heading
+              subheading(name: 'Delivery / Pickup Settings'),
 
               Row(
                 children: [
@@ -520,7 +545,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                         onChanged: (value) {
                           setState(() => storeForm['deliveryNote'] = value); 
                         },
-                        validator: (value) {
+                        validator: (value, originalValidator) {
                           return null;
                         }
                       ),
@@ -797,7 +822,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                           onChanged: (value) {
                             setState(() => storeForm['pickupNote'] = value); 
                           },
-                          validator: (value) {
+                          validator: (value, originalValidator) {
                             return null;
                           }
                         ),
@@ -915,9 +940,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                     )
                   : Container()
               ),
-                          
-              /// Spacer
-              const SizedBox(height: 16),
+
+              /// Sub-heading
+              subheading(name: 'Payment Settings'),
 
               /// Loader
               if(isLoadingSupportedPaymentMethods || isLoadingAvailablePaymentMethods) const CustomCircularProgressIndicator(),
@@ -1094,44 +1119,129 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                       ],
                   )
                 ),
-                  
+  
                 /// Spacer
                 const SizedBox(height: 16),
 
-                /// DPO Payment Enabled Checkbox
+                /// Perfect Pay Payment Enabled Checkbox
                 CustomCheckbox(
-                  value: storeForm['dpoPaymentEnabled'],
+                  value: storeForm['perfectPayEnabled'],
                   disabled: isSubmitting,
-                  text: 'Enable DPO Payments',
+                  text: 'Enable Perfect Pay',
                   checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
                   onChanged: (value) {
-                    setState(() => storeForm['dpoPaymentEnabled'] = value ?? false); 
+                    setState(() => storeForm['perfectPayEnabled'] = value ?? false); 
                   }
                 ),
 
                 AnimatedSize(
                   duration: const Duration(milliseconds: 500),
-                  child: !storeForm['dpoPaymentEnabled']
+                  child: storeForm['perfectPayEnabled']
                   ? Container()
                   : Column(
                       children: [
-                      
+  
                         /// Spacer
                         const SizedBox(height: 16),
 
-                        /// DPO Company Token
-                        CustomTextFormField(
-                          errorText: serverErrors.containsKey('dpoCompanyToken') ? serverErrors['dpoCompanyToken'] : null,
-                          initialValue: storeForm['dpoCompanyToken'],
-                          hintText: 'xxxxxxxxxxxxxxxxxx',
-                          labelText: 'DPO Company Token',
-                          borderRadiusAmount: 16,
-                          enabled: !isSubmitting,
-                          maxLength: 50,
+                        /// Orange Money Payment Enabled Checkbox
+                        CustomCheckbox(
+                          value: storeForm['orangeMoneyPaymentEnabled'],
+                          disabled: isSubmitting,
+                          text: 'Enable Orange Money Payments',
+                          checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
                           onChanged: (value) {
-                            setState(() => storeForm['dpoCompanyToken'] = value);
-                          },
+                            setState(() => storeForm['orangeMoneyPaymentEnabled'] = value ?? false); 
+                          }
                         ),
+
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 500),
+                          child: !storeForm['orangeMoneyPaymentEnabled']
+                          ? Container()
+                          : Column(
+                              children: [
+                        
+                                /// Spacer
+                                const SizedBox(height: 16),
+
+                                /// Orange Money Merchant Code
+                                CustomTextFormField(
+                                  errorText: serverErrors.containsKey('orangeMoneyMerchantCode') ? serverErrors['orangeMoneyMerchantCode'] : null,
+                                  initialValue: storeForm['orangeMoneyMerchantCode'],
+                                  hintText: 'xxxxxx',
+                                  labelText: 'Orange Money Merchant Code',
+                                  borderRadiusAmount: 16,
+                                  enabled: !isSubmitting,
+                                  maxLength: 50,
+                                  onChanged: (value) {
+                                    setState(() => storeForm['orangeMoneyMerchantCode'] = value);
+                                  },
+                                ),
+
+                              ]
+                          )
+                        ),
+                        
+                        /// Spacer
+                        const SizedBox(height: 16),
+
+                        /// DPO Payment Enabled Checkbox
+                        CustomCheckbox(
+                          value: storeForm['dpoPaymentEnabled'],
+                          disabled: isSubmitting,
+                          text: 'Enable DPO Payments',
+                          checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
+                          onChanged: (value) {
+                            setState(() => storeForm['dpoPaymentEnabled'] = value ?? false); 
+                          }
+                        ),
+
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 500),
+                          child: !storeForm['dpoPaymentEnabled']
+                          ? Container()
+                          : Column(
+                              children: [
+                              
+                                /// Spacer
+                                const SizedBox(height: 16),
+
+                                /// DPO Company Token
+                                CustomTextFormField(
+                                  errorText: serverErrors.containsKey('dpoCompanyToken') ? serverErrors['dpoCompanyToken'] : null,
+                                  initialValue: storeForm['dpoCompanyToken'],
+                                  hintText: 'xxxxxxxxxxxxxxxxxx',
+                                  labelText: 'DPO Company Token',
+                                  borderRadiusAmount: 16,
+                                  enabled: !isSubmitting,
+                                  maxLength: 50,
+                                  onChanged: (value) {
+                                    setState(() => storeForm['dpoCompanyToken'] = value);
+                                  },
+                                ),
+
+                              ]
+                          )
+                        ),
+                        
+                            
+                      ]
+                  )
+                ),
+                  
+                /// Spacer
+                const SizedBox(height: 16),
+
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 500),
+                  child: !(storeForm['perfectPayEnabled'] || storeForm['orangeMoneyPaymentEnabled'] || storeForm['dpoPaymentEnabled'])
+                  ? Container()
+                  : Column(
+                      children: [
+                    
+                        /// Spacer
+                        const Divider(),
                       
                         /// Spacer
                         const SizedBox(height: 16),
@@ -1246,6 +1356,9 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                 ),
 
               ],
+
+              /// Sub-heading
+              subheading(name: 'Sms Settings'),
               
               /// Spacer
               const SizedBox(height: 16),

@@ -7,7 +7,6 @@ import '../checkbox/custom_checkbox.dart';
 import '../text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
 import 'dart:async';
 
 enum RequestType {
@@ -27,6 +26,11 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final EdgeInsets listPadding;
   final EdgeInsets headerPadding;
   final Widget? separator;
+
+  /// Indication that we should list the items in reverse order e.g 
+  /// The first item goes to the bottom instead of the top, and the
+  /// last item goes to the top instead of the bottom
+  final bool reverse;
 
   /// Indication that we can reoder
   final bool canReorder;
@@ -57,15 +61,12 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   /// Method to implement the build of each list item
   final Widget Function(dynamic item, int index, List<dynamic> items, bool isSelected, List<dynamic> selectedItems, bool hasSelectedItems, int totalSelectedItems) onRenderItem;
 
-  /// Mesage to show when there is no content to show
-  final String noContent;
-
   /// Show the no content text when we don't have
   /// initial content
   final bool showNoContent;
 
-  /// Mesage to show when there is no more content to show
-  final String noMoreContent;
+  /// Mesage to show when there is no content to show
+  final String noContent;
 
   /// Widget to show when there is no content to show
   final Widget? noContentWidget;
@@ -73,6 +74,12 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   /// Show the no more content text when we don't have
   /// anymore content to load while scrolling down
   final bool showNoMoreContent;
+
+  /// Mesage to show when there is no more content to show
+  final String noMoreContent;
+
+  /// Widget to show when there is no more content to show
+  final Widget? noMoreContentWidget;
 
   /// The margin of the loader that is show when the
   /// showFirstRequestLoader has been set to false
@@ -115,6 +122,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
     this.onLoading,
     this.searchWord,
     this.onSearching,
+    this.reverse = false,
     this.noContentWidget,
     this.onSelectedItems,
     this.scrollController,
@@ -122,6 +130,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
     this.selectedAllAction,
     this.canReorder = false,
     required this.onRequest,
+    this.noMoreContentWidget,
     this.showNoContent = true,
     this.showSearchBar = true,
     this.showSeparater = true,
@@ -164,6 +173,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
 
   int forceRenderListView = 0;
   int get totalItems => data.length;
+  bool get reverse => widget.reverse;
   bool get disabled => widget.disabled;
   String get noContent => widget.noContent;
   bool get canReorder => widget.canReorder;
@@ -183,6 +193,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
   String get catchErrorMessage => widget.catchErrorMessage;
+  Widget? get noMoreContentWidget => widget.noMoreContentWidget;
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
   bool get isStartingRequest => requestType == RequestType.startRequest;
@@ -315,6 +326,11 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     return totalItems;
   }
 
+  int removeAllItems() {
+    setState(() => data = []);
+    return 0;
+  }
+
   int insetItemAt(int index, item) {
     setState(() => data.insert(index, item));
     return totalItems;
@@ -324,11 +340,11 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     setState(() => data[index] = item);
   }
 
-  Future<void> startRequest() {
+  Future<dio.Response> startRequest() {
     return makeApiRequest(RequestType.startRequest);
   }
 
-  Future<void> continueRequest() {
+  Future<dio.Response> continueRequest() {
     return makeApiRequest(RequestType.continueRequest);
   }
 
@@ -452,6 +468,54 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     }else{
       startRequest();
     }
+  }
+
+  void scrollToTop({ milliseconds = 500 }) {
+    Future.delayed(const Duration(milliseconds: 500)).then((_) {
+
+      if(milliseconds == 0) {
+        
+        scrollController.jumpTo(0);
+
+      }else{
+
+        scrollController.animateTo( 
+          0,
+          curve: Curves.easeOut,
+          duration: Duration(milliseconds: milliseconds),
+        );
+
+      }
+
+    });
+  }
+
+  void scrollToBottom({ milliseconds = 500 }) {
+
+    /**
+     *  We use the Future.delayed() method to wait until the 500 milliseconds
+     *  duration required to animated the widgets whenever the UI is updated.
+     *  This gives the scrollController time to know the maxScrollExtent
+     *  before we actually start scrolling.
+     */
+    Future.delayed(const Duration(milliseconds: 500)).then((_) {
+
+      if(milliseconds == 0) {
+        
+        scrollController.jumpTo(scrollController.position.maxScrollExtent);
+
+      }else{
+
+        scrollController.animateTo( 
+          curve: Curves.easeOut,
+          scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: milliseconds),
+        );
+
+      }
+
+    });
+
   }
 
   /// Determine if we have selected all items by setting the 
@@ -676,6 +740,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
          *  disable the scrolling functionality using NeverScrollableScrollPhysics() so that we are only listening to the scroll
          *  activity on the parent widget's SingleChildScrollView() widget.
          */
+        reverse: reverse,
         controller: isUsingParentScrollController ? null : scrollController,
         physics: isUsingParentScrollController ? const NeverScrollableScrollPhysics() : null,
         child: Column(
@@ -746,29 +811,11 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
     );
   }
 
-  Widget singleItemAndNoMoreContent(int index) {
-    
-    return Column(
-      children: [
-
-        /// Build Custom Item Widget
-        buildItem(index),
-
-        /// No more content widget
-        CustomBodyText(
-          textAlign: TextAlign.center,
-          showNoMoreContent ? noMoreContent : '',
-          margin: const EdgeInsets.only(top: 20, bottom: 100),
-        )
-
-      ],
-    );
-  }
-
   Widget listView() {
 
     return ListView.separated(
       key: ValueKey(forceRenderListView),
+      reverse: reverse,
       shrinkWrap: true,
       itemCount: totalItems,
       padding: widget.listPadding,
@@ -776,19 +823,59 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
       separatorBuilder: (BuildContext context, int index) => showSeparater ? (separator ?? const Divider()) : const SizedBox(),
       itemBuilder: ((context, index) {
         
+        final Widget singleItem = buildItem(index);
+
+        final Widget singleItemAndNoMoreContent = Column(
+          children: [
+
+            /// No more content widget
+            if(reverse == true) noMoreContentWidget == null ? CustomBodyText(
+              textAlign: TextAlign.center,
+              showNoMoreContent ? noMoreContent : '',
+              margin: const EdgeInsets.only(top: 20, bottom: 20),
+            ) : noMoreContentWidget!,
+
+            /// Single Item
+            singleItem,
+
+            /// No more content widget
+            if(reverse == false) noMoreContentWidget == null ? CustomBodyText(
+              textAlign: TextAlign.center,
+              showNoMoreContent ? noMoreContent : '',
+              margin: const EdgeInsets.only(top: 20, bottom: 100),
+            ) : noMoreContentWidget!,
+
+          ],
+        );
+
+        final Widget singleItemAndLoader = Column(
+          children: [
+
+            /// Loader (Shows up when more content is loading)
+            if(reverse == true) const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 32),),
+
+            /// Single Item
+            singleItem,
+
+            /// Loader (Shows up when more content is loading)
+            if(reverse == false) const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 60),)
+          
+          ],
+        );
+
         if(index == 0) {
 
           /// If this is the first and only item
           if(totalItems == 1) {
 
             /// Return the single Item Widget
-            return singleItemAndNoMoreContent(index);
+            return singleItemAndNoMoreContent;
 
           /// If this is the first item, but not the only item
           }else{
     
             /// Build Custom Item Widget
-            return buildItem(index);
+            return singleItem;
 
           }
   
@@ -797,29 +884,19 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
           /// If this is the last item and we are loading on a continuing request
           if(isLoading && (index == totalItems - 1) && isContinuingRequest) {
             
-            /// Return the store card and loader
-            return Column(
-              children: [
-    
-                /// Build Custom Item Widget
-                buildItem(index),
-    
-                /// Loader (Shows up when more content is loading)
-                const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 60),)
-              
-              ],
-            );
+            /// Return the item widget and loader
+            return singleItemAndLoader;
       
           /// If this is the last item and have loaded every store
           }else if(loadedLastPage && (index == totalItems - 1)) {
             
             /// Return the single Item Widget
-            return singleItemAndNoMoreContent(index);
+            return singleItemAndNoMoreContent;
     
           }else{
     
             /// Return the built item widget
-            return buildItem(index);
+            return singleItem;
     
           }
     
@@ -834,6 +911,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
 
     return ReorderableListView.builder(
       key: ValueKey(forceRenderListView),
+      reverse: reverse,
       shrinkWrap: true,
       onReorder: onReorder!,
       itemCount: totalItems,
@@ -857,14 +935,28 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
           key: itemKey,
           children: [
 
+            if(reverse == true) ...[
+
+              /// Divider
+              const Divider(height: 0,),
+
+              /// Spacer
+              const SizedBox(height: 8),
+              
+            ],
+
             /// Build Custom Item Widget
             buildItem(index),
 
-            /// Spacer
-            const SizedBox(height: 8),
+            if(reverse == false) ...[
 
-            /// Divider
-            const Divider(height: 0,)
+              /// Spacer
+              const SizedBox(height: 8),
+
+              /// Divider
+              const Divider(height: 0,)
+              
+            ]
 
           ],
         );
@@ -873,11 +965,14 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
           key: itemKey,
           children: [
 
+            /// Loader (Shows up when more content is loading)
+            if(reverse == true) const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 32),),
+
             /// Build Custom Item Widget
             buildItem(index),
 
             /// Loader (Shows up when more content is loading)
-            const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 60),)
+            if(reverse == false) const CustomCircularProgressIndicator(size: 20, margin: EdgeInsets.only(top: 32, bottom: 60),)
           
           ],
         );
@@ -903,7 +998,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
           /// If this is the last item and we are loading on a continuing request
           if(isLoading && (index == totalItems - 1) && isContinuingRequest) {
             
-            /// Return the store card and loader
+            /// Return the item widget and loader
             return singleItemAndLoader;
       
           /// If this is the last item and have loaded every store

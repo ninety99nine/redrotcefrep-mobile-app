@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_cart_details.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
@@ -7,6 +9,7 @@ import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dar
 import 'package:bonako_demo/core/shared_widgets/chips/custom_choice_chip.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/orders/providers/order_provider.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
@@ -37,6 +40,7 @@ class OrderRequestPaymentDialogContent extends StatefulWidget {
 class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDialogContent> {
 
   Map serverErrors = {};
+  bool isLoading = false;
   String whoIsPaying = 'Me';
   bool isSubmitting = false;
   late PayableAmount payableAmount;
@@ -44,15 +48,24 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
   final CarouselController carouselController = CarouselController();
   List<String> whoIsPayingOptions = ['Me', 'Friend', 'Split Payment'];
   final bankCards = ['orange_money', 'myzaka', 'smega', 'absa', 'fnb', 'stanbic', 'standard_chartered'];
+  
+  PaymentMethod? selectedPaymentMethod;
+  List<PaymentMethod> paymentMethods = [];
+  bool get hasSelectedPaymentMethodThatSupportsPerfectPay => selectedPaymentMethod != null;
+  bool get isPayingUsingDpoCard => hasSelectedPaymentMethodThatSupportsPerfectPay && selectedPaymentMethod!.attributes.isDpoCard;
+  bool get isPayingUsingOrangeMoney => hasSelectedPaymentMethodThatSupportsPerfectPay && selectedPaymentMethod!.attributes.isOrangeMoney;
 
   Order get order => widget.order;
   bool get payingByMyself => whoIsPaying == 'Me';
   bool get payingUsingFriend => whoIsPaying == 'Friend';
   ShoppableStore get store => order.relationships.store!;
+  void _startLoader() => setState(() => isLoading = true);
+  void _stopLoader() => setState(() => isLoading = false);
   bool get payingUsingSplitPayment => whoIsPaying == 'Split Payment';
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
   Function(Transaction)? get onRequestPayment => widget.onRequestPayment;
+  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   bool get canManageOrders => store.attributes.userStoreAssociation!.canManageOrders;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
   bool get isAssociatedAsAFriend => userOrderCollectionAssociation?.isAssociatedAsFriend ?? false;
@@ -64,7 +77,56 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
   @override
   void initState() {
     super.initState();
+    _requestShowRequestPaymentPaymentMethods();
     payableAmount = order.attributes.payableAmounts.first;
+  }
+
+  void _requestShowRequestPaymentPaymentMethods() async {
+
+    _startLoader();
+
+    orderProvider.setOrder(order).orderRepository.showRequestPaymentPaymentMethods().then((response) {
+
+      if(response.statusCode == 200) {
+
+        setState(() {
+
+          paymentMethods = (response.data['data'] as List).map((paymentMethod) {
+            return PaymentMethod.fromJson(paymentMethod);
+          }).toList();
+
+          /// If we have payment methods
+          if(paymentMethods.isNotEmpty) {
+
+            /// If the customer selected a preffered payment method
+            if(order.paymentMethodId != null) {
+
+              /// Select this preffered payment method if it exists
+              selectedPaymentMethod = paymentMethods.firstWhereOrNull((selectedPaymentMethod) => selectedPaymentMethod.id == order.paymentMethodId);
+
+            }
+
+            /// Select the first payment method if we still have no payment method selected
+            selectedPaymentMethod ??= paymentMethods.first;
+
+          }
+
+        });
+
+      }
+
+    }).catchError((error) {
+
+      printError(info: error.toString());
+
+      SnackbarUtility.showErrorMessage(message: 'Failed to show payment methods');
+
+    }).whenComplete(() {
+
+      _stopLoader();
+
+    });
+
   }
 
   void _requestPayment() async {
@@ -72,10 +134,12 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
     _startSubmittionLoader();
 
     orderProvider.setOrder(order).orderRepository.requestPayment(
-      percentage: payableAmount.percentage
+      percentage: payableAmount.percentage,
+      paymentMethodId: selectedPaymentMethod!.id
     ).then((response) {
 
       if(response.statusCode == 200) {
+        
 
         final Transaction createdTransaction = Transaction.fromJson(response.data);
         
@@ -90,7 +154,7 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
           /// Notify the user that they can share the payment link with their customer
           SnackbarUtility.showSuccessMessage(message: 'Share payment link with your customer');
 
-          OrderServices().sharePaymentLink(order, createdTransaction);
+          if(isPayingUsingDpoCard) OrderServices().sharePaymentLink(order, createdTransaction);
 
         /// If paying by myself
         }else if(payingByMyself) {
@@ -99,7 +163,7 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
           SnackbarUtility.showSuccessMessage(message: 'Preparing payment');
 
           /// Launch Direct Pay Online
-          OrderServices().launchPaymentLink(createdTransaction, context);
+          if(isPayingUsingDpoCard) OrderServices().launchPaymentLink(createdTransaction, context);
 
         /// If paying using friend
         }else if(payingUsingFriend) {
@@ -107,7 +171,7 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
           /// Notify the user that they can share the payment link with their friend
           SnackbarUtility.showSuccessMessage(message: 'Share payment link with your friend');
 
-          OrderServices().sharePaymentLink(order, createdTransaction);
+          if(isPayingUsingDpoCard) OrderServices().sharePaymentLink(order, createdTransaction);
 
         /// If paying using split payment
         }else if(payingUsingSplitPayment) {
@@ -136,13 +200,38 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
     });
 
   }
+  
+  Widget get paymentMethodChoices {
+    return ClipRRect(
+      clipBehavior: Clip.antiAlias,
+      borderRadius: BorderRadius.circular(24),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.start,
+          alignment: WrapAlignment.start,
+          spacing: 8,
+          children: [
+            ...paymentMethods.map((option) {
+      
+              final selected = option.id == selectedPaymentMethod!.id;
 
-  Widget get payHustleFreeInstruction {
-    return CustomMessageAlert(
-      showIcon: false,
-      padding: const EdgeInsets.all(16),
-      bgColor: Theme.of(context).primaryColor.withOpacity(0.05),
-      'Pay hassle-free with any card 😍 - Choose from 3 options:\n\n1. Pay yourself\n2. Friends pay for you\n3. Split the bill with friends.'
+              /// Return this choice chip option
+              return CustomChoiceChip(
+                label: option.name,
+                selected: selected,
+                selectedColor: Colors.green.shade700,
+                onSelected: (_) {
+                  if(!isSubmitting) {
+                    setState(() => selectedPaymentMethod = option);
+                  }
+                }
+              );
+      
+            })
+          ],
+        ),
+      ),
     );
   }
 
@@ -150,9 +239,10 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
     return CarouselSlider.builder(
         carouselController: carouselController,
         options: CarouselOptions(
+          height: 140,
           padEnds: true,
           autoPlay: true,
-          viewportFraction: 0.8,
+          viewportFraction: 0.6,
           enlargeCenterPage: true,
           enableInfiniteScroll: true,
           clipBehavior: Clip.hardEdge,
@@ -168,6 +258,15 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
 
         }
       );
+  }
+
+  Widget get orangeMoneyLogo {
+
+    return Container(
+      height: 60,
+      alignment: Alignment.centerLeft,
+      child: Image.asset('assets/images/payment_method_logos/orange_money.png'),
+    );
   }
 
   Widget get whoIsPayingChoices {
@@ -313,134 +412,183 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: requestingPayment 
-                ? [
+              children: [
+                
+                
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: requestingPayment 
+                    ? [
         
-                  /// Order Cart Details
-                  OrderCartDetails(order: order, showTopDivider: false),
+                      /// Order Cart Details
+                      OrderCartDetails(order: order, showTopDivider: false),
     
-                  /// Spacer
-                  const SizedBox(height: 16),
-    
-                  /// Payable Amount Choices
-                  payableAmountChoices,
-    
-                  /// Spacer
-                  const SizedBox(height: 16),
+                      /// Spacer
+                      const SizedBox(height: 16),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                      if(isLoading) ...[
 
-                      /// Final Amount
-                      finalAmount,
+                        const CustomCircularProgressIndicator(),
+
+                      ],
+
+                      if(!isLoading) ...[
+
+                        paymentMethodChoices,
+    
+                        /// Spacer
+                        const SizedBox(height: 16),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+
+                            /// Final Amount
+                            finalAmount,
+
+                          ],
+                        ),
+      
+                        /// Spacer
+                        const SizedBox(height: 16),
+      
+                        /// Create Payment Link Button
+                        createPaymentLinkButton,
+                        
+                      ],
+    
+                      /// Spacer
+                      const SizedBox(height: 100)
+
+                    ]
+                    : [
+        
+                    /// Order Cart Details
+                    OrderCartDetails(order: order, showTopDivider: false),
+
+                    if(isLoading) ...[
+    
+                      /// Spacer
+                      const SizedBox(height: 16),
+
+                      const CustomCircularProgressIndicator(),
 
                     ],
-                  ),
-    
-                  /// Spacer
-                  const SizedBox(height: 16),
-    
-                  /// Create Payment Link Button
-                  createPaymentLinkButton,
-    
-                  /// Spacer
-                  const SizedBox(height: 100)
 
-                ]
-                : [
+                    if(!isLoading) ...[
+
+                      paymentMethodChoices,
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: AnimatedSize(
+                          duration: const Duration(milliseconds: 500),
+                          child: AnimatedSwitcher(
+                            switchInCurve: Curves.easeIn,
+                            switchOutCurve: Curves.easeOut,
+                            duration: const Duration(milliseconds: 500),
+                            child: Column(
+                              key: ValueKey(isPayingUsingDpoCard),
+                              children: [
+                                      
+                                /// Spacer
+                                const Divider(height: 24,),
+                                    
+                                /// Orange Money Logo
+                                if(isPayingUsingOrangeMoney) orangeMoneyLogo,
+                                    
+                                /// Bank Card Slider
+                                if(isPayingUsingDpoCard) bankCardSlider,
+                      
+                              ],
+                            )
+                          ),
+                        ),
+                      ),
+                    
+                      /// Spacer
+                      const Divider(height: 24,),
+      
+                      if(percentageErrorText != null) ...[
+      
+                        /// Percentage error text
+                        CustomBodyText(percentageErrorText, isError: true),
+      
+                        /// Spacer
+                        const SizedBox(height: 16),
+      
+                      ],
+      
+                      /// Who is paying title
+                      const CustomTitleSmallText('Who is paying paying'),
+      
+                      /// Spacer
+                      const SizedBox(height: 16),
         
-                /// Order Cart Details
-                OrderCartDetails(order: order, showTopDivider: false),
-    
-                /// Pay Hustle Free Instruction
-                payHustleFreeInstruction,
-              
-                /// Spacer
-                const Divider(height: 24,),
-    
-                /// Bank Card Slider
-                bankCardSlider,
-              
-                /// Spacer
-                const Divider(height: 24,),
-    
-                if(percentageErrorText != null) ...[
-    
-                  /// Percentage error text
-                  CustomBodyText(percentageErrorText, isError: true),
-    
-                  /// Spacer
-                  const SizedBox(height: 16),
-    
-                ],
-    
-                /// Who is paying title
-                const CustomTitleSmallText('How are you paying'),
-    
-                /// Spacer
-                const SizedBox(height: 16),
+                      /// Who is paying choices
+                      whoIsPayingChoices,
       
-                /// Who is paying choices
-                whoIsPayingChoices,
-    
-                /// Spacer
-                const SizedBox(height: 16),
-    
-                /// Payable Amount Choices
-                payableAmountChoices,
+                      /// Spacer
+                      const SizedBox(height: 16),
+                      
+                      /// Payment Instruction
+                      paymentInstruction,
       
-                /// Spacer
-                const SizedBox(height: 16),
+                      /// Spacer
+                      const SizedBox(height: 16),
+      
+                      /// Payable Amount Choices
+                      payableAmountChoices,
+        
+                      /// Spacer
+                      const SizedBox(height: 16),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
 
-                    /// Final Amount
-                    finalAmount,
+                          /// Final Amount
+                          finalAmount,
 
-                  ],
+                        ],
+                      ),
+        
+                      /// Spacer
+                      const SizedBox(height: 16),
+      
+                      /// If paying by myself
+                      if(payingByMyself) ...[
+      
+                        /// Pay Now Button
+                        payNowButton
+      
+                      ],
+      
+                      /// If paying using friend
+                      if(payingUsingFriend) ...[
+      
+                        /// Create Payment Link Button
+                        createPaymentLinkButton
+      
+                      ],
+      
+                      /// If paying using split payment
+                      if(payingUsingSplitPayment) ...[
+      
+                        /// Split Payment Button
+                        splitPaymentButton
+      
+                      ],
+
+                    ],
+  
+                    /// Spacer
+                    const SizedBox(height: 100)
+                  
+                  ]
                 ),
-    
-                /// Spacer
-                const SizedBox(height: 16),
-                
-                /// Payment Instruction
-                paymentInstruction,
-      
-                /// Spacer
-                const SizedBox(height: 16),
-    
-                /// If paying by myself
-                if(payingByMyself) ...[
-    
-                  /// Pay Now Button
-                  payNowButton
-    
-                ],
-    
-                /// If paying using friend
-                if(payingUsingFriend) ...[
-    
-                  /// Create Payment Link Button
-                  createPaymentLinkButton
-    
-                ],
-    
-                /// If paying using split payment
-                if(payingUsingSplitPayment) ...[
-    
-                  /// Split Payment Button
-                  splitPaymentButton
-    
-                ],
-    
-                /// Spacer
-                const SizedBox(height: 100)
-              
-              ]
+              ],
             )
           )
         ),

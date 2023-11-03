@@ -166,7 +166,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
 
         /// Quantity
         'allowedQuantityPerOrder': isEditing ? product!.allowedQuantityPerOrder.value.toLowerCase() : 'unlimited',
-        'maximumAllowedQuantityPerOrder': isEditing ? product!.maximumAllowedQuantityPerOrder.value.toString() : '5',
+        'maximumAllowedQuantityPerOrder': isEditing ? product!.maximumAllowedQuantityPerOrder.value.toString() : '1',
 
         /// Stock
         'stockQuantityType': isEditing ? product!.stockQuantityType.value.toLowerCase() : 'unlimited',
@@ -550,7 +550,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   onChanged: (value) {
                     setState(() => productForm['description'] = value); 
                   },
-                  validator: (value) {
+                  validator: (value, originalValidator) {
                     return null;
                   }
                 ),
@@ -724,7 +724,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   onChanged: (value) {
                     setState(() => productForm['sku'] = value); 
                   },
-                  validator: (value) {
+                  validator: (value, originalValidator) {
                     return null;
                   }
                 ),
@@ -744,7 +744,7 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   onChanged: (value) {
                     setState(() => productForm['barcode'] = value); 
                   },
-                  validator: (value) {
+                  validator: (value, originalValidator) {
                     return null;
                   }
                 ),

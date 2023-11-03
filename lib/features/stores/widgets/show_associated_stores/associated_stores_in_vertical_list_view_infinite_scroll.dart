@@ -141,7 +141,7 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
             child: RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                text: 'Promote stores by adding them on your Bonako number. Everytime people dial\n\n ',
+                text: 'Promote stores by adding them here. Everytime people dial\n\n ',
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.normal,
                 ),

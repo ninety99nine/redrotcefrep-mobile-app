@@ -60,7 +60,7 @@ class _SpecialNoteState extends State<SpecialNote> {
                       setState(() => store!.updateSpecialNote(value)); 
                     });
                   },
-                  validator: (value) {
+                  validator: (value, originalValidator) {
                     return null;
                   }
                 ),

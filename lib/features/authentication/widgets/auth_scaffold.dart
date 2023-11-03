@@ -1,4 +1,6 @@
 
+import 'package:bonako_demo/core/shared_widgets/animated_widgets/custom_rotating_widget.dart';
+
 import '../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../services/auth_form_service.dart';
 import 'package:flutter/material.dart';
@@ -8,16 +10,20 @@ class AuthScaffold extends StatefulWidget {
   final Widget form;
   final String title;
   final String? imageUrl;
+  final double? imageWidth;
   final double topHeightRatio;
   final AuthFormService authForm;
+  final EdgeInsetsGeometry imageMargin;
 
   const AuthScaffold({ 
     super.key, 
     this.imageUrl,
+    this.imageWidth,
     required this.form,
     required this.title,
     required this.authForm,
     this.topHeightRatio = 0.05,
+    this.imageMargin = EdgeInsets.zero
   });
 
   @override
@@ -47,13 +53,18 @@ class _AuthScaffoldState extends State<AuthScaffold> {
                 /**
                  *  Image
                  * 
-                 *  Set the SizedBox height so that the content does not
-                 *  jump while waiting for the images to be loaded from
+                 *  Set the Container height so that the content does not
+                 *  jump while waiting for the image to be loaded from
                  *  the device storage.
                  */
-                if(widget.imageUrl != null) SizedBox(
-                  height: 400,
-                  child: Image.asset(widget.imageUrl!),
+                if(widget.imageUrl != null) Container(
+                  margin: widget.imageMargin,
+                  height: widget.imageWidth ?? 400,
+                  child: CustomRotatingWidget(
+                    animationDuration: const Duration(seconds: 2),
+                    delayDuration: const Duration(seconds: 30),
+                    child: Image.asset(widget.imageUrl!),
+                  )
                 ),
             
                 Align(

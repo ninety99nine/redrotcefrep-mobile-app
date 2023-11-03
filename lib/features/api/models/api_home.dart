@@ -35,6 +35,7 @@ class Links {
   late String showInfluencerStores;
   late String validateResetPassword;
   late String showSearchFriendGroups;
+  late String showAiMessageCategories;
   late String checkInvitationsToFollowStores;
   late String updateAssignedStoresArrangement;
   late String checkInvitationsToJoinTeamStores;
@@ -60,6 +61,7 @@ class Links {
     showInfluencerStores = json['showInfluencerStores'];
     validateResetPassword = json['validateResetPassword'];
     showSearchFriendGroups = json['showSearchFriendGroups'];
+    showAiMessageCategories = json['showAiMessageCategories'];
     checkInvitationsToFollowStores = json['checkInvitationsToFollowStores'];
     updateAssignedStoresArrangement = json['updateAssignedStoresArrangement'];
     checkInvitationsToJoinTeamStores = json['checkInvitationsToJoinTeamStores'];

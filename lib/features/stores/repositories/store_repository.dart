@@ -135,7 +135,9 @@ class StoreRepository {
     List<Map>? supportedPaymentMethods, bool? allowDepositPayments,
     List<String>? depositPercentages, bool? allowInstallmentPayments,
     List<String>? installmentPercentages, List<Map>? pickupDestinations,
-    bool? dpoPaymentEnabled, String? dpoCompanyToken, String? mobileNumber
+    bool? perfectPayEnabled, bool? dpoPaymentEnabled, String? dpoCompanyToken, 
+    bool? orangeMoneyPaymentEnabled, String? orangeMoneyMerchantCode, 
+    String? mobileNumber
   }) {
 
     if(store == null) throw Exception('The store must be set to update');
@@ -159,6 +161,8 @@ class StoreRepository {
 
     if((smsSenderName != null && smsSenderName.isEmpty) || smsSenderName == null) {
       body['smsSenderName'] = null;
+    }else{
+      body['smsSenderName'] = smsSenderName;
     }
 
     if(depositPercentages != null && depositPercentages.isNotEmpty) {
@@ -181,12 +185,24 @@ class StoreRepository {
       body['supportedPaymentMethods'] = supportedPaymentMethods;
     }
 
+    if(perfectPayEnabled != null) {
+      body['perfectPayEnabled'] = perfectPayEnabled;
+    }
+
     if(dpoPaymentEnabled != null) {
       body['dpoPaymentEnabled'] = dpoPaymentEnabled;
     }
 
     if(dpoCompanyToken != null) {
       body['dpoCompanyToken'] = dpoCompanyToken;
+    }
+
+    if(orangeMoneyPaymentEnabled != null) {
+      body['orangeMoneyPaymentEnabled'] = orangeMoneyPaymentEnabled;
+    }
+
+    if(orangeMoneyMerchantCode != null) {
+      body['orangeMoneyMerchantCode'] = orangeMoneyMerchantCode;
     }
 
     if(mobileNumber != null) {

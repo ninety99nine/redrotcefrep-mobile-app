@@ -29,7 +29,7 @@ class CustomCircularProgressIndicator extends StatelessWidget {
         margin: margin,
         child: CircularProgressIndicator(
           backgroundColor: backgroundColor ?? Colors.grey.shade100,
-          color: color ?? Colors.blue,
+          color: color ?? Colors.black,
           strokeWidth: strokeWidth,
         ),
       ),

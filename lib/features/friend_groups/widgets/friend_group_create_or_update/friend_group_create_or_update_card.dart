@@ -78,7 +78,7 @@ class _FriendGroupCreateOrUpdateCardState extends State<FriendGroupCreateOrUpdat
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            /// Why Create Your Friend Group On Bonako - Carousel Slider
+            /// Why Create Your Friend Group - Carousel Slider
             CarouselSlider.builder(
               carouselController: carouselController,
               options: CarouselOptions(

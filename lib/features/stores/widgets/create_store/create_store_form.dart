@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
@@ -143,6 +144,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
     return Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
             /// Store Name
@@ -165,10 +167,10 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
             /// Description
             CustomTextFormField(
               contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-              hintText: 'The sweetest and softed cakes in the world 🍰',
+              hintText: 'The sweetest cakes in the world 🍰',
               errorText: descriptionErrorText,
               initialValue: description,
-              labelText: 'Description',
+              labelText: 'Description (Optional)',
               enabled: !isSubmitting,
               borderRadiusAmount: 16,
               maxLength: 120,
@@ -176,6 +178,16 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
               onChanged: (value) {
                 setState(() => description = value); 
               }
+            ),
+              
+            /// Spacer
+            const SizedBox(height: 16),
+
+            /// Instruction
+            const CustomBodyText(
+              'Mobile number for customers to call', 
+              textAlign: TextAlign.left,
+              lightShade: true, 
             ),
               
             /// Spacer
@@ -206,7 +218,7 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
               isLoading: isSubmitting,
               alignment: Alignment.center,
               onPressed: _requestCreateStore,
-              disabled: name.isEmpty || description.isEmpty || mobileNumber.length != 8,
+              disabled: name.isEmpty || mobileNumber.length != 8,
             )
 
           ]

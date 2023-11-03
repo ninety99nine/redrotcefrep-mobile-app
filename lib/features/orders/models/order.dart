@@ -219,6 +219,8 @@ class Links {
   late Link generateCollectionCode;
   late Link showTransactionFilters;
   late Link markAsUnverifiedPayment;
+  late Link showRequestPaymentPaymentMethods;
+  late Link showMarkAsUnverifiedPaymentPaymentMethods;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
@@ -235,5 +237,7 @@ class Links {
     generateCollectionCode = Link.fromJson(json['generateCollectionCode']);
     showTransactionFilters = Link.fromJson(json['showTransactionFilters']);
     markAsUnverifiedPayment = Link.fromJson(json['markAsUnverifiedPayment']);
+    showRequestPaymentPaymentMethods = Link.fromJson(json['showRequestPaymentPaymentMethods']);
+    showMarkAsUnverifiedPaymentPaymentMethods = Link.fromJson(json['showMarkAsUnverifiedPaymentPaymentMethods']);
   }
 }

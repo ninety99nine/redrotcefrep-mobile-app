@@ -12,6 +12,7 @@ class CustomPasswordTextFormField extends StatefulWidget {
   final void Function(String?)? onSaved;
   final void Function(String)? onChanged;
   final String validatorOnDoesNotMatchText;
+  final void Function()? onEditingComplete;
   final void Function(String)? onFieldSubmitted;
 
   const CustomPasswordTextFormField( 
@@ -25,6 +26,7 @@ class CustomPasswordTextFormField extends StatefulWidget {
       this.matchPassword,
       this.enabled = true,
       this.onFieldSubmitted,
+      this.onEditingComplete,
       this.validatorOnEmptyText = 'Enter your password',
       this.validatorOnDoesNotMatchText = 'Password does not match'
     }
@@ -84,8 +86,9 @@ class _CustomPasswordTextFormFieldState extends State<CustomPasswordTextFormFiel
       labelText: widget.labelText,
       errorText: widget.errorText,
       onFieldSubmitted: widget.onFieldSubmitted,
+      onEditingComplete: widget.onEditingComplete,
       validatorOnEmptyText: widget.validatorOnEmptyText,
-      validator: (value) {
+      validator: (value, originalValidator) {
         
         if(value == null || value.isEmpty){
           return widget.validatorOnEmptyText;

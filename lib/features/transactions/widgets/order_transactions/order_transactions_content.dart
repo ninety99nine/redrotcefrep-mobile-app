@@ -60,7 +60,7 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
   bool get isViewingTransactions => transactionContentView == TransactionContentView.viewingTransactions;
   String get subtitle {
     if(isViewingRequestPayment) {
-      return 'Pay using BonakoPay';
+      return 'Pay using PerfectPay';
     }else if(isViewingTransactions) {
       return 'Showing ${transactionFilter.toLowerCase()} coupons';
     }else{
@@ -221,7 +221,7 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
                               /// Subtitle
                               const Align(
                                 alignment: Alignment.centerLeft,
-                                child: CustomBodyText('Pay using BonakoPay'),
+                                child: CustomBodyText('Pay using PerfectPay'),
                               )
 
                             ],

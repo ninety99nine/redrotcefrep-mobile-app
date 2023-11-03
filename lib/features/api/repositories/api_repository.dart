@@ -1,10 +1,9 @@
-import 'dart:convert';
-
+import 'package:bonako_demo/core/utils/stream_utility.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../services/api_service.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/dio.dart';
+import 'dart:convert';
 
 class ApiRepository {
 
@@ -69,8 +68,10 @@ class ApiRepository {
 
   /// Make POST Request
   Future<dio.Response> post({
+    stream = false,
     required String url,
     Map<String, dynamic>? body,
+    StreamUtility? streamUtility,
     bool handleRequestFailure = true,
     Map<String, String>? queryParams,
     void Function(int, int)? onSendProgress,
@@ -80,6 +81,12 @@ class ApiRepository {
     print('_bearerToken: $bearerToken');
     print('post body');
     print(body);
+      
+    if(stream == true && streamUtility == null) {
+
+      throw Exception('The StreamUtility class is required when executing a POST request using on a stream');
+
+    }
 
     FormData? formData;
 
@@ -103,12 +110,8 @@ class ApiRepository {
     
       if(hasFields) {
 
-        print('stage 1');
-
         /// Get the JSON data to be sent
         final Map<String, dynamic> json = Map.fromEntries((body ?? {}).entries.where((entry) => entry.value.runtimeType != XFile));
-
-        print('stage 2');
 
         /// Since FormData requires that data is sent as String values,
         /// we need to JSON encode the data so that we can send it as
@@ -122,8 +125,6 @@ class ApiRepository {
         /// can know that these information must be
         /// JSON decoded before processing
         formData.fields.add(MapEntry('json', jsonEncode(json)));
-
-        print('stage 3');
 
       }
 
@@ -142,19 +143,37 @@ class ApiRepository {
 
     try {
       
-      return await Dio().post(
+      final response = await Dio().post(
         url,
         options: Options(
-          headers: apiHeaders
+          headers: apiHeaders,
+          responseType: stream ? ResponseType.stream : null
         ),
         data: formData ?? body,
         queryParameters: queryParams,
         onSendProgress: onSendProgress,
       );
       
-    } on DioException catch (exception) {
+      if(stream) {
 
-      ApiService.handleRequestFailure(exception: exception);
+        /// Set the stream response
+        streamUtility!.setResponse(response);
+
+      }
+
+      return response;
+      
+    } on DioException catch (exception) {
+      
+      if(stream) {
+
+        /// Set the stream response
+        streamUtility!.setResponse(exception.response!);
+
+      }
+
+      ApiService.handleRequestFailure(exception: exception, streamUtility: streamUtility);
+      
       rethrow;
       
     }

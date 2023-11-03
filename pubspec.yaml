@@ -88,10 +88,15 @@ flutter_launcher_icons:
   ios: true
 
 flutter_native_splash:
-  color: '#ffffff'
+  color: "#000000"
+  color_dark: "#000000"
   image: "assets/splash_screen/image.png"
-  branding: "assets/splash_screen/branding.png"
-  #background_image: "assets/splash_screen/splash_screen_background.png"
+  image_dark: "assets/splash_screen/image.png"
+  #branding: "assets/splash_screen/branding.png"
+  #branding_dark: "assets/splash_screen/branding.png"
+  android_12:
+    image: "assets/splash_screen/android_image.png"
+    image_dark: "assets/splash_screen/android_image.png"
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -105,6 +110,7 @@ flutter:
   assets:
     - assets/sounds/
     - assets/images/
+    - assets/images/chat/
     - assets/images/auth/
     - assets/images/orders/
     - assets/images/groups/
@@ -114,6 +120,7 @@ flutter:
     - assets/images/my_stores/
     - assets/images/bank_cards/
     - assets/images/intro_slides/
+    - assets/images/payment_method_logos/
     
   #  - assets/icons/ecommerce_pack_1/
   #  - assets/icons/ecommerce_pack_2/

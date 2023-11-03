@@ -9,6 +9,7 @@ class CustomMobileNumberTextFormField extends StatelessWidget {
   final String? initialValue;
   final void Function(String?)? onSaved;
   final void Function(String)? onChanged;
+  final void Function()? onEditingComplete;
   final void Function(String)? onFieldSubmitted;
   final List<MobileNetworkName> supportedMobileNetworkNames;
 
@@ -21,6 +22,7 @@ class CustomMobileNumberTextFormField extends StatelessWidget {
       this.initialValue,
       this.enabled = true,
       this.onFieldSubmitted,
+      this.onEditingComplete,
       required this.supportedMobileNetworkNames
     }
   );
@@ -55,7 +57,8 @@ class CustomMobileNumberTextFormField extends StatelessWidget {
       onSaved: onSaved,
       onChanged: onChanged,
       onFieldSubmitted: onFieldSubmitted,
-      validator: (value) {
+      onEditingComplete: onEditingComplete,
+      validator: (value, originalValidator) {
         if(value == null || value.isEmpty){
           return 'Please enter the mobile number';
         }

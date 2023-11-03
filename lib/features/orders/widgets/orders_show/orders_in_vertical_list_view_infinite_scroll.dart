@@ -84,8 +84,6 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
 
   }
 
-
-
   /// Render each request item as an OrderItem
   Widget onRenderItem(order, int index, List orders, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) {
     

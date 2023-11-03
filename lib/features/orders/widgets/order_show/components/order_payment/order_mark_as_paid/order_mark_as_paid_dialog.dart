@@ -34,8 +34,8 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
   bool isLoading = false;
   bool isSubmitting = false;
   late PayableAmount payableAmount;
-  PaymentMethod? supportedPaymentMethod;
-  List<PaymentMethod> supportedPaymentMethods = [];
+  PaymentMethod? selectedPaymentMethod;
+  List<PaymentMethod> paymentMethods = [];
 
   Order get order => widget.order;
   ShoppableStore get store => order.relationships.store!;
@@ -50,37 +50,39 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
   @override
   void initState() {
     super.initState();
-    _requestSupportedPaymentMethods();
+    _requestShowMarkAsUnverifiedPaymentPaymentMethods();
     payableAmount = order.attributes.payableAmounts.first;
   }
 
-  void _requestSupportedPaymentMethods() async {
+  void _requestShowMarkAsUnverifiedPaymentPaymentMethods() async {
 
     _startLoader();
 
-    storeProvider.setStore(store).storeRepository.showAvailablePaymentMethods().then((response) {
+    orderProvider.setOrder(order).orderRepository.showMarkAsUnverifiedPaymentPaymentMethods().then((response) {
 
       if(response.statusCode == 200) {
         setState(() {
-          supportedPaymentMethods = (response.data['data'] as List).map((paymentMethod) {
+
+          paymentMethods = (response.data['data'] as List).map((paymentMethod) {
             return PaymentMethod.fromJson(paymentMethod);
           }).toList();
 
-          /// If we have supported payment methods
-          if(supportedPaymentMethods.isNotEmpty) {
+          /// If we have payment methods
+          if(paymentMethods.isNotEmpty) {
 
             /// If the customer selected a preffered payment method
             if(order.paymentMethodId != null) {
 
               /// Select this preffered payment method if it exists
-              supportedPaymentMethod = supportedPaymentMethods.firstWhereOrNull((supportedPaymentMethod) => supportedPaymentMethod.id == order.paymentMethodId);
+              selectedPaymentMethod = paymentMethods.firstWhereOrNull((selectedPaymentMethod) => selectedPaymentMethod.id == order.paymentMethodId);
 
             }
 
             /// Select the first payment method if we still have no payment method selected
-            supportedPaymentMethod ??= supportedPaymentMethods.first;
+            selectedPaymentMethod ??= paymentMethods.first;
 
           }
+
         });
       }
 
@@ -97,9 +99,8 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
     _startSubmittionLoader();
 
     orderProvider.setOrder(order).orderRepository.markAsUnverifiedPayment(
-      paymentMethodId: supportedPaymentMethod!.id,
-      percentage: payableAmount.percentage,
-      amount: '100'
+      paymentMethodId: selectedPaymentMethod!.id,
+      percentage: payableAmount.percentage
     ).then((response) {
       if(response.statusCode == 200) {
 
@@ -126,14 +127,14 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
 
         /// Dropdown
         DropdownButton(
-          value: supportedPaymentMethod,
+          value: selectedPaymentMethod,
           items: [
 
-            ...supportedPaymentMethods.map((supportedPaymentMethod) {
+            ...paymentMethods.map((selectedPaymentMethod) {
 
               return DropdownMenuItem(
-                value: supportedPaymentMethod,
-                child: CustomBodyText(supportedPaymentMethod.name),
+                value: selectedPaymentMethod,
+                child: CustomBodyText(selectedPaymentMethod.name),
               );
 
             })
@@ -141,7 +142,7 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
           ],
           onChanged: (value) {
             if(!isSubmitting && value != null) {
-              setState(() => supportedPaymentMethod = value);
+              setState(() => selectedPaymentMethod = value);
             }
           },
         ),

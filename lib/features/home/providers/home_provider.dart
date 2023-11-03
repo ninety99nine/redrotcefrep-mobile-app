@@ -29,11 +29,11 @@ class HomeProvider with ChangeNotifier {
   /// Check if we have selected the following tab
   bool get hasSelectedFollowing => _selectedHomeTabIndex == 1;
 
-  /// Check if we have selected the groups tab
-  bool get hasSelectedGroups => _selectedHomeTabIndex == 2;
-
   /// Check if we have selected the my stores tab
-  bool get hasSelectedMyStores => _selectedHomeTabIndex == 3;
+  bool get hasSelectedMyStores => _selectedHomeTabIndex == 2;
+
+  /// Check if we have selected the groups tab
+  bool get hasSelectedGroups => _selectedHomeTabIndex == 3;
 
   /// Check if we have selected the communities tab
   bool get hasSelectedCommunities => _selectedHomeTabIndex == 4;

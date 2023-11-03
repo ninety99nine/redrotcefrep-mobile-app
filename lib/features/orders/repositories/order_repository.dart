@@ -158,8 +158,25 @@ class OrderRepository {
     
   }
 
+  /// Show payment methods available to request payment for the specified order
+  Future<dio.Response> showRequestPaymentPaymentMethods({ String searchWord = '', int page = 1 }) {
+    
+    if(order == null) throw Exception('The order must be set to show the payment methods');
+
+    String url = order!.links.showRequestPaymentPaymentMethods.href;
+
+    Map<String, String> queryParams = {};
+
+    queryParams.addAll({'page': page.toString()}); 
+      
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
   /// Request payment for the specified order
-  Future<dio.Response> requestPayment({ required int percentage }) {
+  Future<dio.Response> requestPayment({ required int percentage, required paymentMethodId }) {
 
     if(order == null) throw Exception('The order must be set to request payment');
 
@@ -167,6 +184,7 @@ class OrderRepository {
     
     Map<String, dynamic> body = {
       'percentage': percentage,
+      'payment_method_id': paymentMethodId,
     };
     
     return apiRepository.post(url: url, body: body);
@@ -224,10 +242,26 @@ class OrderRepository {
     
   }
 
-
   ///////////////////////////////////
   ///   PAYMENTS                 ///
   //////////////////////////////////
+
+  /// Show payment methods available to mark the specified order as paid
+  Future<dio.Response> showMarkAsUnverifiedPaymentPaymentMethods({ String searchWord = '', int page = 1 }) {
+    
+    if(order == null) throw Exception('The order must be set to show the payment methods');
+
+    String url = order!.links.showMarkAsUnverifiedPaymentPaymentMethods.href;
+
+    Map<String, String> queryParams = {};
+
+    queryParams.addAll({'page': page.toString()}); 
+      
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
 
   /// Mark the specified order as paid
   Future<dio.Response> markAsUnverifiedPayment({ int? percentage, String? amount, required paymentMethodId }) {

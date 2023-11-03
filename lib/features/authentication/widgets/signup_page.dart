@@ -56,8 +56,10 @@ class _SignupScreenState extends State<SignupPage> {
     /// The AuthScaffold is a wrapper around the SignupForm
     return AuthScaffold(
       title: 'Sign Up',
+      imageWidth: 180,
       authForm: authForm,
-      imageUrl: 'assets/images/auth/11.png',
+      imageUrl: 'assets/images/logo-black.png',
+      imageMargin: const EdgeInsets.only(top: 100, bottom: 16),
       form: SignupForm(
         authForm: authForm
       ),
@@ -330,9 +332,9 @@ class _SignupFormState extends State<SignupForm> {
         const SizedBox(height: 16),
         authForm.getMobileNumberField(setState),
         const SizedBox(height: 16),
-        authForm.getPasswordField(setState, _onSignup),
+        authForm.getPasswordField(setState),
         const SizedBox(height: 16),
-        authForm.getPasswordConfirmationField(setState, _onSignup),
+        authForm.getPasswordConfirmationField(setState, onSubmit: _onSignup)
       ]);
 
     }else if( enterVerificationCode ) {
@@ -340,7 +342,7 @@ class _SignupFormState extends State<SignupForm> {
       formFields.addAll([
         authForm.getVerificationCodeMessage(apiHome.mobileVerificationShortcode, authForm.mobileNumber!, context),
         const SizedBox(height: 16),
-        authForm.getMobileVerificationField(setState)
+        authForm.getMobileVerificationField(setState, onSubmit: _onSignup)
       ]);
 
     }

@@ -57,8 +57,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     /// The AuthScaffold is a wrapper around the ForgotPasswordForm
     return AuthScaffold(
       title: 'Forgot Your Password?',
+      imageWidth: 180,
       authForm: authForm,
-      imageUrl: 'assets/images/auth/1.png',
+      imageUrl: 'assets/images/forgot-password.png',
+      imageMargin: const EdgeInsets.only(top: 100, bottom: 16),
       form: ForgotPasswordForm(
         authForm: authForm
       ),
@@ -360,9 +362,9 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
         const SizedBox(height: 16),
         authForm.setNewPasswordInstruction(),
         const SizedBox(height: 16),
-        authForm.getPasswordField(setState, _onResetPassword),
+        authForm.getPasswordField(setState),
         const SizedBox(height: 16),
-        authForm.getPasswordConfirmationField(setState, _onResetPassword)
+        authForm.getPasswordConfirmationField(setState, onSubmit: _onResetPassword)
       ]);
 
     }else if( enterVerificationCode ) {
@@ -372,7 +374,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
         const SizedBox(height: 16),
         authForm.getVerificationCodeMessage(apiHome.mobileVerificationShortcode, authForm.mobileNumber!, context),
         const SizedBox(height: 16),
-        authForm.getMobileVerificationField(setState)
+        authForm.getMobileVerificationField(setState, onSubmit: _onResetPassword)
       ]);
 
     }

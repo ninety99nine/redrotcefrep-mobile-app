@@ -101,7 +101,7 @@ class _FollowersModalBottomSheetState extends State<ContactCreation> {
                         onChanged: (value) {
                           firstName = value;
                         },
-                        validator: (value) {
+                        validator: (value, originalValidator) {
                           if(value == null || value == '') {
                             return 'Please enter the contacts first name';
                           }else if(value.length < 3) {
@@ -125,7 +125,7 @@ class _FollowersModalBottomSheetState extends State<ContactCreation> {
                         onChanged: (value) {
                           lastName = value;
                         },
-                        validator: (value) {
+                        validator: (value, originalValidator) {
                           if(value != null && value != '') {
                             if(value.length < 3) {
                               return 'Please enter 3 or more characters e.g Warona';

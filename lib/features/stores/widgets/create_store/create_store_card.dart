@@ -3,6 +3,7 @@ import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.da
 import 'package:bonako_demo/core/shared_widgets/button/add_or_close_button.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
+import '../../../../core/constants/constants.dart' as constants;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
   bool get doesntHaveStores => totalStores == 0;
   Function(ShoppableStore)? get onCreatedStore => widget.onCreatedStore;
 
-  List<Map> whySellOnBonakoReasons = [
+  List<Map> whySellReasons = [
     {
       'image': '1',
       'title': 'Instant Access',
@@ -47,17 +48,17 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
     {
       'image': '3',
       'title': 'Grow Your Business',
-      'description': 'As your store grows and demonstrates potential, Bonako connects you with relevant investors, banks, and insurance companies who can provide financial assistance and other support to take your business to the next level.',
+      'description': 'As your store grows and demonstrates potential, ${constants.appName} connects you with relevant investors, banks, and insurance companies who can provide financial assistance and other support to take your business to the next level.',
     },
     {
       'image': '4',
       'title': 'Local Connections',
-      'description': 'Bonako prioritizes local commerce, allowing you to connect directly with customers in Botswana. By catering specifically to their preferences and needs, you can foster stronger relationships and build a loyal customer base.',
+      'description': '${constants.appName} prioritizes local commerce, allowing you to connect directly with customers in Botswana. By catering specifically to their preferences and needs, you can foster stronger relationships and build a loyal customer base.',
     },
     {
       'image': '5',
       'title': 'Local Access',
-      'description': 'Benefit from Bonako\'s marketing and promotional efforts, which increases your store\'s visibility and chances of attracting more customers.',
+      'description': 'Benefit from ${constants.appName} marketing and promotional efforts, which increases your store\'s visibility and chances of attracting more customers.',
     }
   ];
 
@@ -95,7 +96,7 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            /// Why Create Your Store On Bonako - Carousel Slider
+            /// Why Create Your Store - Carousel Slider
             CarouselSlider.builder(
               carouselController: carouselController,
               options: CarouselOptions(
@@ -109,7 +110,7 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
                 autoPlayInterval: const Duration(seconds: 10),
                 autoPlayAnimationDuration: const Duration(seconds: 5),
               ),
-              itemCount: whySellOnBonakoReasons.length,
+              itemCount: whySellReasons.length,
               itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
                 
                 /// Slider Content
@@ -137,10 +138,10 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
                           children: [
 
                             /// Reason Title
-                            CustomTitleMediumText(whySellOnBonakoReasons[itemIndex]['title'], margin: const EdgeInsets.only(bottom: 8.0),),
+                            CustomTitleMediumText(whySellReasons[itemIndex]['title'], margin: const EdgeInsets.only(bottom: 8.0),),
 
                             /// Reason Description
-                            CustomBodyText(whySellOnBonakoReasons[itemIndex]['description'], textAlign: TextAlign.justify,),
+                            CustomBodyText(whySellReasons[itemIndex]['description'], textAlign: TextAlign.justify,),
 
                           ],
                         )
@@ -185,7 +186,7 @@ class _CreateStoreCardState extends State<CreateStoreCard> {
                 Container(
                   margin: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
                   alignment: Alignment.centerLeft,
-                  child: const CustomBodyText('Create your store - add your brand emoji 😉', lightShade: true,)
+                  child: const CustomBodyText('Create your store in 30 seconds 😉', lightShade: true,)
                 ),
     
               ],

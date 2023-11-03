@@ -1,9 +1,8 @@
+const String appName = 'Perfect Order';
 const String mobileNumberExtension = '267';
-const String apiHomeUrl = 'http://127.0.0.1:8000/api/v1'; //'https://bonako.telcoflo.dev/api/v1'; //  
+const String appAiName = 'Perfect Assistant';
+const String apiHomeUrl = 'https://bonako.telcoflo.dev/api/v1'; // 'http://127.0.0.1:8000/api/v1'; //  
 const String errorDebugMessage = 'Make sure you have an internet connection (WIFI) or mobile data, otherwise try closing and reopening this mobile app. If the issue continues, then search for an update of this mobile app on the Google Play Store and Apple App Store. \n\nSorry for the inconvinience :(';
-
-/// OpenAI API URL
-const String openaiApiUrl = 'https://api.openai.com/v1/chat/completions';
 
 /// The maximum number of adverts that each store can have
 const maximumAdvertsPerStore = 5;

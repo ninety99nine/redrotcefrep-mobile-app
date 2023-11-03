@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/utils/stream_utility.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';
@@ -96,6 +97,68 @@ class UserRepository {
     String url =  user!.links.showAddresses.href;
     
     Map<String, String> queryParams = {};
+
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
+  /// Show the user AI Assistant
+  Future<dio.Response> showAiAssistant() {
+
+    if(user == null) throw Exception('The user must be set to show AI Assistant');
+
+    String url =  user!.links.showAiAssistant.href;
+
+    return apiRepository.get(url: url);
+    
+  }
+
+
+  /// Generate a payment shortcode for the specified store
+  Future<dio.Response> generateAiAssistantPaymentShortcode() {
+
+    if(user == null) throw Exception('The user must be set to generate a payment shortcode');
+
+    String url = user!.links.generateAiAssistantPaymentShortcode.href;
+
+    return apiRepository.post(url: url);
+
+  }
+
+  /// Create user AI Message
+  Future<dio.Response> createAiMessage({ required int categoryId, required String userContent, required StreamUtility streamUtility }){
+
+    if(user == null) throw Exception('The user must be set to create AI message');
+
+    String url = user!.links.createAiMessages.href;
+
+    Map<String, dynamic> body = {
+      'userContent': userContent,
+      'categoryId': categoryId,
+      'stream': true
+    };
+
+    return apiRepository.post(url: url, body: body, streamUtility: streamUtility, stream: true);
+    
+  }
+
+  /// Show the user AI Messages
+  Future<dio.Response> showAiMessages({ required int categoryId, String searchWord = '', int page = 1 }){
+
+    if(user == null) throw Exception('The user must be set to show AI messages');
+
+    String url =  user!.links.showAiMessages.href;
+    
+    Map<String, String> queryParams = {};
+
+    /// Get the AI Messages matching the specified category id
+    queryParams.addAll({'categoryId': categoryId.toString()});
 
     /// Page
     queryParams.addAll({'page': page.toString()});

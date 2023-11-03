@@ -1,6 +1,7 @@
-import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
+import 'package:bonako_demo/core/utils/stream_utility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../../../core/utils/snackbar.dart';
 import '../providers/api_provider.dart';
 import 'package:dio/dio.dart' as dio;
@@ -58,7 +59,7 @@ class ApiService {
   }
 
   /// Handle the request failure
-  static void handleRequestFailure({ required dio.DioException exception, bool ignoreValidationErrors = false }) {
+  static void handleRequestFailure({ required dio.DioException exception, StreamUtility? streamUtility, bool ignoreValidationErrors = false }) {
 
     try {
       
@@ -72,9 +73,7 @@ class ApiService {
 
         final int statusCode = exception.response!.statusCode!;
 
-        if(statusCode == 401 || statusCode == 422) {
-
-          final Map data = exception.response!.data;
+        if(statusCode == 401 || statusCode == 403 || statusCode == 422) {
 
           /// Check if this is a 401 Unauthorized Request
           if(statusCode == 401) {
@@ -82,12 +81,21 @@ class ApiService {
             /// Navigate to the page 
             Get.offAndToNamed(LandingPage.routeName);
 
+            final String message = exception.response!.data['message'];
+
+            /// Show the unauthenticated message
+            SnackbarUtility.showInfoMessage(message: message);
+
+          }else if(exception.response!.statusCode == 403) {
+
+            final String message = exception.response!.data['message'];
+            
             /// Show the unauthorized message
-            SnackbarUtility.showInfoMessage(message: data['message']);
+            SnackbarUtility.showErrorMessage(message: message);
 
           }else if(statusCode == 422 && ignoreValidationErrors == false) {
-
-            ErrorUtility.showFirstServerValidationError(exception);
+            
+            ErrorUtility.showFirstServerValidationError(exception, streamUtility: streamUtility);
 
           }
 

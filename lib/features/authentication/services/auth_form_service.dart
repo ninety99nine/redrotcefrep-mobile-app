@@ -193,12 +193,13 @@ class AuthFormService {
     );
   }
 
-  Widget getFirstNameField(Function setState) {
+  Widget getFirstNameField(Function setState, { void Function()? onSubmit }) {
 
     void onChanged(value) => setState(() => firstName = value);
     
     return CustomTextFormField(
       errorText: serverErrors.containsKey('firstName') ? serverErrors['firstName'] : null,
+      onFieldSubmitted: (_) => onSubmit?.call(),
       initialValue: firstName,
       labelText: 'First Name',
       enabled: !isSubmitting,
@@ -209,12 +210,13 @@ class AuthFormService {
       
   }
 
-  Widget getLastNameField(Function setState) {
+  Widget getLastNameField(Function setState, { void Function()? onSubmit }) {
 
     void onChanged(value) => setState(() => lastName = value);
     
     return CustomTextFormField(
       errorText: serverErrors.containsKey('lastName') ? serverErrors['lastName'] : null,
+      onFieldSubmitted: (_) => onSubmit?.call(),
       enabled: !isSubmitting,
       initialValue: lastName,
       labelText: 'Last Name',
@@ -225,15 +227,19 @@ class AuthFormService {
       
   }
 
-  Widget getMobileNumberField(Function setState) {
+  Widget getMobileNumberField(Function setState, { void Function()? onSubmit }) {
 
-    void onChanged(value) => setState(() => mobileNumber = value);
+    void onChanged(value) => setState(() {
+      mobileNumber = value;
+      if(mobileNumber?.length == 8 && onSubmit != null) onSubmit();
+    });
 
     return CustomMobileNumberTextFormField(
       errorText: serverErrors.containsKey('mobileNumber') ? serverErrors['mobileNumber'] : null,
       supportedMobileNetworkNames: const [
         MobileNetworkName.orange
       ],
+      onFieldSubmitted: (_) => onSubmit?.call(),
       initialValue: mobileNumber,
       enabled: !isSubmitting,
       onChanged: onChanged
@@ -241,13 +247,13 @@ class AuthFormService {
       
   }
 
-  Widget getPasswordField(Function setState, void Function() onSubmit) {
+  Widget getPasswordField(Function setState, { void Function()? onSubmit }) {
 
     void onChanged(value) => setState(() => password = value);
     
     return CustomPasswordTextFormField(
       errorText: serverErrors.containsKey('password') ? serverErrors['password'] : null,
-      onFieldSubmitted: (_) => onSubmit,
+      onFieldSubmitted: (_) => onSubmit?.call(),
       enabled: !isSubmitting,
       initialValue: password,
       labelText: 'Password',
@@ -256,7 +262,7 @@ class AuthFormService {
     
   }
 
-  Widget getPasswordConfirmationField(Function setState, void Function() onSubmit) {
+  Widget getPasswordConfirmationField(Function setState, { void Function()? onSubmit }) {
 
     void onChanged(value) => setState(() => passwordConfirmation = value);
     
@@ -264,7 +270,7 @@ class AuthFormService {
       errorText: serverErrors.containsKey('password') ? serverErrors['password'] : null,
       validatorOnEmptyText: 'Confirm password',
       initialValue: passwordConfirmation,
-      onFieldSubmitted: (_) => onSubmit,
+      onFieldSubmitted: (_) => onSubmit?.call(),
       labelText: 'Confirm Password',
       matchPassword: password,
       enabled: !isSubmitting,
@@ -273,9 +279,12 @@ class AuthFormService {
     
   }
 
-  Widget getMobileVerificationField(Function setState) {
+  Widget getMobileVerificationField(Function setState, { void Function()? onSubmit }) {
 
-    void onChanged(value) => setState(() => verificationCode = value);
+    void onChanged(value) => setState(() {
+      verificationCode = value;
+      if(verificationCode?.length == 6 && onSubmit != null) onSubmit();
+    });
     
     return CustomOneTimePinField(
       errorText: serverErrors.containsKey('verificationCode') ? serverErrors['verificationCode'] : null,

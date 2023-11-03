@@ -10,6 +10,7 @@ class CustomSearchTextFormField extends StatelessWidget {
   final String? initialValue;
   final void Function(String?)? onSaved;
   final void Function(String)? onChanged;
+  final void Function()? onEditingComplete;
 
   const CustomSearchTextFormField(
     {
@@ -19,6 +20,7 @@ class CustomSearchTextFormField extends StatelessWidget {
       this.initialValue,
       this.enabled = true,
       this.isLoading = true,
+      this.onEditingComplete,
       this.hintText = 'Search'
     }
   );
@@ -41,6 +43,7 @@ class CustomSearchTextFormField extends StatelessWidget {
       children: [
         CustomTextFormField(
           suffixIcon: isLoading ? null : searchIcon,
+          onEditingComplete: onEditingComplete,
           keyboardType: TextInputType.text,
           initialValue: initialValue,
           onChanged: onChanged,

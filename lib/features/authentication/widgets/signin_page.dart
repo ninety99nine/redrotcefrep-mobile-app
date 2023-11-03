@@ -60,8 +60,10 @@ class _SigninPageState extends State<SigninPage> {
     /// The AuthScaffold is a wrapper around the SigninForm
     return AuthScaffold(
       title: 'Sign In',
+      imageWidth: 180,
       authForm: authForm,
-      imageUrl: 'assets/images/auth/lady-texting.png',
+      imageUrl: 'assets/images/logo-black.png',
+      imageMargin: const EdgeInsets.only(top: 100, bottom: 16),
       form: SigninForm(
         authForm: authForm
       ),
@@ -444,7 +446,7 @@ class _SigninFormState extends State<SigninForm> {
       formFields.addAll([
         authForm.enterMobileNumberToSigninInstruction(),
         const SizedBox(height: 16),
-        authForm.getMobileNumberField(setState),
+        authForm.getMobileNumberField(setState, onSubmit: _onSignin)
       ]);
 
     }else if( enterPassword ) {
@@ -454,7 +456,7 @@ class _SigninFormState extends State<SigninForm> {
         const SizedBox(height: 16),
         authForm.enterPasswordToSigninInstruction(),
         const SizedBox(height: 16),
-        authForm.getPasswordField(setState, _onSignin),
+        authForm.getPasswordField(setState, onSubmit: _onSignin)
       ]);
 
     }else if( setNewPassword ) {
@@ -464,9 +466,9 @@ class _SigninFormState extends State<SigninForm> {
         const SizedBox(height: 16),
         authForm.setNewPasswordInstruction(),
         const SizedBox(height: 16),
-        authForm.getPasswordField(setState, _onSignin),
+        authForm.getPasswordField(setState),
         const SizedBox(height: 16),
-        authForm.getPasswordConfirmationField(setState, _onSignin)
+        authForm.getPasswordConfirmationField(setState, onSubmit: _onSignin)
       ]);
 
     }else if( enterVerificationCode ) {
@@ -476,7 +478,7 @@ class _SigninFormState extends State<SigninForm> {
         const SizedBox(height: 16),
         authForm.getVerificationCodeMessage(apiHome.mobileVerificationShortcode, authForm.mobileNumber!, context),
         const SizedBox(height: 16),
-        authForm.getMobileVerificationField(setState)
+        authForm.getMobileVerificationField(setState, onSubmit: _onSignin)
       ]);
 
     }

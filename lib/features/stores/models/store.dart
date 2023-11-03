@@ -28,6 +28,7 @@ class Store {
   late int? followersCount;
   late String? description;
   late List<String> adverts;
+  late bool perfectPayEnabled;
   late int? teamMembersCount;
   late String offlineMessage;
   late Attributes attributes;
@@ -41,6 +42,8 @@ class Store {
   late List<int> depositPercentages;
   late bool allowInstallmentPayments;
   late int? activeSubscriptionsCount;
+  late bool orangeMoneyPaymentEnabled;
+  late String? orangeMoneyMerchantCode;
   late List<int> installmentPercentages;
 
   late bool allowDelivery;
@@ -77,17 +80,20 @@ class Store {
     offlineMessage = json['offlineMessage'];
     dpoCompanyToken = json['dpoCompanyToken'];
     teamMembersCount = json['teamMembersCount'];
+    adverts = List<String>.from(json['adverts']);
+    perfectPayEnabled = json['perfectPayEnabled'];
     dpoPaymentEnabled = json['dpoPaymentEnabled'];
     allowFreeDelivery = json['allowFreeDelivery'];
-    adverts = List<String>.from(json['adverts']);
     isInfluencerStore = json['isInfluencerStore'];
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
     allowDepositPayments = json['allowDepositPayments'];
     deliveryFlatFee = Money.fromJson(json['deliveryFlatFee']);
+    orangeMoneyMerchantCode = json['orangeMoneyMerchantCode'];
     mobileNumber = MobileNumber.fromJson(json['mobileNumber']);
     activeSubscriptionsCount = json['activeSubscriptionsCount'];
     allowInstallmentPayments = json['allowInstallmentPayments'];
+    orangeMoneyPaymentEnabled = json['orangeMoneyPaymentEnabled'];
     attributes = Attributes.fromJson(json['attributes'].runtimeType == List ? {} : json['attributes']);
     relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
     depositPercentages = (json['depositPercentages'] as List<dynamic>).map((percentage) => int.parse(percentage.toString())).toList();

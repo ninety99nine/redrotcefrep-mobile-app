@@ -1,9 +1,9 @@
-import 'package:get/get.dart';
-
+import '../../../core/constants/constants.dart' as constants;
 import '../services/introduction_service.dart';
 import 'package:intro_slider/intro_slider.dart';
 import '../enums/introduction_enums.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'landing_page.dart';
 
 class IntroductionSlidesPage extends StatelessWidget {
@@ -149,12 +149,12 @@ class SliderManager {
         context: context,
         setImageHeight: false,
         image: Container(
-          width: 100,
+          width: 200,
           margin: EdgeInsets.only(
             top: MediaQuery.of(context).size.height * 0.3,
             bottom: MediaQuery.of(context).size.height * 0.05,
           ),
-          child: Image.asset('assets/images/logo-color.png')
+          child: Image.asset('assets/images/logo-black.png')
         ),
         description: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -178,7 +178,7 @@ class SliderManager {
           child: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
-              text: 'Bonako lets you sell up to five',
+              text: 'Perfect Order lets you sell up to five',
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
               children: const <TextSpan>[
                 TextSpan(
@@ -228,7 +228,7 @@ class SliderManager {
           child: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
-              text: 'Bonako makes it easy to invite',
+              text: '${constants.appName} makes it easy to invite',
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
               children: const <TextSpan>[
                 TextSpan(
@@ -281,9 +281,9 @@ class SliderManager {
         title: 'Welcome',
         context: context,
         image: Container(
-          width: 150,
+          width: 200,
           margin: const EdgeInsets.only(top: 100, bottom: 40),
-          child: Image.asset('assets/images/logo-color.png')
+          child: Image.asset('assets/images/logo-black.png')
         ),
         description: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -307,7 +307,7 @@ class SliderManager {
           child: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
-              text: 'Bonako reduces your options for the best shopping experience. Local sellers list their top 5 best products so that you can ',
+              text: '${constants.appName} reduces your options for the best shopping experience. Local sellers list their top 5 best products so that you can ',
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.6),
               children: const <TextSpan>[
                 TextSpan(
@@ -339,7 +339,7 @@ class SliderManager {
                   text: '🤝', style: TextStyle(fontSize: 32, height: 0.5)
                 ),
                 TextSpan(
-                  text: ' bill with two or more friends, family or co-workers. You don’t have to pay for that order alone. Bonako makes it easy for others to contribute and split those costs.'
+                  text: ' bill with two or more friends, family or co-workers. You don’t have to pay for that order alone. ${constants.appName} makes it easy for others to contribute and split those costs.'
                 ),
               ],
             ),
@@ -364,7 +364,7 @@ class SliderManager {
                   text: '👌', style: TextStyle(fontSize: 32, height: 0.5)
                 ),
                 TextSpan(
-                  text: ' Bonako makes it easy to follow your favourite stores and always get the best of what you like'
+                  text: ' ${constants.appName} makes it easy to follow your favourite stores and always get the best of what you like'
                 ),
               ],
             ),

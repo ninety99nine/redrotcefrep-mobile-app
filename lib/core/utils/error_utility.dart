@@ -1,6 +1,8 @@
+import 'package:bonako_demo/core/utils/stream_utility.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
+import 'dart:async';
 
 class ErrorUtility {
 
@@ -22,43 +24,79 @@ class ErrorUtility {
   }
 
   /// Set the validation errors as serverErrors
-  static void setServerValidationErrors(Function setState, Map serverErrors, dio.DioException exception) {
+  static void setServerValidationErrors(Function setState, Map serverErrors, dio.DioException exception, { StreamUtility? streamUtility }) async {
 
-    if(exception.response?.statusCode == 422) {
+    /// Get the response data
+    getServerValidationErrors(exception, streamUtility: streamUtility).then((validationErrors) {
 
-      /**
-       *  errors = {
-       *    name: [The name must be more than 3 characters]
-       * }
-       */
-      setState(() {
+      if(validationErrors != null) {
 
-        print('serverErrors');
-        print(exception.response?.data);
-        final Map<String, dynamic> validationErrors = exception.response?.data['errors'] ?? {};
-
-        validationErrors.forEach((key, value) {
-          serverErrors[key] = value[0];
-        });
-        
-      });
+        setState(() {
+          
+          validationErrors.forEach((key, value) {
+            serverErrors[key] = value[0];
+          });
       
-    }
+        });
+
+      }
+
+    });
 
   }
 
   /// Set the validation errors as serverErrors
-  static void showFirstServerValidationError(dio.DioException exception) {
+  static void showFirstServerValidationError(dio.DioException exception, { StreamUtility? streamUtility }) {
 
     /// Get the response data
-    final Map data = exception.response!.data;
+    getServerValidationErrors(exception, streamUtility: streamUtility).then((validationErrors) {
 
-    /// Get the first validation error
-    final firstValidationErrorMessage = (data['errors'] as Map).entries.first.value[0];
+      /// Get the first validation error
+      final firstValidationErrorMessage = validationErrors!.entries.first.value[0];
 
-    /// Show the error message
-    SnackbarUtility.showErrorMessage(message: firstValidationErrorMessage);
+      /// Show the error message
+      SnackbarUtility.showErrorMessage(message: firstValidationErrorMessage);
 
+    });
+
+  }
+
+  /// Set the validation errors as serverErrors
+  static Future<Map?> getServerValidationErrors(dio.DioException exception, { StreamUtility? streamUtility }) async {
+    
+    // Check if the response status code is 422 (Unprocessable Entity), indicating validation errors
+    if (exception.response?.statusCode == 422) {
+
+      // If this is a streamed response
+      if (exception.requestOptions.responseType == dio.ResponseType.stream) {
+
+        // Get the response stream data
+        final parsedResponse = await streamUtility!.getResponseStreamData();
+
+        /**
+         *  errors = {
+         *    userContent: [The user content must be more than 3 characters]
+         * }
+         */
+        return parsedResponse?['errors'];
+
+      } else {
+
+        /**
+         *  Handle the case when the response is not streamed
+         * 
+         *  errors = {
+         *    name: [The name must be more than 3 characters]
+         * }
+         */
+        return exception.response?.data['errors'] ?? {};
+
+      }
+
+    }
+
+    return null;
+    
   }
 
 }

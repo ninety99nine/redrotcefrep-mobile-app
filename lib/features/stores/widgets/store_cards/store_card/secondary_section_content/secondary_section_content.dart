@@ -162,6 +162,9 @@ class _StoreSecondarySectionContentState extends State<StoreSecondarySectionCont
             
                 /// Access Denied For Team Member
                 if(doesNotHaveCoverPhoto && doesNotHaveProductPhotos) ...[
+
+                  /// Spacer
+                  const SizedBox(height: 8,),
       
                   SubscribeToStoreModalBottomSheet(
                     store: widget.store,

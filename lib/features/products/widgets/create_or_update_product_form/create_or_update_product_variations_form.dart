@@ -97,7 +97,7 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
 
   void addScrollControllers() {
     final existingControllersCount = scrollControllers.length;
-    final requiredControllersCount = variantAttributes.length;
+    final requiredControllersCount = variantAttributesForm.length;
 
     if (requiredControllersCount > existingControllersCount) {
       // Add new controllers for the additional variantAttributes
@@ -290,6 +290,19 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
     });
   }
   
+  /// Remove the trailing comma from the value e.g convert "Rice," to "Rice"
+  /// This only removes the trailing comma at the end of the value e.g
+  /// 
+  /// "sample," => "sample" (Changed)
+  /// "sa,mple" => "sa,mple" (Not changed)
+  /// ",sample" => ",sample" (Not changed)
+  String removeTrailingComma(String value) {
+    if (value.endsWith(',')) {
+      return value.replaceFirst(RegExp(r',+$'), '');
+    }
+    return value;
+  }
+
   void _showCreateOrUpdateVariantAttributeDialog({ int? index }) async {
 
     String? newValue;
@@ -327,6 +340,31 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
               maxLength: 20,
               onChanged: (value) {
                 setState(() => variantAttributeForm['name'] = value); 
+              },
+              validator: (String? value, Function(String?) originalValidator) {
+
+                String? originalValidatorResponse = originalValidator(value);
+
+                if(originalValidatorResponse == null) {
+                
+                  bool optionNameAlreadyExists = variantAttributesForm.any((item) {
+                    List<dynamic> values = item['values'];
+                    return values.contains(value);
+                  });
+                  
+                  if(optionNameAlreadyExists) {
+
+                    return 'An option with the name $value already exists';
+
+                  }
+
+                }else{
+                  
+                  return originalValidatorResponse;
+
+                }
+
+                return null;
               },
             ),
       
@@ -371,8 +409,34 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
                 updateSelectedTags(variantAttributeForm);
               },
               onChanged: (value) {  /// Triggered as we are typing
-                newValue = value;
+
+                /// This callback is triggered as we are typing e.g
+                /// 
+                /// R
+                /// Ri
+                /// Ric
+                /// Rice
+                /// Rice,
+                /// 
+                /// We need to remove the trailing comma that is used to trigger the insertion of a new value.
+                /// This will prevent the code from entering an unwanted value e.g After typing "Rice" and 
+                /// then entering comma ",", the value of "Rice" will be entered however the newValue 
+                /// would remember this comma e.g "Rice,". Now when we press the "Update" or 
+                /// "Add Option" button, we will run this code:
+                /// 
+                /// if(newValue != null && newValue!.isNotEmpty && _textfieldTagController.getTags!.contains(newValue) == false) {
+                ///   (variantAttributeForm['values'] as List).add(newValue);
+                /// }
+                /// 
+                /// Which is found below. This code basically checks if we have a typed value that the user
+                /// forgot to press comma "," or the "Done" button of the keypad. It then makes sure that
+                /// the value does not already exist so that it can automatically add the value. If we
+                /// do not remove the comma, the code would search for "Rice," instead of "Rice" and
+                /// then add this unwated value "Rice," instead of the wanted value "Rice" if it 
+                /// does not already exist. This is why we are using removeTrailingComma().
+                newValue = removeTrailingComma(value);
                 updateSelectedTags(variantAttributeForm);
+
               },
               onRemovedTag: (String tag) {
                 setState(() => (variantAttributeForm['values'] as List).removeWhere((value) => value == tag)); 
@@ -427,7 +491,7 @@ class CreateOrUpdateProductVariationsFormState extends State<CreateOrUpdateProdu
                   }
 
                   /// Scroll to the right on the variant attribute values (This allows us to see the last value of the variant attribute values)
-                  scrollToRightForAllScrollControllers();
+                  //scrollToRightForAllScrollControllers();
 
                 });
 

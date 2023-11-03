@@ -27,7 +27,7 @@ class MobilePhoneIconButton extends StatelessWidget {
           color: const Color.fromARGB(0, 15, 10, 10),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Icon(FontAwesomeIcons.mobileRetro, size: size, color: Colors.teal,),
+            child: Icon(FontAwesomeIcons.mobileRetro, size: size),
           ),
         ),
       ),

@@ -15,7 +15,7 @@ class CustomBottomModalSheet extends StatefulWidget {
     required this.trigger,
     this.disabled = false,
     required this.content,
-    this.heightFactor = 0.7,
+    this.heightFactor = 0.8,
     this.borderRadius
   });
 

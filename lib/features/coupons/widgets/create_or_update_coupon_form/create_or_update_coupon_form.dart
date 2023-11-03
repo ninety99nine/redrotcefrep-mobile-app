@@ -548,7 +548,7 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
                 onChanged: (value) {
                   setState(() => couponForm['description'] = value); 
                 },
-                validator: (value) {
+                validator: (value, originalValidator) {
                   return null;
                 }
               ),

@@ -2,6 +2,7 @@ class Shortcode {
   late int id;
   late int ownerId;
   late String code;
+  late String action;
   late String ownerType;
   late DateTime createdAt;
   late DateTime updatedAt;
@@ -13,6 +14,7 @@ class Shortcode {
   Shortcode.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     code = json['code'];
+    action = json['action'];
     ownerId = json['ownerId'];
     ownerType = json['ownerType'];
     expiresAt = DateTime.parse(json['expiresAt']);

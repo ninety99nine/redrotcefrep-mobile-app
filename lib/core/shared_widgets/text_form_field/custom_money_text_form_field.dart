@@ -11,6 +11,7 @@ class CustomMoneyTextFormField extends StatelessWidget {
   final String? initialValue;
   final void Function(String)? onSaved;
   final void Function(String)? onChanged;
+  final void Function()? onEditingComplete;
   final void Function(String)? onFieldSubmitted;
 
   const CustomMoneyTextFormField( 
@@ -23,6 +24,7 @@ class CustomMoneyTextFormField extends StatelessWidget {
       this.initialValue,
       this.enabled = true,
       this.onFieldSubmitted,
+      this.onEditingComplete,
       this.hintText = '100.00'
     }
   );
@@ -74,6 +76,7 @@ class CustomMoneyTextFormField extends StatelessWidget {
           ),
         ),
       ),
+      onEditingComplete: onEditingComplete,
       onSaved: (value) {
         value = formatValue(value); 
         if(onSaved != null) onSaved!(value);
@@ -86,7 +89,7 @@ class CustomMoneyTextFormField extends StatelessWidget {
         value = formatValue(value); 
         if(onFieldSubmitted != null) onFieldSubmitted!(value);
       },
-      validator: (value) {
+      validator: (value, originalValidator) {
         if(value == null || value.isEmpty){
           return 'Please enter the amount';
         }

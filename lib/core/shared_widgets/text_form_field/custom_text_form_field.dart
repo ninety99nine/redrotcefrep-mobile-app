@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomTextFormField extends StatefulWidget {
   
+  final Color? color;
   final bool enabled;
   final int? minLines;
   final int? maxLines;
@@ -10,9 +11,11 @@ class CustomTextFormField extends StatefulWidget {
   final bool obscureText;
   final String? errorText;
   final String? labelText;
+  final Color? cursorColor;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final String? initialValue;
+  final FocusNode? focusNode;
   final bool validateOnEmptyText;
   final double borderRadiusAmount;
   final EdgeInsets contentPadding;
@@ -21,12 +24,14 @@ class CustomTextFormField extends StatefulWidget {
   final void Function(String?)? onSaved;
   final void Function(String)? onChanged;
   final TextEditingController? controller;
-  final String? Function(String?)? validator;
+  final void Function()? onEditingComplete;
   final void Function(String)? onFieldSubmitted;
+  final String? Function(String?, String? Function(String?))? validator;
 
   const CustomTextFormField( 
     {
       super.key,
+      this.color,
       this.onSaved,
       this.hintText,
       this.minLines,
@@ -36,12 +41,15 @@ class CustomTextFormField extends StatefulWidget {
       this.labelText,
       this.validator,
       this.onChanged,
+      this.focusNode,
       this.prefixIcon,
       this.controller,
       this.suffixIcon,
+      this.cursorColor,
       this.initialValue,
       this.enabled = true,
       this.onFieldSubmitted,
+      this.onEditingComplete,
       this.obscureText = false,
       this.borderRadiusAmount = 50.0,
       this.validateOnEmptyText = true,
@@ -71,6 +79,18 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
     controller!.dispose();
   }
 
+  String? originalValidator(String? value) {
+        
+    if(widget.validateOnEmptyText && (value == null || value.isEmpty)) {
+      return widget.validatorOnEmptyText;
+    }else if(widget.errorText != null){
+      return widget.errorText;
+    }
+    
+    return null;
+
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -83,10 +103,11 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
       enabled: widget.enabled,
       minLines: widget.minLines,
       maxLines: widget.maxLines,
-      cursorColor: primaryColor,
+      focusNode: widget.focusNode,
       keyboardType: widget.keyboardType,
+      cursorColor: widget.cursorColor ?? primaryColor,
       style: bodyLarge.copyWith(
-        color: widget.enabled ? Colors.black : Colors.grey.shade400,
+        color: widget.enabled ? (widget.color ?? Colors.black) : Colors.grey.shade400,
         fontWeight: FontWeight.normal,
       ),
       maxLength: controller!.text.isNotEmpty ? widget.maxLength : null,
@@ -155,17 +176,14 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
           ),
         ),
       ),
-      validator: widget.validator ?? (value) {
-        
-        if(widget.validateOnEmptyText && (value == null || value.isEmpty)) {
-          return widget.validatorOnEmptyText;
-        }else if(widget.errorText != null){
-          return widget.errorText;
+      validator: (value) {
+        if(widget.validator != null) {
+          return widget.validator!(value, originalValidator);
+        }else{
+          return originalValidator(value);
         }
-        
-        return null;
-
       },
+      onEditingComplete: widget.onEditingComplete,
       onFieldSubmitted: widget.onFieldSubmitted,
       onChanged: widget.onChanged,
       onSaved: widget.onSaved,
