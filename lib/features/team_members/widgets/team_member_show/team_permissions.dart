@@ -1,9 +1,7 @@
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:get/get.dart';
-
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_models/permission.dart';
@@ -12,7 +10,7 @@ import '../../../../core/utils/snackbar.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:get/get.dart';
 
 class TeamPermissions extends StatefulWidget {
   
@@ -35,7 +33,7 @@ class TeamPermissions extends StatefulWidget {
 
 class _TeamPermissionstate extends State<TeamPermissions> {
   
-  bool isLoading = false;
+  bool isUpdating = false;
   bool selectedAll = false;
   List<Permission> permissions = [];
   List<Permission> selectedPermissions = [];
@@ -48,8 +46,8 @@ class _TeamPermissionstate extends State<TeamPermissions> {
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   String get subtitle => hasTeamMemberPermissions ? 'Change team member permissions' : 'Select permissions for your team';
 
-  void _startLoader() => setState(() => isLoading = true);
-  void _stopLoader() => setState(() => isLoading = false);
+  void _startUpdateLoader() => setState(() => isUpdating = true);
+  void _stopUpdateLoader() => setState(() => isUpdating = false);
 
   @override
   void initState() {
@@ -60,7 +58,9 @@ class _TeamPermissionstate extends State<TeamPermissions> {
   /// Request the show all team permissions
   void _requestShowAllTeamPermissions() {
 
-    _startLoader();
+    if(isUpdating) return;
+
+    _startUpdateLoader();
 
     storeProvider.setStore(store).storeRepository.showAllTeamMemberPermissions()
     .then((response) async {
@@ -86,7 +86,7 @@ class _TeamPermissionstate extends State<TeamPermissions> {
 
     }).whenComplete((){
 
-      _stopLoader();
+      _stopUpdateLoader();
 
     });
 
@@ -128,7 +128,7 @@ class _TeamPermissionstate extends State<TeamPermissions> {
     return CustomCheckbox(
       text: 'Give all permissions',
       value: selectedAll,
-      disabled: isLoading || disabled,
+      disabled: isUpdating || disabled,
       onChanged: (status) {
 
         setState(() {
@@ -183,10 +183,10 @@ class _TeamPermissionstate extends State<TeamPermissions> {
               children: [
 
                 /// Spacer
-                SizedBox(height: isLoading ? 16 : 8,),
+                SizedBox(height: isUpdating ? 16 : 8,),
 
                 /// Loader
-                if(isLoading) const CustomCircularProgressIndicator(), 
+                if(isUpdating) const CustomCircularProgressIndicator(), 
 
                 /// Permissions List
                 ...permissions.mapIndexed((index, permission) {
@@ -206,7 +206,7 @@ class _TeamPermissionstate extends State<TeamPermissions> {
                               ),
                             ],
                           ),
-                          disabled: isLoading || disabled,
+                          disabled: isUpdating || disabled,
                           value: _isPermissionSelected(permission), 
                           onChanged: (isSelected) {
                             _togglePermission(isSelected ?? false, permission);

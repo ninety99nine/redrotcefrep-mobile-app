@@ -131,6 +131,8 @@ class _FriendsInVerticalListViewInfiniteScrollState extends State<FriendsInVerti
   /// Request to remove the selected friends
   void _requestRemoveFriends() async {
 
+    if(isRemoving) return;
+
     final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final List<User> selectedFriends = List<User>.from(customInfiniteScrollCurrentState.selectedItems);
 

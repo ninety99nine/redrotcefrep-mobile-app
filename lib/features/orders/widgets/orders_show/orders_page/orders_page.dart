@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:get/get.dart';
 
@@ -22,6 +23,7 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
 
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+  late UserOrderAssociation userOrderAssociation;
   bool canShowFloatingActionButton = true;
   ShoppableStore? store;
 
@@ -36,6 +38,9 @@ class _OrdersPageState extends State<OrdersPage> {
     /// Set the "store" (if provided)
     store = arguments['store'] as ShoppableStore;
 
+    /// Get the "userOrderAssociation"
+    userOrderAssociation = arguments['userOrderAssociation'] as UserOrderAssociation;
+
     /// Get the "canShowFloatingActionButton" (if provided)
     if(arguments.containsKey('canShowFloatingActionButton')) canShowFloatingActionButton = arguments['canShowFloatingActionButton'] as bool;
 
@@ -48,6 +53,7 @@ class _OrdersPageState extends State<OrdersPage> {
       body: OrdersContent(
         store: store,
         showingFullPage: true,
+        userOrderAssociation: userOrderAssociation,
         canShowFloatingActionButton: canShowFloatingActionButton
       ),
     );

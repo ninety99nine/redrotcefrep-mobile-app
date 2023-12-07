@@ -5,7 +5,6 @@ import 'package:bonako_demo/features/orders/widgets/order_show/components/order_
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment_details.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_collection_type.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment_method.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/components/order_store_branding.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_call_customer.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_cart_details.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_created_at.dart';
@@ -22,7 +21,6 @@ import 'package:bonako_demo/features/occasions/models/occasion.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 
 class OrderPaymentContent extends StatefulWidget {
   
@@ -74,6 +72,8 @@ class OrderPaymentContentState extends State<OrderPaymentContent> {
   }
 
   void _requestShowOrder() async {
+
+    if(isLoading) return;
 
     _startLoader();
 

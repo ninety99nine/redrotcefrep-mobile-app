@@ -44,6 +44,11 @@ class UserStoreAssociation {
   late DateTime createdAt;
   late DateTime updatedAt;
   late DateTime? lastSeenAt;
+  late DateTime? lastSeenOnUssdAt;
+  late DateTime? lastSeenOnWebAppAt;
+  late DateTime? lastSeenOnMobileAppAt;
+  late DateTime? lastSubscriptionEndAt;
+
 
   UserStoreAssociation.fromJson(Map<String, dynamic> json) {
 
@@ -90,6 +95,9 @@ class UserStoreAssociation {
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
     lastSeenAt = json['lastSeenAt'] == null ? null : DateTime.parse(json['lastSeenAt']);
-    
+    lastSeenOnUssdAt = json['lastSeenOnUssdAt'] == null ? null : DateTime.parse(json['lastSeenOnUssdAt']);
+    lastSeenOnWebAppAt = json['lastSeenOnWebAppAt'] == null ? null : DateTime.parse(json['lastSeenOnWebAppAt']);
+    lastSeenOnMobileAppAt = json['lastSeenOnMobileAppAt'] == null ? null : DateTime.parse(json['lastSeenOnMobileAppAt']);
+    lastSubscriptionEndAt = json['lastSubscriptionEndAt'] == null ? null : DateTime.parse(json['lastSubscriptionEndAt']);
   }
 }

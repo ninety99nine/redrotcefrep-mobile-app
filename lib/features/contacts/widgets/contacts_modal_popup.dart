@@ -16,12 +16,16 @@ import 'contact_creation.dart';
 class ContactsModalPopup extends StatefulWidget {
 
   final bool disabled;
+  final String? subtitle;
   final bool enableBulkSelection;
+  final Widget Function(Function)? trigger;
   final void Function(List<Contact>) onSelection;
   final List<MobileNetworkName> supportedMobileNetworkNames;
 
   const ContactsModalPopup({
     super.key,
+    this.trigger,
+    this.subtitle,
     this.disabled = false,
     required this.onSelection,
     this.enableBulkSelection = false,
@@ -37,12 +41,20 @@ class _ContactsModalPopupState extends State<ContactsModalPopup> {
   Contact? contact;
   bool get disabled => widget.disabled;
   bool get hasContact => contact != null;
+  String? get subtitle => widget.subtitle;
+  Widget Function(Function)? get trigger => widget.trigger;
   bool get enableBulkSelection => widget.enableBulkSelection;
   void Function(List<Contact>) get onSelection => widget.onSelection;
   List<MobileNetworkName> get supportedMobileNetworkNames => widget.supportedMobileNetworkNames;
 
-  Widget get trigger {
-    return Row(
+  /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
+
+  Widget get _trigger {
+
+    Widget defaultTrigger = Row(
       children: [
         if(hasContact) ContactAvatar(contact: contact!),
         if(hasContact) const SizedBox(width: 4),
@@ -65,16 +77,28 @@ class _ContactsModalPopupState extends State<ContactsModalPopup> {
         
       ],
     );
+
+    return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
+
+  }
+
+  /// Open the bottom modal sheet to show the new order placed
+  void openBottomModalSheet() {
+    if(_customBottomModalSheetState.currentState != null) {
+      _customBottomModalSheetState.currentState!.showBottomSheet(context);
+    } 
   }
 
   @override
   Widget build(BuildContext context) {
     return CustomBottomModalSheet(
-      disabled: disabled,
       /// Trigger to open the bottom modal sheet
-      trigger: trigger,
+      trigger: _trigger,
+      disabled: disabled,
+      key: _customBottomModalSheetState,
       /// Content of the bottom modal sheet
       content: ModalContent(
+        subtitle: subtitle,
         onSelection: onSelection,
         enableBulkSelection: enableBulkSelection,
         supportedMobileNetworkNames: supportedMobileNetworkNames
@@ -86,12 +110,14 @@ class _ContactsModalPopupState extends State<ContactsModalPopup> {
 
 class ModalContent extends StatefulWidget {
 
+  final String? subtitle;
   final bool enableBulkSelection;
   final void Function(List<Contact>) onSelection;
   final List<MobileNetworkName> supportedMobileNetworkNames;
 
   const ModalContent({
     super.key,
+    this.subtitle,
     required this.onSelection,
     required this.enableBulkSelection,
     required this.supportedMobileNetworkNames,
@@ -107,6 +133,7 @@ List<Contact> contacts = [];
   bool showFloatingButton = true;
   ContactContentView contactContentView = ContactContentView.viewingList;
 
+  String? get subtitle => widget.subtitle;
   int get totalContacts => contacts.length;
   bool get hasContacts => contacts.isNotEmpty;
   bool get enableBulkSelection => widget.enableBulkSelection;
@@ -114,13 +141,21 @@ List<Contact> contacts = [];
   bool get isViewingList => contactContentView == ContactContentView.viewingList;
   List<MobileNetworkName> get supportedMobileNetworkNames => widget.supportedMobileNetworkNames;
 
-  String get subtitle {
-    if(hasContacts) {
-      return 'Select contact information';
-    }else if(isViewingList) {
-      return'Select your friend, family or team';
+  String get _subtitle {
+    if(subtitle == null) {
+
+      if(hasContacts) {
+        return 'Select contact information';
+      }else if(isViewingList) {
+        return'Select your friend, family or team';
+      }else{
+        return'Create a new contact';
+      }
+
     }else{
-      return'Create a new contact';
+      
+      return subtitle!;
+
     }
   }
 
@@ -240,7 +275,7 @@ List<Contact> contacts = [];
               const CustomTitleMediumText('Contacts', padding: EdgeInsets.only(top:20, left: 32, bottom: 8),),
               
               /// Subtitle
-              CustomBodyText(subtitle, padding: const EdgeInsets.only(left: 32, bottom: 24),),
+              CustomBodyText(_subtitle, padding: const EdgeInsets.only(left: 32, bottom: 24),),
   
               /// Content
               Expanded(

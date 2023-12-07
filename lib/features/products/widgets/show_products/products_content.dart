@@ -21,6 +21,7 @@ class ProductsContent extends StatefulWidget {
   final ShoppableStore store;
   final bool showingFullPage;
   final Function(Product)? onUpdatedProduct;
+  final Function(Product)? onCreatedProduct;
   final ProductContentView? productContentView;
 
   const ProductsContent({
@@ -28,6 +29,7 @@ class ProductsContent extends StatefulWidget {
     this.product,
     required this.store,
     this.onUpdatedProduct,
+    this.onCreatedProduct,
     this.productContentView,
     this.showingFullPage = false,
   });
@@ -61,6 +63,7 @@ class _ProductsContentState extends State<ProductsContent> {
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
+  Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   bool get isViewingProducts => productContentView == ProductContentView.viewingProducts;
   bool get isCreatingProduct => productContentView == ProductContentView.creatingProduct;
@@ -142,7 +145,7 @@ class _ProductsContentState extends State<ProductsContent> {
         key: _createProductFormState,
         onSendProgress: onSendProgress,
         onDeletedProduct: onDeletedProduct,
-        onCreatedProduct: onCreatedProduct,
+        onCreatedProduct: _onCreatedProduct,
         onUpdatedProduct: _onUpdatedProduct,
         onRefreshedProduct: onRefreshedProduct
       );
@@ -174,7 +177,9 @@ class _ProductsContentState extends State<ProductsContent> {
     });
   }
 
-  void onCreatedProduct(Product product){
+  void _onCreatedProduct(Product product){
+    if(onCreatedProduct != null) onCreatedProduct!(product);
+
     StoreServices.refreshProducts(store, storeProvider);
     changeProductContentView(ProductContentView.viewingProducts);
   }

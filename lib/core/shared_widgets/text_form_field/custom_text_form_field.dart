@@ -7,6 +7,7 @@ class CustomTextFormField extends StatefulWidget {
   final int? minLines;
   final int? maxLines;
   final int? maxLength;
+  final bool isRequired;
   final String? hintText;
   final bool obscureText;
   final String? errorText;
@@ -19,6 +20,7 @@ class CustomTextFormField extends StatefulWidget {
   final bool validateOnEmptyText;
   final double borderRadiusAmount;
   final EdgeInsets contentPadding;
+  final bool hideCharacterCounter;
   final TextInputType? keyboardType;
   final String validatorOnEmptyText;
   final void Function(String?)? onSaved;
@@ -50,9 +52,11 @@ class CustomTextFormField extends StatefulWidget {
       this.enabled = true,
       this.onFieldSubmitted,
       this.onEditingComplete,
+      this.isRequired = true,
       this.obscureText = false,
       this.borderRadiusAmount = 50.0,
       this.validateOnEmptyText = true,
+      this.hideCharacterCounter = false,
       this.keyboardType = TextInputType.text,
       this.validatorOnEmptyText = 'This field is required',
       this.contentPadding = const EdgeInsets.symmetric(vertical: 8, horizontal: 20)
@@ -81,7 +85,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
 
   String? originalValidator(String? value) {
         
-    if(widget.validateOnEmptyText && (value == null || value.isEmpty)) {
+    if(widget.isRequired && widget.validateOnEmptyText && (value == null || value.isEmpty)) {
       return widget.validatorOnEmptyText;
     }else if(widget.errorText != null){
       return widget.errorText;
@@ -119,6 +123,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         errorText: widget.errorText,
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,
+        counterText: widget.hideCharacterCounter ? "" : null,
         label: widget.labelText == null ? null : Text(widget.labelText!),
         labelStyle: TextStyle(
           color: bodyLarge.color,

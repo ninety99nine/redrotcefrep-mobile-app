@@ -43,6 +43,8 @@ class _OrderOccasionState extends State<OrderOccasion> {
 
   void _requestOrderOccasion() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     orderProvider.setOrder(widget.order).orderRepository.showOrderOccasion().then((response) {

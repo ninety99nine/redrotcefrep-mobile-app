@@ -1,5 +1,4 @@
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -90,9 +89,9 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
         builder: (context, state, child) {
           switch (state) {
             case TorchState.on:
-              return const Icon(Icons.flash_on, size: 20, color: Colors.blue,);
+              return const Icon(Icons.flash_on, size: 24, color: Colors.blue);
             default:
-              return const Icon(Icons.flash_off, size: 20, color: Colors.grey,);
+              return const Icon(Icons.flash_off, size: 24, color: Colors.grey);
           } 
         },
       )
@@ -108,9 +107,9 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
         builder: (context, state, child) {
           switch (state) {
             case CameraFacing.front:
-              return const Icon(Icons.flip_camera_android, size: 16, color: Colors.blue,);
+              return const Icon(Icons.flip_camera_android, size: 24, color: Colors.blue,);
             default:
-              return const Icon(Icons.flip_camera_android, size: 16, color: Colors.grey,);
+              return const Icon(Icons.flip_camera_android, size: 24, color: Colors.grey,);
           } 
         },
       )
@@ -118,76 +117,91 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
   }
 
   Widget get scannerContent {
-    return Column(
+    return Stack(
       children: [
 
-        /// Scanner
-        Stack(
-          children: [
-
-            /// Mobile Scanner
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.4,
-              child: MobileScanner(
-                onDetect: onDetect,
-                controller: cameraController,
-                errorBuilder: (context, error, _) {
-                  return Column(
-                    children: [
-                    
-                      /// Error Code
-                      CustomTitleSmallText(
-                        compileErrorTitle(error.errorCode),
+        /// Mobile Scanner
+        Container(
+          color: Colors.black,
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.4,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(width: 1.0, color: Colors.black)
+            ),
+            child: MobileScanner(
+              onDetect: onDetect,
+              controller: cameraController,
+              errorBuilder: (context, error, _) {
+                return Column(
+                  children: [
+                      
+                    /// Spacer
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                
+                    Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 100,
+                        child: Image.asset('assets/images/oops.png')
+                      ),
+                    ),
+                      
+                    /// Spacer
+                    const SizedBox(height: 32,),
+                  
+                    /// Error Code
+                    CustomTitleSmallText(
+                      color: Colors.white,
+                      compileErrorTitle(error.errorCode),
+                    ),
+                  
+                    if(error.errorDetails != null) ...[
+                      
+                      /// Spacer
+                      const SizedBox(height: 16,),
+                  
+                      /// Error Message
+                      CustomBodyText(
+                        color: Colors.white,
+                        error.errorDetails!.message,
                         margin: const EdgeInsets.only(bottom: 8),
                       ),
-                    
-                      if(error.errorDetails != null) ...[
-                        
-                        /// Spacer
-                        const SizedBox(height: 8,),
-                    
-                        /// Error Message
-                        CustomBodyText(
-                          error.errorDetails!.message,
-                          margin: const EdgeInsets.only(bottom: 8),
-                        ),
-                    
-                      ]
-                    
-                    ],
-                  );
-                },
-              ),
+                  
+                    ]
+                  
+                  ],
+                );
+              },
             ),
+          ),
+        ),
 
-            /// Toggle Buttons
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 20,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-            
-                  /// Toggle Torch Icon
-                  toggleTorchIcon,
-            
-                  /// Spacer
-                  const SizedBox(width: 24,),
-            
-                  /// Toggle Camera Icon
-                  toggleCameraIcon
-            
-                ],
-              ),
-            ),
+        /// Toggle Buttons
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 20,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+        
+              /// Toggle Torch Icon
+              toggleTorchIcon,
+        
+              /// Spacer
+              const SizedBox(width: 24,),
+        
+              /// Toggle Camera Icon
+              toggleCameraIcon
+        
+            ],
+          ),
+        ),
 
-            /// Loader
-            if(isLoading == true) const Positioned.fill(
-              child: CustomCircularProgressIndicator(),
-            ),
-
-          ],
+        /// Loader
+        if(isLoading == true) const Positioned.fill(
+          child: CustomCircularProgressIndicator(),
         ),
 
       ],

@@ -1,4 +1,7 @@
+import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_button.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/order_content_by_type/order_content_by_type_dialog.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/store_dialer.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_left_side/store_name.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
@@ -25,17 +28,22 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
-import 'dart:convert';
 
 class UserOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
   
   final User user;
   final ShoppableStore? store;
+  final OrderContentType orderContentType;
+  final void Function(Order)? onUpdatedOrder;
+  final UserOrderAssociation userOrderAssociation;
 
   const UserOrdersInHorizontalListViewInfiniteScroll({
     Key? key,
     this.store,
     required this.user,
+    this.onUpdatedOrder,
+    required this.orderContentType,
+    required this.userOrderAssociation,
   }) : super(key: key);
 
   @override
@@ -47,11 +55,33 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   int totalOrders = 0;
   User get user => widget.user;
   ShoppableStore? get store => widget.store;
+  OrderContentType get orderContentType => widget.orderContentType;
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
+  /// This allows us to access the state of CustomHorizontalPageViewInfiniteScrollState widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  final GlobalKey<CustomHorizontalInfiniteScrollState> _customHorizontalInfiniteScrollState = GlobalKey<CustomHorizontalInfiniteScrollState>();
+
+  void _onUpdatedOrder(Order updatedOrder, int index) {
+
+    /// Notify parent widget on updated order
+    if(onUpdatedOrder != null) onUpdatedOrder!(updatedOrder); 
+
+    /// Update the order on the list of multiple orders
+    _customHorizontalInfiniteScrollState.currentState!.updateItemAt(index, updatedOrder);
+
+  }
+
   /// Render each request item as an OrderItem
   Widget onRenderItem(order, int index, List orders) => OrderItem(
+    onUpdatedOrder: (Order updatedOrder) {
+      _onUpdatedOrder(updatedOrder, index);
+    },
+    orderContentType: orderContentType,
     order: (order as Order),
     store: store,
     index: index,
@@ -66,6 +96,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
 
     /// Get the orders of the users from any store or a specific store
     request = userProvider.setUser(user).userRepository.showOrders(
+      userOrderAssociation: userOrderAssociation,
       withStore: store == null ? true : false,
       searchWord: searchWord,
       withOccasion: true,
@@ -91,7 +122,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
     });
   }
 
-  Widget get contentBeforeSearchBar {
+  Widget contentBeforeSearchBar(isLoading, totalItems) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -120,6 +151,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
           switchOutCurve: Curves.easeOut,
           duration: const Duration(milliseconds: 500),
           child: totalOrders > 2 ? OrdersModalBottomSheet(
+            userOrderAssociation: userOrderAssociation,
             trigger: (openBottomModalSheet) => const CustomTextButton('View All', padding: EdgeInsets.all(0),),
           ) : null,
         )
@@ -159,6 +191,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
       showFirstRequestLoader: false,
       noContentWidget: noContentWidget,
       catchErrorMessage: 'Can\'t show orders',
+      key: _customHorizontalInfiniteScrollState,
       contentBeforeSearchBar: contentBeforeSearchBar,
       margin: const EdgeInsets.symmetric(vertical: 16),
       loaderMargin: const EdgeInsets.symmetric(vertical: 16),
@@ -175,6 +208,8 @@ class OrderItem extends StatefulWidget {
   final int index;
   final Order order;
   final ShoppableStore? store;
+  final OrderContentType orderContentType;
+  final void Function(Order)? onUpdatedOrder;
 
   const OrderItem({
     super.key,
@@ -182,6 +217,8 @@ class OrderItem extends StatefulWidget {
     required this.user,
     required this.index,
     required this.order,
+    required this.onUpdatedOrder,
+    required this.orderContentType,
   });
 
   @override
@@ -196,6 +233,8 @@ class _OrderItemState extends State<OrderItem> {
   bool get hasOccasion => order.occasionId != null;
   int get totalViewsByTeam => order.totalViewsByTeam;
   bool get orderForManyPeople => order.orderForTotalUsers > 1;
+  OrderContentType get orderContentType => widget.orderContentType;
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   ShoppableStore get store => widget.store ?? order.relationships.store!;
 
   int get summaryMaxLines {
@@ -211,10 +250,23 @@ class _OrderItemState extends State<OrderItem> {
   @override
   Widget build(BuildContext context) {
 
-    return OrdersModalBottomSheet(
-      store: store,
-      canShowFloatingActionButton: false,
-      trigger: (openBottomModalSheet) => Container(
+    return GestureDetector(
+      onTap: () {
+
+        DialogUtility.showInfiniteScrollContentDialog(
+          context: context,
+          heightRatio: 0.9,
+          showCloseIcon: false,
+          backgroundColor: Colors.transparent,
+          content: OrderContentByTypeDialog(
+            order: order,
+            onUpdatedOrder: onUpdatedOrder,
+            orderContentType: orderContentType
+          )
+        );
+
+      },
+      child: Container(
         margin: const EdgeInsets.only(right: 8),
         width: MediaQuery.of(context).size.width * 0.8,
         child: CustomCard(

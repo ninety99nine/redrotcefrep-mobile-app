@@ -1,5 +1,5 @@
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/full_order_content/full_order_content.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/order_full_content/order_full_content.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
@@ -7,10 +7,9 @@ import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:get/get.dart';
 
 class QRCodeScannerContent extends StatefulWidget {
   
@@ -162,7 +161,7 @@ class _QRCodeScannerContentState extends State<QRCodeScannerContent> {
                 ),
         
                 /// Order Content
-                FullOrderContent(
+                OrderFullContent(
                   key: ValueKey(order!.id),
                   order: order!,
                 ),
@@ -178,8 +177,8 @@ class _QRCodeScannerContentState extends State<QRCodeScannerContent> {
   
         /// Cancel Icon
         Positioned(
-          right: 10,
-          top: 24,
+          right: 16,
+          top: 32,
           child: IconButton(
             icon: const Icon(Icons.cancel, size: 28, color: Colors.grey),
             onPressed: () => Get.back(),

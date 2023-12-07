@@ -1,6 +1,7 @@
 import 'package:bonako_demo/features/addresses/models/address.dart';
 import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
 import 'package:bonako_demo/features/occasions/models/occasion.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/stores/models/store.dart';
 import '../../../../../core/shared_models/permission.dart';
 import '../../friend_groups/models/friend_group.dart';
@@ -72,7 +73,7 @@ class StoreRepository {
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
     /// Page
-    if(page  != null) queryParams.addAll({'page': page.toString()});
+    if(page != null) queryParams.addAll({'page': page.toString()});
 
     return apiRepository.get(url: url, queryParams: queryParams);
     
@@ -498,18 +499,23 @@ class StoreRepository {
   //////////////////////////////////
 
   /// Get the order filters of the specified store
-  Future<dio.Response> showOrderFilters() {
+  Future<dio.Response> showOrderFilters({ required UserOrderAssociation userOrderAssociation }) {
 
     if(store == null) throw Exception('The store must be set to show the order filters');
 
     String url = store!.links.showOrderFilters.href;
 
-    return apiRepository.get(url: url);
+    Map<String, String> queryParams = {};
+    
+    /// Extract orders by the specified user order association
+    queryParams.addAll({'userOrderAssociation': userOrderAssociation.name});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Get the orders of the specified store
-  Future<dio.Response> showOrders({ String? filter, int? customerUserId, int? friendUserId, int? exceptOrderId, int? startAtOrderId, bool withCustomer = false, bool withOccasion = false, bool withUserOrderCollectionAssociation = false, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showOrders({ String? filter, required UserOrderAssociation userOrderAssociation, int? startAtOrderId, bool withCustomer = false, bool withOccasion = false, bool withUserOrderCollectionAssociation = false, String searchWord = '', int page = 1 }) {
 
     if(store == null) throw Exception('The store must be set to show orders');
 
@@ -521,19 +527,13 @@ class StoreRepository {
 
     if(withOccasion) queryParams.addAll({'withOccasion': '1'});
 
-    if(withUserOrderCollectionAssociation) queryParams.addAll({'withUserOrderCollectionAssociation': '1'});
-
-    /// Filter orders by the specified friend user id
-    if(friendUserId != null) queryParams.addAll({'friend_user_id': friendUserId.toString()});
-
-    /// Filter orders by the specified customer user id
-    if(customerUserId != null) queryParams.addAll({'customer_user_id': customerUserId.toString()});
-
-    /// Exclude specific orders matching the specified order id
-    if(exceptOrderId != null) queryParams.addAll({'except_order_id': exceptOrderId.toString()});
+    /// Extract orders by the specified user order association
+    queryParams.addAll({'userOrderAssociation': userOrderAssociation.name});
 
     /// Exclude specific orders matching the specified order id
     if(startAtOrderId != null) queryParams.addAll({'start_at_order_id': startAtOrderId.toString()});
+
+    if(withUserOrderCollectionAssociation) queryParams.addAll({'withUserOrderCollectionAssociation': '1'});
     
     /// Filter orders by the specified status
     if(filter != null) queryParams.addAll({'filter': filter});

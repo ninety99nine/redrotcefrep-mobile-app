@@ -98,6 +98,8 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
 
   _requestCreateFriendGroup() {
 
+    if(isSubmitting) return;
+
     _resetServerErrors();
 
     if(canProceedWithRequest() == false) return; 
@@ -152,6 +154,8 @@ class _FriendGroupContentState extends State<FriendGroupCreateOrUpdate> {
   }
 
   _requestUpdateFriendGroup() {
+
+    if(isSubmitting) return;
 
     _resetServerErrors();
 

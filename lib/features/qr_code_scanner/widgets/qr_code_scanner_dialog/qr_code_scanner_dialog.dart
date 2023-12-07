@@ -21,8 +21,10 @@ class QRCodeScannerDialogState extends State<QRCodeScannerDialog> {
 
   void showQRCodeScanner() {
     DialogUtility.showContentDialog(
-      content: QRCodeScanner(
-        onScanned: onScanned,
+      content: SafeArea(
+        child: QRCodeScanner(
+          onScanned: onScanned,
+        ),
       ), 
       context: context
     );

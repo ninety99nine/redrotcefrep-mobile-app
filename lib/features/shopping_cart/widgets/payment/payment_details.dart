@@ -48,6 +48,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   void _requestSupportedPaymentMethods() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     storeProvider.setStore(store!).storeRepository.showSupportedPaymentMethods().then((response) {

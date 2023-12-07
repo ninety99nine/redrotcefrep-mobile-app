@@ -6,7 +6,6 @@ import '../../../core/utils/debouncer.dart';
 import '../text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
 import 'dart:async';
 
 enum RequestType {
@@ -27,7 +26,7 @@ class CustomHorizontalListViewInfiniteScroll extends StatefulWidget {
   final EdgeInsetsGeometry headerPadding;
 
   /// Content to show above the search bar
-  final Widget? contentBeforeSearchBar;
+  final Widget Function(bool, int)? contentBeforeSearchBar;
 
   /// Content to show below the search bar
   final Widget? contentAfterSearchBar;
@@ -155,13 +154,13 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalListView
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   Widget? get contentAfterSearchBar => widget.contentAfterSearchBar;
   Widget? get contentBeforeFirstItem => widget.contentBeforeFirstItem;
-  Widget? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   bool get isStartingRequest => requestType == RequestType.startRequest;
   bool get loadedLastPage => lastPage == null ? false : page > lastPage!;
   bool get isContinuingRequest => requestType == RequestType.continueRequest;
   Future<dio.Response> Function(int, String) get onRequest => widget.onRequest;
   bool get isSearching => isStartingRequest && isLoading && searchWord.isNotEmpty;
   Function(bool)? get onLoadingAfterFirstRequest => widget.onLoadingAfterFirstRequest;
+  Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   Widget Function(dynamic item, int index, List<dynamic> items) get onRenderItem => widget.onRenderItem;
 
   bool get canLoadMore {
@@ -498,7 +497,7 @@ class CustomHorizontalInfiniteScrollState extends State<CustomHorizontalListView
             children: [
     
               /// Content Before Search Bar Widget
-              if(contentBeforeSearchBar != null) contentBeforeSearchBar!,
+              if(contentBeforeSearchBar != null) contentBeforeSearchBar!(isLoading, totalItems),
     
               /// Search Input Field Widget
               if(canShowSearchBar) searchInputField,

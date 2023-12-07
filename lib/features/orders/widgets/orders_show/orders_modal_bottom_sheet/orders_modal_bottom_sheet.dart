@@ -1,19 +1,27 @@
 import '../../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import '../orders_content.dart';
 
 class OrdersModalBottomSheet extends StatefulWidget {
   
+  final String? orderFilter;
   final ShoppableStore? store;
   final bool canShowFloatingActionButton;
   final Widget Function(Function())? trigger;
+  final void Function(Order)? onUpdatedOrder;
+  final UserOrderAssociation userOrderAssociation;
 
   const OrdersModalBottomSheet({
     super.key,
     this.store,
     this.trigger,
+    this.orderFilter,
+    this.onUpdatedOrder,
+    required this.userOrderAssociation,
     this.canShowFloatingActionButton = true,
   });
 
@@ -24,10 +32,13 @@ class OrdersModalBottomSheet extends StatefulWidget {
 class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
 
   ShoppableStore? get store => widget.store;
+  String? get orderFilter => widget.orderFilter;
   Widget Function(Function())? get trigger => widget.trigger;
   String get totalOrders => (store?.ordersCount ?? 0).toString();
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   bool get canShowFloatingActionButton => widget.canShowFloatingActionButton;
   String get totalOrdersText => store?.ordersCount == 1 ? 'Order' : 'Orders';
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -67,6 +78,9 @@ class OrdersModalBottomSheetState extends State<OrdersModalBottomSheet> {
       /// Content of the bottom modal sheet
       content: OrdersContent(
         canShowFloatingActionButton: canShowFloatingActionButton,
+        userOrderAssociation: userOrderAssociation,
+        onUpdatedOrder: onUpdatedOrder,
+        orderFilter: orderFilter,
         store: store
       ),
     );

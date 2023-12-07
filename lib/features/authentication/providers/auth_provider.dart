@@ -20,9 +20,10 @@ class AuthProvider with ChangeNotifier {
   ResourceTotals? _resourceTotals;
   ResourceTotals? get resourceTotals => _resourceTotals;
   bool get hasResourceTotals => _resourceTotals != null;
-  bool get hasStores => hasResourceTotals && _resourceTotals!.totalStoresJoined > 0;
-  bool get hasNotifications => hasResourceTotals && _resourceTotals!.totalNotifications > 0;
-  bool get hasStoresJoinedAsCreator => hasResourceTotals && _resourceTotals!.totalStoresJoinedAsCreator > 0;
+  bool? get hasNotifications => hasResourceTotals ? _resourceTotals!.totalNotifications > 0 : null;
+  bool? get hasStoresAsFollower => hasResourceTotals ? _resourceTotals!.totalStoresAsFollower > 0 : null;
+  bool? get hasStoresJoinedAsCreator => hasResourceTotals ? _resourceTotals!.totalStoresJoinedAsCreator > 0 : null;
+  bool? get hasStoresJoinedAsTeamMember => hasResourceTotals ? _resourceTotals!.totalStoresJoinedAsTeamMember > 0 : null;
 
   /// Constructor: Set the provided Api Provider
   AuthProvider({ required this.apiProvider });

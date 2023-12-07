@@ -14,6 +14,7 @@ class ApiRepository {
     'Authorization': 'Bearer $bearerToken',
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Platform': 'Mobile'
   };
 
   ApiRepository() {

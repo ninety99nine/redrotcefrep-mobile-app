@@ -80,7 +80,6 @@ class _AssociatedStoresContentState extends State<AssociatedStoresContent> {
       onSelectedStore: _requestAddToAssignedStores,
       trigger: (openBottomModalSheet) => CustomElevatedButton(
         '+ Add Store',
-        disabled: isSubmitting,
         isLoading: isSubmitting,
         alignment: Alignment.center,
         onPressed: () => openBottomModalSheet(),
@@ -91,6 +90,8 @@ class _AssociatedStoresContentState extends State<AssociatedStoresContent> {
   }
 
   void _requestAddToAssignedStores(ShoppableStore store) {
+
+    if(isSubmitting) return;
     
     /// If this store is already a brand store
     if(StoreServices.isAssigned(store)) {

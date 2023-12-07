@@ -1,13 +1,16 @@
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transaction_filters.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
+import 'package:bonako_demo/features/transactions/widgets/transaction_proof_of_payment_photo.dart';
 import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
 import 'package:bonako_demo/features/transactions/providers/transaction_provider.dart';
 import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
+import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/core/shared_models/name_and_description.dart';
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/core/shared_models/money.dart';
 import 'package:bonako_demo/core/shared_models/user.dart';
@@ -19,16 +22,20 @@ import 'package:dio/dio.dart' as dio;
 class OrderTransactionsInVerticalListViewInfiniteScroll extends StatefulWidget {
   
   final Order order;
+  final User? paidByUser;
   final String transactionFilter;
   final Function(Transaction) onSelectedTransaction;
-  final GlobalKey<OrderTransactionFiltersState> orderTransactionFiltersState;
+  final Function(Transaction, String)? onSubmittedFile;
+  final GlobalKey<OrderTransactionFiltersState> orderPayingUserTransactionFiltersState;
 
   const OrderTransactionsInVerticalListViewInfiniteScroll({
     super.key,
+    this.paidByUser,
     required this.order,
-    required this.onSelectedTransaction,
+    this.onSubmittedFile,
     required this.transactionFilter,
-    required this.orderTransactionFiltersState,
+    required this.onSelectedTransaction,
+    required this.orderPayingUserTransactionFiltersState,
   });
 
   @override
@@ -43,17 +50,20 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
   final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
   Order get order => widget.order;
+  User? get paidByUser => widget.paidByUser;
   bool get isPaid => order.attributes.isPaid;
   String get transactionFilter => widget.transactionFilter;
+  Function(Transaction, String)? get onSubmittedFile => widget.onSubmittedFile;
   Function(Transaction) get onSelectedTransaction => widget.onSelectedTransaction;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
-  GlobalKey<OrderTransactionFiltersState> get orderTransactionFiltersState => widget.orderTransactionFiltersState;
+  GlobalKey<OrderTransactionFiltersState> get orderPayingUserTransactionFiltersState => widget.orderPayingUserTransactionFiltersState;
   TransactionProvider get transactionProvider => Provider.of<TransactionProvider>(context, listen: false);
 
   /// Render each request item as an TransactionItem
   Widget onRenderItem(transaction, int index, List transactions, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => TransactionItem(
     onSelectedTransaction: onSelectedTransaction,
-    transaction: (transaction as Transaction), 
+    transaction: (transaction as Transaction),
+    onSubmittedFile: onSubmittedFile,
     order: order,
     index: index
   );
@@ -61,32 +71,33 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
   /// Render each request item as an Transaction
   Transaction onParseItem(transaction) => Transaction.fromJson(transaction);
   Future<dio.Response> requestStoreTransactions(int page, String searchWord) {
-    return orderProvider.setOrder(order).orderRepository.showTransactions(
-      /// Filter by the transaction filter specified (transactionFilter)
-      withRequestingUser: true,
-      filter: transactionFilter,
-      searchWord: searchWord,
-      withPayingUser: true,
-      page: page
-    ).then((response) {
 
-      /*
-      if(response.statusCode == 200) {
+    if(paidByUser == null) {
 
-        /// If the response transaction count does not match the order transaction count
-        if(transactionFilter == 'All' && order.transactionsCount != response.data['total']) {
+      return orderProvider.setOrder(order).orderRepository.showTransactions(
+        /// Filter by the transaction filter specified (transactionFilter)
+        filter: transactionFilter,
+        withRequestingUser: true,
+        withPaymentMethod: true,
+        searchWord: searchWord,
+        withPayingUser: true,
+        page: page
+      );
 
-          order.transactionsCount = response.data['total'];
-          order.runNotifyListeners();
+    }else{
 
-        }
+      return orderProvider.setOrder(order).orderRepository.showTransactions(
+        /// Filter by the transaction filter specified (transactionFilter)
+        filter: transactionFilter,
+        withRequestingUser: true,
+        withPaymentMethod: true,
+        paidByUser: paidByUser!,
+        searchWord: searchWord,
+        withPayingUser: false,
+        page: page
+      );
 
-      }
-      */
-
-      return response;
-
-    });
+    }
   }
 
   @override
@@ -126,78 +137,136 @@ class _OrderTransactionsInVerticalListViewInfiniteScrollState extends State<Orde
   }
 }
 
-class TransactionItem extends StatelessWidget {
+class TransactionItem extends StatefulWidget {
   
   final int index;
   final Order order;
   final Transaction transaction;
   final Function(Transaction) onSelectedTransaction;
+  final Function(Transaction, String)? onSubmittedFile;
 
   const TransactionItem({
     super.key,
     required this.index,
     required this.order,
+    this.onSubmittedFile,
     required this.transaction,
     required this.onSelectedTransaction,
   });
 
+  @override
+  State<TransactionItem> createState() => _TransactionItemState();
+}
+
+class _TransactionItemState extends State<TransactionItem> {
+
+  late Transaction transaction;
+
+  Order get order => widget.order;
   Money get amount => transaction.amount;
   DateTime get createdAt => transaction.createdAt;
   String get number => transaction.attributes.number;
+  ShoppableStore get store => order.relationships.store!;
   NameAndDescription get status => transaction.paymentStatus;
-  User get payingUser => transaction.relationships.payingUser!;
-  
+  User get payedByUser => transaction.relationships.payedByUser!;
+  PaymentMethod get paymentMethod => transaction.relationships.paymentMethod!;
+  Function(Transaction, String)? get onSubmittedFile => widget.onSubmittedFile;
+
+  @override
+  void initState() {
+    super.initState();
+    transaction = widget.transaction;
+  }
+
+  void _onSubmittedFile(String photoUrl) {
+    setState(() {
+      transaction.proofOfPaymentPhoto = photoUrl;
+      if(onSubmittedFile != null) onSubmittedFile!(transaction, photoUrl);
+    });
+  }
+
+  void onUpdatedTransaction(Transaction updatedTransaction) {
+    /// The updatedTransaction is simply the same transaction but with relationships loaded e.g
+    /// payedByUser, verifiedByUser, requestedByUser, e.t.c. We are just updating this local state
+    /// of the transaction incase we might want to do anything with those relationships once
+    /// they have been loaded.
+    setState(() => transaction = updatedTransaction);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       dense: false,
       onTap: () {
-        OrderServices().showTransactionDialog(transaction, order, context);
+        OrderServices().showOrderTransactionDialog(
+          order: order,
+          context: context,
+          transaction: transaction,
+          onSubmittedFile: _onSubmittedFile,
+          onUpdatedTransaction: onUpdatedTransaction
+        );
       }, 
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Row(
         children: [
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+          TransactionProofOfPaymentPhoto(
+            store: store,
+            transaction: transaction,
+            onSubmittedFile: _onSubmittedFile,
+          ),
+      
+          const SizedBox(width: 16,),
 
-              //  Payer Name
-              Expanded(
-                child: CustomBodyText(
-                  payingUser.attributes.name, 
-                  fontWeight: FontWeight.bold,
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+          
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+          
+                    //  Payer Name
+                    CustomBodyText(
+                      payedByUser.attributes.name, 
+                      fontWeight: FontWeight.bold,
+                    ),
+
+                    /// Spacer
+                    const SizedBox(height: 4,),
+                  
+                    //  Payment Method
+                    CustomBodyText(paymentMethod.name.toLowerCase(), lightShade: true),
+                
+                    //  Transaction Status
+                    TransactionStatus(transaction: transaction),
+          
+                  ],
                 ),
-              ),
-
-              Column(
-                children: [
-            
-                  //  Transaction Amount
-                  CustomBodyText(transaction.amount.amountWithCurrency, fontWeight: FontWeight.bold,)
-            
-                ],
-              ),
-
-            ],
-          ),
-
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
           
-              //  Transaction Status
-              TransactionStatus(transaction: transaction),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                  
+                    //  Transaction Amount
+                    CustomBodyText(transaction.amount.amountWithCurrency, fontWeight: FontWeight.bold,),
 
-              //  Transaction Created Date & Time Ago
-              CustomBodyText(timeago.format(transaction.createdAt), lightShade: true),
-
-            ],
-          ),
+                    /// Spacer
+                    const SizedBox(height: 4,),
+                  
+                    //  Transaction Number
+                    CustomBodyText('#${transaction.attributes.number}', lightShade: true),
           
+                    //  Transaction Created Date & Time Ago
+                    CustomBodyText(timeago.format(transaction.createdAt), lightShade: true),
+          
+                  ],
+                ),
+                
+              ],
+            ),
+          ),
         ],
       )
     );

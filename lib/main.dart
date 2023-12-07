@@ -1,6 +1,7 @@
 import 'package:bonako_demo/core/utils/pusher.dart';
 import 'package:bonako_demo/features/coupons/providers/coupon_provider.dart';
 import 'package:bonako_demo/features/occasions/providers/occasion_provider.dart';
+import 'package:bonako_demo/features/transactions/providers/transaction_provider.dart';
 
 import 'features/team_members/widgets/team_members_show/team_members_page/team_members_page.dart';
 import 'features/followers/widgets/followers_show/followers_page/followers_page.dart';
@@ -142,6 +143,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<ApiProvider, OrderProvider>(
           create: (_) => OrderProvider(apiProvider: ApiProvider()),
           update: (ctx, apiProvider, previousOrderProvider) => OrderProvider(apiProvider: apiProvider)
+        ),
+        /**
+         *  Note: We have to use the ChangeNotifierProxyProvider instead of 
+         *  ChangeNotifierProvider because the TransactionProvider requires the
+         *  ApiProvider as a dependency. When the ApiProvider changes,
+         *  then the TransactionProvider will also rebuild.
+         */
+        ChangeNotifierProxyProvider<ApiProvider, TransactionProvider>(
+          create: (_) => TransactionProvider(apiProvider: ApiProvider()),
+          update: (ctx, apiProvider, previousTransactionProvider) => TransactionProvider(apiProvider: apiProvider)
         ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 

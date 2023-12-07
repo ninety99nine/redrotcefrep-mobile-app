@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class CustomCard extends StatelessWidget {
 
+  final double? width;
   final double elevation;
   final EdgeInsets margin;
   final EdgeInsets padding;
@@ -18,6 +19,7 @@ class CustomCard extends StatelessWidget {
     required this.child,
     this.elevation = 2.0,
     this.backgroundColor,
+    this.width = double.infinity,
     this.padding = const EdgeInsets.all(16),
     this.margin = const EdgeInsets.only(bottom: 10),
   }) : super(key: key);
@@ -37,9 +39,9 @@ class CustomCard extends StatelessWidget {
         ),
       ),
       child: Container(
-        width: double.infinity,
         color: backgroundColor,
         padding: padding,
+        width: width,
         child: child,
       )
     );

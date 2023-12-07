@@ -56,6 +56,7 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
       userForm = {
         'firstName': user.firstName,
         'lastName': user.lastName,
+        'aboutMe': user.aboutMe,
       };
 
     });
@@ -78,6 +79,7 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
       authProvider.setUser(user).authRepository.updateUser(
         firstName: userForm['firstName'],
         lastName: userForm['lastName'],
+        aboutMe: userForm['aboutMe'],
       ).then((response) async {
 
         if(response.statusCode == 200) {
@@ -167,6 +169,25 @@ class UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
                     maxLength: 20,
                     onChanged: (value) {
                       setState(() => userForm['lastName'] = value); 
+                    }
+                  ), 
+                  
+                  /// Spacer
+                  const SizedBox(height: 16),
+
+                  /// About Me
+                  CustomTextFormField(
+                    errorText: serverErrors.containsKey('aboutMe') ? serverErrors['aboutMe'] : null,
+                    hintText: 'Hi there 😊, I\'m ${userForm['firstName']} and i sell the freshest vegetables in town. Check out what i have in store and place your order today!',
+                    initialValue: userForm['aboutMe'],
+                    enabled: !isSubmitting,
+                    borderRadiusAmount: 16,
+                    labelText: 'About Me',
+                    isRequired: false,
+                    maxLength: 200,
+                    minLines: 4,
+                    onChanged: (value) {
+                      setState(() => userForm['aboutMe'] = value); 
                     }
                   ), 
 

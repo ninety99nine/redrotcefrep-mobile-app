@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../team_member_invitations_in_vertical_list_view_infinite_scroll.dart';
@@ -11,15 +9,19 @@ import '../../../../../core/utils/snackbar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
+import 'package:get/get.dart';
 
 class TeamMemberInvitationsModalBottomSheet extends StatefulWidget {
   
-  final Widget trigger;
+  final bool canRefreshStores;
+  final Function()? onRespondedToInvitation;
+  final Widget Function(Function())? trigger;
 
   const TeamMemberInvitationsModalBottomSheet({
     super.key,
     required this.trigger,
+    this.canRefreshStores = true,
+    this.onRespondedToInvitation,
   });
 
   @override
@@ -28,26 +30,57 @@ class TeamMemberInvitationsModalBottomSheet extends StatefulWidget {
 
 class _TeamMemberInvitationsModalBottomSheetState extends State<TeamMemberInvitationsModalBottomSheet> {
 
-  bool respondedToAnyInvitation = false;
+  bool hasRespondedToAnyInvitation = false;
 
-  Widget get trigger => widget.trigger;
+  bool get canRefreshStores => widget.canRefreshStores;
+  Widget Function(Function())? get trigger => widget.trigger;
+  Function()? get onRespondedToInvitation => widget.onRespondedToInvitation;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
-  void onClose() {
-    if(respondedToAnyInvitation && storeProvider.refreshStores != null) storeProvider.refreshStores!();
+  /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
+
+  Widget get _trigger {
+
+    Widget defaultTrigger = CustomElevatedButton('Invitations', onPressed: openBottomModalSheet);
+
+    return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
+
   }
 
-  void onRespondedToInvitation() => respondedToAnyInvitation = true;
+  void onClose() {
+    if(hasRespondedToAnyInvitation && canRefreshStores && storeProvider.refreshStores != null) storeProvider.refreshStores!();
+  }
+
+  void _onRespondedToInvitation() {
+
+    /// Indicate that we have response to an invitation
+    hasRespondedToAnyInvitation = true;
+    
+    /// Notify parent widget
+    if(onRespondedToInvitation != null) onRespondedToInvitation!();
+
+  }
+
+  /// Open the bottom modal sheet to show the new order placed
+  void openBottomModalSheet() {
+    if(_customBottomModalSheetState.currentState != null) {
+      _customBottomModalSheetState.currentState!.showBottomSheet(context);
+    } 
+  }
 
   @override
   Widget build(BuildContext context) {
     return CustomBottomModalSheet(
+      key: _customBottomModalSheetState,
       onClose: onClose,
       /// Trigger to open the bottom modal sheet
-      trigger: trigger,
+      trigger: _trigger,
       /// Content of the bottom modal sheet
       content: ModalContent(
-        onRespondedToInvitation: onRespondedToInvitation
+        onRespondedToInvitation: _onRespondedToInvitation
       ),
     );
   }
@@ -170,13 +203,17 @@ class _ModalContentState extends State<ModalContent> {
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: response.data['message']);
-
           /// Notify the parent that user responded to the invitations
           onRespondedToInvitation();
 
-          /// Close the modal
+          /// Close the modal - This is the Confirmation Modal (Yes) / No
           Get.back();
+
+          /// Close the modal - This is the Invitation Modal
+          Get.back();
+
+          /// Show the success message after closing the Modals
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
           
         }
 
@@ -215,13 +252,17 @@ class _ModalContentState extends State<ModalContent> {
 
         if(response.statusCode == 200) {
 
-          SnackbarUtility.showSuccessMessage(message: response.data['message']);
-
           /// Notify the parent that user responded to the invitations
           onRespondedToInvitation();
-          
-          /// Close the modal
+
+          /// Close the modal - This is the Confirmation Modal (Yes) / No
           Get.back();
+
+          /// Close the modal - This is the Invitation Modal
+          Get.back();
+
+          /// Show the success message after closing the Modals
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
           
         }
 

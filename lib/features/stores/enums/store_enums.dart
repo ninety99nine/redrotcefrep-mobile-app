@@ -19,3 +19,8 @@ enum CollectionType {
   delivery,
   pickup
 }
+
+enum StoresInHorizontalListViewDesignType {
+  followable,
+  selectable
+}

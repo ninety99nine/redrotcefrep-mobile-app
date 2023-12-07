@@ -74,6 +74,8 @@ class _AddressCardsInVerticalViewState extends State<AddressCardsInVerticalView>
 
   _requestShowAddresses() {
 
+    if(isLoading) return;
+    
     _startLoader();
     if(onLoadingAddresses != null) onLoadingAddresses!(true);
 

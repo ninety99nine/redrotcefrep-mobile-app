@@ -1,6 +1,7 @@
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/friend_groups/widgets/friend_group_create_or_update/friend_group_create_or_update_card.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/friend_group_orders_in_horizontal_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
@@ -92,6 +93,8 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
 
   void _requestShowLastSelectedFriendGroup() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     friendGroupRepository.showLastSelectedFriendGroup(
@@ -116,6 +119,8 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
   }
 
   void _requestAddStoreToFriendGroups(ShoppableStore store) {
+
+    if(isAddingStore) return;
     
     _startAddStoreLoader();
 
@@ -289,6 +294,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
         duration: const Duration(milliseconds: 500),
         child: FriendGroupOrdersInHorizontalListViewInfiniteScroll(
           key: friendGroupOrdersInHorizontalListViewInfiniteScrollState,
+          userOrderAssociation: UserOrderAssociation.customerOrFriend,
           noContentWidget: noContentWidget,
           friendGroup: friendGroup!,
         ),
@@ -304,7 +310,6 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
       onSelectedStore: _requestAddStoreToFriendGroups,
       trigger: (openBottomModalSheet) => CustomElevatedButton(
         '+ Add Store',
-        disabled: isAddingStore,
         isLoading: isAddingStore,
         alignment: Alignment.center,
         onPressed: () => openBottomModalSheet(),

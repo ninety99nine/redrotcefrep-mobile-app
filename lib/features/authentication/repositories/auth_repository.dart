@@ -135,7 +135,7 @@ class AuthRepository {
   }
 
   /// Update the specified user
-  Future<dio.Response> updateUser({ String? firstName, String? lastName }) {
+  Future<dio.Response> updateUser({ String? firstName, String? lastName, String? aboutMe }) {
 
     if(user == null) throw Exception('An authenticated user is required to update');
 
@@ -144,6 +144,7 @@ class AuthRepository {
     Map<String, dynamic> body = {};
     if((firstName ?? '').isNotEmpty) body.addAll({'first_name': firstName});
     if((lastName ?? '').isNotEmpty) body.addAll({'last_name': lastName});
+    if((aboutMe ?? '').isNotEmpty) body.addAll({'about_me': aboutMe});
 
     return apiRepository.put(url: url, body: body);
     

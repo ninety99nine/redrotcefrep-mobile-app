@@ -83,6 +83,8 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
 
   void _requestShowRequestPaymentPaymentMethods() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     orderProvider.setOrder(order).orderRepository.showRequestPaymentPaymentMethods().then((response) {
@@ -130,6 +132,8 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
   }
 
   void _requestPayment() async {
+
+    if(isSubmitting) return;
 
     _startSubmittionLoader();
 

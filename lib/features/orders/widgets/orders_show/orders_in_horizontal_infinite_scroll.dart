@@ -1,27 +1,17 @@
-import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog_content.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/order_collection_content/order_collection_content.dart';
+import 'package:bonako_demo/features/orders/widgets/order_show/order_content_by_type/order_content_by_type_dialog.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
 import 'package:bonako_demo/core/shared_widgets/icon_button/close_modal_icon_button.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/stores/widgets/store_dialog_header.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/user/providers/user_provider.dart';
-import '../order_show/full_order_content/full_order_content.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import '../../enums/order_enums.dart';
 import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
-import 'dart:convert';
-
-enum OrderContentType {
-  orderFullContent,
-  orderPaymentContent,
-  orderCollectionContent,
-}
 
 class OrdersInHorizontalInfiniteScroll extends StatefulWidget {
   
@@ -31,6 +21,7 @@ class OrdersInHorizontalInfiniteScroll extends StatefulWidget {
   final Function()? onPlaceOrder;
   final OrderContentType orderContentType;
   final void Function(Order)? onUpdatedOrder;
+  final UserOrderAssociation userOrderAssociation;
 
   const OrdersInHorizontalInfiniteScroll({
     Key? key,
@@ -40,6 +31,7 @@ class OrdersInHorizontalInfiniteScroll extends StatefulWidget {
     required this.orderFilter,
     required this.onUpdatedOrder,
     required this.orderContentType,
+    required this.userOrderAssociation,
   }) : super(key: key);
 
   @override
@@ -62,6 +54,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
   Function()? get onPlaceOrder => widget.onPlaceOrder;
   OrderContentType get orderContentType => widget.orderContentType;
   void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
   UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
@@ -82,6 +75,16 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
     setState(() => canShowSwipeLeftOrRightInstruction = page == 0);
   }
 
+  void _onUpdatedOrder(Order updatedOrder, int index) {
+
+    /// Notify parent widget on updated order
+    if(onUpdatedOrder != null) onUpdatedOrder!(updatedOrder); 
+
+    /// Update the order on the list of multiple orders
+    _customHorizontalPageViewInfiniteScrollState.currentState!.updateItemAt(index, updatedOrder);
+
+  }
+
   /// Render each request item as an OrderItem
   Widget onRenderItem(order, int index, List orders) {
     
@@ -89,12 +92,13 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
     /// then set this store to be part of the order relationships
     order.relationships.store ??= widget.store;
 
-    return OrderItem(
-      customHorizontalPageViewInfiniteScrollState: _customHorizontalPageViewInfiniteScrollState,
-      orderContentType: orderContentType,
-      onUpdatedOrder: onUpdatedOrder,
+    return OrderContentByTypeDialog(
       order: (order as Order),
-      index: index,
+      showCloseButton: false,
+      orderContentType: orderContentType,
+      onUpdatedOrder: (Order updatedOrder) {
+        _onUpdatedOrder(updatedOrder, index);
+      },
     );
   }
 
@@ -112,6 +116,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
         /// Since we don't have the store, we can eager load the store on each order.
         /// Since these orders are acquired through a user and order relationship,
         /// the user and order collection association is included by default.
+        userOrderAssociation: userOrderAssociation,
         startAtOrderId: orderId,
         searchWord: searchWord,
         filter: orderFilter,
@@ -127,6 +132,7 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
         /// Since these orders are not acquired through a user and order relationship,
         /// we need to indicate that we cant to also eager load the user and order
         /// collection association
+        userOrderAssociation: userOrderAssociation,
         withUserOrderCollectionAssociation: true,
         startAtOrderId: orderId,
         searchWord: searchWord,
@@ -259,143 +265,5 @@ class OrdersInHorizontalInfiniteScrollState extends State<OrdersInHorizontalInfi
   @override
   Widget build(BuildContext context) {
     return content;
-  }
-}
-
-class OrderItem extends StatefulWidget {
-  
-  final int index;
-  final Order order;
-  final OrderContentType orderContentType;
-  final void Function(Order)? onUpdatedOrder;
-  final GlobalKey<CustomHorizontalPageViewInfiniteScrollState>? customHorizontalPageViewInfiniteScrollState;
-
-  const OrderItem({
-    super.key,
-    required this.index,
-    required this.order,
-    required this.onUpdatedOrder,
-    required this.orderContentType,
-    this.customHorizontalPageViewInfiniteScrollState,
-  });
-
-  @override
-  State<OrderItem> createState() => _OrderItemState();
-}
-
-class _OrderItemState extends State<OrderItem> {
-
-  late Order order;
-  late bool hasStoreFromOrder;
-  late ShoppableStore? storeFromOrder;
-
-  int get index => widget.index;
-  ShoppableStore get store => order.relationships.store!;
-  OrderContentType get orderContentType => widget.orderContentType;
-  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
-  GlobalKey<CustomHorizontalPageViewInfiniteScrollState>? get customHorizontalPageViewInfiniteScrollState => widget.customHorizontalPageViewInfiniteScrollState;
-
-  @override
-  void initState() {
-    super.initState();
-    order = widget.order;
-    storeFromOrder = order.relationships.store;
-    hasStoreFromOrder = storeFromOrder != null;
-    
-  }
-
-  /// Update the order on the list of multiple orders
-  void updateOrderOnItemList(Order order) {
-    customHorizontalPageViewInfiniteScrollState!.currentState!.updateItemAt(index, order);
-  }
-
-  Widget get orderContent {
-
-    if(orderContentType == OrderContentType.orderFullContent) {
-
-      /// Order Summary
-      return FullOrderContent(
-        order: order,
-        key: ValueKey<String>(order.status.name),
-        onUpdatedOrder: (Order order) {
-
-          /// Update the order on the list of orders
-          updateOrderOnItemList(order);
-
-          /// Notify parent widget of this updated order status
-          if(onUpdatedOrder != null) onUpdatedOrder!(order);
-          
-        },
-      );
-
-    }else if(orderContentType == OrderContentType.orderPaymentContent) {
-
-      /// Order Request Payment Dialog Content
-      return OrderRequestPaymentDialogContent(
-        order: order,
-        key: ValueKey<String>(order.status.name),
-        onRequestPayment: (Transaction transaction) {
-          
-          
-        },
-      );
-    
-    }else if(orderContentType == OrderContentType.orderCollectionContent) {
-      
-      /// Order Collection Content
-      return OrderCollectionContent(
-        order: order,
-        key: ValueKey<String>(order.status.name),
-        onUpdatedOrder: (Order order) {
-
-          /// Update the order on the list of orders
-          updateOrderOnItemList(order);
-
-          /// Notify parent widget of this updated order status
-          if(onUpdatedOrder != null) onUpdatedOrder!(order);
-          
-        },
-      );
-    
-    }else{
-
-      return const SizedBox();
-
-    }
-
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18.0),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      child: Card(
-        elevation: 10,
-        key: ValueKey<int>(order.id),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18.0)
-        ),
-        margin: EdgeInsets.zero,
-        child: Column(
-          children: [
-    
-            /// Store Dialog Header
-            StoreDialogHeader(store: store, padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0)),
-    
-            Expanded(
-              child: SingleChildScrollView(
-                child: orderContent
-              )
-            ),
-            
-          ],
-        )
-      ),
-    );
   }
 }

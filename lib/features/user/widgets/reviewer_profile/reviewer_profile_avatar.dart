@@ -8,7 +8,7 @@ class ReviewerProfileAvatar extends StatefulWidget {
 
   final Review review;
 
-  const ReviewerProfileAvatar({
+  const  ReviewerProfileAvatar({
     super.key,
     required this.review,
   });
@@ -21,7 +21,7 @@ class _ReviewerAvatarProfileState extends State<ReviewerProfileAvatar> {
 
   Review get review => widget.review;
   String get name => user.attributes.name;
-  User get user => review.relationships.user;
+  User get user => review.relationships.user!;
 
   @override
   Widget build(BuildContext context) {
@@ -29,46 +29,18 @@ class _ReviewerAvatarProfileState extends State<ReviewerProfileAvatar> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
     
             /// Avatar
-            const CircleAvatar(
-              child: Icon(Icons.person),
-            ),
+            const CircleAvatar(backgroundColor: Colors.black, foregroundColor: Colors.white,child: Icon(Icons.person),),
     
             /// Spacer
             const SizedBox(width: 16),
-    
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-    
-                /// Name
-                CustomTitleMediumText(name),
-    
-                /// Spacer
-                const SizedBox(height: 4),
 
-                /// Profile Link
-                Row( 
-                  children: [
-
-                    /// Open In New Page Icon
-                    Icon(Icons.open_in_new_rounded, size: 16, color: Colors.blue.shade700,),
-
-                    /// Spacer
-                    const SizedBox(width: 4),
-
-                    /// View Profile Button
-                    const CustomBodyText('Profile', isLink: true,)
-
-                  ],
-                )
-                
-              ],
-
-            )
+            /// Name
+            CustomTitleMediumText(name),
     
           ],
         ),

@@ -1,9 +1,8 @@
 import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/core/utils/dialer.dart';
-
 import '../../../../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../../../../../core/shared_models/shortcode.dart';
 import '../../../../../../models/shoppable_store.dart';
+import 'package:bonako_demo/core/utils/dialer.dart';
 import 'package:flutter/material.dart';
 
 class StoreVisitShortcode extends StatelessWidget {

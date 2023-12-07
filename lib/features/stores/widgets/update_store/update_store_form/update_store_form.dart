@@ -470,13 +470,11 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                 labelText: 'Description',
                 enabled: !isSubmitting,
                 borderRadiusAmount: 16,
+                isRequired: false,
                 maxLength: 120,
                 minLines: 1,
                 onChanged: (value) {
                   setState(() => storeForm['description'] = value); 
-                },
-                validator: (value, originalValidator) {
-                  return null;
                 }
               ),
               
@@ -540,14 +538,12 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                         labelText: 'Delivery Note',
                         enabled: !isSubmitting,
                         borderRadiusAmount: 16,
+                        isRequired: false,
                         maxLength: 120,
                         minLines: 2,
                         onChanged: (value) {
                           setState(() => storeForm['deliveryNote'] = value); 
                         },
-                        validator: (value, originalValidator) {
-                          return null;
-                        }
                       ),
                     
                       /// Spacer
@@ -817,13 +813,11 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                           labelText: 'Pickup Note',
                           enabled: !isSubmitting,
                           borderRadiusAmount: 16,
+                          isRequired: false,
                           maxLength: 120,
                           minLines: 2,
                           onChanged: (value) {
                             setState(() => storeForm['pickupNote'] = value); 
-                          },
-                          validator: (value, originalValidator) {
-                            return null;
                           }
                         ),
               

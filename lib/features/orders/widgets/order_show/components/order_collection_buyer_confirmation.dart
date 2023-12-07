@@ -95,6 +95,8 @@ class _OrderCollectionBuyerConfirmationState extends State<OrderCollectionBuyerC
 
   void _requestGenerateCollectionCode() {
 
+    if(isSubmitting) return;
+
     _startSubmittionLoader();
 
     orderProvider.setOrder(order).orderRepository.generateCollectionCode().then((response) {
@@ -116,6 +118,8 @@ class _OrderCollectionBuyerConfirmationState extends State<OrderCollectionBuyerC
   }
 
   void _requestRevokeCollectionCode() {
+
+    if(isSubmitting) return;
 
     _startSubmittionLoader();
 

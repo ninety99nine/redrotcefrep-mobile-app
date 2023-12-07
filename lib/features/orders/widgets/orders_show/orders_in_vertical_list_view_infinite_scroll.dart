@@ -1,11 +1,10 @@
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import 'package:get/get.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_call_customer.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_occasion.dart';
-import 'package:bonako_demo/features/user/providers/user_provider.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/occasions/models/occasion.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../order_show/components/order_payment_status.dart';
@@ -19,7 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
-import 'dart:convert';
+import 'package:get/get.dart';
 
 class OrdersInVerticalListViewInfiniteScroll extends StatefulWidget {
 
@@ -35,12 +34,20 @@ class OrdersInVerticalListViewInfiniteScroll extends StatefulWidget {
   /// Call requestOrderFilters() notify parent widget to refresh the order filter totals
   final Function() requestOrderFilters;
 
+  /// Call onUpdatedOrder() notify parent widget on an updated order
+  final void Function(Order)? onUpdatedOrder;
+
+  /// Specify the user order association to determine the kind of orders to return
+  final UserOrderAssociation userOrderAssociation;
+
   const OrdersInVerticalListViewInfiniteScroll({
     Key? key,
     this.store,
     this.orderFilter,
     this.onPlaceOrder,
+    this.onUpdatedOrder,
     required this.requestOrderFilters,
+    required this.userOrderAssociation,
   }) : super(key: key);
 
   @override
@@ -58,7 +65,8 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   String? get orderFilter => widget.orderFilter;
   Function()? get onPlaceOrder => widget.onPlaceOrder;
   Function() get requestOrderFilters => widget.requestOrderFilters;
-  UserProvider get userProvider => Provider.of<UserProvider>(context, listen: false);
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
@@ -93,8 +101,10 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
     
     return OrderItem(
       customVerticalListViewInfiniteScrollState: _customVerticalListViewInfiniteScrollState,
+      userOrderAssociation: userOrderAssociation,
       fromSameStoreAsOtherOrders: store != null,
       requestOrderFilters: requestOrderFilters,
+      onUpdatedOrder: onUpdatedOrder,
       onPlaceOrder: onPlaceOrder,
       orderFilter: orderFilter,
       order: (order as Order),
@@ -105,7 +115,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
 
   /// Render each request item as an Order
   Order onParseItem(order) => Order.fromJson(order);
-  Future<dio.Response> requestStoreOrders(int page, String searchWord) {
+  Future<dio.Response> requestOrders(int page, String searchWord) {
     
     Future<dio.Response> request;
 
@@ -123,10 +133,11 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
     if( store == null ) {
 
       /// Request the user orders
-      request = userProvider.setUser(authProvider.user!).userRepository.showOrders(
+      request = authProvider.userRepository.showOrders(
         /// Since we don't have the store, we can eager load the store on each order.
         /// Since these orders are acquired through a user and order relationship,
         /// the user and order collection association is included by default.
+        userOrderAssociation: userOrderAssociation,
         searchWord: searchWord,
         filter: orderFilter,
         withCustomer: true,
@@ -143,6 +154,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
         /// Since these orders are not acquired through a user and order relationship,
         /// we need to indicate that we cant to also eager load the user and order
         /// collection association
+        userOrderAssociation: userOrderAssociation,
         withUserOrderCollectionAssociation: true,
         searchWord: searchWord,
         filter: orderFilter,
@@ -186,7 +198,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
       catchErrorMessage: 'Can\'t show orders',
       key: _customVerticalListViewInfiniteScrollState,
       loaderMargin: const EdgeInsets.symmetric(vertical: 32),
-      onRequest: (page, searchWord) => requestStoreOrders(page, searchWord),
+      onRequest: (page, searchWord) => requestOrders(page, searchWord),
       headerPadding: const EdgeInsets.only(top: 40, bottom: 0, left: 16, right: 16)
     );
   }
@@ -201,6 +213,8 @@ class OrderItem extends StatefulWidget {
   final Function()? onPlaceOrder;
   final Function() requestOrderFilters;
   final bool fromSameStoreAsOtherOrders;
+  final Function(Order)? onUpdatedOrder;
+  final UserOrderAssociation userOrderAssociation;
   final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState;
 
   const OrderItem({
@@ -208,9 +222,11 @@ class OrderItem extends StatefulWidget {
     this.store,
     this.orderFilter,
     this.onPlaceOrder,
+    this.onUpdatedOrder,
     required this.order,
     required this.index,
     required this.requestOrderFilters,
+    required this.userOrderAssociation,
     required this.fromSameStoreAsOtherOrders,
     required this.customVerticalListViewInfiniteScrollState,
   });
@@ -236,9 +252,11 @@ class _OrderItemState extends State<OrderItem> {
   bool get isPendingPayment => order.attributes.isPendingPayment;
   Function get requestOrderFilters => widget.requestOrderFilters;
   bool get canRequestPayment => order.attributes.canRequestPayment;
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   bool get hasOtherAssociatedFriends => otherAssociatedFriends != null;
   String? get customerDisplayName => order.attributes.customerDisplayName;
   bool get fromSameStoreAsOtherOrders => widget.fromSameStoreAsOtherOrders;
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
   String? get otherAssociatedFriends => order.attributes.otherAssociatedFriends;
   bool get canManageOrders => store.attributes.userStoreAssociation!.canManageOrders;
   bool get canCollect => order.attributes.userOrderCollectionAssociation?.canCollect ?? false;
@@ -287,6 +305,13 @@ class _OrderItemState extends State<OrderItem> {
 
   /// Update the order matching the specified order on the list of orders
   int updateOrderOnVerticalOrderList(Order order) {
+
+    /// Notify parent widget
+    if(onUpdatedOrder != null) {
+      
+      onUpdatedOrder!(order);
+
+    }
 
     /// Get the index of the item matching the specified order
     int orderIndex = getMatchingOrderIndex(order);
@@ -364,6 +389,7 @@ class _OrderItemState extends State<OrderItem> {
       store: store,
       orderFilter: orderFilter,
       onPlaceOrder: onPlaceOrder,
+      userOrderAssociation: userOrderAssociation,
       onUpdatedOrder: updateOrderOnVerticalOrderList,
       orderContentType: OrderContentType.orderFullContent,
     );
@@ -375,6 +401,7 @@ class _OrderItemState extends State<OrderItem> {
       store: store,
       orderFilter: orderFilter,
       onPlaceOrder: onPlaceOrder,
+      userOrderAssociation: userOrderAssociation,
       onUpdatedOrder: updateOrderOnVerticalOrderList,
       orderContentType: OrderContentType.orderPaymentContent,
     );
@@ -386,6 +413,7 @@ class _OrderItemState extends State<OrderItem> {
       store: store,
       orderFilter: orderFilter,
       onPlaceOrder: onPlaceOrder,
+      userOrderAssociation: userOrderAssociation,
       onUpdatedOrder: updateOrderOnVerticalOrderList,
       orderContentType: OrderContentType.orderCollectionContent,
     );
@@ -503,7 +531,7 @@ class _OrderItemState extends State<OrderItem> {
                         if(fromSameStoreAsOtherOrders == false) ...[
                   
                           /// Store Logo
-                          StoreLogo(store: store),
+                          StoreLogo(store: store, canChangeLogo: false),
                   
                           /// Spacer
                           const SizedBox(width: 8,),

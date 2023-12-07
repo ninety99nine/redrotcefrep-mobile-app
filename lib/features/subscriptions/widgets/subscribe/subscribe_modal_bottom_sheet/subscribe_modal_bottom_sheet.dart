@@ -9,6 +9,7 @@ class SubscribeModalBottomSheet extends StatefulWidget {
   final Widget header;
   final Widget? trigger;
   final Function()? onDial;
+  final String? triggerText;
   final Function()? onResumed;
   final Alignment subscribeButtonAlignment;
   final Future<dio.Response> generatePaymentShortcode;
@@ -18,6 +19,7 @@ class SubscribeModalBottomSheet extends StatefulWidget {
     this.onDial,
     this.trigger,
     this.onResumed,
+    this.triggerText,
     required this.header,
     required this.generatePaymentShortcode,
     this.subscribeButtonAlignment = Alignment.centerRight
@@ -38,6 +40,7 @@ class _SubscribeModalBottomSheetState extends State<SubscribeModalBottomSheet> {
   Widget? get _trigger => widget.trigger;
   Function()? get onDial => widget.onDial;
   Function()? get onResumed => widget.onResumed;
+  String? get triggerText => widget.triggerText;
   Alignment get subscribeButtonAlignment => widget.subscribeButtonAlignment;
   Future<dio.Response> get generatePaymentShortcode => widget.generatePaymentShortcode;
 
@@ -45,8 +48,8 @@ class _SubscribeModalBottomSheetState extends State<SubscribeModalBottomSheet> {
 
     /// Subscribe Button
     return _trigger == null ? CustomElevatedButton(
-      'Subscribe',
       padding: EdgeInsets.zero,
+      triggerText ?? 'Subscribe',
       onPressed: openBottomModalSheet,
       alignment: subscribeButtonAlignment,
     ) : _trigger!;

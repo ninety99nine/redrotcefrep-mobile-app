@@ -106,6 +106,8 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
   /// Request to delete the selected friend groups
   void _requestDeleteManyFriendGroups() async {
 
+    if(isDeleting) return;
+
     final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final List<FriendGroup> selectedFriendGroups = List<FriendGroup>.from(customInfiniteScrollCurrentState.selectedItems);
 

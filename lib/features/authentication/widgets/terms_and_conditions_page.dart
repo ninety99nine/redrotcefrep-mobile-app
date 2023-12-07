@@ -71,6 +71,8 @@ class _ContentState extends State<Content> {
 
   Future<void> _requestShowTermsAndConditions() async {
 
+    if(isLoading) return;
+
     _startLoader();
     
     await authRepository.showTermsAndConditions().then((response) async {
@@ -100,6 +102,8 @@ class _ContentState extends State<Content> {
   }
 
   Future<void> _requestAcceptTermsAndConditions() async {
+
+    if(isSubmitting) return;
 
     if(acceptedTermsAndConditions == false) return;
 
@@ -272,9 +276,9 @@ class _ContentState extends State<Content> {
         //  Button
         CustomElevatedButton(
           'Try Again',
+          disabled: isLoading,
           suffixIcon: Icons.refresh,
           alignment: Alignment.center,
-          disabled: isLoading || isSubmitting,
           onPressed: _requestShowTermsAndConditions,
         ),
     

@@ -1,3 +1,7 @@
+import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import 'package:dio/dio.dart' as dio;
@@ -59,6 +63,21 @@ class OrderRepository {
     String url = order!.links.showCustomer.href;
 
     Map<String, String> queryParams = {};
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
+  /// Show the order users e.g customer, friends, customer and friends
+  Future<dio.Response> showOrderUsers({ UserType? userType}) {
+    
+    if(order == null) throw Exception('The order must be set to show this order users');
+
+    String url = order!.links.showUsers.href;
+
+    Map<String, String> queryParams = {};
+
+    if(userType != null) queryParams.addAll({'userType': userType.name});
 
     return apiRepository.get(url: url, queryParams: queryParams);
     
@@ -208,19 +227,47 @@ class OrderRepository {
     
   }
 
+  /// Get the paying users of the specified order
+  Future<dio.Response> showPayingUsers({ String? filter, bool withTransactionsCount = false, bool withPaidTransactionsCount = false, bool withLatestTransaction = false, String searchWord = '', int page = 1 }) {
+
+    if(order == null) throw Exception('The order must be set to show paying users');
+
+    String url = order!.links.showOrderPayingUsers.href;
+
+    Map<String, String> queryParams = {};
+
+    if(withPaidTransactionsCount) queryParams.addAll({'withPaidTransactionsCount': '1'});
+    if(withTransactionsCount) queryParams.addAll({'withTransactionsCount': '1'});
+    if(withLatestTransaction) queryParams.addAll({'withLatestTransaction': '1'});
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
+      
+    /// Filter paying users by the specified filter
+    if(filter != null) queryParams.addAll({'filter': filter});
+
+    /// Page
+    queryParams.addAll({'page': page.toString()}); 
+
+    return apiRepository.get(url: url, queryParams: queryParams);
+    
+  }
+
   /// Get the transaction filters of the specified order
-  Future<dio.Response> showTransactionFilters() {
+  Future<dio.Response> showTransactionFilters({ User? paidByUser }) {
 
     if(order == null) throw Exception('The order must be set to show transaction filters');
 
     String url = order!.links.showTransactionFilters.href;
 
-    return apiRepository.get(url: url);
+    Map<String, String> queryParams = {};
+
+    if(paidByUser != null) queryParams.addAll({'paidByUserId': '${paidByUser.id}'});
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 
   /// Get the transactions of the specified order
-  Future<dio.Response> showTransactions({ String? filter, bool withRequestingUser = false, bool withPayingUser = false, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showTransactions({ User? paidByUser, String? filter, bool withRequestingUser = false, bool withVerifyingUser = false, bool withPayingUser = false, bool withPaymentMethod = false, String searchWord = '', int page = 1 }) {
 
     if(order == null) throw Exception('The order must be set to show transactions');
 
@@ -229,13 +276,16 @@ class OrderRepository {
     Map<String, String> queryParams = {};
 
     /// Page
-    queryParams.addAll({'page': page.toString()}); 
+    queryParams.addAll({'page': page.toString()});
       
-    /// Filter transactions by the specified status
+    /// Filter transactions by the specified filter
     if(filter != null) queryParams.addAll({'filter': filter});
 
     if(withRequestingUser) queryParams.addAll({'withPayingUser': '1'});
+    if(withPaymentMethod) queryParams.addAll({'withPaymentMethod': '1'});
+    if(withVerifyingUser) queryParams.addAll({'withVerifyingUser': '1'});
     if(withRequestingUser) queryParams.addAll({'withRequestingUser': '1'});
+    if(paidByUser != null) queryParams.addAll({'paidByUserId': '${paidByUser.id}'});
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord});
 
     return apiRepository.get(url: url, queryParams: queryParams);
@@ -264,7 +314,7 @@ class OrderRepository {
   }
 
   /// Mark the specified order as paid
-  Future<dio.Response> markAsUnverifiedPayment({ int? percentage, String? amount, required paymentMethodId }) {
+  Future<dio.Response> markAsUnverifiedPayment({ XFile? proofOfPaymentPhoto, int? percentage, String? amount, required paymentMethodId }) {
     
     if(order == null) throw Exception('The order must be set to mark as paid');
 
@@ -272,6 +322,7 @@ class OrderRepository {
     
     Map<String, dynamic> body = {
       'payment_method_id': paymentMethodId,
+      'proof_of_payment_photo': proofOfPaymentPhoto,
     };
 
     if(percentage != null) {

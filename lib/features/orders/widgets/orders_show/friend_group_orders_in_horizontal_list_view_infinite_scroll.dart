@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_button.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/store_dialer.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_left_side/store_name.dart';
@@ -22,17 +23,18 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import '../../models/order.dart';
-import 'dart:convert';
 
 class FriendGroupOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
   
   final FriendGroup friendGroup;
   final Widget? noContentWidget;
+  final UserOrderAssociation userOrderAssociation;
 
   const FriendGroupOrdersInHorizontalListViewInfiniteScroll({
     Key? key,
     this.noContentWidget,
     required this.friendGroup,
+    required this.userOrderAssociation,
   }) : super(key: key);
 
   @override
@@ -44,6 +46,7 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
   bool hasOrders = false;
   FriendGroup get friendGroup => widget.friendGroup;
   Widget? get noContentWidget => widget.noContentWidget;
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
   final GlobalKey<CustomHorizontalInfiniteScrollState> customHorizontalInfiniteScrollState = GlobalKey<CustomHorizontalInfiniteScrollState>();
 
@@ -72,9 +75,10 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
 
   /// Render each request item as an OrderItem
   Widget onRenderItem(order, int index, List orders) => OrderItem(
-    order: (order as Order),
     index: index,
+    order: (order as Order),
     friendGroup: friendGroup,
+    userOrderAssociation: userOrderAssociation
   );
 
   /// Render each request item as an Order
@@ -144,15 +148,17 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
 
 class OrderItem extends StatefulWidget {
   
-  final FriendGroup friendGroup;
   final int index;
   final Order order;
+  final FriendGroup friendGroup;
+  final UserOrderAssociation userOrderAssociation;
 
   const OrderItem({
     super.key,
-    required this.friendGroup,
     required this.index,
     required this.order,
+    required this.friendGroup,
+    required this.userOrderAssociation,
   });
 
   @override
@@ -168,6 +174,7 @@ class _OrderItemState extends State<OrderItem> {
   int get totalViewsByTeam => order.totalViewsByTeam;
   ShoppableStore get store => order.relationships.store!;
   bool get orderForManyPeople => order.orderForTotalUsers > 1;
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
 
   int get summaryMaxLines {
     if(hasOccasion && orderForManyPeople) {
@@ -185,6 +192,7 @@ class _OrderItemState extends State<OrderItem> {
     return OrdersModalBottomSheet(
       store: store,
       canShowFloatingActionButton: false,
+      userOrderAssociation: userOrderAssociation,
       trigger: (openBottomModalSheet) => Container(
         margin: const EdgeInsets.only(right: 8),
         width: MediaQuery.of(context).size.width * 0.8,

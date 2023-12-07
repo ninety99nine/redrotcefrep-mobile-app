@@ -1,20 +1,22 @@
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
 import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
 import '../../models/transaction_filters.dart' as model;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
 
 class OrderTransactionFilters extends StatefulWidget {
   
   final Order order;
+  final User? paidByUser;
   final String transactionFilter;
   final Function(String) onSelectedTransactionFilter;
 
   const OrderTransactionFilters({
     super.key,
+    this.paidByUser,
     required this.order,
     required this.transactionFilter,
     required this.onSelectedTransactionFilter
@@ -30,6 +32,7 @@ class OrderTransactionFiltersState extends State<OrderTransactionFilters> {
   model.TransactionFilters? transactionFilters;
 
   Order get order => widget.order;
+  User? get paidByUser => widget.paidByUser;
   bool get hasOrderTransactionFilters => transactionFilters != null;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
   Function(String) get onSelectedTransactionFilter => widget.onSelectedTransactionFilter;
@@ -41,16 +44,17 @@ class OrderTransactionFiltersState extends State<OrderTransactionFilters> {
     /// Set the local state transactionFilter value to the widget transactionFilter value
     transactionFilter = widget.transactionFilter;
     
-    requestStoreOrderTransactionFilters();
+    requestTransactionFilters();
   }
 
-  /// Request the store transaction filters
+  /// Request the transaction filters
   /// This will allow us to show filters that can be used
   /// to filter the results of transactions returned on each request
-  void requestStoreOrderTransactionFilters() {
+  void requestTransactionFilters() {
     
-    orderProvider.setOrder(order).orderRepository.showTransactionFilters()
-    .then((dio.Response response) {
+    orderProvider.setOrder(order).orderRepository.showTransactionFilters(
+      paidByUser: paidByUser,
+    ).then((dio.Response response) {
 
       if(!mounted) return;
 
@@ -74,7 +78,7 @@ class OrderTransactionFiltersState extends State<OrderTransactionFilters> {
   /// Change the current review filter
   void changeTransactionFilter(String transactionFilter) {
     selectTransactionFilter(transactionFilter);
-    requestStoreOrderTransactionFilters();
+    requestTransactionFilters();
   }
 
   /// Select the specified review filter

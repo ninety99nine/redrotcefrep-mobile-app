@@ -28,14 +28,15 @@ class Store {
   late int? followersCount;
   late String? description;
   late List<String> adverts;
-  late bool perfectPayEnabled;
   late int? teamMembersCount;
   late String offlineMessage;
   late Attributes attributes;
   late String? smsSenderName;
+  late bool perfectPayEnabled;
   late bool isInfluencerStore;
   late bool dpoPaymentEnabled;
   late String? dpoCompanyToken;
+  late int? collectedOrdersCount;
   late bool allowDepositPayments;
   late MobileNumber mobileNumber;
   late Relationships relationships;
@@ -87,6 +88,7 @@ class Store {
     isInfluencerStore = json['isInfluencerStore'];
     createdAt = DateTime.parse(json['createdAt']);
     updatedAt = DateTime.parse(json['updatedAt']);
+    collectedOrdersCount = json['collectedOrdersCount'];
     allowDepositPayments = json['allowDepositPayments'];
     deliveryFlatFee = Money.fromJson(json['deliveryFlatFee']);
     orangeMoneyMerchantCode = json['orangeMoneyMerchantCode'];

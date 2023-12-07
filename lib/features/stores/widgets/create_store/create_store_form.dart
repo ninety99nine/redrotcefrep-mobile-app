@@ -57,6 +57,8 @@ class _CreateStoreFormState extends State<CreateStoreForm> {
 
   void _requestCreateStore() {
 
+    if(isSubmitting) return;
+
     _resetServerErrors().then((value) {
 
       if(_formKey.currentState!.validate()) {

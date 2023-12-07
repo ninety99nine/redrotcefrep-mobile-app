@@ -1,33 +1,32 @@
-
-import 'package:bonako_demo/core/shared_widgets/animated_widgets/custom_rotating_widget.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/features/authentication/repositories/auth_repository.dart';
-import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
+import 'package:bonako_demo/features/chat/widgets/ai_chat_modal_bottom_sheet/ai_chat_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/notifications/widgets/show_notifications/notifications_modal_bottom_sheet/notifications_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
-import '../../search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/home/widgets/tab_content/my_stores_page_content/my_stores_page_content.dart';
+import 'package:bonako_demo/features/home/widgets/tab_content/order_page_content/order_page_content.dart';
+import 'package:bonako_demo/features/home/widgets/tab_content/chat_page_content/chat_page_content.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/core/shared_widgets/animated_widgets/custom_rotating_widget.dart';
+import 'package:bonako_demo/features/home/widgets/tab_content/profile_page_content.dart';
+import 'package:bonako_demo/features/home/widgets/tab_content/groups_page_content.dart';
+import 'package:bonako_demo/features/authentication/repositories/auth_repository.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/core/utils/internet_connectivity_utility.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:bonako_demo/features/user/models/resource_totals.dart';
-import 'tab_content/following_page_content/following_page_content.dart';
-import 'tab_content/my_stores_page_content/my_stores_page_content.dart';
-import '../../../features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/home/services/home_service.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
-import '../../../core/shared_widgets/chips/custom_choice_chip.dart';
-import 'tab_content/chat_page_content/chat_page_content.dart';
-import '../../../features/home/providers/home_provider.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/core/utils/pusher.dart';
-import '../../../../core/shared_models/user.dart';
-import 'tab_content/profile_page_content.dart';
-import 'tab_content/groups_page_content.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
-import 'home_drawer.dart';
 import 'dart:convert';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -38,31 +37,58 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
 
-  int totalTabs = 5;
+  bool isLoggingOut = false;
+  int totalNavigationTabs = 5;
   late PusherProvider pusherProvider;
-  User get user => authProvider.user!;
   bool isLoadingResourceTotals = false;
-  String get firstName => user.firstName;
   late final TabController _tabController;
   bool isGettingSelectedHomeTabIndexFromDeviceStorage = true;
+  InternetConnectivityUtility internetConnectivityUtility = InternetConnectivityUtility();
 
   bool get hideFloatingActionButton => selectedHomeTabIndex == 4;
+  bool get doesNotHaveResourceTotals => hasResourceTotals == false;
   AuthRepository get authRepository => authProvider.authRepository;
+  bool get hasResourceTotals => authProvider.resourceTotals != null;
   int get selectedHomeTabIndex => homeProvider.selectedHomeTabIndex;
-  ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
-  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  bool get hasConnection => internetConnectivityUtility.hasConnection;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
-  bool get canShowFloatingActionButtons => selectedHomeTabIndex != 4 && authProvider.resourceTotals != null;
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
+  bool get canShowFloatingActionButtons => selectedHomeTabIndex != 4 && hasResourceTotals;
+  bool get isCheckingInternetConnectivity => internetConnectivityUtility.isCheckingInternetConnectivity;
 
-
+  void _startLoggingOutLoader() => setState(() => isLoggingOut = true);
+  void _stopLoggingOutLoader() => setState(() => isLoggingOut = false);
+  
   void _startResourceTotalsLoader() => setState(() => isLoadingResourceTotals = true);
   void _stopResourceTotalsLoader() => setState(() => isLoadingResourceTotals = false);
-
-
+  
+  final List<Map> primaryNavigationTabs = [
+    {
+      'name': 'Profile',
+      'icon': Icons.person,
+      'index': 0
+    },
+    {
+      'name': 'Order',
+      'icon': Icons.sentiment_very_satisfied_rounded,
+      'index': 1
+    },
+    {
+      'name': 'My Stores',
+      'icon': Icons.storefront_outlined,
+      'index': 2
+    },
+    {
+      'name': 'Groups',
+      'icon': Icons.group_rounded,
+      'index': 3
+    }
+  ];
+  
   final List<Map> secondaryNavigationTabs = [
     {
       'name': 'Ask AI',
-      'icon': Icons.wb_incandescent_sharp,
+      'icon': Icons.bubble_chart,
       'index': 4
     },
     {
@@ -89,79 +115,92 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   void initState() {
-    
     super.initState();
+
+    _initializeTabController();
+    _setupTabControllerListener();
+    _navigateToLastSelectedNavigationTab();
+
+    /// Check and update the internet connectivity status
+    internetConnectivityUtility.checkAndUpdateInternetConnectivityStatus(
+      setState: setState
+    ).then((currentlyHasConnection) {
+
+      /// Request the resource totals
+      _requestShowResourceTotals();
+
+      //  Subcribe to auth notifications
+      _subscribeToAuthNotifications();
+
+    });
+
+    /// Setup the internet connectivity listener - Continue listening for connectivity changes
+    internetConnectivityUtility.setupInternetConnectivityListener(
+      onDisconnected: _onDisconnected,
+      onConnected: _onConnected,
+      setState: setState
+    );
+
+  }
+
+  @override
+  void dispose() {
     
-    /// Set the Pusher Provider
-    pusherProvider = Provider.of<PusherProvider>(context, listen: false);
+    super.dispose();
 
-    /// Listen for new invitation alerts
-    listenForNewInvitationAlerts();
+    /// Cancel the internet connectivity listener
+    internetConnectivityUtility.dispose();
 
-    /// Request the resource totals
-    _requestShowResourceTotals();
+    /// Unsubscribe from this specified event on this channel
+    pusherProvider.unsubscribeToAuthNotifications(identifier: 'HomePage');
+
+  }
+
+  /// Initialize the tab controller
+  void _initializeTabController() {
+    _tabController = TabController(initialIndex: selectedHomeTabIndex, length: totalNavigationTabs, vsync: this);
+  }
+
+  /// Setup the tab controller listener - Continue listening for tab changes
+  void _setupTabControllerListener() {
     
-    _tabController = TabController(initialIndex: selectedHomeTabIndex, length: totalTabs, vsync: this);
-
-    /**
-     *  This _tabController is used to check if we have navigated to the next or previous tab
-     *  by swipping between the navigation content instead of tapping on the navigation tabs
-     */
+    /// This _tabController listener is used to check if we have navigated to another tab
     _tabController.addListener(() {
-      
-      /**
-       *  Set the selected index to match the current tab controller 
-       *  index so that the selected tab can match the tab content
-       */
-      if(selectedHomeTabIndex != _tabController.index) {
-        setState(() => homeProvider.setSelectedHomeTabIndex(_tabController.index));
-      }
 
       /// Request the resource totals
       _requestShowResourceTotals();
 
     });
 
+  }
+
+  /// Navigate to the last selected navigation tab (Check device storage)
+  void _navigateToLastSelectedNavigationTab() {
+
     Future.delayed(Duration.zero).then((value) async {
 
-      HomeService.getSelectedHomeTabIndexFromDeviceStorage().then((selectedHomeTabIndex) {
+      HomeService.getSelectedHomeTabIndexFromDeviceStorage().then((lastSelectedHomeTabIndex) {
 
         isGettingSelectedHomeTabIndexFromDeviceStorage = false;
-        changeNavigationTab(selectedHomeTabIndex);
+        _changeNavigationTab(lastSelectedHomeTabIndex);
 
       });
 
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _tabController.dispose();
-    /// Unsubscribe from this specified event on this channel
-    pusherProvider.unsubscribeToAuthNotifications(identifier: 'HomePage');
-  }
+  /// Request the authenticated user resource totals
+  Future<dio.Response?> _requestShowResourceTotals() async {
 
-  void changeNavigationTab(int index) {
-    setState(() {
-      homeProvider.setSelectedHomeTabIndex(index);
-      _tabController.index = index;
-    });
-  }
-  
-  /// Request resource totals
-  void _requestShowResourceTotals() {
-
-    if(!isLoadingResourceTotals) {
+    if(hasConnection && !isLoadingResourceTotals) {
 
       _startResourceTotalsLoader();
 
-      authRepository.showResourceTotals().then((response) async {
+      return authRepository.showResourceTotals().then((response) async {
 
         if(response.statusCode == 200) {
 
           final ResourceTotals resourceTotals = ResourceTotals.fromJson(response.data);
-
           authProvider.setResourceTotals(resourceTotals);
 
         }else{
@@ -178,35 +217,43 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
         SnackbarUtility.showErrorMessage(message: 'Failed to show resource totals');
 
+        return error;
+
       }).whenComplete(() {
 
         _stopResourceTotalsLoader();
 
       });
 
+    }else{
+
+      /// Return null as the Future value
+      return Future.delayed(Duration.zero).then((_) => null);
+
     }
 
   }
 
-  void listenForNewInvitationAlerts() async {
-
-    print('*************** listenForNewInvitationAlerts');
+  /// Subscribe to Auth notification event alerts
+  void _subscribeToAuthNotifications() async {
+    
+    /// Set the Pusher Provider
+    pusherProvider = Provider.of<PusherProvider>(context, listen: false);
 
     /// Subscribe to notification alerts
     pusherProvider.subscribeToAuthNotifications(
+      onEvent: _onNotificationAlerts,
       identifier: 'HomePage', 
-      onEvent: onNotificationAlerts
     );
   
   }
 
-  void onNotificationAlerts(event) {
-
-    print('*************** HomePage: onNotificationAlerts');
+  /// Handle Auth notification event alerts
+  void _onNotificationAlerts(event) {
 
     if (event.eventName == "Illuminate\\Notifications\\Events\\BroadcastNotificationCreated") {
 
-      if(!authProvider.hasNotifications) {
+      if(authProvider.hasNotifications == false) {
 
         /// Request the resource totals to show the notifications floating action button
         _requestShowResourceTotals();
@@ -219,12 +266,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         //  Get the event type
         String type = eventData['type'];
 
-        if(!authProvider.hasStores) {
+        if(!authProvider.hasStoresJoinedAsTeamMember!) {
         
           ///  Check if this is a notification of a created or deleted store
           if(type == "App\\Notifications\\Stores\\StoreCreated" || type == "App\\Notifications\\Stores\\StoreDeleted") {
 
-            /// Request the resource totals to show the qr code floating action button (if necessary)
+            /// Request the resource totals to show/hide the qr code floating action button
             _requestShowResourceTotals();
             
           }
@@ -237,225 +284,40 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   }
 
-  PreferredSizeWidget get appBar {
-    return AppBar(
-      foregroundColor: Colors.black,
-      backgroundColor: Colors.white,
-      titleSpacing: 0,
-      title:
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: AnimatedSwitcher(
-              switchInCurve: Curves.easeIn,
-              switchOutCurve: Curves.easeOut,
-              duration: const Duration(milliseconds: 500),
-              child: Wrap(
-                key: ValueKey(isGettingSelectedHomeTabIndexFromDeviceStorage),
-                spacing: 8,
-                /// Don't show any tabs until we are done getting the
-                /// selected home tab index form device storage.
-                children: isGettingSelectedHomeTabIndexFromDeviceStorage ? [] : [
-                  getNavigationTab(firstName, 0),
-                  getNavigationTab('Following', 1),     
-                  getNavigationTab('My stores', 2),  
-                  getNavigationTab('Groups', 3),     
-                  getNavigationTab('Chat', 4),
-                  //getNavigationTab('Communities', 5),    
-                ],
-              ),
-            ),
-          ),
-        )
-    );
-  }
-
-  Widget get body {
-    return SafeArea(
-      child: isGettingSelectedHomeTabIndexFromDeviceStorage 
-      /// Create a place holder container widget until we are done
-      /// getting the selected home tab index form device storage.
-      ? Container()
-      : TabBarView(
-        controller: _tabController,
-        children: const [
-
-          /// Profile
-          ProfilePageContent(),
-
-          /// Following page
-          FollowingPageContent(),
-
-          /// My stores page
-          MyStoresPageContent(),
-
-          /// Groups page
-          GroupsPageContent(),
-
-          /// Chat page
-          ChatPageContent(),
-
-          /// Communities page
-          /// CommunitiesPageContent(),
-
-        ],
-      )
-    );
-  }
-
-  Widget getNavigationTab(String label, int index) {
-    return CustomChoiceChip(
-      label: label,
-      selected: selectedHomeTabIndex == index,
-      onSelected: (_) => changeNavigationTab(index),
-    );
-  }
-
-  Widget get floatingActionButtons {
-
-    return AnimatedOpacity(
-      opacity: isLoadingResourceTotals ? 0 : 1,
-      duration: const Duration(seconds: 1),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: canShowFloatingActionButtons ? [
-    
-          /// Notifications Modal Bottom Sheet
-          if(authProvider.hasNotifications) notificationModalBottomSheet,
-          
-          /// QR Code Scanner Modal Bottom Sheet
-          if(authProvider.hasStores) qrCodeScannerModalBottomSheet,
-    
-          /// Orders Modal Bottom Sheet
-          ordersModalBottomSheet,
-    
-          /// Search Modal Bottom Sheet
-          searchModalBottomSheet,
-    
-        ] : [],
-      ),
-    );
+  /// Internet connected callback
+  void _onConnected() {
+      
+    /// Request the resource totals
+    _requestShowResourceTotals();
 
   }
 
-  Widget get notificationModalBottomSheet {
-    return const NotificationsModalBottomSheet();
+  /// Internet disconnected callback
+  void _onDisconnected() {
+
   }
 
-  Widget get qrCodeScannerModalBottomSheet {
-    return const QRCodeScannerModalBottomSheet();
+  /// Change the navigation tab
+  void _changeNavigationTab(int index) {
+    setState(() {
+      homeProvider.setSelectedHomeTabIndex(index);
+      _tabController.index = index;
+    });
   }
 
-  Widget get searchModalBottomSheet {
-    return const SearchModalBottomSheet();
-  }
-
-  Widget get ordersModalBottomSheet {
-    return OrdersModalBottomSheet(
-      trigger: (openBottomModalSheet) => FloatingActionButton(
-        mini: true,
-        heroTag: 'orders-button',
-        onPressed: openBottomModalSheet,
-        child: const Icon(Icons.shopping_bag_outlined)
-      )
-    );
-  }
-
-   Widget get dialogContent {
-
-    return Column(
-      children: [
-
-        GestureDetector(
-          onTap: () {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 60,
-            child: CustomRotatingWidget(
-              delayDuration: const Duration(seconds: 60),
-              animationDuration: const Duration(seconds: 2),
-              child: Image.asset('assets/images/logo-black.png')
-            )
-          ),
-        ),
-        
-        const SizedBox(height: 8.0),
-
-        Container(
-          height: 180,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white54)
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 0,
-                crossAxisSpacing: 0,
-                childAspectRatio: 1.2
-              ),
-              itemCount: secondaryNavigationTabs.length,
-              shrinkWrap: true,
-              padding: EdgeInsets.zero,
-              itemBuilder: (context, index) {
-
-                final int? menuIndex = secondaryNavigationTabs[index]['index'];
-                final String menuName = secondaryNavigationTabs[index]['name'];
-                final IconData menuIcon = secondaryNavigationTabs[index]['icon'];
-                final bool isSelected = selectedHomeTabIndex == menuIndex;
-
-                return ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                  child: Material(
-                    elevation: 5,
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        Get.back();
-                        if(menuName == 'Sign Out') {
-                          _requestLogout();
-                        }else{
-                          if(menuIndex != null) changeNavigationTab(menuIndex);
-                        }
-                      },
-                      splashColor: Colors.white10,
-                      highlightColor: Colors.white10,
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            maxRadius: 20,
-                            backgroundColor: Colors.white10,
-                            child: Icon(menuIcon, color: isSelected ? Colors.yellow : Colors.white),
-                          ),
-                          const SizedBox(height: 8),
-                          CustomBodyText(menuName, fontSize: 12, color: isSelected ? Colors.yellow : Colors.white),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-
-      ],
-    );
-  }
-
+  /// Request to logout
   void _requestLogout() {
+
+    if(isLoggingOut) return;
+
+    _startLoggingOutLoader();
 
     //  Show logging out loader
     DialogUtility.showLoader(message: 'Signing out');
 
     authRepository.logout().then((response) async {
 
-      //  Hide logging out loader
+      /// Hide logging out loader
       DialogUtility.hideLoader();
 
       if(response.statusCode == 200) {
@@ -493,6 +355,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     }).whenComplete(() {
 
+      _stopLoggingOutLoader();
+
       /**
        *  Navigate to the landing page on successful
        *  or unsuccessful signing out.
@@ -500,16 +364,303 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       Get.offAndToNamed(LandingPage.routeName);
 
     });
+  }
+
+  /// Open dialog to show secondary navigation tabs
+  void _showSecondaryNavigationTabsDialog() {
+    showGeneralDialog(
+      context: context,
+      barrierLabel: 'Dismiss',
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 500),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim1),
+          child: child,
+        );
+      },
+      pageBuilder: (context, anim1, anim2) {
+
+        /// Dialog content
+        return dialogContent;
+
+      },
+    );
+  }
+
+  FloatingActionButtonLocation? get floatingActionButtonLocation {
+
+    /// If the internet is connected
+    if(hasConnection) {
+
+      if(hideFloatingActionButton) {
+        return FloatingActionButtonLocation.endContained;
+      }else{
+        return FloatingActionButtonLocation.centerDocked;
+      }
+
+    /// If the internet is disconnected
+    }else{
+
+      return null;
+
+    }
+  }
+
+  Widget? get floatingActionButton {
+
+    /// If the internet is connected
+    if(hasConnection) {
+
+      /// Floating Action Button
+      return FloatingActionButton(
+        mini: hideFloatingActionButton,
+        backgroundColor: Colors.black,
+        onPressed: _showSecondaryNavigationTabsDialog,
+        child: floatingActionButtonLogo,
+      );
+
+    /// If the internet is disconnected
+    }else{
+
+      return null;
+
+    }
+  }
+
+  Widget get floatingActionButtonLogo {
+    return SizedBox(
+      child: CustomRotatingWidget(
+        maxRotations: 1,
+        delayDuration: const Duration(seconds: 2),
+        animationDuration: const Duration(seconds: 2),
+        child: Image.asset('assets/images/logo-black.png')
+      )
+    );
+  }
+
+  /// Secondary navigation dialog content
+  Widget get dialogContent {
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 280,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: EdgeInsets.only(bottom: hideFloatingActionButton ? 50 : 0, left: 16, right: 16),
+        child: Column(
+          children: [
+      
+            /// Dialog Logo
+            dialogLogo,
+            
+            /// Spacer
+            const SizedBox(height: 8.0),
+
+            /// Navigation Tabs
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white54)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 0,
+                    crossAxisSpacing: 0,
+                    childAspectRatio: 1.2
+                  ),
+                  itemCount: secondaryNavigationTabs.length,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (context, index) {
+                    
+                    /// Build each secondary navigation tab
+                    return secondaryNavigationTab(secondaryNavigationTabs[index]);
+
+                  },
+                ),
+              ),
+            ),
+      
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Dialog logo
+  Widget get dialogLogo {
+    return GestureDetector(
+      onTap: () {
+        Get.back();
+      },
+      child: SizedBox(
+        width: 60,
+        child: CustomRotatingWidget(
+          delayDuration: const Duration(seconds: 60),
+          animationDuration: const Duration(seconds: 2),
+          child: Image.asset('assets/images/logo-black.png')
+        )
+      ),
+    );
+  }
+
+  /// Secondary navigation tab
+  Widget secondaryNavigationTab(Map tab) {
+
+    final int? menuIndex = tab['index'];
+    final String menuName = tab['name'];
+    final IconData menuIcon = tab['icon'];
+    final bool isSelected = selectedHomeTabIndex == menuIndex;
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+      child: Material(
+        elevation: 5,
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+
+            /// Close the dialog
+            Get.back();
+
+            /// If we want to logout
+            if(menuName == 'Sign Out') {
+
+              /// Request to logout
+              _requestLogout();
+
+            }else{
+
+              /// Navigate to the specified page
+              if(menuIndex != null) _changeNavigationTab(menuIndex);
+
+            }
+          },
+          splashColor: Colors.white10,
+          highlightColor: Colors.white10,
+          child: Column(
+            children: [
+
+              /// Navigation Icon
+              CircleAvatar(
+                maxRadius: 20,
+                backgroundColor: Colors.white10,
+                child: Icon(menuIcon, color: isSelected ? Colors.yellow : Colors.white),
+              ),
+
+              /// Spacer
+              const SizedBox(height: 8),
+
+              /// Navigation Name
+              CustomBodyText(menuName, fontSize: 12, color: isSelected ? Colors.yellow : Colors.white),
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Bottom navigation bar
+  Widget? get bottomNavigationBar {
+
+    if(isCheckingInternetConnectivity) {
+
+      return null;
+
+    }else{
+
+      Widget bottomNavigationBarContent;
+      
+      if(hasConnection) {
+
+        bottomNavigationBarContent = bottomNavigationBarNavigationTabs;
+
+      }else{
+
+        bottomNavigationBarContent = bottomNavigationBarNoInternetNotice;
+
+      }
+
+      return BottomAppBar(
+        color: Colors.black,
+        shape: const CircularNotchedRectangle(),
+        child: bottomNavigationBarContent
+      );
+
+    }
 
   }
-  
-  Widget _buildNavItem(int index, IconData iconData, String label) {
 
-    final bool isSelected = selectedHomeTabIndex == index;
+  /// Bottom navigation bar navigation tabs
+  Widget get bottomNavigationBarNavigationTabs {
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+
+        /// Show the first two tabs
+        ...primaryNavigationTabs.take(2).map((tab) {
+
+          return primaryNavigationTab(tab);
+
+        }).toList(),
+        
+        /// Conditional spacer - Create space for the FAB when not hidden
+        if(!hideFloatingActionButton) const SizedBox(width: 60.0),
+
+        /// Show the next two tabs
+        ...primaryNavigationTabs.skip(2).map((tab) {
+
+          return primaryNavigationTab(tab);
+
+        }).toList(),
+        
+        /// Conditional spacer - Create space for the FAB when hidden
+        if(hideFloatingActionButton) const SizedBox(width: 60.0),
+
+      ]
+    );
+
+  }
+
+  /// Bottom navigation bar no internet notice
+  Widget get bottomNavigationBarNoInternetNotice {
+
+    return Container(
+      margin: const EdgeInsets.only(top: 20, bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.wifi_off_rounded, color: Colors.white,),
+          SizedBox(width: 8,),
+          CustomBodyText('No internet connection', color: Colors.white),
+        ]
+      ),
+    );
+
+  }
+
+  /// Primary navigation tab
+  Widget primaryNavigationTab(Map tab) {
+
+    final int menuIndex = tab['index'];
+    final String menuName = tab['name'];
+    final IconData menuIcon = tab['icon'];
+    final bool isSelected = selectedHomeTabIndex == menuIndex;
 
     return InkWell(
       onTap: () {
-        changeNavigationTab(index);
+        _changeNavigationTab(menuIndex);
       },
       splashColor: Colors.white10,
       highlightColor: Colors.white10,
@@ -518,13 +669,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(iconData, size: 28.0, color: isSelected ? Colors.yellow : Colors.white),
 
+            /// Navigation Icon
+            Icon(menuIcon, size: 28.0, color: isSelected ? Colors.yellow : Colors.white),
+
+            /// Spacer
             const SizedBox(height: 4.0,),
 
+            /// Navigation Name
             if(!hideFloatingActionButton) ...[
+
               CustomBodyText(
-                label, 
+                menuName, 
                 fontSize: 12, 
                 color: isSelected ? Colors.yellow : Colors.white
               ),
@@ -536,6 +692,116 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  Widget get body {
+    return SafeArea(
+      child: Stack(
+        children: [
+
+          /// Tab content
+          tabContent,
+
+          /// Secondary floating action buttons
+          secondaryFloatingActionButtons
+          
+        ],
+      )
+    );
+  }
+
+  Widget get tabContent {
+
+    return isGettingSelectedHomeTabIndexFromDeviceStorage
+      
+      /// Show Loader while getting the last selected home tab index form device storage
+      ? const CustomCircularProgressIndicator()
+
+      : TabBarView(
+        physics: const NeverScrollableScrollPhysics(),  // Disable navigation by swiping
+        controller: _tabController,
+        children: [
+      
+          /// Profile page
+          ProfilePageContent(
+            onChangeNavigationTab: _changeNavigationTab
+          ),
+      
+          /// Order page
+          OrderPageContent(
+            onChangeNavigationTab: _changeNavigationTab
+          ),
+      
+          /// My stores page
+          MyStoresPageContent(
+            onChangeNavigationTab: _changeNavigationTab,
+            onRequestShowResourceTotals: _requestShowResourceTotals
+          ),
+      
+          /// Groups page
+          const GroupsPageContent(),
+      
+          /// Chat page
+          const ChatPageContent(),
+      
+        ],
+      );
+  }
+
+  Widget get secondaryFloatingActionButtons {
+
+    return Positioned(
+      right: 8,
+      bottom: 16,
+      child: AnimatedOpacity(
+        opacity: isLoadingResourceTotals ? 0 : 1,
+        duration: const Duration(seconds: 1),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: canShowFloatingActionButtons ? [
+      
+            /// Notifications Floating Action Button
+            if(authProvider.hasNotifications!) notificationFloatingActionButton,
+            
+            /// QR Code Scanner Floating Action Button
+            if(authProvider.hasStoresJoinedAsTeamMember!) qrCodeScannerFloatingActionButton,
+      
+            /// Ask AI Floating Action Button
+            askAiFloatingActionButton,
+      
+            /// Search Floating Action Button
+            searchFloatingActionButton,
+      
+          ] : [],
+        ),
+      ),
+    );
+
+  }
+
+  Widget get notificationFloatingActionButton {
+    return const NotificationsModalBottomSheet();
+  }
+
+  Widget get qrCodeScannerFloatingActionButton {
+    return const QRCodeScannerModalBottomSheet();
+  }
+
+  Widget get askAiFloatingActionButton {
+    return AiChatModalBottomSheet(
+      trigger: (openBottomModalSheet) => FloatingActionButton(
+        mini: true,
+        heroTag: 'ai-button',
+        onPressed: () {
+          openBottomModalSheet();
+        },
+        child: const Icon(Icons.bubble_chart_outlined)
+      )
+    );
+  }
+
+  Widget get searchFloatingActionButton {
+    return const SearchModalBottomSheet();
+  }
+
   @override
   Widget build(BuildContext context) {
     /**
@@ -545,67 +811,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child:  Scaffold(
-        //floatingActionButton: floatingActionButtons,
-        //drawer: const HomeDrawer(),
-        //appBar: appBar,
+        floatingActionButtonLocation: floatingActionButtonLocation,
+        floatingActionButton: floatingActionButton,
+        bottomNavigationBar: bottomNavigationBar,
         body: body,
-        floatingActionButtonLocation: hideFloatingActionButton ? FloatingActionButtonLocation.endContained : FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: FloatingActionButton(
-          mini: hideFloatingActionButton,
-          onPressed: () {
-            showGeneralDialog(
-              barrierLabel: "Label",
-              barrierDismissible: true,
-              barrierColor: Colors.black.withOpacity(0.5),
-              transitionDuration: const Duration(milliseconds: 500),
-              context: context,
-              pageBuilder: (context, anim1, anim2) {
-                return Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: 280,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    margin: EdgeInsets.only(bottom: hideFloatingActionButton ? 50 : 0, left: 16, right: 16),
-                    child: dialogContent,
-                  ),
-                );
-              },
-              transitionBuilder: (context, anim1, anim2, child) {
-                return SlideTransition(
-                  position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim1),
-                  child: child,
-                );
-              },
-            );
-          },
-          backgroundColor: Colors.black, 
-          child: SizedBox(
-            child: CustomRotatingWidget(
-              maxRotations: 1,
-              delayDuration: const Duration(seconds: 2),
-              animationDuration: const Duration(seconds: 2),
-              child: Image.asset('assets/images/logo-black.png')
-            ) 
-          ),
-        ),
-        bottomNavigationBar: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          color: Colors.black,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              _buildNavItem(0, Icons.person, 'Profile'),
-              _buildNavItem(1, Icons.sentiment_very_satisfied_rounded, 'Order'),
-              if(!hideFloatingActionButton) const SizedBox(width: 60.0), // Create space for the FAB
-              _buildNavItem(2, Icons.storefront_outlined, 'My Stores'),
-              _buildNavItem(3, Icons.group_rounded, 'Groups'),
-              if(hideFloatingActionButton) const SizedBox(width: 60.0), // Create space for the FAB
-            ],
-          ),
-        ),
       )
     );
   }
+
 }

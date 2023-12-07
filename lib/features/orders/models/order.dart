@@ -207,6 +207,7 @@ class Relationships {
 class Links {
   late Link self;
   late Link showCart;
+  late Link showUsers;
   late Link showViewers;
   late Link showCustomer;
   late Link updateStatus;
@@ -215,6 +216,7 @@ class Links {
   late Link showTransactions;
   late Link showDeliveryAddress;
   late Link revokeCollectionCode;
+  late Link showOrderPayingUsers;
   late Link showTransactionsCount;
   late Link generateCollectionCode;
   late Link showTransactionFilters;
@@ -225,6 +227,7 @@ class Links {
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     showCart = Link.fromJson(json['showCart']);
+    showUsers = Link.fromJson(json['showUsers']);
     showViewers = Link.fromJson(json['showViewers']);
     showCustomer = Link.fromJson(json['showCustomer']);
     updateStatus = Link.fromJson(json['updateStatus']);
@@ -232,6 +235,7 @@ class Links {
     requestPayment = Link.fromJson(json['requestPayment']);
     showTransactions = Link.fromJson(json['showTransactions']);
     showDeliveryAddress = Link.fromJson(json['showDeliveryAddress']);
+    showOrderPayingUsers = Link.fromJson(json['showOrderPayingUsers']);
     revokeCollectionCode = Link.fromJson(json['revokeCollectionCode']);
     showTransactionsCount = Link.fromJson(json['showTransactionsCount']);
     generateCollectionCode = Link.fromJson(json['generateCollectionCode']);

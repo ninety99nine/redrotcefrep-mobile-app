@@ -130,14 +130,16 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
   Widget selectedAllAction(isLoading) {
     return CustomElevatedButton(
       'Remove', 
-      isError: true, 
-      disabled: isRemoving,
+      isError: true,
+      isLoading: isRemoving,
       onPressed: _requestRemoveTeamMember
     );
   }
 
   /// Request to remove the selected team members
   void _requestRemoveTeamMember() async {
+
+    if(isRemoving) return; 
 
     final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final List<User> teamMembers = List<User>.from(customInfiniteScrollCurrentState.selectedItems);

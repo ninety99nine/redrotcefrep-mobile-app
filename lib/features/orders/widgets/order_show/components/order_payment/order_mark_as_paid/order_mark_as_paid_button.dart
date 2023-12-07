@@ -39,8 +39,8 @@ class _OrderMarkAsPaidButtonState extends State<OrderMarkAsPaidButton> {
           content: MarkAsPaidDialog(
             order: order,
             onMarkedAsPaid: onMarkedAsPaid,
-          ), 
-      );
+          ),
+        );
       }
     );
   }

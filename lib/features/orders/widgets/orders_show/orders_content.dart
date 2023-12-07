@@ -1,9 +1,8 @@
-import 'package:bonako_demo/features/orders/models/order.dart';
-
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import 'orders_in_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
@@ -17,6 +16,8 @@ import 'order_filters.dart';
 
 class OrdersContent extends StatefulWidget {
 
+  final String? orderFilter;
+
   /// Specify true/false to show a full page view
   final bool showingFullPage;
 
@@ -26,10 +27,18 @@ class OrdersContent extends StatefulWidget {
   /// Specify true/false to show the floating action button e.g Place Order / Back
   final bool canShowFloatingActionButton;
 
+  /// Call onUpdatedOrder() notify parent widget on an updated order
+  final void Function(Order)? onUpdatedOrder;
+
+  final UserOrderAssociation userOrderAssociation;
+
   const OrdersContent({
     super.key,
+    this.orderFilter,
     required this.store,
+    this.onUpdatedOrder,
     this.showingFullPage = false,
+    required this.userOrderAssociation,
     this.canShowFloatingActionButton = true
   });
 
@@ -47,15 +56,52 @@ class _OrdersContentState extends State<OrdersContent> {
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
 
+  void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   /// canShowFloatingActionButton: Sometimes when we are showing a very specific order, we might not
   /// want the user to have the ability to go back and view the list of other orders, which shows a 
   /// list of orders by this user as well as by other users. In this case we might want to hide the 
   /// floating action button completely so that the "Back" option does not appear.
   bool get canShowFloatingActionButton => widget.canShowFloatingActionButton;
+  UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
   bool get isViewingOrders => orderContentView == OrderContentView.viewingOrders;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  String get subtitle => isViewingOrders ? 'See what others are ordering' : 'Place a new order';
+  
+  String get title {
+    if(isViewingOrders) {
+      if(userOrderAssociation == UserOrderAssociation.customer) {
+        return 'My Orders';
+      }else if(userOrderAssociation == UserOrderAssociation.friend) {
+        return 'My Orders';
+      }else if(userOrderAssociation == UserOrderAssociation.customerOrFriend) {
+        return 'My Orders';
+      }else if(userOrderAssociation == UserOrderAssociation.teamMember) {
+        return 'Customer Orders';
+      }else{
+        return '';
+      }
+    }else{
+      return 'Place Order';
+    }
+  }
+
+  String get subtitle {
+    if(isViewingOrders) {
+      if(userOrderAssociation == UserOrderAssociation.customer) {
+        return 'See what you\'ve ordered';
+      }else if(userOrderAssociation == UserOrderAssociation.friend) {
+        return 'See what friends have ordered';
+      }else if(userOrderAssociation == UserOrderAssociation.customerOrFriend) {
+        return 'See what you and friends have ordered';
+      }else if(userOrderAssociation == UserOrderAssociation.teamMember) {
+        return 'See what customers have ordered';
+      }else{
+        return '';
+      }
+    }else{
+      return 'Place a new order';
+    }
+  }
 
   /// This allows us to access the state of OrderFilters widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -66,9 +112,18 @@ class _OrdersContentState extends State<OrdersContent> {
   void initState() {
 
     super.initState();
+
+    /// If the order filter is provided
+    if(widget.orderFilter != null) {
+      
+      /// Set the provided order filter
+      orderFilter = widget.orderFilter!;
+
+    }
     
     /// Set the "_orderFiltersState" so that we can access the OrderFilters widget state
     _orderFiltersState = GlobalKey<OrderFiltersState>();
+
   }
 
   /// Content to show based on the specified view
@@ -82,7 +137,9 @@ class _OrdersContentState extends State<OrdersContent> {
         store: store,
         orderFilter: orderFilter,
         onPlaceOrder: onPlaceOrder,
-        requestOrderFilters: requestOrderFilters
+        onUpdatedOrder: onUpdatedOrder,
+        requestOrderFilters: requestOrderFilters,
+        userOrderAssociation: userOrderAssociation,
       );
 
     }else{
@@ -191,7 +248,7 @@ class _OrdersContentState extends State<OrdersContent> {
                     children: [
                 
                       /// Title
-                      const CustomTitleMediumText('Orders', padding: EdgeInsets.only(bottom: 8),),
+                      CustomTitleMediumText(title, padding: const EdgeInsets.only(bottom: 8),),
                       
                       /// Subtitle
                       AnimatedSwitcher(
@@ -210,6 +267,7 @@ class _OrdersContentState extends State<OrdersContent> {
                         store: store,
                         key: _orderFiltersState,
                         orderFilter: orderFilter,
+                        userOrderAssociation: userOrderAssociation,
                         onSelectedOrderFilter: onSelectedOrderFilter,
                       ),
                       

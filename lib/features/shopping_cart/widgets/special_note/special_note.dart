@@ -53,6 +53,7 @@ class _SpecialNoteState extends State<SpecialNote> {
                   hintText: 'Do you have a special request?',
                   labelText: 'Special Request',
                   borderRadiusAmount: 16,
+                  isRequired: false,
                   maxLength: 400,
                   minLines: 2,
                   onChanged: (value) {
@@ -60,9 +61,6 @@ class _SpecialNoteState extends State<SpecialNote> {
                       setState(() => store!.updateSpecialNote(value)); 
                     });
                   },
-                  validator: (value, originalValidator) {
-                    return null;
-                  }
                 ),
           
                 if(specialNoteErrorText != null) ...[

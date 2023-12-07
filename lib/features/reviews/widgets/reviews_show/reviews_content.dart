@@ -1,8 +1,6 @@
-import 'package:get/get.dart';
-
-import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../user/widgets/reviewer_profile/reviewer_profile_avatar.dart';
+import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../../../core/shared_models/user.dart';
@@ -14,17 +12,26 @@ import 'reviews_page/reviews_page.dart';
 import 'package:flutter/material.dart';
 import '../../enums/review_enums.dart';
 import '../../models/review.dart';
+import 'package:get/get.dart';
 import 'review_filters.dart';
 
 class ReviewsContent extends StatefulWidget {
   
-  final ShoppableStore store;
+  final String? reviewFilter;
   final bool showingFullPage;
+  final ShoppableStore? store;
+  final void Function()? onCreatedReview;
+  final ReviewContentView? reviewContentView;
+  final UserReviewAssociation? userReviewAssociation;
 
   const ReviewsContent({
     super.key,
-    required this.store,
-    this.showingFullPage = false
+    this.store,
+    this.reviewFilter,
+    this.onCreatedReview,
+    this.reviewContentView,
+    this.userReviewAssociation,
+    this.showingFullPage = false,
   });
 
   @override
@@ -43,19 +50,91 @@ class _ReviewsContentState extends State<ReviewsContent> {
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   GlobalKey<ReviewFiltersState>? _reviewFiltersState;
 
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
+  Function()? get onCreatedReview => widget.onCreatedReview;
   User? get reviewer => review == null ? null : review!.relationships.user;
+  UserReviewAssociation? get userReviewAssociation => widget.userReviewAssociation;
   bool get isViewingReview => reviewContentView == ReviewContentView.viewingReview;
   bool get isViewingReviews => reviewContentView == ReviewContentView.viewingReviews;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  String get subtitle => isViewingReviews ? 'See what others have to say' : 'Share your experience with us';
+  bool get isViewingMyReviews => userReviewAssociation == UserReviewAssociation.reviewer;
+  
+  String get title {
+    if(isViewingReviews) {
 
+      /// If the user wants to see reviews from stores where they are a reviewer
+      if(userReviewAssociation == UserReviewAssociation.reviewer) {
+
+        return 'My Reviews';
+
+      /// If the user wants to see reviews from stores where they are a team member
+      }else if(userReviewAssociation == UserReviewAssociation.teamMember) {
+
+        return 'Customer Reviews';
+
+      /// If the user wants to see reviews from anyone
+      }else{
+        
+        return 'Reviews';
+      
+      }
+    
+    }else{
+      
+      return 'Add Review';
+    
+    }
+  }
+  
+  String get subtitle {
+    if(isViewingReviews) {
+
+      /// If the user wants to see reviews from stores where they are a reviewer
+      if(userReviewAssociation == UserReviewAssociation.reviewer) {
+
+        return 'See what your experience has been';
+
+      /// If the user wants to see reviews from stores where they are a team member
+      }else if(userReviewAssociation == UserReviewAssociation.teamMember) {
+
+        return 'See what customers have to say';
+
+      /// If the user wants to see reviews from anyone
+      }else{
+
+        return 'See what others have to say';
+      
+      }
+
+    }else{
+      
+      return 'Share your experience with us';
+    
+    }
+  }
+  
   @override
   void initState() {
 
     super.initState();
+
+    /// If the review filter is provided
+    if(widget.reviewFilter != null) {
+      
+      /// Set the provided review filter
+      reviewFilter = widget.reviewFilter!;
+
+    }
+
+    /// If the reviewContentView is provided
+    if(widget.reviewContentView != null) {
+      
+      /// Set the provided reviewContentView
+      reviewContentView = widget.reviewContentView!;
+
+    }
 
     /// Set the "_reviewFiltersState" so that we can access the ReviewFilters widget state
     _reviewFiltersState = GlobalKey<ReviewFiltersState>();
@@ -74,6 +153,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
         reviewer: reviewer,
         onViewReview: onViewReview,
         reviewFilter: reviewFilter,
+        userReviewAssociation: userReviewAssociation
       );
 
     }else{
@@ -82,7 +162,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
       return ReviewCreate(
         store: store,
         onLoading: onLoading,
-        onCreatedReview: onCreatedReview
+        onCreatedReview: _onCreatedReview
       );
 
     }
@@ -131,7 +211,10 @@ class _ReviewsContentState extends State<ReviewsContent> {
   void onLoading(bool status) => disableFloatingActionButton = status;
 
   /// Change the view once we are done adding a review
-  void onCreatedReview() => changeReviewContentView(ReviewContentView.viewingReviews);
+  void _onCreatedReview() {
+    if(onCreatedReview != null) onCreatedReview!();
+    changeReviewContentView(ReviewContentView.viewingReviews);
+  }
 
   /// Called when the review filter has been changed,
   /// such as changing from "All" to "Product"
@@ -143,14 +226,16 @@ class _ReviewsContentState extends State<ReviewsContent> {
   /// can acquire the total count of reviews assigned to each 
   /// filter e.g "Customer Serview (30)" or "Product (20)"
   void requestStoreOrderFilters() {
-    if(_reviewFiltersState!.currentState != null) _reviewFiltersState!.currentState!.requestStoreReviewFilters();
+    if(_reviewFiltersState!.currentState != null) _reviewFiltersState!.currentState!.requestReviewFilters();
   }
 
   /// Called to change the view from viewing reviews of multiple reviewers
   /// to viewing reviews of one specific reviewer
   void onViewReview(Review review) {
-    this.review = review;
-    changeReviewContentView(ReviewContentView.viewingReview);
+    if(!isViewingMyReviews) {
+      this.review = review;
+      changeReviewContentView(ReviewContentView.viewingReview);
+    }
   }
 
   /// Called to change the view to the specified view
@@ -187,7 +272,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
                       if(review == null) ...[
                 
                         /// Title
-                        const CustomTitleMediumText('Reviews', padding: EdgeInsets.only(bottom: 8),),
+                        CustomTitleMediumText(title, padding: const EdgeInsets.only(bottom: 8),),
                         
                         /// Subtitle
                         AnimatedSwitcher(
@@ -211,6 +296,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
                         store: store,
                         key: _reviewFiltersState,
                         reviewFilter: reviewFilter,
+                        userReviewAssociation: userReviewAssociation,
                         onSelectedReviewFilter: onSelectedReviewFilter
                       ),
                       
@@ -245,7 +331,7 @@ class _ReviewsContentState extends State<ReviewsContent> {
                 Get.back();
 
                 /// Set the store
-                storeProvider.setStore(store);
+                if(store != null) storeProvider.setStore(store!);
                 
                 /// Navigate to the page
                 Get.toNamed(ReviewsPage.routeName);

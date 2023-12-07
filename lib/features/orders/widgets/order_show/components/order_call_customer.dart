@@ -43,6 +43,8 @@ class _OrderCallCustomerState extends State<OrderCallCustomer> {
 
   void _requestOrderCustomer() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     orderProvider.setOrder(widget.order).orderRepository.showOrderCustomer().then((response) {

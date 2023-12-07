@@ -22,6 +22,7 @@ class ProductsModalBottomSheet extends StatefulWidget {
   final ShoppableStore store;
   final TriggerType triggerType;
   final Function(Product)? onUpdatedProduct;
+  final Function(Product)? onCreatedProduct;
   final Widget Function(void Function())? trigger;
 
   const ProductsModalBottomSheet({
@@ -30,6 +31,7 @@ class ProductsModalBottomSheet extends StatefulWidget {
     this.product,
     required this.store,
     this.onUpdatedProduct,
+    this.onCreatedProduct,
     this.triggerType = TriggerType.totalProducts
   });
 
@@ -45,6 +47,7 @@ class _ProductsModalBottomSheetState extends State<ProductsModalBottomSheet> {
   TriggerType get triggerType => widget.triggerType;
   Widget Function(void Function())? get trigger => widget.trigger;
   Function(Product)? get onUpdatedProduct => widget.onUpdatedProduct;
+  Function(Product)? get onCreatedProduct => widget.onCreatedProduct;
   String get totalProducts => widget.store.productsCount!.toString();
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   String get totalProductsText => widget.store.productsCount == 1 ? 'Product' : 'Products';
@@ -153,6 +156,7 @@ class _ProductsModalBottomSheetState extends State<ProductsModalBottomSheet> {
         store: store,
         product: product,
         onUpdatedProduct: onUpdatedProduct,
+        onCreatedProduct: onCreatedProduct,
         productContentView: productContentView,
       ),
     );

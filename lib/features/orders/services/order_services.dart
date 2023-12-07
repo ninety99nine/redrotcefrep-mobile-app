@@ -1,17 +1,11 @@
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
-import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_transaction_show/order_transaction_content_dialog.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/utils/browser.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
 
 class OrderServices {
 
@@ -29,114 +23,27 @@ class OrderServices {
     BrowserUtility.launch(url: transaction.dpoPaymentUrl!);
   }
 
-  showTransactionDialog(Transaction transaction, Order order, BuildContext context) {
+  showOrderTransactionDialog({ required Transaction transaction, required Order order, Function(Transaction)? onUpdatedTransaction, Function(String)? onSubmittedFile, required BuildContext context }) {
 
-    final bool isPendingPayment = transaction.attributes.isPendingPayment;
-    final User requestingUser = transaction.relationships.requestingUser!;
-    final User payingUser = transaction.relationships.payingUser!;
-    final bool requesterIsNotPayer = payingUser.id != requestingUser.id;
-    final bool isPayingUser = payingUser.id == requestingUser.id;
-    final bool isPaid = transaction.attributes.isPaid;
+    /// If this transaction is subject to user verification, then we can increase the dialog height ratio
+    /// since we would want to show the proof of payment. It makes it much easier to see the transaction
+    /// details together with the proof of payment photo. If this transaction is subject to system 
+    /// verification, then the dialog height ratio can be lower since we don't need to display
+    /// any proof of payment photo. 
+    bool isSubjectToUserVerification = transaction.attributes.isSubjectToUserVerification;
 
-    DialogUtility.showContentDialog(
+    DialogUtility.showInfiniteScrollContentDialog(
       context: context,
-      title: 'Transaction #${transaction.attributes.number}',
-      content: Column(
-        children: [
-          Row(
-            children: [
-              const CustomBodyText('Payer:', margin: EdgeInsets.only(right: 8),),
-              CustomBodyText(payingUser.attributes.name)
-            ],
-          ),
-          if(requesterIsNotPayer) Row(
-            children: [
-              const CustomBodyText('Requester:', margin: EdgeInsets.only(right: 8),),
-              CustomBodyText(requestingUser.attributes.name)
-            ],
-          ),
-          if(isPaid) ...[
-            Row(
-              children: [
-                const CustomBodyText('Paid Date:', margin: EdgeInsets.only(right: 8),),
-                CustomBodyText(DateFormat('dd MMM yyyy HH:mm').format(transaction.updatedAt))
-              ],
-            ),
-          ],
-          Row(
-            children: [
-              const CustomBodyText('Status:', margin: EdgeInsets.only(right: 8),),
-              TransactionStatus(transaction: transaction)
-            ],
-          ),
-          const SizedBox(height: 16,),
-          Row(
-            children: [
-              CustomTitleLargeText(transaction.amount.amountWithCurrency)
-            ],
-          ),
-          const Divider(),
-          CustomBodyText(transaction.description)
-        ],
-      ),
-      actions: [
-        if(isPendingPayment) Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-
-            if(isPayingUser) ...[
-
-              /// Pay For Me
-              CustomElevatedButton('Pay For Me', 
-                color: Colors.grey,
-                suffixIcon: Icons.share_rounded,
-                onPressed: () {
-                  Get.back(closeOverlays: true);
-                  sharePaymentLink(order, transaction);
-                },
-              ),
-
-              /// Spacer
-              const SizedBox(width: 8,),
-
-              /// Pay Now
-              CustomElevatedButton(
-                'Pay Now',
-                onPressed: () {
-                  Get.back(closeOverlays: true);
-                  launchPaymentLink(transaction, context);
-                }
-              ),
-
-            ],
-
-            if(!isPayingUser) ...[
-
-              /// Pay Yourself
-              CustomElevatedButton(
-                'Pay Yourself', 
-                color: Colors.grey,
-                onPressed: () {
-                  Get.back(closeOverlays: true);
-                  launchPaymentLink(transaction, context);
-                },
-              ),
-
-              /// Spacer
-              const SizedBox(width: 8,),
-
-              /// Share
-              CustomElevatedButton('Share', 
-                suffixIcon: Icons.share_rounded,
-                onPressed: () {
-                  Get.back(closeOverlays: true);
-                  sharePaymentLink(order, transaction);
-                }
-              )
-            ]
-          ],
-        )
-      ]
+      showCloseIcon: false,
+      backgroundColor: Colors.transparent,
+      heightRatio: isSubjectToUserVerification ? 0.8 : 0.6,
+      content: OrderTransactionContentDialog(
+        order: order,
+        transaction: transaction,
+        onSubmittedFile: onSubmittedFile,
+        onUpdatedTransaction: onUpdatedTransaction
+      )
     );
+
   }
 }

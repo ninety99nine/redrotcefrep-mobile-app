@@ -1,21 +1,23 @@
-import 'package:get/get.dart';
-
-import '../../../core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
-import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
-import '../../authentication/widgets/terms_and_conditions_page.dart';
-import '../../authentication/providers/auth_provider.dart';
-import '../../../core/exceptions/request_failed_page.dart';
-import '../../authentication/widgets/signin_page.dart';
+import 'package:bonako_demo/features/introduction/widgets/introduction_role_selection_page.dart';
+import 'package:bonako_demo/core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
+import 'package:bonako_demo/features/authentication/widgets/terms_and_conditions_page.dart';
+import 'package:bonako_demo/features/introduction/services/introduction_service.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/authentication/widgets/signin_page.dart';
+import 'package:bonako_demo/core/exceptions/something_went_wrong_page.dart';
+import 'package:bonako_demo/core/utils/internet_connectivity_utility.dart';
+import 'package:bonako_demo/core/exceptions/request_failed_page.dart';
+import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:bonako_demo/core/exceptions/no_internet_page.dart';
+import 'package:bonako_demo/features/home/widgets/home_page.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/pusher.dart';
-import '../services/introduction_service.dart';
-import '../../api/providers/api_provider.dart';
-import 'introduction_role_selection_page.dart';
-import '../../home/widgets/home_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart';
 import 'dart:convert';
+import 'dart:async';
 
 class LandingPage extends StatefulWidget {
 
@@ -28,27 +30,54 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
 
-  bool isLoading = false;
-  String errorMessage = '';
+  String? fatalErrorMessage;
   bool hasSeenIntro = false;
   bool isAuthenticated = false;
-  PusherChannelsFlutter? pusher;
+  dio.Response? failedResponse;
   PusherProvider? pusherProvider;
-  bool homeApiRequestFailed = false;
+  bool isLoadingApiRequest = false;
+  bool isCheckingHasSeenIntro = false;
   bool hasAcceptedTermsAndConditions = false;
-  final IntroductionService introductionServices = IntroductionService();
+  final IntroductionService introductionService = IntroductionService();
+  InternetConnectivityUtility internetConnectivityUtility = InternetConnectivityUtility();
 
-  void _startLoader() => setState(() => isLoading = true);
-  void _stopLoader() => setState(() => isLoading = false);
-  void _handleHomeApiRequestFailed() => homeApiRequestFailed = true;
-  
+  bool get hasNotSeenIntro => hasSeenIntro == false;
+  bool get isDisconnected => hasConnection == false;
+  bool get hasFailedResponse => failedResponse != null;
+  bool get isNotAuthenticated => isAuthenticated == false;
+  bool get hasFatalErrorMessage => fatalErrorMessage != null;
+  bool get hasConnection => internetConnectivityUtility.hasConnection;
   ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  bool get hasNotAcceptedTermsAndConditions => hasAcceptedTermsAndConditions == false;
+  bool get isCheckingInternetConnectivity => internetConnectivityUtility.isCheckingInternetConnectivity;
+
+  void _startApiRequestLoader() => setState(() => isLoadingApiRequest = true);
+  void _stopApiRequestLoader() => setState(() => isLoadingApiRequest = false);
+  void _startHasSeenIntroLoader() => setState(() => isCheckingHasSeenIntro = true);
+  void _stopHasSeenIntroLoader() => setState(() => isCheckingHasSeenIntro = false);
 
   @override
   void initState() {
     super.initState();
-    startSetup();
+    
+    /// Check and update the has seen app introduction page status
+    _checkAndUpdateHasSeenIntroStatus();
+
+    /// Check and update the internet connectivity status
+    internetConnectivityUtility.checkAndUpdateInternetConnectivityStatus(
+      setState: setState
+    );
+
+    /// Setup the internet connectivity listener - Continue listening for connectivity changes
+    internetConnectivityUtility.setupInternetConnectivityListener(
+      onDisconnected: _onDisconnected,
+      onConnected: _onConnected,
+      setState: setState
+    );
+
+    //  Clear the device storage
+    //  await SharedPreferences.getInstance().then((prefs) => prefs.clear());
   }
 
   @override
@@ -56,42 +85,141 @@ class _LandingPageState extends State<LandingPage> {
     super.didChangeDependencies();
 
     /// Re-run the startSetup() in cases such as after
-    /// user signin, signup or password reset success
-    if(!isLoading) startSetup();
-
+    /// user signin, signup or password reset success.
+    /// Refer to the build() method comments for more
+    /// information.
+    if(!isLoadingApiRequest) setApiHome();
   }
 
   @override
   void dispose() {
+    
     super.dispose();
+
+    /// Cancel the internet connectivity listener
+    internetConnectivityUtility.dispose();
+  
     /// Unsubscribe from this specified event on this channel
     if(pusherProvider != null) pusherProvider!.unsubscribeToAuthLogin(identifier: 'LandingPage');
+
+  }
+  
+  /// Check and update the has seen introduction status
+  void _checkAndUpdateHasSeenIntroStatus() async {
+
+    /// Start the loader to indicate that we are checking the has seen introduction status
+    _startHasSeenIntroLoader();
+
+    //  Check if the user has seen the app introduction page
+    hasSeenIntro = await introductionService.checkIfHasSeenAnyIntroFromDeviceStorage();
+
+    /// Stop the loader to indicate that we are no longer checking the has seen introduction status
+    _stopHasSeenIntroLoader();
+
   }
 
-  Future<dio.Response>? startSetup() async {
+  /// Internet connected callback
+  void _onConnected() {
 
-    print('Running startSetup()');
+  }
 
-    _startLoader();
+  /// Internet disconnected callback
+  void _onDisconnected() {
 
-    //  Clear the device storage
-    //  await SharedPreferences.getInstance().then((prefs) => prefs.clear());
-  
-    //  Check if the user has seen any introduction page
-    hasSeenIntro = await introductionServices.checkIfHasSeenAnyIntroFromDeviceStorage();
+  }
 
-    //  Set the Api Home
+  /// Listen for external login alerts
+  void _listenForExternalLoginAlerts() async {
+
+    /// Subscribe to login alerts
+    pusherProvider!.subscribeToAuthLogin(
+      identifier: 'LandingPage', 
+      onEvent: _onLoginAlerts
+    );
+
+  }
+
+  /// Handle external login alerts
+  void _onLoginAlerts(event) async {
+
+    if (event.eventName == "App\\Events\\LoginSuccess") {
+
+      // Parse event.data into a Map
+      var eventData = jsonDecode(event.data);
+
+      //  Check if the bearer token has changed
+      if (eventData['bearerToken'] != authProvider.bearerToken) {
+
+        // Show the message that tells the user that they have been logged out
+        SnackbarUtility.showSuccessMessage(
+          message: eventData['loggingOutUsersMessage'] ?? 'Signing out',
+          duration: 6
+        );
+
+        /// Reload to verify unauthentication and show the signin page
+        await setApiHome();
+
+        /// Unsubscribe from everything
+        /// Execute this unsubscribeFromEverything() method after the startSetup()
+        /// otherwise running unsubscribeFromEverything() will delete this _onLoginAlerts() 
+        /// event handler before it can execute the startSetup() method. In such a scenerio,
+        /// we will not be able to re-run the setApiHome() which should make the API call to
+        /// verify that this user is indeed unauthenticated thereby showing the signin page.
+        pusherProvider!.unsubscribeFromEverything();
+
+      }
+    }
+
+  }
+
+  /// Reset the failed response if exists
+  void _resetFailedResponse() {
+
+    /// If we have a failed response
+    if(hasFailedResponse) {
+
+      /// Reset the failed response
+      failedResponse = null;
+
+    }
+
+  }
+
+  /// Reset the fatal error message if exists
+  void _resetFatalErrorMessage() {
+
+    /// If we have a failed response
+    if(hasFatalErrorMessage) {
+
+      /// Reset the fatal error message
+      fatalErrorMessage = null;
+
+    }
+
+  }
+
+  /// Request the API Home
+  Future<dio.Response> setApiHome() async {
+
+    /// Start the loader to indicate that we are making the Home API Request
+    _startApiRequestLoader();
+
+    /// Reset the fatal error message
+    _resetFatalErrorMessage();
+
+    /// Reset the failed response
+    _resetFailedResponse();
+
+    // Make the Api Call to the Api Home route
     return await apiProvider.setApiHome().then((response) async {
-
-      errorMessage += '\n\nStatus Code: ${response.statusCode}';
 
       //  Successful request to Api Home request
       if( response.statusCode == 200 ) {
 
-        //  Determine if the request acquired an authenticated user
+        //  Determine if the user is authenticated
         isAuthenticated = apiProvider.apiHome!.authenticated;
 
-        //  If the request acquired an authenticated user
+        //  If the user is authenticated
         if( isAuthenticated ) {
 
           //  Get the Api Home
@@ -111,95 +239,47 @@ class _LandingPageState extends State<LandingPage> {
           /// channels that require the authenticated user id and bearer token
           PusherProvider.setAuthProvider(pusherProvider!, authProvider);
 
-          //  Subcribe to login by other devices
-          listenToExternalLoginAlerts();
+          //  Subcribe to login alerts by other devices
+          _listenForExternalLoginAlerts();
 
         }
 
       //  Failed request to Api Home request
       }else{
 
-        /// If the response body contains a server message
-        if(response.data.containsKey('message')) {
-          
-          errorMessage = response.data['message'];
-
-        /// If the response body contains an server error
-        }else if(response.data.containsKey('error')) {
-          
-          errorMessage = response.data['error'];
-
-        }
-
-        _handleHomeApiRequestFailed();
+        /// Capture the failed response
+        setState(() => failedResponse = response);
 
       }
 
       return response;
 
+    }).onError((dio.DioException exception, stackTrace) {
+
+      /// Capture the failed response
+      setState(() => failedResponse = exception.response);
+
+      /// Rethrow the exception
+      throw exception;
+
     }).catchError((error) {
 
       printError(info: error.toString());
 
-      errorMessage = error.toString();
+      fatalErrorMessage = error.toString();
 
-      _handleHomeApiRequestFailed();
+      return error;
 
     }).whenComplete(() {
 
-      _stopLoader();
+      /// Stop the loader to indicate that we are no longer making the Home API Request
+      _stopApiRequestLoader();
 
     });
 
   }
 
-  void onTryAgain() {
-    homeApiRequestFailed = false;
-    startSetup();
-  }
-
-  void listenToExternalLoginAlerts() async {
-
-    /// Subscribe to login alerts
-    pusherProvider!.subscribeToAuthLogin(
-      identifier: 'LandingPage', 
-      onEvent: onLoginAlerts
-    );
-
-  }
-
-  void onLoginAlerts(event) async {
-
-    if (event.eventName == "App\\Events\\LoginSuccess") {
-
-      // Parse event.data into a Map
-      var eventData = jsonDecode(event.data);
-
-      //  Check if the bearer token has changed
-      if (eventData['bearerToken'] != authProvider.bearerToken) {
-
-        // Show the message that tells the user that they have been logged out
-        SnackbarUtility.showSuccessMessage(
-          message: eventData['loggingOutUsersMessage'] ?? 'Signing out',
-          duration: 6
-        );
-
-        /// Reload to verify unauthentication and show the signin page
-        await startSetup();
-
-        /// Unsubscribe from everything
-        /// Execute this unsubscribeFromEverything() method after the startSetup()
-        /// otherwise running unsubscribeFromEverything() will delete this onLoginAlerts() 
-        /// event handler before it can execute the startSetup() method. In such a scenerio,
-        /// we will not be able to re-run the setApiHome() which should make the API call to
-        /// verify that this user is indeed unauthenticated thereby showing the signin page.
-        pusherProvider!.unsubscribeFromEverything();
-
-      }
-    }
-
-  }
-
+  /// Loader
   Widget get loader {
     return const Scaffold(
       body: CustomCircularProgressIndicator(),
@@ -208,6 +288,7 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     /// Set this listener on the ApiProvider so that we are notified of any changes 
     /// on the ApiProvider state. Any changes will fire the didChangeDependencies()
     /// method which allows us to run our startSetup() method. This is important if
@@ -216,47 +297,78 @@ class _LandingPageState extends State<LandingPage> {
     /// startSetup() method knowing that this time the setApiHome() request
     /// will be executed with the bearer token as part of the request 
     /// headers. This will return the Api Home intial routes as well 
-    /// as the current authenticated user.
+    /// as the current authenticated user. This information will
+    /// help us update the Auth Provider on the Pusher Provider
+    /// so that we can authorize private or presence channels 
+    /// that require the authenticated user id and bearer 
+    /// token. Refer to the setApiHome() method.
     Provider.of<ApiProvider>(context);
 
-    //  Set the landing page
-    Widget page;
+    /// Check if we are currently loading
+    if(isCheckingHasSeenIntro || isCheckingInternetConnectivity || isLoadingApiRequest) {
 
-    //  If the Home Api request failed
-    if(homeApiRequestFailed) {
-
-      //  Show the request failed page
-      page = RequestFailedPage(
-        onTryAgain: onTryAgain,
-        errorMessage: errorMessage
-      );
-
-    //  If the user has not seen the introduction page
-    }else if(!hasSeenIntro) {
-
-      //  Show the introduction role selection page
-      page = const IntroductionRoleSelectionPage();
-
-    //  If the user is not authenticated
-    }else if(!isAuthenticated) {
-      
-      //  Show the signin page
-      page = const SigninPage();
-
-    //  If the authenticated user has not accepted terms and conditions
-    }else if(!hasAcceptedTermsAndConditions) {
-
-      //  Show the terms and conditions page
-      page = const TermsAndConditionsPage();
+      /// Show the loader
+      return loader;
 
     }else{
 
-      //  Show the application home page
-      page = const HomePage();
+      //  Initialize the page
+      Widget page;
+
+      /// Check if the internet is disconnected
+      if(isDisconnected) {
+
+        //  Show the no internet page
+        page = NoInternetPage(
+          onTryAgain: setApiHome
+        );
+
+      /// Check if the API Call failed
+      }else if(hasFailedResponse) {
+
+        //  Show the request failed page
+        page = RequestFailedPage(
+          onTryAgain: setApiHome,
+          failedResponse: failedResponse!
+        );
+
+      /// Check if we have a fatal error
+      }else if(hasFatalErrorMessage) {
+
+        //  Show the request failed page
+        page = SomethingWentWrongPage(
+          onTryAgain: setApiHome,
+          fatalErrorMessage: fatalErrorMessage!
+        );
+
+      /// Check if the user has not seen the app introduction page
+      }else if(hasNotSeenIntro) {
+
+        //  Show the introduction role selection page
+        page = const IntroductionRoleSelectionPage();
+
+      /// Check if the user is not authenticated
+      }else if(isNotAuthenticated) {
+      
+        //  Show the signin page
+        page = const SigninPage();
+
+      /// Check if the user has not accepted the terms and conditions
+      }else if(hasNotAcceptedTermsAndConditions) {
+
+        //  Show the terms and conditions page
+        page = const TermsAndConditionsPage();
+
+      }else{
+
+        //  Show the application home page
+        page = const HomePage();
+
+      }
+
+      return page;
 
     }
-
-    return isLoading ? loader : page;
 
   }
 

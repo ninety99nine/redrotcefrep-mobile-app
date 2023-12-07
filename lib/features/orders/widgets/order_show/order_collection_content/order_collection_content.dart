@@ -76,6 +76,8 @@ class OrderCollectionContentState extends State<OrderCollectionContent> {
 
   void _requestShowOrder() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     orderProvider.setOrder(order).orderRepository.showOrder(

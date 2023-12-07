@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+
 import '../../../core/shared_models/user.dart';
 
 class Review {
@@ -21,9 +23,11 @@ class Review {
 }
 
 class Relationships {
-  late User user;
+  late User? user;
+  late ShoppableStore? store;
 
   Relationships.fromJson(Map<String, dynamic> json) {
-    user = User.fromJson(json['user']);
+    user = json['user'] == null ? null : User.fromJson(json['user']);
+    store = json['store'] == null ? null : ShoppableStore.fromJson(json['store']);
   }
 }

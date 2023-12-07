@@ -1,6 +1,6 @@
+import 'package:bonako_demo/features/chat/widgets/ai_chat_content.dart';
 import '../../../../authentication/providers/auth_provider.dart';
 import '../../../../../core/shared_models/user.dart';
-import '../../../../chat/widgets/chat.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +19,6 @@ class _ChatPageContentState extends State<ChatPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return const Chat();
+    return const AiChatContent();
   }
 }

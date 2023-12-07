@@ -1,6 +1,6 @@
 import 'package:bonako_demo/features/products/widgets/show_product_variations/product_variations_modal_bottom_sheet/product_variations_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/products/widgets/show_product_variations/product_variations_in_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/product_logo.dart';
+import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/product_photo.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
@@ -545,14 +545,12 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   enabled: !isLoading && !isSubmitting && !isDeleting,
                   labelText: 'Description',
                   borderRadiusAmount: 16,
+                  isRequired: false,
                   maxLength: 200,
                   minLines: 1,
                   onChanged: (value) {
                     setState(() => productForm['description'] = value); 
                   },
-                  validator: (value, originalValidator) {
-                    return null;
-                  }
                 ),
                 
                 /// Spacer
@@ -719,14 +717,12 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   initialValue: productForm['sku'],
                   borderRadiusAmount: 16,
                   hintText: 'std-ticket',
+                  isRequired: false,
                   labelText: 'SKU',
                   maxLength: 100,
                   onChanged: (value) {
                     setState(() => productForm['sku'] = value); 
                   },
-                  validator: (value, originalValidator) {
-                    return null;
-                  }
                 ),
                 
                 /// Spacer
@@ -740,13 +736,11 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   borderRadiusAmount: 16,
                   hintText: '123456789',
                   labelText: 'Barcode',
+                  isRequired: false,
                   maxLength: 100,
                   onChanged: (value) {
                     setState(() => productForm['barcode'] = value); 
                   },
-                  validator: (value, originalValidator) {
-                    return null;
-                  }
                 ),
               
                 /// Spacer

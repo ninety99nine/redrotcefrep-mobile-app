@@ -1,3 +1,5 @@
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/reviews/enums/review_enums.dart';
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
@@ -5,18 +7,19 @@ import '../../models/review_filters.dart' as model;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
 
 class ReviewFilters extends StatefulWidget {
   
   final String reviewFilter;
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final Function(String) onSelectedReviewFilter;
+  final UserReviewAssociation? userReviewAssociation;
 
   const ReviewFilters({
     super.key,
-    required this.store,
+    this.store,
     required this.reviewFilter,
+    this.userReviewAssociation,
     required this.onSelectedReviewFilter
   });
 
@@ -29,9 +32,11 @@ class ReviewFiltersState extends State<ReviewFilters> {
   String? reviewFilter;
   model.ReviewFilters? reviewFilters;
 
-  ShoppableStore get store => widget.store;
+  ShoppableStore? get store => widget.store;
   bool get hasReviewFilters => reviewFilters != null;
   Function(String) get onSelectedReviewFilter => widget.onSelectedReviewFilter;
+  UserReviewAssociation? get userReviewAssociation => widget.userReviewAssociation;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   
   @override
@@ -41,16 +46,28 @@ class ReviewFiltersState extends State<ReviewFilters> {
     /// Set the local state reviewFilter value to the widget reviewFilter value
     reviewFilter = widget.reviewFilter;
 
-    requestStoreReviewFilters();
+    requestReviewFilters();
   }
 
-  /// Request the store review filters
-  /// This will allow us to show filters that can be used
-  /// to filter the results of reviews returned on each request
-  void requestStoreReviewFilters() {
+  void requestReviewFilters() {
+
+    Future<dio.Response> request;
+
+    /// If the store is not provided
+    if( store == null ) {
+
+      /// Request the user review filters
+      request = authProvider.userRepository.showReviewFilters(userReviewAssociation: userReviewAssociation!);
+
+    /// If the store is provided
+    }else{
+
+      /// Request the store review filters
+      request = storeProvider.setStore(store!).storeRepository.showReviewFilters();
+      
+    }
     
-    storeProvider.setStore(store).storeRepository.showReviewFilters()
-    .then((dio.Response response) {
+    request.then((dio.Response response) {
 
       if(!mounted) return;
 
@@ -74,7 +91,7 @@ class ReviewFiltersState extends State<ReviewFilters> {
   /// Change the current review filter
   void changeReviewFilter(String reviewFilter) {
     selectReviewFilter(reviewFilter);
-    requestStoreReviewFilters();
+    requestReviewFilters();
   }
 
   /// Select the specified review filter

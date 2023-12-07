@@ -36,6 +36,7 @@ class Links {
   late String validateResetPassword;
   late String showSearchFriendGroups;
   late String showAiMessageCategories;
+  late String searchUserByMobileNumber;
   late String checkInvitationsToFollowStores;
   late String updateAssignedStoresArrangement;
   late String checkInvitationsToJoinTeamStores;
@@ -62,6 +63,7 @@ class Links {
     validateResetPassword = json['validateResetPassword'];
     showSearchFriendGroups = json['showSearchFriendGroups'];
     showAiMessageCategories = json['showAiMessageCategories'];
+    searchUserByMobileNumber = json['searchUserByMobileNumber'];
     checkInvitationsToFollowStores = json['checkInvitationsToFollowStores'];
     updateAssignedStoresArrangement = json['updateAssignedStoresArrangement'];
     checkInvitationsToJoinTeamStores = json['checkInvitationsToJoinTeamStores'];

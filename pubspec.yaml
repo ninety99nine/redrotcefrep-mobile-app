@@ -67,6 +67,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.2.19
   dio: ^5.3.2
+  internet_connection_checker_plus: ^1.0.1
 
 dev_dependencies:
   flutter_test:

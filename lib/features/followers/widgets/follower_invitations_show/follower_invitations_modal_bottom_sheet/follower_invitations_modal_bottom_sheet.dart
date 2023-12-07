@@ -15,7 +15,7 @@ import 'dart:convert';
 
 class FollowerInvitationsModalBottomSheet extends StatefulWidget {
   
-  final Widget trigger;
+  final Widget Function(Function())? trigger;
 
   const FollowerInvitationsModalBottomSheet({
     super.key,
@@ -28,9 +28,22 @@ class FollowerInvitationsModalBottomSheet extends StatefulWidget {
 
 class _FollowerInvitationsModalBottomSheetState extends State<FollowerInvitationsModalBottomSheet> {
 
-  Widget get trigger => widget.trigger;
   bool respondedToAnyInvitation = false;
+  Widget Function(Function())? get trigger => widget.trigger;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+
+  /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
+  /// We can then fire methods of the child widget from this current Widget state. 
+  /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
+  final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
+  
+  Widget get _trigger {
+
+    Widget defaultTrigger = CustomElevatedButton('Invitations', onPressed: openBottomModalSheet);
+
+    return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
+
+  }
 
   void onClose() {
     if(respondedToAnyInvitation && storeProvider.refreshStores != null) storeProvider.refreshStores!();
@@ -38,12 +51,20 @@ class _FollowerInvitationsModalBottomSheetState extends State<FollowerInvitation
 
   void onRespondedToInvitation() => respondedToAnyInvitation = true;
 
+  /// Open the bottom modal sheet to show the new order placed
+  void openBottomModalSheet() {
+    if(_customBottomModalSheetState.currentState != null) {
+      _customBottomModalSheetState.currentState!.showBottomSheet(context);
+    } 
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomBottomModalSheet(
+      key: _customBottomModalSheetState,
       onClose: onClose,
       /// Trigger to open the bottom modal sheet
-      trigger: trigger,
+      trigger: _trigger,
       /// Content of the bottom modal sheet
       content: ModalContent(
         onRespondedToInvitation: onRespondedToInvitation

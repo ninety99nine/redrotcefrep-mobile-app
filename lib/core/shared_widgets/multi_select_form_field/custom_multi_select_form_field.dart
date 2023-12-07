@@ -44,12 +44,13 @@ class CustomMultiSelectFormField extends StatelessWidget {
       enabled: enabled,
       errorText: errorText,
       autovalidate: autovalidate,
-      chipBackGroundColor: primaryColor,
+      chipBackGroundColor: enabled ? primaryColor : primaryColor.withOpacity(0.1),
       checkBoxActiveColor: primaryColor,
       checkBoxCheckColor: Colors.white,
       dialogShapeBorder: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(12.0))
       ),
+
       dialogTextStyle: const TextStyle(fontWeight: FontWeight.normal),
       chipLabelStyle: const TextStyle(color: Colors.white, fontSize: 14),
       title: CustomBodyText(title),

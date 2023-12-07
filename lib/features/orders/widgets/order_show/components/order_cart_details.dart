@@ -46,6 +46,8 @@ class _OrderCartDetailsState extends State<OrderCartDetails> {
 
   void _requestOrderCart() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     orderProvider.setOrder(order).orderRepository.showOrderCart().then((response) {

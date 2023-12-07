@@ -84,12 +84,12 @@ class Permissions extends StatefulWidget {
 class _PermissionsState extends State<Permissions> {
 
   Map serverErrors = {};
-  bool isLoading = false;
+  bool isUpdating = false;
   bool isRemoving = false;
   List<Permission> selectedPermissions = [];
 
-  void _startLoader() => setState(() => isLoading = true);
-  void _stopLoader() => setState(() => isLoading = false);
+  void _startUpdateLoader() => setState(() => isUpdating = true);
+  void _stopUpdateLoader() => setState(() => isUpdating = false);
 
   void _startRemoveLoader() => setState(() => isRemoving = true);
   void _stopRemoveLoader() => setState(() => isRemoving = false);
@@ -130,10 +130,12 @@ class _PermissionsState extends State<Permissions> {
 
   void _requestUpdateTeamMemberPermissions() {
 
+    if(isUpdating) return;
+
     if(selectedPermissions.isNotEmpty) {
 
       _resetServerErrors();
-      _startLoader();
+      _startUpdateLoader();
 
       storeProvider.setStore(store).storeRepository.updateTeamMemberPermissions(
         permissions: selectedPermissions,
@@ -158,7 +160,7 @@ class _PermissionsState extends State<Permissions> {
 
       }).whenComplete(() {
 
-        _stopLoader();
+        _stopUpdateLoader();
 
       });
 
@@ -170,6 +172,8 @@ class _PermissionsState extends State<Permissions> {
   }
 
   void _requestRemoveTeamMember() async {
+
+    if(isRemoving) return;
 
     final bool? confirmation = await confirmRemove();
 
@@ -295,7 +299,7 @@ class _PermissionsState extends State<Permissions> {
           store: store,
           onTogglePermissions: onTogglePermissions,
           teamMemberPermissions: teamMemberPermissions,
-          disabled: isLoading || teamMemberIsYou || teamMemberIsCreator || cannotManageTeamMembers,
+          disabled: isUpdating || teamMemberIsYou || teamMemberIsCreator || cannotManageTeamMembers,
         ),
 
         /// Permissions Server Error
@@ -311,9 +315,9 @@ class _PermissionsState extends State<Permissions> {
         /// Save Changes Button
         if(teamMemberIsNotCreator && canManageTeamMembers) CustomElevatedButton(
           'Save Changes',
-          isLoading: isLoading,
+          disabled: isRemoving,
+          isLoading: isUpdating,
           alignment: Alignment.center,
-          disabled: isLoading || isRemoving,
           onPressed: _requestUpdateTeamMemberPermissions,
         ),
 
@@ -365,12 +369,12 @@ class _PermissionsState extends State<Permissions> {
               /// Remove Button
               CustomElevatedButton(
                 width: 180,
-                'Remove Team Member',
                 isError: true,
+                'Remove Team Member',
                 isLoading: isRemoving,
                 alignment: Alignment.center,
                 onPressed: _requestRemoveTeamMember,
-                disabled: teamMemberIsYou || teamMemberIsCreator || cannotManageTeamMembers || isLoading || isRemoving,
+                disabled: teamMemberIsYou || teamMemberIsCreator || cannotManageTeamMembers || isUpdating,
               ),
 
             ],

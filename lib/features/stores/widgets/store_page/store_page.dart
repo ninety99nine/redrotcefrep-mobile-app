@@ -4,6 +4,7 @@ import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
@@ -342,6 +343,8 @@ class Content extends StatelessWidget {
         
             /// User Orders
             UserOrdersInHorizontalListViewInfiniteScroll(
+              userOrderAssociation: UserOrderAssociation.customer,
+              orderContentType: OrderContentType.orderFullContent,
               store: store,
               user: user,
             ),

@@ -1,8 +1,10 @@
+import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
+import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import '../../../rating/widgets/rating_selector_using_stars.dart';
 import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../../../stores/providers/store_provider.dart';
@@ -18,13 +20,13 @@ import 'package:get/get.dart';
 
 class ReviewCreate extends StatefulWidget {
   
-  final ShoppableStore store;
+  final ShoppableStore? store;
   final void Function(bool) onLoading;
   final void Function() onCreatedReview;
 
   const ReviewCreate({
     super.key,
-    required this.store,
+    this.store,
     required this.onLoading,
     required this.onCreatedReview,
   });
@@ -39,13 +41,16 @@ class _ReviewCreateState extends State<ReviewCreate> {
   String? comment;
   String? subject;
   Map serverErrors = {};
+  ShoppableStore? store;
   bool isLoading = false;
+  bool isAddingReview = false;
   ReviewRatingOptions? reviewRatingOptions;
-  ShoppableStore get store => widget.store;
   GlobalKey<FormState> formKey = GlobalKey();
   ShakeUtility shakeUtility = ShakeUtility();
   String get commentHint => 'Say something ${subject == null ? '' : 'about the ${subject!.toLowerCase()}' }';
 
+  bool get hasStore => store != null;
+  bool get hasSpecifiedStore => widget.store != null;
   String? get ratingError => serverErrors.containsKey('rating') ? serverErrors['rating'] : null;
   String? get subjectError => serverErrors.containsKey('subject') ? serverErrors['subject'] : null;
   String? get commentError => serverErrors.containsKey('comment') ? serverErrors['comment'] : null;
@@ -53,13 +58,19 @@ class _ReviewCreateState extends State<ReviewCreate> {
   void Function(bool) get onLoading => widget.onLoading;
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
+  void _startAddReviewLoader() => setState(() => isAddingReview = true);
+  void _stopAddReviewLoader() => setState(() => isAddingReview = false);
   void Function() get onCreatedReview => widget.onCreatedReview;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   
   @override
   void initState() {
     super.initState();
-    _requestShowReviewRatingOptions();
+
+    if(widget.store != null) {  
+      store = widget.store;
+      _requestShowReviewRatingOptions();
+    }
   }
 
   /// Request the review rating options.
@@ -67,10 +78,12 @@ class _ReviewCreateState extends State<ReviewCreate> {
   /// as well as the "rating options" e.g "1" would imply "very bad"
   /// while "5" would mean "very good"
   Future<void> _requestShowReviewRatingOptions() async {
+
+    if(isLoading) return;
     
     _startLoader();
     
-    await storeProvider.setStore(store).storeRepository.showReviewRatingOptions()
+    await storeProvider.setStore(store!).storeRepository.showReviewRatingOptions()
     .then((response) async {
 
       if(!mounted) return;
@@ -102,6 +115,8 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
   _requestCreateReview() {
 
+    if(isAddingReview) return;
+
     _resetServerErrors();
 
     if( rating == null ) {
@@ -115,12 +130,12 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
     if(formKey.currentState!.validate()) {
 
-      _startLoader();
+      _startAddReviewLoader();
       
       /// Notify parent that we are loading
       onLoading(true);
 
-      storeProvider.setStore(store).storeRepository.createReview(
+      storeProvider.setStore(store!).storeRepository.createReview(
         subject: subject!,
         comment: comment,
         rating: rating!,
@@ -146,7 +161,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
 
       }).whenComplete(() {
 
-        _stopLoader();
+        _stopAddReviewLoader();
       
         /// Notify parent that we are not loading
         onLoading(false);
@@ -164,6 +179,15 @@ class _ReviewCreateState extends State<ReviewCreate> {
   /// Reset the server errors
   void _resetServerErrors() => setState(() => serverErrors = {});
 
+  void onSelectedStore(ShoppableStore store) {
+    setState((){
+      this.store = store;
+      if(reviewRatingOptions == null) {
+        _requestShowReviewRatingOptions();
+      }
+    });
+  }
+
   /// Set the selected subject e.g "Customer Service"
   void onSelectedSubject(String subject) => setState(() => this.subject = subject);
 
@@ -177,15 +201,68 @@ class _ReviewCreateState extends State<ReviewCreate> {
     );
   }
 
+  Widget contentBeforeSearchBar(isLoading, totalItems) {
+
+    if(!isLoading && totalItems == 0) {
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: const [
+          
+          CustomBodyText('Place your first order to reveiew'),
+
+        ],
+      );
+
+    }else{
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: const [
+          CustomBodyText('Who are your revewing?', lightShade: true,),
+        ],
+      );
+
+    }
+
+  }
+
+  /// Show the stores in horizontal list view
+  Widget get _storesAssociatedAsCustomer {
+    return Column(
+      children: [
+        
+        /// Spacer
+        const SizedBox(height: 16),
+
+        /// Stores In Horizontal List View
+        StoresInHorizontalListViewInfiniteScroll(
+          listPadding: EdgeInsets.zero,
+          onSelectedStore: onSelectedStore,
+          userAssociation: UserAssociation.customer,
+          contentBeforeSearchBar: contentBeforeSearchBar,
+          headerPadding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+          storesInHorizontalListViewDesignType: StoresInHorizontalListViewDesignType.selectable,
+        ),
+        
+        /// Spacer
+        const SizedBox(height: 16),
+
+      ],
+    );
+  }
+
   /// Show the rating and subject selector widgets
   Widget get ratingAndSubjectSelector {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [ 
+      children: [
 
         /// Review Star Rating
-        ShakeWidget(
+        if(reviewRatingOptions != null) ShakeWidget(
           shakeConstant: ShakeHorizontalConstant2(),
           autoPlay: shakeUtility.canShake,
           enableWebMouseHover: true,
@@ -209,7 +286,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
         const SizedBox(height: 8,),
 
         /// Subject Selector
-        ReviewSubjectSelector(
+        if(reviewRatingOptions != null) ReviewSubjectSelector(
           subject: subject,
           onSelectedSubject: onSelectedSubject,
           reviewRatingOptions: reviewRatingOptions!,
@@ -247,9 +324,9 @@ class _ReviewCreateState extends State<ReviewCreate> {
   Widget get leaveReviewButton {
     return CustomElevatedButton(
       'Leave Review',
-      disabled: isLoading,
       alignment: Alignment.center,
       onPressed: _requestCreateReview,
+      disabled: isLoading || !hasStore,
     );
   }
 
@@ -264,35 +341,60 @@ class _ReviewCreateState extends State<ReviewCreate> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              
+              /// Selectable Stores
+              if(!hasSpecifiedStore) _storesAssociatedAsCustomer,
 
-              AnimatedSize(
-                duration: const Duration(milliseconds: 500),
-                child: AnimatedSwitcher(
-                  switchInCurve: Curves.easeIn,
-                  switchOutCurve: Curves.easeOut,
+              SizedBox(
+                width: double.infinity,
+                child: AnimatedSize(
                   duration: const Duration(milliseconds: 500),
-                  child: isLoading 
-                    /// Loader
-                    ? loader
-                    /// Rating & Subject Selector
-                    : ratingAndSubjectSelector
-                )
+                  child: AnimatedSwitcher(
+                    switchInCurve: Curves.easeIn,
+                    switchOutCurve: Curves.easeOut,
+                    duration: const Duration(milliseconds: 500),
+                    child: Column(
+                      key: ValueKey(hasStore),
+                      children: hasStore ? [
+              
+                        /// Rating & Subject Selector
+                        SizedBox(
+                          width: double.infinity,
+                          child: AnimatedSize(
+                            duration: const Duration(milliseconds: 500),
+                            child: AnimatedSwitcher(
+                              switchInCurve: Curves.easeIn,
+                              switchOutCurve: Curves.easeOut,
+                              duration: const Duration(milliseconds: 500),
+                              child: isLoading 
+                                /// Loader
+                                ? loader
+                                /// Rating & Subject Selector
+                                : ratingAndSubjectSelector
+                            )
+                          ),
+                        ),
+              
+                        /// Spacer
+                        const SizedBox(height: 8,),
+              
+                        /// Comment
+                        commentFiled,
+              
+                        /// Spacer
+                        const SizedBox(height: 16,),
+              
+                        /// Leave Review Button
+                        leaveReviewButton,
+              
+                        /// Spacer
+                        const SizedBox(height: 60,),
+                        
+                      ] : [],
+                    )
+                  )
+                ),
               ),
-
-              /// Spacer
-              const SizedBox(height: 8,),
-
-              /// Comment
-              commentFiled,
-
-              /// Spacer
-              const SizedBox(height: 16,),
-
-              /// Leave Review Button
-              leaveReviewButton,
-
-              /// Spacer
-              const SizedBox(height: 60,),
 
             ],
           )

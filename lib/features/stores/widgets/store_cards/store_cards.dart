@@ -14,17 +14,23 @@ class StoreCards extends StatefulWidget {
 
   final String? storesUrl;
   final FriendGroup? friendGroup;
+  final bool showFirstRequestLoader;
   final Function(Order)? onCreatedOrder;
   final UserAssociation? userAssociation;
+  final Function(dio.Response)? onResponse;
+  final ScrollController? scrollController;
   final Widget Function(bool, int)? contentBeforeSearchBar;
 
   const StoreCards({
     Key? key,
     this.storesUrl,
+    this.onResponse,
     this.friendGroup,
     this.onCreatedOrder,
     this.userAssociation,
-    required this.contentBeforeSearchBar,
+    this.scrollController,
+    this.contentBeforeSearchBar,
+    this.showFirstRequestLoader = true,
   }) : super(key: key);
 
   @override
@@ -36,8 +42,11 @@ class StoreCardsState extends State<StoreCards> {
   String? get storesUrl => widget.storesUrl;
   bool get hasFriendGroup => friendGroup != null;
   FriendGroup? get friendGroup => widget.friendGroup;
+  Function(dio.Response)? get onResponse => widget.onResponse;
   Function(Order)? get onCreatedOrder => widget.onCreatedOrder;
   UserAssociation? get userAssociation => widget.userAssociation;
+  bool get showFirstRequestLoader => widget.showFirstRequestLoader;
+  ScrollController? get scrollController => widget.scrollController;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
@@ -131,7 +140,14 @@ class StoreCardsState extends State<StoreCards> {
         withCountOrders: true,
         withRating: true,
         page: page
-      );
+      ).then((response) {
+
+        /// Notify parent widget on response
+        if(onResponse != null) onResponse!(response);
+
+        return response;
+
+      });
 
     }else{
 
@@ -148,7 +164,14 @@ class StoreCardsState extends State<StoreCards> {
         withRating: true,
         url: storesUrl,
         page: page
-      );
+      ).then((response) {
+
+        /// Notify parent widget on response
+        if(onResponse != null) onResponse!(response);
+
+        return response;
+
+      });
 
     }
   }
@@ -203,25 +226,17 @@ class StoreCardsState extends State<StoreCards> {
       onParseItem: onParseItem,
       onRenderItem: onRenderItem,
       headerPadding: EdgeInsets.zero,
+      scrollController: scrollController,
       catchErrorMessage: 'Can\'t show stores',
       key: customVerticalListViewInfiniteScrollState,
       contentBeforeSearchBar: contentBeforeSearchBar,
+      showFirstRequestLoader: showFirstRequestLoader,
       onRequest: (page, searchWord) => requestShowStores(page, searchWord),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return Column(
-      children: [
-        
-        /// Store cards
-        Expanded(
-          child: storeCards
-        ),
-
-      ],
-    );
+    return storeCards;
   }
 }

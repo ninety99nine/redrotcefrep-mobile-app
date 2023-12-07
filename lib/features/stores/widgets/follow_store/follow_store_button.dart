@@ -39,6 +39,8 @@ class _FollowButtonState extends State<FollowStoreButton> {
 
   _requestUpdateFollowing() {
 
+    if(isLoading) return;
+
     _startLoader();
 
     storeProvider.setStore(store).storeRepository.updateFollowing().then((response) async {

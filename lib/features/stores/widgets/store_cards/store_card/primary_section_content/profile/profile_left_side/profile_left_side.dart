@@ -3,10 +3,11 @@ import 'package:bonako_demo/features/products/widgets/show_products/products_mod
 import '../../../../../../../followers/widgets/followers_show/followers_modal_bottom_sheet/followers_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/coupons/widgets/show_coupons/coupons_modal_bottom_sheet/coupons_modal_bottom_sheet.dart';
 import '../../../../../../../orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
-import '../../../../../../../reviews/widgets/reviews_show/reviews_modal_bottom_sheet/reviews_modal_popup.dart';
+import '../../../../../../../reviews/widgets/reviews_show/reviews_modal_bottom_sheet/reviews_modal_bottom_sheet.dart';
 import '../../../../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/home/providers/home_provider.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import '../../../../../../services/store_services.dart';
 import '../../../../../../models/shoppable_store.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +44,7 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
   bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
+  UserOrderAssociation get userOrderAssociation => isTeamMemberWhoHasJoined ? UserOrderAssociation.teamMember : UserOrderAssociation.customerOrFriend;
 
   @override
   Widget build(BuildContext context) {
@@ -101,12 +103,12 @@ class _StoreProfileLeftSideState extends State<StoreProfileLeftSide> {
                 
                 /// Products
                 if(showEditableMode && canManageProducts) ProductsModalBottomSheet(store: store),
+                  
+                /// Orders
+                OrdersModalBottomSheet(store: store, userOrderAssociation: userOrderAssociation),
           
                 /// Reviews
                 ReviewsModalBottomSheet(store: store),
-                  
-                /// Orders
-                OrdersModalBottomSheet(store: store),
                 
                 /// Visit Shortcode
                 StoreVisitShortcode(store: store)

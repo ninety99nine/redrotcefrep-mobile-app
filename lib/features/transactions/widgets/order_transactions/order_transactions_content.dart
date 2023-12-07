@@ -1,32 +1,35 @@
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_in_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transaction_filters.dart';
-import 'package:get/get.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'order_transactions_page/order_transactions_page.dart';
-import '../../../stores/providers/store_provider.dart';
-import '../../../stores/models/shoppable_store.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
 import '../../enums/transaction_enums.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OrderTransactionsContent extends StatefulWidget {
   
   final Order order;
+  final User? paidByUser;
   final bool showingFullPage;
   final Transaction? transaction;
+  final String? transactionFilter;
+  final Function(Transaction, String)? onSubmittedFile;
   final TransactionContentView? transactionContentView;
 
   const OrderTransactionsContent({
     super.key,
+    this.paidByUser,
     this.transaction,
     required this.order,
+    this.onSubmittedFile,
+    this.transactionFilter,
     this.transactionContentView,
-    this.showingFullPage = false,
+    this.showingFullPage = false
   });
 
   @override
@@ -40,47 +43,96 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
   bool isSubmitting = false;
   String transactionFilter = 'All';
   bool disableFloatingActionButton = false;
-  late TransactionContentView transactionContentView;
+  TransactionContentView transactionContentView = TransactionContentView.viewingTransactions;
 
   /// This allows us to access the state of UpdateStoreForm widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<OrderTransactionFiltersState> orderTransactionFiltersState = GlobalKey<OrderTransactionFiltersState>();
+  final GlobalKey<OrderTransactionFiltersState> orderPayingUserTransactionFiltersState = GlobalKey<OrderTransactionFiltersState>();
 
   Order get order => widget.order;
-  bool get isPaid => order.attributes.isPaid;
+  User? get paidByUser => widget.paidByUser;
   double get topPadding => showingFullPage ? 32 : 0;
   bool get showingFullPage => widget.showingFullPage;
-  ShoppableStore get store => order.relationships.store!;
-  bool get hasTransactions => order.transactionsCount != 0;
-  String get totalTransactions => order.transactionsCount!.toString();
-  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
+  Function(Transaction, String)? get onSubmittedFile => widget.onSubmittedFile;
   bool get isViewingRequestPayment => transactionContentView == TransactionContentView.requestPayment;
   bool get isViewingTransaction => transactionContentView == TransactionContentView.viewingTransaction;
   bool get isViewingTransactions => transactionContentView == TransactionContentView.viewingTransactions;
-  String get subtitle {
-    if(isViewingRequestPayment) {
-      return 'Pay using PerfectPay';
-    }else if(isViewingTransactions) {
-      return 'Showing ${transactionFilter.toLowerCase()} coupons';
+
+  String get title {
+
+    if(isViewingTransactions) {
+
+      return 'Transactions';
+    
+    }else if(isViewingTransaction) {
+      
+      return 'Transaction #${transaction!.id}';
+    
+    }else if(isViewingRequestPayment) {
+      
+      return 'Add Payment';
+    
     }else{
-      return 'Transaction #${transaction!.attributes.number}';
+
+      return '';
+
     }
+
+  }
+  
+  String get subtitle {
+
+    if(isViewingTransactions) {
+      
+      if(paidByUser == null) {
+        
+        return 'Order #${order.attributes.number}';
+
+      }else{
+        
+        return 'By ${paidByUser!.attributes.name}';
+
+      }
+    
+    }else if(isViewingTransaction) {
+      
+      if(paidByUser == null) {
+        
+        return 'Order #${order.attributes.number}';
+
+      }else{
+        
+        return 'By ${paidByUser!.attributes.name}';
+
+      }
+    
+    }else if(isViewingRequestPayment) {
+      
+      if(paidByUser == null) {
+        
+        return 'Request for payment';
+
+      }else{
+        
+        return 'Request ${paidByUser!.firstName} to pay';
+
+      }
+    
+    }else{
+
+      return '';
+
+    }
+    
   }
 
   @override
   void initState() {
     super.initState();
     transaction = widget.transaction;
-
     if(widget.transactionContentView != null) {
-
       transactionContentView = widget.transactionContentView!;
-
-    }else{
-     
-      transactionContentView = hasTransactions ? TransactionContentView.viewingTransactions : TransactionContentView.requestPayment; 
-    
     }
   }
 
@@ -89,14 +141,16 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
       
     return OrderTransactionsInVerticalListViewInfiniteScroll(
       order: order,
+      paidByUser: paidByUser,
+      onSubmittedFile: onSubmittedFile,
       transactionFilter: transactionFilter,
       onSelectedTransaction: onSelectedTransaction,
-      orderTransactionFiltersState: orderTransactionFiltersState
+      orderPayingUserTransactionFiltersState: orderPayingUserTransactionFiltersState
     );
     
   }
 
-  void onSelectedTransaction(Transaction transaction){
+  void onSelectedTransaction(Transaction transaction) {
     this.transaction = transaction;
     changeTransactionContentView(TransactionContentView.viewingTransaction);
   }
@@ -122,7 +176,7 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
 
         ],
 
-        if( isViewingTransactions && !isPaid ) ...[
+        if( isViewingTransactions ) ...[
 
           const SizedBox(width: 8),
 
@@ -200,43 +254,27 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          //  Store Logo
-                          StoreLogo(store: store, radius: 24),
-
-                          /// Spacer
-                          const SizedBox(width: 8,),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                
-                              /// Title
-                              CustomTitleMediumText(store.name, overflow: TextOverflow.ellipsis, margin: const EdgeInsets.only(top: 4, bottom: 4),),
-                              
-                              /// Subtitle
-                              const Align(
-                                alignment: Alignment.centerLeft,
-                                child: CustomBodyText('Pay using PerfectPay'),
-                              )
-
-                            ],
-                          )
-
-                        ],
+                    
+                      /// Title
+                      CustomTitleMediumText(title, padding: const EdgeInsets.only(bottom: 8),),
+                      
+                      /// Subtitle
+                      AnimatedSwitcher(
+                        switchInCurve: Curves.easeIn,
+                        switchOutCurve: Curves.easeOut,
+                        duration: const Duration(milliseconds: 500),
+                        child: Align(
+                          key: ValueKey(subtitle),
+                          alignment: Alignment.centerLeft,
+                          child: CustomBodyText(subtitle),
+                        )
                       ),
-
-                      /// Spacer
-                      const SizedBox(height: 4,),
                   
                       //  Filter
                       if(isViewingTransactions) OrderTransactionFilters(
                         order: order,
-                        key: orderTransactionFiltersState,
+                        paidByUser: paidByUser,
+                        key: orderPayingUserTransactionFiltersState,
                         transactionFilter: transactionFilter,
                         onSelectedTransactionFilter: onSelectedTransactionFilter,
                       ),
@@ -270,9 +308,6 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
                 
                 /// Close the Modal Bottom Sheet
                 Get.back();
-
-                /// Set the store
-                storeProvider.setStore(store);
                 
                 /// Navigate to the page
                 Get.toNamed(OrderTransactionsPage.routeName);
@@ -295,7 +330,7 @@ class _OrderTransactionsContentState extends State<OrderTransactionsContent> {
           AnimatedPositioned(
             right: 10,
             duration: const Duration(milliseconds: 500),
-            top: (isViewingTransactions ? 120 : 56) + topPadding,
+            top: (isViewingTransactions ? 112 : 56) + topPadding,
             child: floatingActionButton,
           )
         ],

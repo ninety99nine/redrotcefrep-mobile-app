@@ -28,6 +28,8 @@ class _OccasionDetailsState extends State<OccasionDetails> {
 
   void _requestOccasions() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     occasionProvider.occasionRepository.showOccasions().then((response) {

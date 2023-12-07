@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 
 class StoreCard extends StatefulWidget {
 
+  final double? width;
   final ShoppableStore store;
   
   const StoreCard({
     Key? key, 
+    this.width,
     required this.store,
   }) : super(key: key);
 
@@ -22,6 +24,7 @@ class StoreCard extends StatefulWidget {
 class _StoreCardState extends State<StoreCard> {
   
   ShoppableStore? store;
+  double? get width => widget.width;
 
   @override
   void initState() {
@@ -49,15 +52,18 @@ class _StoreCardState extends State<StoreCard> {
      */
     return ListenableProvider.value(
       value: store,
-      child: const Content(),
+      child: Content(width: width),
     );
   }
 }
 
 class Content extends StatelessWidget {
 
+  final double? width;
+
   const Content({
     super.key,
+    this.width,
   });
 
   @override
@@ -89,6 +95,7 @@ class Content extends StatelessWidget {
     print('Build Store Card #${store.id}');
 
     return CustomCard(
+      width: width,
       key: ValueKey<int>(store.id),
       padding: const EdgeInsets.all(16),
       child: Column(

@@ -314,7 +314,7 @@ class _ImagePickerContentState extends State<ImagePickerContent> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    CustomTitleMediumText(title, overflow: TextOverflow.ellipsis, margin: const EdgeInsets.only(top: 4, bottom: 4),),
+                    CustomTitleMediumText(title, overflow: TextOverflow.ellipsis, margin: const EdgeInsets.only(top: 4),),
                     
                     /// Subtitle
                     Align(

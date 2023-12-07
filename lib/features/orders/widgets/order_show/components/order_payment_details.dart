@@ -1,7 +1,6 @@
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_in_horizontal_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_dialog/order_transactions_dialog.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/transactions/widgets/order_paying_users/order_paying_users.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/core/shared_widgets/progress_bar/progress_bar.dart';
 import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
@@ -11,11 +10,9 @@ import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'order_payment/order_mark_as_paid/order_mark_as_paid_button.dart';
-import 'package:bonako_demo/core/shared_widgets/cards/custom_card.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 
 class OrderPaymentDetails extends StatefulWidget {
   
@@ -65,6 +62,8 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
 
   void _requestOrderTransactionsCount() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     orderProvider.setOrder(order).orderRepository.showOrderTransactionsCount().then((response) {
@@ -99,12 +98,9 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
           /// Spacer
           const SizedBox(height: 16.0,),
 
-          /// Order Transaction Avatars
-          OrderTransactionsInHorizontalListViewInfiniteScroll(
-            order: order,
-            store: store,
-          ),
-            
+          /// Order Paying Users
+          OrderPayingUsers(order: order, store: store),
+
           /// Spacer
           const SizedBox(height: 16.0,),
 
@@ -136,54 +132,34 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
   }
 
   Widget get paymentProgress {
-    return CustomCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-    
-              /// Title
-              const CustomTitleLargeText('Payments'),
-    
-              /// Total Payment Requests
-              if(order.transactionsCount != 0) totalRequests
-    
-            ],
-          ),
-
-          /// Spacer
-          const SizedBox(height: 8),
-
-          /// Order Amount Paid
-          amountPaid,
-
-          /// Spacer
-          const SizedBox(height: 8),
-
-          /// Progress Bar
-          CustomProgressBar(percentage: order.amountPaidPercentage.value)
-
-        ],
-      )
-    );
-  }
-
-  Widget get totalRequests {
-
-    final String totalRequestsAsText = '${order.transactionsCount} ${order.transactionsCount == 1 ? 'Request' : 'Requests'}';
-
-    return OrderTransactionsDialog(
+    return OrderTransactionsModalBottomSheet(
       order: order,
-      transactionContentView: TransactionContentView.viewingTransactions,
-      trigger: (openBottomModalSheet) => CustomTextButton(
-        totalRequestsAsText, 
-        onPressed: openBottomModalSheet
+      trigger: (openBottomModalSheet) => GestureDetector(
+        onTap: openBottomModalSheet,
+        child: Container(
+          /// We need to set "color: Colors.transparent" because whenever we click on empty spaces
+          /// of this container, the GestureDetector() is not triggered. Setting a color even if
+          /// the color is transparent allows the empty spaces to be triggarable.
+          color: Colors.transparent,
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          
+              /// Order Amount Paid
+              amountPaid,
+          
+              /// Spacer
+              const SizedBox(height: 8),
+          
+              /// Progress Bar
+              CustomProgressBar(percentage: order.amountPaidPercentage.value)
+          
+            ],
+          )
+        ),
       ),
     );
-
   }
 
   Widget get amountPaid {
@@ -192,10 +168,10 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
       children: [
 
         /// Title
-        const CustomBodyText('Amount paid'),
+        const CustomBodyText('Amount paid', fontWeight: FontWeight.bold,),
 
         /// Order Amount Paid
-        CustomBodyText('${order.amountPaid.amountWithCurrency} (${order.amountPaidPercentage.valueSymbol})'),
+        CustomBodyText('(${order.amountPaidPercentage.valueSymbol})'),
 
       ],
     );

@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'user_friend_group_association.dart';
 import 'user_order_view_association.dart';
 import 'user_store_association.dart';
@@ -7,27 +8,37 @@ import 'link.dart';
 class User {
   late int id;
   late Links links;
+  late String? aboutMe;
   late String lastName;
   late String firstName;
   late bool? isSuperAdmin;
   late DateTime? createdAt;
   late DateTime? updatedAt;
+  late String? profilePhoto;
   late Attributes attributes;
   late MobileNumber? mobileNumber;
+  late Relationships relationships;
+  late int? transactionsAsPayerCount;
   late DateTime? mobileNumberVerifiedAt;
   late bool? acceptedTermsAndConditions;
+  late int? paidTransactionsAsPayerCount;
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    aboutMe = json['aboutMe'];
     lastName = json['lastName'];
     firstName = json['firstName'];
+    profilePhoto = json['profilePhoto'];
     isSuperAdmin = json['isSuperAdmin'];
     links = Links.fromJson(json['links']);
     attributes = Attributes.fromJson(json['attributes']);
+    transactionsAsPayerCount = json['transactionsAsPayerCount'];
     acceptedTermsAndConditions = json['acceptedTermsAndConditions'];
+    paidTransactionsAsPayerCount = json['paidTransactionsAsPayerCount'];
     createdAt = json['createdAt'] == null ? null : DateTime.parse(json['createdAt']);
     updatedAt = json['updatedAt'] == null ? null : DateTime.parse(json['updatedAt']);
     mobileNumber = json['mobileNumber'] == null ? null : MobileNumber.fromJson(json['mobileNumber']);
+    relationships = Relationships.fromJson(json['relationships'].runtimeType == List ? {} : json['relationships']);
     mobileNumberVerifiedAt = json['mobileNumberVerifiedAt'] == null ? null : DateTime.parse(json['mobileNumberVerifiedAt']);
   }
 }
@@ -47,6 +58,13 @@ class Attributes {
     userStoreAssociation = json['userStoreAssociation'] == null ? null : UserStoreAssociation.fromJson(json['userStoreAssociation']);
     userOrderViewAssociation = json['userOrderViewAssociation'] == null ? null : UserOrderViewAssociation.fromJson(json['userOrderViewAssociation']);
     userFriendGroupAssociation = json['userFriendGroupAssociation'] == null ? null : UserFriendGroupAssociation.fromJson(json['userFriendGroupAssociation']);
+  }
+}
+
+class Relationships {
+  late Transaction? latestTransactionAsPayer;
+  Relationships.fromJson(Map<String, dynamic> json) {
+    latestTransactionAsPayer = json['latestTransactionAsPayer'] == null ? null : Transaction.fromJson(json['latestTransactionAsPayer']);
   }
 }
 
@@ -79,6 +97,9 @@ class Links {
   late Link updateLastSelectedFriendGroups; 
   late Link showOrderFilters; 
   late Link showOrders; 
+  late Link showReviewFilters; 
+  late Link showReviews; 
+  late Link showFirstCreatedStore; 
   late Link showStoreFilters; 
   late Link createStores; 
   late Link showStores; 
@@ -89,9 +110,16 @@ class Links {
   late Link markNotificationsAsRead; 
   late Link? showStoreTeamMember; 
   late Link? showStoreTeamMemberPermissions; 
-  late Link? updateStoreTeamMemberPermissions; 
+  late Link? updateStoreTeamMemberPermissions;
   late Link? showStoreCustomer; 
   late Link showResourceTotals;
+  late Link updateProfilePhoto;
+  late Link deleteProfilePhoto;
+  late Link showSmsAlert; 
+  late Link showSmsAlertTransactions;
+  late Link createSmsAlertTransaction;
+  late Link calculateSmsAlertTransactionAmount;
+  late Link generateSmsAlertPaymentShortcode;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
@@ -122,6 +150,9 @@ class Links {
     updateLastSelectedFriendGroups = Link.fromJson(json['updateLastSelectedFriendGroups']);
     showOrderFilters = Link.fromJson(json['showOrderFilters']);
     showOrders = Link.fromJson(json['showOrders']);
+    showReviewFilters = Link.fromJson(json['showReviewFilters']);
+    showReviews = Link.fromJson(json['showReviews']);
+    showFirstCreatedStore = Link.fromJson(json['showFirstCreatedStore']);
     showStoreFilters = Link.fromJson(json['showStoreFilters']);
     createStores = Link.fromJson(json['createStores']);
     showStores = Link.fromJson(json['showStores']);
@@ -135,5 +166,12 @@ class Links {
     updateStoreTeamMemberPermissions = json['updateStoreTeamMemberPermissions'] == null ? null : Link.fromJson(json['updateStoreTeamMemberPermissions']);
     showStoreCustomer = json['showStoreCustomer'] == null ? null : Link.fromJson(json['showStoreCustomer']);
     showResourceTotals = Link.fromJson(json['showResourceTotals']);
+    updateProfilePhoto = Link.fromJson(json['updateProfilePhoto']);
+    deleteProfilePhoto = Link.fromJson(json['deleteProfilePhoto']);
+    showSmsAlert = Link.fromJson(json['showSmsAlert']);
+    showSmsAlertTransactions = Link.fromJson(json['showSmsAlertTransactions']);
+    createSmsAlertTransaction = Link.fromJson(json['createSmsAlertTransaction']);
+    calculateSmsAlertTransactionAmount = Link.fromJson(json['calculateSmsAlertTransactionAmount']);
+    generateSmsAlertPaymentShortcode = Link.fromJson(json['generateSmsAlertPaymentShortcode']);
   }
 }

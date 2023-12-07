@@ -1,26 +1,31 @@
-import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_content.dart';
-import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
+import '../../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:provider/provider.dart';
+import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:flutter/material.dart';
 
 class OrderTransactionsModalBottomSheet extends StatefulWidget {
   
   final Order order;
+  final User? paidByUser;
   final Transaction? transaction;
-  final Widget Function(void Function())? trigger;
+  final String? transactionFilter;
+  final Widget Function(Function())? trigger;
+  final Function(Transaction, String)? onSubmittedFile;
   final TransactionContentView? transactionContentView;
 
   const OrderTransactionsModalBottomSheet({
     super.key,
     this.trigger,
+    this.paidByUser,
     this.transaction,
     required this.order,
-    this.transactionContentView
+    this.onSubmittedFile,
+    this.transactionFilter,
+    this.transactionContentView,
   });
 
   @override
@@ -30,10 +35,12 @@ class OrderTransactionsModalBottomSheet extends StatefulWidget {
 class _OrderTransactionsModalBottomSheetState extends State<OrderTransactionsModalBottomSheet> {
 
   Order get order => widget.order;
+  User? get paidByUser => widget.paidByUser;
   Transaction? get transaction => widget.transaction;
-  Widget Function(void Function())? get trigger => widget.trigger;
+  String? get transactionFilter => widget.transactionFilter;
+  Widget Function(Function())? get trigger => widget.trigger;
+  Function(Transaction, String)? get onSubmittedFile => widget.onSubmittedFile;
   TransactionContentView? get transactionContentView => widget.transactionContentView;
-  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -42,24 +49,12 @@ class _OrderTransactionsModalBottomSheetState extends State<OrderTransactionsMod
 
   Widget get _trigger {
 
-    if(trigger != null) {
+    final Widget defaultTrigger = CustomElevatedButton(
+      'Transactions', 
+      onPressed: openBottomModalSheet,
+    );
 
-      /// Return the custom trigger
-      return trigger!(openBottomModalSheet);
-
-    }else{
-
-      /// Return the total transactions and total transactions text
-      return CustomElevatedButton(
-        'Pay Now',
-        width: 120,
-        prefixIcon: Icons.payment,
-        alignment: Alignment.center,
-        onPressed: openBottomModalSheet,
-      );
-
-    }
-
+    return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
   }
 
   /// Open the bottom modal sheet to show the new order placed
@@ -68,7 +63,7 @@ class _OrderTransactionsModalBottomSheetState extends State<OrderTransactionsMod
       _customBottomModalSheetState.currentState!.showBottomSheet(context);
     } 
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return CustomBottomModalSheet(
@@ -78,7 +73,10 @@ class _OrderTransactionsModalBottomSheetState extends State<OrderTransactionsMod
       /// Content of the bottom modal sheet
       content: OrderTransactionsContent(
         order: order,
+        paidByUser: paidByUser,
         transaction: transaction,
+        onSubmittedFile: onSubmittedFile,
+        transactionFilter: transactionFilter,
         transactionContentView: transactionContentView
       ),
     );

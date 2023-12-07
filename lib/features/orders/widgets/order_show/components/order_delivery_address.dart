@@ -43,6 +43,8 @@ class _OrderDeliveryAddressState extends State<OrderDeliveryAddress> {
 
   void _requestOrderDeliveryAddress() async {
 
+    if(isLoading) return;
+
     _startLoader();
 
     orderProvider.setOrder(widget.order).orderRepository.showOrderDeliveryAddress().then((response) {

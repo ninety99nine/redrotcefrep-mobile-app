@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/shopping_cart/widgets/delivery_or_pickup/delivery_or_pickup.dart';
@@ -289,6 +290,8 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
 
         }
 
+        throw e;
+
       });
 
     });
@@ -297,7 +300,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
   
   Future<void> _requestConvertShoppingCart() async {
 
-    print('_requestConvertShoppingCart ####################');
+    if(isSubmitting) return;
 
     _startSubmittionLoader();
     
@@ -464,6 +467,7 @@ class _ShoppingCartState extends State<ShoppingCartContent> {
           store: store,
           key: _ordersModalBottomSheetState,
           trigger: (openBottomModalSheet) => Container(),
+          userOrderAssociation: UserOrderAssociation.customer,
         )
 
       ],

@@ -543,13 +543,11 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
                 enabled: !isSubmitting && !isDeleting,
                 labelText: 'Description',
                 borderRadiusAmount: 16,
+                isRequired: false,
                 maxLength: 120,
                 minLines: 1,
                 onChanged: (value) {
                   setState(() => couponForm['description'] = value); 
-                },
-                validator: (value, originalValidator) {
-                  return null;
                 }
               ),
 
@@ -1400,7 +1398,6 @@ class CreateOrUpdateCouponFormState extends State<CreateOrUpdateCouponForm> {
                       isLoading: isDeleting,
                       alignment: Alignment.center,
                       onPressed: _requestDeleteCoupon,
-                      disabled: isDeleting || isSubmitting,
                     ),
 
                   ],

@@ -223,6 +223,8 @@ class _StoreItemState extends State<StoreItem> {
   }
 
   void _requestRemoveFromAssignedStores() {
+
+    if(isDeleting) return;
     
     onDeleting(true);
 
