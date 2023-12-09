@@ -15,6 +15,7 @@ class Store {
   late bool online;
   late String name;
   late String? logo;
+  late String? emoji;
   late bool verified;
   late String? rating;
   late int? ordersCount;
@@ -61,6 +62,7 @@ class Store {
     id = json['id'];
     logo = json['logo'];
     name = json['name'];
+    emoji = json['emoji'];
     online = json['online'];
     rating = json['rating'];
     verified = json['verified'];

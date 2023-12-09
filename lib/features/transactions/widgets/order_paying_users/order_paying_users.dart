@@ -16,12 +16,14 @@ class OrderPayingUsers extends StatefulWidget {
   final Order order;
   final ShoppableStore store;
   final String? payedByUserFilter;
+  final Function(Transaction)? onDeletedTransaction;
 
   const OrderPayingUsers({
     Key? key,
     required this.order,
     required this.store,
     this.payedByUserFilter,
+    this.onDeletedTransaction
   }) : super(key: key);
 
   @override
@@ -37,6 +39,7 @@ class OrderPayingUsersState extends State<OrderPayingUsers> {
   Order get order => widget.order;
   ShoppableStore get store => widget.store;
   String? get payedByUserFilter => widget.payedByUserFilter;
+  Function(Transaction)? get onDeletedTransaction => widget.onDeletedTransaction;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
 
   @override
@@ -80,7 +83,7 @@ class OrderPayingUsersState extends State<OrderPayingUsers> {
 
         ...payedByUsers.map((payedByUser) {
 
-          return PayingUserCard(store: store, order: order, payedByUser: payedByUser);
+          return PayingUserCard(store: store, order: order, payedByUser: payedByUser, onDeletedTransaction: onDeletedTransaction);
 
         })
 
@@ -94,11 +97,13 @@ class PayingUserCard extends StatefulWidget {
   final Order order;
   final User payedByUser;
   final ShoppableStore store;
+  final Function(Transaction)? onDeletedTransaction;
 
   const PayingUserCard({
     super.key,
     required this.store,
     required this.order,
+    this.onDeletedTransaction,
     required this.payedByUser,
   });
 
@@ -113,6 +118,7 @@ class _PayingUserCardState extends State<PayingUserCard> {
   Order get order => widget.order;
   ShoppableStore get store => widget.store;
   User get payedByUser => widget.payedByUser;
+  Function(Transaction)? get onDeletedTransaction => widget.onDeletedTransaction;
 
   @override
   void initState() {
@@ -162,6 +168,7 @@ class _PayingUserCardState extends State<PayingUserCard> {
               context: context,
               transaction: latestTransactionAsPayer,
               onUpdatedTransaction: onUpdatedTransaction,
+              onDeletedTransaction: onDeletedTransaction,
               onSubmittedFile: (photoUrl) => onSubmittedFile(latestTransactionAsPayer, photoUrl)
             );
     

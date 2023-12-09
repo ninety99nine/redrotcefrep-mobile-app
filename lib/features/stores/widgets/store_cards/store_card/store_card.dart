@@ -103,7 +103,7 @@ class Content extends StatelessWidget {
         children: [
     
           //  Store Logo, Profile, Adverts, Rating, e.t.c
-          StorePrimarySectionContent(store: store),
+          StorePrimarySectionContent(store: store, logoRadius: 20),
           
           /**
            *  Show the spacer if:

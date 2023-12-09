@@ -261,7 +261,7 @@ class UserRepository {
   }
 
   /// Show first created store
-  Future<dio.Response> showFirstCreatedStore({ String? url, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, bool withCountCollectedOrders = false, withCountCoupons = false, bool withRating = false }) {
+  Future<dio.Response> showFirstCreatedStore({ bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, bool withCountCollectedOrders = false, withCountCoupons = false, bool withRating = false }) {
 
     if(user == null) throw Exception('The user must be set to show their first created store');
 
@@ -295,6 +295,19 @@ class UserRepository {
     };
 
     return apiRepository.post(url: url, body: body);
+    
+  }
+
+  /// Show first created group
+  Future<dio.Response> showFirstCreatedFriendGroup() {
+
+    if(user == null) throw Exception('The user must be set to show their first created friend group');
+
+    String url = user!.links.showFirstCreatedFriendGroup.href;
+
+    Map<String, String> queryParams = {};
+
+    return apiRepository.get(url: url, queryParams: queryParams);
     
   }
 

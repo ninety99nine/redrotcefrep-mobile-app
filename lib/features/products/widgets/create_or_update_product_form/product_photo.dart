@@ -1,31 +1,54 @@
 import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:bonako_demo/core/shared_widgets/full_screen_image/main.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/services/store_services.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
+enum PhotoShape {
+  circle,
+  rectangle
+}
+
+enum ChangePhotoType {
+  none,
+  editIconOverImage,
+  editIconONextToImage
+}
+
 class ProductPhoto extends StatefulWidget {
 
+  final double? height;
   final double? radius;
   final Product? product;
-  final bool canChangePhoto;
   final ShoppableStore store;
+  final PhotoShape photoShape;
+  final Function()? onDeletedFile;
   final Function(XFile)? onPickedFile;
+  final ChangePhotoType changePhotoType;
+  final Function(String)? onSubmittedFile;
 
   const ProductPhoto({
     Key? key,
+    this.height,
     this.radius,
+    this.product,
     this.onPickedFile,
+    this.onDeletedFile,
     required this.store,
-    required this.product,
-    this.canChangePhoto = false,
+    this.onSubmittedFile,
+    this.changePhotoType = ChangePhotoType.none,
+    this.photoShape = PhotoShape.circle
+
   }) : super(key: key);
 
   @override
@@ -36,16 +59,25 @@ class _ProductPhotoState extends State<ProductPhoto> {
 
   XFile? file;
   XFile? fileUrl;
+  late double height;
+  late double radius;
+
+  Product? product;
   bool get hasFile => file != null;
   String? get filePath => file?.path;
-  double? get radius => widget.radius;
   bool get hasProduct => product != null;
-  Product? get product => widget.product;
   ShoppableStore get store => widget.store;
   bool get doesNotHaveFile => file == null;
-  bool get canChangePhoto => widget.canChangePhoto;
+  PhotoShape get photoShape => widget.photoShape;
   bool get doesNotHavePhoto => product?.photo == null;
+  Function()? get onDeletedFile => widget.onDeletedFile;
   bool get hasPhoto => hasProduct && product!.photo != null;
+  bool get isCircleShape => photoShape == PhotoShape.circle;
+  ChangePhotoType get changePhotoType => widget.changePhotoType;
+  Function(String)? get onSubmittedFile => widget.onSubmittedFile;
+  bool get isRectangleShape => photoShape == PhotoShape.rectangle;
+  bool get photoIsAnAssetFile => hasProduct && product!.photo?.startsWith('http') == false;
+  bool get photoIsANetworkFile => hasProduct && product!.photo?.startsWith('http') == true;
 
   Function(XFile)? get onPickedFile => widget.onPickedFile;
   bool get isShowingStorePage => storeProvider.isShowingStorePage;
@@ -55,24 +87,212 @@ class _ProductPhotoState extends State<ProductPhoto> {
   HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   bool get isTeamMemberWhoHasJoined => StoreServices.isTeamMemberWhoHasJoined(store);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: true);
-  bool get showEditableMode => (isShowingStorePage || hasSelectedMyStores) && isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
+  bool get showEditableMode => isTeamMemberWhoHasJoined && !teamMemberWantsToViewAsCustomer;
+
+  @override
+  void initState() {
+    super.initState();
+    product = widget.product;
+    
+    if(widget.radius == null) {
+      if(isCircleShape) {
+        radius = 40;
+      }else if(isRectangleShape) {
+        radius = 16;
+      }
+    } else{
+      radius = widget.radius!;
+    }
+    
+    if(widget.height == null) {
+      if(isRectangleShape) {
+        height = 200;
+      }
+    } else{
+      height = widget.height!;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ProductPhoto oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() => product = widget.product);
+  }
 
   Widget get placeholderPhoto {
 
     return CircleAvatar(
       radius: radius,
       backgroundColor: Colors.grey.shade100,
-      child: Icon(Icons.image, size: 16, color: Colors.grey.shade400,)
+      child: Icon(Icons.image, size: 24, color: Colors.grey.shade400,)
     );
 
   }
 
+  Widget trigger(openBottomModalSheet) {
+
+    /// If we don't have a file or photo
+    if(doesNotHaveFile && doesNotHavePhoto) {
+
+      Widget child;
+      BorderType borderType;
+
+      final Widget icon = Icon(
+        Icons.add_photo_alternate_outlined,
+        color: Colors.grey.shade400,
+        size: 16
+      );
+      
+      if(photoShape == PhotoShape.circle) {
+
+        borderType = BorderType.Circle;
+
+        /// Circle Shape
+        child = CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.transparent,
+          child: icon
+        );
+
+      }else{
+
+        borderType = BorderType.RRect;
+
+        /// Rectangle Shape
+        child = Container(
+          height: height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            color: Colors.transparent,
+          ),
+          child: icon
+        );
+
+      }
+
+      return DottedBorder(
+        radius: Radius.circular(radius),
+        strokeCap: StrokeCap.butt,
+        padding: EdgeInsets.zero,
+        borderType: borderType,
+        dashPattern: const [6, 3],
+        color: Colors.grey,
+        strokeWidth: 1,
+        child: Material(
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          color:Colors.grey.shade100,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(radius),
+            onTap: () => openBottomModalSheet(),
+            child: Ink(
+              child: child
+            ),
+          ),
+        ),
+      );
+
+    }else{
+      
+      Widget child;
+
+      /// Expandable Image
+      final Widget expandableImage = Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300,),
+          borderRadius: BorderRadius.circular(radius)
+        ),
+        child: FullScreenWidget(
+          backgroundColor: Colors.transparent,
+          fullScreenChild: fullScreenImage,
+          backgroundIsTransparent: true,
+          child: normalImage
+        ),
+      );
+
+      if(changePhotoType == ChangePhotoType.editIconOverImage)  {
+        
+        child = Stack(
+          children: [
+            
+            /// Expandable Image
+            expandableImage,
+
+            /// Edit Icon Over Image
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(radius)
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.mode_edit_outlined, 
+                  color: Colors.white
+                )    
+              ),
+            )
+            
+          ],
+        );
+
+      }else if(changePhotoType == ChangePhotoType.editIconONextToImage)  {
+
+        child = Row(
+          children: [
+            
+            /// Expandable Image
+            if(isCircleShape) expandableImage,
+            
+            /// Expandable Image
+            if(isRectangleShape) Expanded(child: expandableImage),
+        
+            /// Edit Icon Next To Image
+            IconButton(
+              icon: const Icon(
+                Icons.edit_sharp, 
+                color: Colors.grey
+              ), onPressed: openBottomModalSheet
+            )
+        
+          ],
+        );
+
+      }else{
+
+        /// Expandable Image
+        child = expandableImage;
+
+      }
+
+      return GestureDetector(
+        onTap: () {
+          /// If we can change the photo
+          if(changePhotoType == ChangePhotoType.editIconOverImage || changePhotoType == ChangePhotoType.editIconONextToImage) {
+            openBottomModalSheet();
+          }
+        },
+        child: child
+      );
+
+    }
+
+  }
+
   ImageProvider<Object>? get backgroundImage {
+
     if(hasFile) {
 
       return FileImage(File(filePath!));
 
-    }else if(hasPhoto) {
+    }else if(hasPhoto && photoIsAnAssetFile) {
+
+      return FileImage(File(product!.photo!));
+
+    }else if(hasPhoto && photoIsANetworkFile) {
 
       return CachedNetworkImageProvider(
         product!.photo!,
@@ -83,12 +303,72 @@ class _ProductPhotoState extends State<ProductPhoto> {
     return null;
   }
 
+  Widget get normalImage {
+    
+    if(photoShape == PhotoShape.circle) {
+      
+      /// Circle Shape
+      return CircleAvatar(
+        radius: radius,
+        backgroundImage: backgroundImage,
+        backgroundColor: Colors.grey.shade100,
+      );
+
+    }else{
+
+      /// Rectangle Shape
+      return Container(
+        height: height,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(radius),
+          color: Colors.transparent,
+          image: DecorationImage(
+            alignment: Alignment.topCenter,
+            image: backgroundImage!,
+            fit: BoxFit.cover,
+          ),
+        )
+      );
+
+    }
+  }
+
+  Widget? get fullScreenImage {
+
+    if(hasFile) {
+
+      return Image.asset(filePath!);
+
+    }else if(hasPhoto && photoIsAnAssetFile) {
+
+      return Image.asset(product!.photo!);
+
+    }else if(hasPhoto && photoIsANetworkFile) {
+
+      return CachedNetworkImage(
+        placeholder: (context, url) => const CustomCircularProgressIndicator(),
+        imageUrl: product!.photo!,
+        height: double.infinity,
+        width: double.infinity,
+        fit: BoxFit.contain,
+      );
+
+    }else{
+
+      return null;
+
+    }
+    
+  }
+
   Widget get editablePhoto {
     return ImagePickerModalBottomSheet(
       radius: radius,
-      fileName: 'photo',
-      title: 'Product Photo',
-      subtitle: 'Your customers love quality photos 👌',
+      trigger: trigger,
+      fileName: 'proof_of_payment_photo',
+      subtitle: 'Everyone loves quality photos 👌',
+      title: hasPhoto ? 'Proof Of Payment' : 'Attach Proof Of Payment',
       onSubmittedFile: (file, response) {
         
         /// Set the updated photo from the file system
@@ -97,7 +377,7 @@ class _ProductPhotoState extends State<ProductPhoto> {
         /// e.g the following takes time to show up
         /// since the photo must be downloaded:
         /// 
-        /// user!.photo = response.data['photo']
+        /// user!.photo = response.data['proof_of_payment_photo']
         setState(() {
 
           /// Set the file
@@ -105,6 +385,8 @@ class _ProductPhotoState extends State<ProductPhoto> {
 
             /// Set the photo
           product!.photo = file.path;
+
+          if(onSubmittedFile != null) onSubmittedFile!(file.path);
           
         });
 
@@ -120,6 +402,8 @@ class _ProductPhotoState extends State<ProductPhoto> {
             /// Unset the photo
             product!.photo = null;
 
+            if(onDeletedFile != null) onDeletedFile!();
+
           });
 
         }
@@ -133,46 +417,6 @@ class _ProductPhotoState extends State<ProductPhoto> {
       submitMethod: SubmitMethod.post,
       submitUrl: product?.links.updatePhoto.href,
       deleteUrl: product?.links.deletePhoto.href,
-      trigger: doesNotHaveFile && doesNotHavePhoto ? null : (openBottomModalSheet) => GestureDetector(
-        onTap: () {
-           
-          /// If we can change the photo
-          if(canChangePhoto) {
-
-            openBottomModalSheet();
-
-          }
-
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300,),
-            borderRadius: BorderRadius.circular(radius ?? 20)
-          ),
-          child: Stack(
-            children: [
-              
-              CircleAvatar(
-                radius: widget.radius,
-                backgroundImage: backgroundImage,
-                backgroundColor: Colors.grey.shade100,
-              ),
-
-              if(canChangePhoto) Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(radius ?? 20)
-                  ),
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.mode_edit_outlined, color: Colors.white)    
-                ),
-              )
-              
-            ],
-          ),
-        ),
-      ),
     );
   }
 

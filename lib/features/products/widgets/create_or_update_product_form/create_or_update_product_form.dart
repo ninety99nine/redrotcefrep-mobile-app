@@ -452,10 +452,10 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
               const SizedBox(height: 8),
                   
               ProductPhoto(
-                radius: 60,
                 store: store,
                 product: product,
-                canChangePhoto: true,
+                photoShape: PhotoShape.rectangle,
+                changePhotoType: isEditing ? ChangePhotoType.editIconONextToImage : ChangePhotoType.editIconOverImage,
                 onPickedFile: (file) {
                   photo = file;
                 }

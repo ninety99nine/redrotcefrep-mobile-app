@@ -95,6 +95,7 @@ class Links {
   late Link showFriendGroupFilters; 
   late Link showLastSelectedFriendGroup; 
   late Link updateLastSelectedFriendGroups; 
+  late Link showFirstCreatedFriendGroup; 
   late Link showOrderFilters; 
   late Link showOrders; 
   late Link showReviewFilters; 
@@ -130,6 +131,7 @@ class Links {
     showTokens = Link.fromJson(json['showTokens']);
     showTermsAndConditions = Link.fromJson(json['showTermsAndConditions']);
     acceptTermsAndConditions = Link.fromJson(json['acceptTermsAndConditions']);
+    showFirstCreatedFriendGroup = Link.fromJson(json['showFirstCreatedFriendGroup']);
     showAddresses = Link.fromJson(json['showAddresses']);
     createAddresses = Link.fromJson(json['createAddresses']);
     showAiMessages = Link.fromJson(json['showAiMessages']);

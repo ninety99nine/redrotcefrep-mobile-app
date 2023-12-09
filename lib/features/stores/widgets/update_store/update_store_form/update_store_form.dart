@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/shared_widgets/emoji_picker/custom_emoji_picker_dialog.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_cover_photo.dart';
 import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import 'package:bonako_demo/core/shared_widgets/multi_select_form_field/custom_multi_select_form_field.dart';
@@ -19,6 +20,8 @@ import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:bonako_demo/core/utils/mobile_number.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/features/stores/widgets/store_emoji_picker/store_emoji_picker.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +61,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
   late TextfieldTagsController _deliveryDestinationsController = TextfieldTagsController();
   
   ShoppableStore get store => widget.store;
+  bool get hasEmoji => storeForm['emoji'] != null;
   Function(bool) get onSubmitting => widget.onSubmitting;
   StoreRepository get storeRepository => storeProvider.storeRepository;
   Function(ShoppableStore)? get onUpdatedStore => widget.onUpdatedStore;
@@ -119,6 +123,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
         /// Store
         'name': store.name,
+        'emoji': store.emoji,
         'online': store.online,
         'description': store.description,
         'offlineMessage': store.offlineMessage,
@@ -266,6 +271,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
 
       storeProvider.setStore(store).storeRepository.updateStore(
         name: storeForm['name'],
+        emoji: storeForm['emoji'],
         online: storeForm['online'],
         pickupNote: storeForm['pickupNote'],
         allowPickup: storeForm['allowPickup'],
@@ -291,9 +297,15 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         orangeMoneyPaymentEnabled: storeForm['orangeMoneyPaymentEnabled'],
       ).then((response) async {
 
+        print('stage 1');
+
         if(response.statusCode == 200) {
 
+        print('stage 2');
+
           final ShoppableStore updatedStore = ShoppableStore.fromJson(response.data);
+
+        print('stage 3');
 
           /// Set the non editable fields
           updatedStore.activeSubscriptionsCount = store.activeSubscriptionsCount;
@@ -305,13 +317,28 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
           updatedStore.couponsCount = store.couponsCount;
           updatedStore.ordersCount = store.ordersCount;
 
+        print('stage 4');
+
           /// Notify parent on update store
           if(onUpdatedStore != null) onUpdatedStore!(updatedStore);
+
+        print('stage 5');
+
+        print('storeProvider');
+        print(storeProvider);
+        print('storeProvider.updateStore');
+        print(storeProvider.updateStore);
+        print('updatedStore');
+        print(updatedStore);
 
           /// Update the store on the store on the store cards, store page, e.t.c
           if(storeProvider.updateStore != null) storeProvider.updateStore!(updatedStore);
 
+        print('stage 6');
+
           SnackbarUtility.showSuccessMessage(message: 'Updated successfully');
+
+        print('stage 7');
 
         }
 
@@ -320,6 +347,8 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
         ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
 
       }).catchError((error) {
+
+        print('stage 8');
 
         printError(info: error.toString());
 
@@ -375,12 +404,43 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: storeForm.isEmpty ? [] : [
+                  
+              /// Spacer
+              const SizedBox(height: 16),
 
               /// Store Logo
-              StoreLogo(
-                radius: 32,
-                store: store,
-                canChangeLogo: true,
+              Row(
+                children: [
+
+                  StoreLogo(
+                    radius: 40,
+                    store: store,
+                    changePhotoType: ChangePhotoType.editIconOverImage,
+                  ),
+                  
+                  /// Spacer
+                  const SizedBox(width: 16),
+
+                  const CustomBodyText(
+                    lightShade: true,
+                    textAlign: TextAlign.left,
+                    'Your store logo',
+                  )
+                  
+                ],
+              ),
+                  
+              /// Spacer
+              const SizedBox(height: 16),
+
+              /// Stpre Emoji Picker
+              StoreEmojiPicker(
+                triggerArrangement: TriggerArrangement.horizontal,
+                instruction: 'Your store emoji\nUsed if you don\'t add a logo',
+                emoji: hasEmoji ? Emoji(storeForm['emoji'], '') : null,
+                onEmojiSelected: (Category? category, Emoji emoji) {
+                  setState(() => storeForm['emoji'] = emoji.emoji);
+                },
               ),
                   
               /// Spacer

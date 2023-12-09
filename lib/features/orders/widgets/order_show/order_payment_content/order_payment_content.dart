@@ -286,7 +286,7 @@ class OrderPaymentContentState extends State<OrderPaymentContent> {
                       OrderCartDetails(order: order),
                 
                       /// Order Payment Details
-                      OrderPaymentDetails(order: order, onMarkedAsPaid: _requestShowOrder, onRequestPayment: (_) => _requestShowOrder),
+                      OrderPaymentDetails(order: order, onMarkedAsPaid: _requestShowOrder, onRequestPayment: (_) => _requestShowOrder(), onDeletedTransaction: (_) => _requestShowOrder()),
                 
                       /// Spacer
                       const SizedBox(height: 50),

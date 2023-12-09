@@ -349,7 +349,7 @@ class _MarkAsPaidDialogState extends State<MarkAsPaidDialog> {
                     TransactionProofOfPaymentPhoto(
                       store: store,
                       changePhotoType: ChangePhotoType.editIconONextToImage,
-                      proofOfPaymentPhotoShape: ProofOfPaymentPhotoShape.rectangle,
+                      photoShape: PhotoShape.rectangle,
                       onPickedFile: (file) {
                         setState(() => proofOfPaymentPhoto = file);
                       },

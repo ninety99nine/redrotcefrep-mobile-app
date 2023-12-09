@@ -23,7 +23,7 @@ class OrderServices {
     BrowserUtility.launch(url: transaction.dpoPaymentUrl!);
   }
 
-  showOrderTransactionDialog({ required Transaction transaction, required Order order, Function(Transaction)? onUpdatedTransaction, Function(String)? onSubmittedFile, required BuildContext context }) {
+  showOrderTransactionDialog({ required Transaction transaction, required Order order, Function(Transaction)? onUpdatedTransaction, Function(Transaction)? onDeletedTransaction, Function(String)? onSubmittedFile, required BuildContext context }) {
 
     /// If this transaction is subject to user verification, then we can increase the dialog height ratio
     /// since we would want to show the proof of payment. It makes it much easier to see the transaction
@@ -41,7 +41,8 @@ class OrderServices {
         order: order,
         transaction: transaction,
         onSubmittedFile: onSubmittedFile,
-        onUpdatedTransaction: onUpdatedTransaction
+        onUpdatedTransaction: onUpdatedTransaction,
+        onDeletedTransaction: onDeletedTransaction
       )
     );
 

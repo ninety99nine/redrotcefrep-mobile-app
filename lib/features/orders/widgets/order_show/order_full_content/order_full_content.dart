@@ -329,7 +329,7 @@ class FullOrderContentState extends State<OrderFullContent> {
                     OrderDeliveryAddress(order: order),
               
                     /// Order Payment Details
-                    OrderPaymentDetails(order: order, onMarkedAsPaid: _requestShowOrder, onRequestPayment: (_) => _requestShowOrder),
+                    OrderPaymentDetails(order: order, onMarkedAsPaid: _requestShowOrder, onRequestPayment: (_) => _requestShowOrder(), onDeletedTransaction: (_) => _requestShowOrder()),
               
                     /// Order Collection Buyer Confirmation 
                     OrderCollectionBuyerConfirmation(order: order), 

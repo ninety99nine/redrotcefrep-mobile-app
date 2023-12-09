@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-enum ProofOfPaymentPhotoShape {
+enum PhotoShape {
   circle,
   rectangle
 }
@@ -38,7 +38,7 @@ class TransactionProofOfPaymentPhoto extends StatefulWidget {
   final Function(XFile)? onPickedFile;
   final ChangePhotoType changePhotoType;
   final Function(String)? onSubmittedFile;
-  final ProofOfPaymentPhotoShape proofOfPaymentPhotoShape;
+  final PhotoShape photoShape;
 
   const TransactionProofOfPaymentPhoto({
     Key? key,
@@ -50,7 +50,7 @@ class TransactionProofOfPaymentPhoto extends StatefulWidget {
     required this.store,
     this.onSubmittedFile,
     this.changePhotoType = ChangePhotoType.none,
-    this.proofOfPaymentPhotoShape = ProofOfPaymentPhotoShape.circle
+    this.photoShape = PhotoShape.circle
 
   }) : super(key: key);
 
@@ -76,9 +76,9 @@ class _TransactionProofOfPaymentPhotoState extends State<TransactionProofOfPayme
   Function(String)? get onSubmittedFile => widget.onSubmittedFile;
   bool get doesNotHavePhoto => transaction?.proofOfPaymentPhoto == null;
   bool get hasPhoto => hasTransaction && transaction!.proofOfPaymentPhoto != null;
-  bool get isCircleShape => proofOfPaymentPhotoShape == ProofOfPaymentPhotoShape.circle;
-  ProofOfPaymentPhotoShape get proofOfPaymentPhotoShape => widget.proofOfPaymentPhotoShape;
-  bool get isRectangleShape => proofOfPaymentPhotoShape == ProofOfPaymentPhotoShape.rectangle;
+  bool get isCircleShape => photoShape == PhotoShape.circle;
+  PhotoShape get photoShape => widget.photoShape;
+  bool get isRectangleShape => photoShape == PhotoShape.rectangle;
   bool get photoIsAnAssetFile => hasTransaction && transaction!.proofOfPaymentPhoto?.startsWith('http') == false;
   bool get photoIsANetworkFile => hasTransaction && transaction!.proofOfPaymentPhoto?.startsWith('http') == true;
 
@@ -139,8 +139,14 @@ class _TransactionProofOfPaymentPhotoState extends State<TransactionProofOfPayme
 
       Widget child;
       BorderType borderType;
+
+      final Widget icon = Icon(
+        Icons.add_photo_alternate_outlined,
+        color: Colors.grey.shade400,
+        size: 16
+      );
       
-      if(proofOfPaymentPhotoShape == ProofOfPaymentPhotoShape.circle) {
+      if(photoShape == PhotoShape.circle) {
 
         borderType = BorderType.Circle;
 
@@ -148,7 +154,7 @@ class _TransactionProofOfPaymentPhotoState extends State<TransactionProofOfPayme
         child = CircleAvatar(
           radius: radius,
           backgroundColor: Colors.transparent,
-          child: Icon(Icons.add_photo_alternate_outlined, size: 16, color: Colors.grey.shade400,)
+          child: icon
         );
 
       }else{
@@ -163,7 +169,7 @@ class _TransactionProofOfPaymentPhotoState extends State<TransactionProofOfPayme
             borderRadius: BorderRadius.circular(radius),
             color: Colors.transparent,
           ),
-          child: Icon(Icons.add_photo_alternate_outlined, size: 16, color: Colors.grey.shade400,)
+          child: icon
         );
 
       }
@@ -302,7 +308,7 @@ class _TransactionProofOfPaymentPhotoState extends State<TransactionProofOfPayme
 
   Widget get normalImage {
     
-    if(proofOfPaymentPhotoShape == ProofOfPaymentPhotoShape.circle) {
+    if(photoShape == PhotoShape.circle) {
       
       /// Circle Shape
       return CircleAvatar(

@@ -266,9 +266,9 @@ class _FollowableStoreItemState extends State<FollowableStoreItem> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-      
+                  
               /// Store Logo
-              StoreLogo(store: store),
+              StoreLogo(store: store, radius: 24),
       
               /// Spacer
               const SizedBox(height: 8,),
@@ -356,9 +356,9 @@ class _SelectableStoreItemState extends State<SelectableStoreItem> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-      
+                  
               /// Store Logo
-              StoreLogo(store: store),
+              StoreLogo(store: store, radius: 24),
       
               /// Spacer
               const SizedBox(height: 8,),

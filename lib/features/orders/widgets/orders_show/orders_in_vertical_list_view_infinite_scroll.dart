@@ -531,7 +531,7 @@ class _OrderItemState extends State<OrderItem> {
                         if(fromSameStoreAsOtherOrders == false) ...[
                   
                           /// Store Logo
-                          StoreLogo(store: store, canChangeLogo: false),
+                          StoreLogo(store: store, radius: 24),
                   
                           /// Spacer
                           const SizedBox(width: 8,),

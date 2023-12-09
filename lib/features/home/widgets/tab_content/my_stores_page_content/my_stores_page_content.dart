@@ -67,7 +67,6 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
   int? get totalSmsAlertCredits => resourceTotals?.totalSmsAlertCredits;
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
   String get mobileNumberShortcode => authUser.attributes.mobileNumberShortcode;
-  int? get totalGroupsJoinedAsMember => resourceTotals?.totalGroupsJoinedAsMember;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   bool get hasPlacedAnOrder => hasResourceTotals ? resourceTotals!.totalOrders > 0 : false;
   bool get hasSharedAReview => hasResourceTotals ? resourceTotals!.totalReviews > 0 : false;
@@ -78,7 +77,6 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
   Future<dio.Response?> Function() get onRequestShowResourceTotals => widget.onRequestShowResourceTotals;
   bool get hasReceivedAnOrder => hasCreatedAStore ? (myRecentlyCreatedStore!.ordersCount ?? 0) > 0 : false;
   bool get hasCreatedAProduct => hasCreatedAStore ? (myRecentlyCreatedStore!.productsCount ?? 0) > 0 : false;
-  bool get hasGroupsJoinedAsMember => hasResourceTotals ? resourceTotals!.totalGroupsJoinedAsMember > 0 : false;
   bool get hasStoresAsRecentVisitor => hasResourceTotals ? resourceTotals!.totalStoresAsRecentVisitor > 0 : false;
   bool get hasStoresJoinedAsNonCreator => hasResourceTotals ? resourceTotals!.totalStoresJoinedAsNonCreator > 0 : false;
   bool get hasStoreInvitationsToJoinAsTeamMember => hasResourceTotals ? resourceTotals!.totalStoresInvitedToJoinAsTeamMember > 0 : false;
@@ -139,12 +137,12 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
     super.didChangeDependencies();
     
     /// Get the authenticated user's resource totals
-    final ResourceTotals? updateRresourceTotals = Provider.of<AuthProvider>(context, listen: false).resourceTotals;
+    final ResourceTotals? updateResourceTotals = Provider.of<AuthProvider>(context, listen: false).resourceTotals;
 
-    if(updateRresourceTotals != null) {
+    if(updateResourceTotals != null) {
 
       /// Update the local resourceTotals
-      setState(() => resourceTotals = updateRresourceTotals);
+      setState(() => resourceTotals = updateResourceTotals);
       
     }
     

@@ -39,6 +39,8 @@ class StoreCards extends StatefulWidget {
 
 class StoreCardsState extends State<StoreCards> {
 
+  late StoreProvider storeProvider;
+
   String? get storesUrl => widget.storesUrl;
   bool get hasFriendGroup => friendGroup != null;
   FriendGroup? get friendGroup => widget.friendGroup;
@@ -48,13 +50,29 @@ class StoreCardsState extends State<StoreCards> {
   bool get showFirstRequestLoader => widget.showFirstRequestLoader;
   ScrollController? get scrollController => widget.scrollController;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
-  StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
   Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
   final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
 
   @override
   void initState() {
     super.initState();
+
+    /// We need to register the storeProvider from here so that we can unset the refreshStores
+    /// and updateStore() methods when disposing this widget otherwise we would get the 
+    /// following error:
+    /// 
+    /// ════════ Exception caught by widgets library ═════════════════════════════════════════════════
+    /// The following assertion was thrown while finalizing the widget tree:
+    /// Looking up a deactivated widget's ancestor is unsafe.
+    /// 
+    /// At this point the state of the widget's element tree is no longer stable.
+    /// To safely refer to a widget's ancestor in its dispose() method, save a reference to the ancestor
+    /// by calling dependOnInheritedWidgetOfExactType() in the widget's didChangeDependencies() method.
+    /// 
+    /// ═══════════════════════════════════════════════════════════════════════════════════════════════
+    /// 
+    /// We can avoid this issue by setting the storeProvider from within the initState()
+    storeProvider = Provider.of<StoreProvider>(context, listen: false);
 
     /// Set the refresh method on the store provider so that we can easily refresh the
     /// stores from anyway in the application. This way we don't have to keep passing
@@ -66,6 +84,14 @@ class StoreCardsState extends State<StoreCards> {
     /// the refreshStores() method on multiple nested child widgets.
     storeProvider.updateStore = updateStore;
 
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    storeProvider.refreshStores = null;
+    storeProvider.updateStore = null;
   }
 
   @override

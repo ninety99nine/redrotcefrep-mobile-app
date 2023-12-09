@@ -224,7 +224,6 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
               return CustomChoiceChip(
                 label: option.name,
                 selected: selected,
-                selectedColor: Colors.green.shade700,
                 onSelected: (_) {
                   if(!isSubmitting) {
                     setState(() => selectedPaymentMethod = option);
@@ -292,7 +291,6 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
               return CustomChoiceChip(
                 label: option,
                 selected: selected,
-                selectedColor: Colors.green.shade700,
                 onSelected: (_) {
                   if(!isSubmitting) {
                     setState(() => whoIsPaying = option);
@@ -400,7 +398,7 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
   }
 
   Widget get finalAmount {        
-    return CustomTitleLargeText(payableAmount.amount.amountWithCurrency);
+    return CustomBodyText(payableAmount.amount.amountWithCurrency, fontSize: 32, fontWeight: FontWeight.bold,);
   }
 
   @override
@@ -525,7 +523,7 @@ class _OrderRequestPaymentDialogContentState extends State<OrderRequestPaymentDi
                       ],
       
                       /// Who is paying title
-                      const CustomTitleSmallText('Who is paying paying'),
+                      const CustomTitleSmallText('Who is paying'),
       
                       /// Spacer
                       const SizedBox(height: 16),

@@ -70,12 +70,12 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
     super.didChangeDependencies();
     
     /// Get the authenticated user's resource totals
-    final ResourceTotals? updateRresourceTotals = Provider.of<AuthProvider>(context, listen: false).resourceTotals;
+    final ResourceTotals? updateResourceTotals = Provider.of<AuthProvider>(context, listen: false).resourceTotals;
 
-    if(updateRresourceTotals != null) {
+    if(updateResourceTotals != null) {
 
       /// Update the local resourceTotals
-      setState(() => resourceTotals = updateRresourceTotals);
+      setState(() => resourceTotals = updateResourceTotals);
       
     }
     

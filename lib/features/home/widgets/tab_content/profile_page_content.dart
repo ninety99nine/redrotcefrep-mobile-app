@@ -45,14 +45,14 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
   bool get doesNotHaveResourceTotals => resourceTotals == null;
   bool get doesNotHaveProfilePhoto => authUser.profilePhoto == null;
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
-  int? get totalGroupsJoinedAsMember => resourceTotals?.totalGroupsJoinedAsMember;
+  int? get totalGroupsJoinedAsCreator => resourceTotals?.totalGroupsJoinedAsCreator;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   bool get hasPlacedAnOrder => hasResourceTotals ? resourceTotals!.totalOrders > 0 : false;
   bool get hasSharedAReview => hasResourceTotals ? resourceTotals!.totalReviews > 0 : false;
-  bool get hasCompletedEverything => hasPlacedAnOrder && hasSharedAReview && hasGroupsJoinedAsMember;
+  bool get hasCompletedEverything => hasPlacedAnOrder && hasSharedAReview && hasGroupsJoinedAsCreator;
   bool get hasStoresAsACustomer => hasResourceTotals ? resourceTotals!.totalStoresAsCustomer > 0 : false;
   bool get hasCreatedAStore => hasResourceTotals ? resourceTotals!.totalStoresJoinedAsCreator > 0 : false;
-  bool get hasGroupsJoinedAsMember => hasResourceTotals ? resourceTotals!.totalGroupsJoinedAsMember > 0 : false;
+  bool get hasGroupsJoinedAsCreator => hasResourceTotals ? resourceTotals!.totalGroupsJoinedAsCreator > 0 : false;
   bool get hasStoresAsRecentVisitor => hasResourceTotals ? resourceTotals!.totalStoresAsRecentVisitor > 0 : false;
 
   @override
@@ -200,7 +200,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
           /// Create Your First Group Milestone
           _addMilestone(
             number: 3,
-            checked: hasGroupsJoinedAsMember,
+            checked: hasGroupsJoinedAsCreator,
             content: createYourFirstGroupInstruction
           )
           
@@ -339,15 +339,15 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
 
     Widget instruction;
 
-    if(hasGroupsJoinedAsMember) {
+    if(hasGroupsJoinedAsCreator) {
 
       instruction = RichText(
         text: TextSpan(
-          text: 'Joined ', 
+          text: 'Created ', 
           style: Theme.of(context).textTheme.bodyMedium,
           children: [
             TextSpan(
-              text: '${totalGroupsJoinedAsMember!} ${totalGroupsJoinedAsMember == 1 ? 'Group' : 'Groups'}', 
+              text: '${totalGroupsJoinedAsCreator!} ${totalGroupsJoinedAsCreator == 1 ? 'Group' : 'Groups'}', 
               style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
             ),
           ]

@@ -1,15 +1,14 @@
 import 'package:bonako_demo/features/chat/widgets/ai_chat_modal_bottom_sheet/ai_chat_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/notifications/widgets/show_notifications/notifications_modal_bottom_sheet/notifications_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
-import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/home/widgets/tab_content/my_stores_page_content/my_stores_page_content.dart';
+import 'package:bonako_demo/features/home/widgets/tab_content/groups_page_content/groups_page_content.dart';
 import 'package:bonako_demo/features/home/widgets/tab_content/order_page_content/order_page_content.dart';
 import 'package:bonako_demo/features/home/widgets/tab_content/chat_page_content/chat_page_content.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/animated_widgets/custom_rotating_widget.dart';
 import 'package:bonako_demo/features/home/widgets/tab_content/profile_page_content.dart';
-import 'package:bonako_demo/features/home/widgets/tab_content/groups_page_content.dart';
 import 'package:bonako_demo/features/authentication/repositories/auth_repository.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
@@ -737,7 +736,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
       
           /// Groups page
-          const GroupsPageContent(),
+          GroupsPageContent(
+            onChangeNavigationTab: _changeNavigationTab,
+            onRequestShowResourceTotals: _requestShowResourceTotals
+          ),
       
           /// Chat page
           const ChatPageContent(),

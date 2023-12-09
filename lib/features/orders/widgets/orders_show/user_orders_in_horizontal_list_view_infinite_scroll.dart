@@ -385,7 +385,7 @@ class _OrderItemState extends State<OrderItem> {
                   children: [
                         
                     //  Store Logo
-                    StoreLogo(store: store, radius: 16,),
+                    StoreLogo(store: store, radius: 16),
               
                     /// Spacer
                     const SizedBox(width: 8,),

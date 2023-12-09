@@ -36,12 +36,13 @@ class StoreRepository {
   api_home.Links get homeApiLinks => apiProvider.apiHome!.links;
 
   /// Create a store
-  Future<dio.Response> createStore({ required String name, String? description, required String callToAction, required String mobileNumber }) {
+  Future<dio.Response> createStore({ required String name, required String emoji, String? description, required String callToAction, required String mobileNumber }) {
 
     String url = homeApiLinks.createStores;
     
     Map<String, dynamic> body = {
       'name': name,
+      'emoji': emoji,
       'mobile_number': mobileNumber,
       'call_to_action': callToAction,
     };
@@ -130,7 +131,7 @@ class StoreRepository {
 
   /// Update the specified store
   Future<dio.Response> updateStore({
-    String? name, bool? online, String? description, String? smsSenderName, String? offlineMessage, String? deliveryNote,
+    String? emoji, String? name, bool? online, String? description, String? smsSenderName, String? offlineMessage, String? deliveryNote,
     bool? allowDelivery, bool? allowFreeDelivery, List<Map>? deliveryDestinations, 
     String? deliveryFlatFee, String? pickupNote, bool? allowPickup,
     List<Map>? supportedPaymentMethods, bool? allowDepositPayments,
@@ -147,6 +148,7 @@ class StoreRepository {
     
     Map<String, dynamic> body = {};
 
+    if(emoji != null) body['emoji'] = emoji;
     if(online != null) body['online'] = online;
     if(name != null && name.isNotEmpty) body['name'] = name;
     if(allowPickup != null) body['allowPickup'] = allowPickup;

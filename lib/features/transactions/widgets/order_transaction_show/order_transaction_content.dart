@@ -1,11 +1,7 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/core/utils/error_utility.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
 import 'package:bonako_demo/features/transactions/widgets/transaction_proof_of_payment_photo.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/features/transactions/providers/transaction_provider.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
 import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
@@ -16,7 +12,10 @@ import 'package:bonako_demo/features/orders/services/order_services.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
@@ -362,7 +361,7 @@ class OrderTransactionContentState extends State<OrderTransactionContent> {
                   transaction: transaction,
                   onSubmittedFile: onSubmittedFile,
                   changePhotoType: ChangePhotoType.editIconONextToImage,
-                  proofOfPaymentPhotoShape: ProofOfPaymentPhotoShape.rectangle,
+                  photoShape: PhotoShape.rectangle,
                 ),
 
                 /// Spacer

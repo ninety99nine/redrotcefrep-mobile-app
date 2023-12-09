@@ -20,12 +20,14 @@ class OrderPaymentDetails extends StatefulWidget {
   final Function()? onMarkedAsPaid;
   final Function(Transaction)? onRequestPayment;
   final Function(int)? onRequestedTransactionsCount;
+  final Function(Transaction)? onDeletedTransaction;
 
   const OrderPaymentDetails({
     Key? key,
     this.onMarkedAsPaid,
     required this.order,
     this.onRequestPayment,
+    this.onDeletedTransaction,
     this.onRequestedTransactionsCount
   }) : super(key: key);
 
@@ -46,6 +48,7 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
   bool get hasOrderTransactions => (order.transactionsCount ?? 0) > 0;
   bool get doesntHaveOrderTransactions => order.transactionsCount == 0;
   Function(Transaction)? get onRequestPayment => widget.onRequestPayment;
+  Function(Transaction)? get onDeletedTransaction => widget.onDeletedTransaction;
   bool get canManageOrders => store.attributes.userStoreAssociation!.canManageOrders;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
   Function(int)? get onRequestedTransactionsCount => widget.onRequestedTransactionsCount;
@@ -99,7 +102,7 @@ class _OrderPaymentDetailsState extends State<OrderPaymentDetails> {
           const SizedBox(height: 16.0,),
 
           /// Order Paying Users
-          OrderPayingUsers(order: order, store: store),
+          OrderPayingUsers(order: order, store: store, onDeletedTransaction: onDeletedTransaction),
 
           /// Spacer
           const SizedBox(height: 16.0,),

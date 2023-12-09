@@ -4,6 +4,7 @@ import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dar
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OrderTransactionContentDialog extends StatefulWidget {
 
@@ -11,13 +12,15 @@ class OrderTransactionContentDialog extends StatefulWidget {
   final Transaction transaction;
   final Function(String)? onSubmittedFile;
   final Function(Transaction)? onUpdatedTransaction;
+  final Function(Transaction)? onDeletedTransaction;
 
   const OrderTransactionContentDialog({
     super.key,
     required this.order,
     this.onSubmittedFile,
     required this.transaction,
-    required this.onUpdatedTransaction
+    this.onDeletedTransaction,
+    this.onUpdatedTransaction
   });
 
   @override
@@ -30,6 +33,16 @@ class _OrderTransactionContentDialogState extends State<OrderTransactionContentD
   Transaction get transaction => widget.transaction;
   Function(String)? get onSubmittedFile => widget.onSubmittedFile;
   Function(Transaction)? get onUpdatedTransaction => widget.onUpdatedTransaction;
+  Function(Transaction)? get onDeletedTransaction => widget.onDeletedTransaction;
+
+  void _onDeletedTransaction(Transaction transaction) {
+
+    /// Notify parent widget
+    if(onDeletedTransaction != null) onDeletedTransaction!(transaction); 
+    
+    /// Close the dialog
+    Get.back();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +79,8 @@ class _OrderTransactionContentDialogState extends State<OrderTransactionContentD
                         order: order, 
                         transaction: transaction, 
                         onSubmittedFile: onSubmittedFile,
-                        onUpdatedTransaction: onUpdatedTransaction
+                        onUpdatedTransaction: onUpdatedTransaction,
+                        onDeletedTransaction: _onDeletedTransaction
                       )
                     )
                   ),
