@@ -11,6 +11,7 @@ class CustomMobileNumberTextFormField extends StatelessWidget {
   final bool hideCharacterCounter;
   final void Function(String?)? onSaved;
   final void Function(String)? onChanged;
+  final TextEditingController? controller;
   final void Function()? onEditingComplete;
   final void Function(String)? onFieldSubmitted;
   final List<MobileNetworkName> supportedMobileNetworkNames;
@@ -22,6 +23,7 @@ class CustomMobileNumberTextFormField extends StatelessWidget {
       this.errorText,
       this.onChanged,
       this.focusNode,
+      this.controller,
       this.initialValue,
       this.enabled = true,
       this.onFieldSubmitted,
@@ -42,6 +44,7 @@ class CustomMobileNumberTextFormField extends StatelessWidget {
       hintText: 'XXXXXXXX',
       focusNode: focusNode,
       errorText: errorText,
+      controller: controller,
       initialValue: initialValue,
       keyboardType: TextInputType.phone,
       hideCharacterCounter: hideCharacterCounter,

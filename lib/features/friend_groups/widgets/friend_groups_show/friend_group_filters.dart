@@ -7,7 +7,6 @@ import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
 
 class FriendGroupFilters extends StatefulWidget {
   
@@ -44,9 +43,7 @@ class FriendGroupFiltersState extends State<FriendGroupFilters> {
   /// This will allow us to show menus e.g "Groups", "Shared Groups"
   void requestShowFriendGroupFilters() {
     
-    friendGroupRepository.showFriendGroupFilters(
-      context: context
-    ).then((dio.Response response) {
+    friendGroupRepository.showFriendGroupFilters().then((dio.Response response) {
 
       if(!mounted) return;
 

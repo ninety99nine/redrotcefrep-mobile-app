@@ -16,11 +16,15 @@ class UserProfilePhoto extends StatefulWidget {
   final bool canCall;
   final double radius;
   final bool isLoading;
+  final double thickness;
+  final double canCallSize;
   final bool canChangePhoto;
   final bool showEditableMode;
   final Function()? onDeletedFile;
   final bool canShowEditPhotoIcon;
   final double placeholderIconSize;
+  final double canCallRightPosition;
+  final double canCallBottomPosition;
   final Function(XFile)? onPickedFile;
   final Function(XFile, dio.Response)? onSubmittedFile;
 
@@ -28,14 +32,18 @@ class UserProfilePhoto extends StatefulWidget {
     Key? key,
     this.radius = 40,
     this.onPickedFile,
+    this.thickness = 4,
     this.onDeletedFile,
     required this.user,
     this.canCall = true,
     this.onSubmittedFile,
+    this.canCallSize = 48,
     this.isLoading = false,
     this.canChangePhoto = true,
     this.showEditableMode = false,
+    this.canCallRightPosition = 0,
     this.placeholderIconSize = 100,
+    this.canCallBottomPosition = 10,
     this.canShowEditPhotoIcon = false,
   }) : super(key: key);
 
@@ -47,7 +55,6 @@ class _UserProfilePhotoState extends State<UserProfilePhoto> {
 
   XFile? file;
   XFile? fileUrl;
-  final double thickness = 4.0;
   User? get user => widget.user;
   bool get hasUser => user != null;
   bool get hasFile => file != null;
@@ -55,12 +62,16 @@ class _UserProfilePhotoState extends State<UserProfilePhoto> {
   double get radius => widget.radius;
   bool get canCall => widget.canCall;
   bool get isLoading => widget.isLoading;
+  double get thickness => widget.thickness;
   bool get doesNotHaveFile => file == null;
+  double get canCallSize => widget.canCallSize;
   bool get hasPhoto => user?.profilePhoto != null;
   bool get canChangePhoto => widget.canChangePhoto;
   bool get doesNotHavePhoto => user?.profilePhoto == null;
   bool get canShowEditPhotoIcon => widget.canShowEditPhotoIcon;
   double get placeholderIconSize => widget.placeholderIconSize;
+  double get canCallRightPosition => widget.canCallRightPosition;
+  double get canCallBottomPosition => widget.canCallBottomPosition;
 
   bool get showEditableMode => widget.showEditableMode;
   Function()? get onDeletedFile => widget.onDeletedFile;
@@ -194,9 +205,11 @@ class _UserProfilePhotoState extends State<UserProfilePhoto> {
 
               /// Call User
               if(hasUser && canCall) Positioned(
-                right: 0,
-                bottom: 10,
+                right: canCallRightPosition,
+                bottom: canCallBottomPosition,
                 child: Container(
+                  width: canCallSize,
+                  height: canCallSize,
                   decoration: BoxDecoration(
                     color: Colors.green,
                     borderRadius: BorderRadius.circular(40),

@@ -273,7 +273,7 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
 
   }
 
-  //// Open the bottom modal sheet to show the new order placed
+  //// Open the bottom modal sheet
   void openBottomModalSheet() {
     if(_customBottomModalSheetState.currentState != null) {
       _customBottomModalSheetState.currentState!.showBottomSheet(context);

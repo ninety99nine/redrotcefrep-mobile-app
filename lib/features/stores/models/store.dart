@@ -1,6 +1,7 @@
 import 'package:bonako_demo/core/shared_models/store_payment_method_association.dart';
 import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
 import 'package:bonako_demo/features/stores/models/team_member_access.dart';
+import '../../../core/shared_models/friend_group_store_association.dart';
 import 'package:bonako_demo/features/stores/models/shopper_access.dart';
 import 'package:bonako_demo/core/shared_models/mobile_number.dart';
 import '../../../core/shared_models/user_store_association.dart';
@@ -112,12 +113,14 @@ class Attributes {
   late ShopperAccess? shopperAccess;
   late TeamMemberAccess? teamMemberAccess;
   late UserStoreAssociation? userStoreAssociation;
+  late FriendGroupStoreAssociation? friendGroupStoreAssociation;
   late StorePaymentMethodAssociation? storePaymentMethodAssociation;
 
   Attributes.fromJson(Map<String, dynamic> json) {
     shopperAccess = json['shopperAccess'] == null ? null : ShopperAccess.fromJson(json['shopperAccess']);
     teamMemberAccess = json['teamMemberAccess'] == null ? null : TeamMemberAccess.fromJson(json['teamMemberAccess']);
     userStoreAssociation = json['userStoreAssociation'] == null ? null : UserStoreAssociation.fromJson(json['userStoreAssociation']);
+    friendGroupStoreAssociation = json['friendGroupStoreAssociation'] == null ? null : FriendGroupStoreAssociation.fromJson(json['friendGroupStoreAssociation']);
     storePaymentMethodAssociation = json['storePaymentMethodAssociation'] == null ? null : StorePaymentMethodAssociation.fromJson(json['storePaymentMethodAssociation']);
   }
 }

@@ -9,7 +9,7 @@ class User {
   late int id;
   late Links links;
   late String? aboutMe;
-  late String lastName;
+  late String? lastName;
   late String firstName;
   late bool? isSuperAdmin;
   late DateTime? createdAt;
@@ -89,13 +89,18 @@ class Links {
   late Link showLastSelectedFriend; 
   late Link updateLastSelectedFriends; 
   late Link showFriendAndFriendGroupFilters; 
-  late Link showFriendGroups; 
-  late Link createFriendGroups; 
-  late Link deleteManyFriendGroups; 
+
   late Link showFriendGroupFilters; 
+  late Link showFirstCreatedFriendGroup; 
   late Link showLastSelectedFriendGroup; 
   late Link updateLastSelectedFriendGroups; 
-  late Link showFirstCreatedFriendGroup; 
+  late Link deleteManyFriendGroups; 
+  late Link checkInvitationsToJoinFriendGroups; 
+  late Link acceptAllInvitationsToJoinFriendGroups; 
+  late Link declineAllInvitationsToJoinFriendGroups; 
+  late Link showFriendGroups; 
+  late Link createFriendGroups;
+
   late Link showOrderFilters; 
   late Link showOrders; 
   late Link showReviewFilters; 
@@ -131,7 +136,6 @@ class Links {
     showTokens = Link.fromJson(json['showTokens']);
     showTermsAndConditions = Link.fromJson(json['showTermsAndConditions']);
     acceptTermsAndConditions = Link.fromJson(json['acceptTermsAndConditions']);
-    showFirstCreatedFriendGroup = Link.fromJson(json['showFirstCreatedFriendGroup']);
     showAddresses = Link.fromJson(json['showAddresses']);
     createAddresses = Link.fromJson(json['createAddresses']);
     showAiMessages = Link.fromJson(json['showAiMessages']);
@@ -144,12 +148,18 @@ class Links {
     showLastSelectedFriend = Link.fromJson(json['showLastSelectedFriend']);
     updateLastSelectedFriends = Link.fromJson(json['updateLastSelectedFriends']);
     showFriendAndFriendGroupFilters = Link.fromJson(json['showFriendAndFriendGroupFilters']);
-    showFriendGroups = Link.fromJson(json['showFriendGroups']);
-    createFriendGroups = Link.fromJson(json['createFriendGroups']);
-    deleteManyFriendGroups = Link.fromJson(json['deleteManyFriendGroups']);
+    
     showFriendGroupFilters = Link.fromJson(json['showFriendGroupFilters']);
+    showFirstCreatedFriendGroup = Link.fromJson(json['showFirstCreatedFriendGroup']);
     showLastSelectedFriendGroup = Link.fromJson(json['showLastSelectedFriendGroup']);
     updateLastSelectedFriendGroups = Link.fromJson(json['updateLastSelectedFriendGroups']);
+    deleteManyFriendGroups = Link.fromJson(json['deleteManyFriendGroups']);
+    checkInvitationsToJoinFriendGroups = Link.fromJson(json['checkInvitationsToJoinFriendGroups']);
+    acceptAllInvitationsToJoinFriendGroups = Link.fromJson(json['acceptAllInvitationsToJoinFriendGroups']);
+    declineAllInvitationsToJoinFriendGroups = Link.fromJson(json['declineAllInvitationsToJoinFriendGroups']);
+    showFriendGroups = Link.fromJson(json['showFriendGroups']);
+    createFriendGroups = Link.fromJson(json['createFriendGroups']);
+
     showOrderFilters = Link.fromJson(json['showOrderFilters']);
     showOrders = Link.fromJson(json['showOrders']);
     showReviewFilters = Link.fromJson(json['showReviewFilters']);

@@ -86,6 +86,7 @@ class FriendGroupOrdersInHorizontalListViewInfiniteScrollState extends State<Fri
   Future<dio.Response> requestFriendGroupOrders(int page, String searchWord) {
 
     return friendGroupProvider.setFriendGroup(friendGroup).friendGroupRepository.showFriendGroupOrders(
+    userOrderAssociation: userOrderAssociation,
       searchWord: searchWord,
       withOccasion: true,
       withStore: true,

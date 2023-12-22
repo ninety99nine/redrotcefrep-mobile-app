@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 import '../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -12,22 +10,27 @@ import 'package:flutter_contacts/contact.dart';
 import 'package:flutter/material.dart';
 import '../enums/contact_enums.dart';
 import 'contact_creation.dart';
+import 'package:get/get.dart';
 
 class ContactsModalPopup extends StatefulWidget {
 
   final bool disabled;
   final String? subtitle;
+  final bool showAddresses;
   final bool enableBulkSelection;
   final Widget Function(Function)? trigger;
-  final void Function(List<Contact>) onSelection;
+  final void Function(List<Contact>)? onDone;
+  final void Function(List<Contact>)? onSelection;
   final List<MobileNetworkName> supportedMobileNetworkNames;
 
   const ContactsModalPopup({
     super.key,
+    this.onDone,
     this.trigger,
     this.subtitle,
+    this.onSelection,
     this.disabled = false,
-    required this.onSelection,
+    this.showAddresses = true,
     this.enableBulkSelection = false,
     required this.supportedMobileNetworkNames
   });
@@ -42,9 +45,11 @@ class _ContactsModalPopupState extends State<ContactsModalPopup> {
   bool get disabled => widget.disabled;
   bool get hasContact => contact != null;
   String? get subtitle => widget.subtitle;
+  bool get showAddresses => widget.showAddresses;
   Widget Function(Function)? get trigger => widget.trigger;
+  void Function(List<Contact>)? get onDone => widget.onDone;
   bool get enableBulkSelection => widget.enableBulkSelection;
-  void Function(List<Contact>) get onSelection => widget.onSelection;
+  void Function(List<Contact>)? get onSelection => widget.onSelection;
   List<MobileNetworkName> get supportedMobileNetworkNames => widget.supportedMobileNetworkNames;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
@@ -82,7 +87,7 @@ class _ContactsModalPopupState extends State<ContactsModalPopup> {
 
   }
 
-  /// Open the bottom modal sheet to show the new order placed
+  /// Open the bottom modal sheet
   void openBottomModalSheet() {
     if(_customBottomModalSheetState.currentState != null) {
       _customBottomModalSheetState.currentState!.showBottomSheet(context);
@@ -98,8 +103,10 @@ class _ContactsModalPopupState extends State<ContactsModalPopup> {
       key: _customBottomModalSheetState,
       /// Content of the bottom modal sheet
       content: ModalContent(
+        onDone: onDone,
         subtitle: subtitle,
         onSelection: onSelection,
+        showAddresses: showAddresses,
         enableBulkSelection: enableBulkSelection,
         supportedMobileNetworkNames: supportedMobileNetworkNames
 
@@ -109,15 +116,19 @@ class _ContactsModalPopupState extends State<ContactsModalPopup> {
 }
 
 class ModalContent extends StatefulWidget {
-
+  
   final String? subtitle;
+  final bool showAddresses;
   final bool enableBulkSelection;
-  final void Function(List<Contact>) onSelection;
+  final void Function(List<Contact>)? onDone;
+  final void Function(List<Contact>)? onSelection;
   final List<MobileNetworkName> supportedMobileNetworkNames;
 
   const ModalContent({
     super.key,
+    this.onDone,
     this.subtitle,
+    this.showAddresses = true,
     required this.onSelection,
     required this.enableBulkSelection,
     required this.supportedMobileNetworkNames,
@@ -129,24 +140,24 @@ class ModalContent extends StatefulWidget {
 
 class _ModalContentState extends State<ModalContent> {
 
-List<Contact> contacts = [];
+  List<Contact> contacts = [];
   bool showFloatingButton = true;
   ContactContentView contactContentView = ContactContentView.viewingList;
 
   String? get subtitle => widget.subtitle;
   int get totalContacts => contacts.length;
   bool get hasContacts => contacts.isNotEmpty;
+  bool get showAddresses => widget.showAddresses;
+  void Function(List<Contact>)? get onDone => widget.onDone;
   bool get enableBulkSelection => widget.enableBulkSelection;
-  void Function(List<Contact>) get onSelection => widget.onSelection;
+  void Function(List<Contact>)? get onSelection => widget.onSelection;
   bool get isViewingList => contactContentView == ContactContentView.viewingList;
   List<MobileNetworkName> get supportedMobileNetworkNames => widget.supportedMobileNetworkNames;
 
   String get _subtitle {
     if(subtitle == null) {
 
-      if(hasContacts) {
-        return 'Select contact information';
-      }else if(isViewingList) {
+      if(isViewingList) {
         return'Select your friend, family or team';
       }else{
         return'Create a new contact';
@@ -161,16 +172,13 @@ List<Contact> contacts = [];
 
   Widget get content {
 
-    if(hasContacts && enableBulkSelection == false) {
-
-      return const Text('select the contact mobile number');
-
     /// If we are currently viewing the followers content
-    }else if(contactContentView == ContactContentView.viewingList) {
+    if(contactContentView == ContactContentView.viewingList) {
 
       /// Show contact list view
       return ContactList(
-        onSelection: selectContacts,
+        onSelection: _onSelection,
+        showAddresses: showAddresses,
         enableBulkSelection: enableBulkSelection,
         supportedMobileNetworkNames: supportedMobileNetworkNames
       );
@@ -179,27 +187,55 @@ List<Contact> contacts = [];
 
       /// Show the create new contact view
       return ContactCreation(
-        onCreated: onCreated
+        onCreated: _onCreated
       );
 
     }
 
   }
 
-  void onCreated(Contact newContact) {
-    selectContacts([newContact]);
-    notifyParentAndCloseModal();
+  void _onSelection(List<Contact> contacts) {
+    
+    /// Set the selected contacts
+    setContacts(contacts);
+
+    /// Notify parent
+    if(onSelection != null) onSelection!(contacts);
+
+    /// If we don't allow bulk selection
+    if(enableBulkSelection == false) {
+
+      /// Close Modal
+      Get.back();
+
+    }
+  
   }
 
-  void selectContacts(List<Contact> contacts) {
-    setState(() => this.contacts = contacts);
-  }
+  void _onCreated(Contact newContact) {
+    
+    /// Set the created contact
+    setContacts([newContact]);
+    
+    /// Notify parent
+    if(onSelection != null) onSelection!(contacts);
 
-  void notifyParentAndCloseModal() {
-    //// Notify parent
-    onSelection(contacts);
     /// Close Modal
     Get.back();
+  }
+
+  void _onDone() {
+
+    /// Notify parent
+    if(onDone != null) onDone!(contacts);
+
+    /// Close Modal
+    Get.back();
+
+  }
+  
+  void setContacts(List<Contact> contacts) {
+    setState(() => this.contacts = contacts);
   }
 
   String get floatingActionButtonLabel {
@@ -237,25 +273,25 @@ List<Contact> contacts = [];
 
     if(hasContacts) {
 
-      //// Notify parent
-      notifyParentAndCloseModal();
+      /// On Done
+      _onDone();
 
     /// If we are currently viewing the contact list
     }else if(contactContentView == ContactContentView.viewingList) {
 
       /// Change to add new contact
-      changeContactContentView(ContactContentView.creatingNewContact);
+      _changeContactContentView(ContactContentView.creatingNewContact);
 
     }else{
 
       /// Change to view contact list
-      changeContactContentView(ContactContentView.viewingList);
+      _changeContactContentView(ContactContentView.viewingList);
 
     }
 
   }
 
-  void changeContactContentView(ContactContentView contactContentView) {
+  void _changeContactContentView(ContactContentView contactContentView) {
     setState(() => this.contactContentView = contactContentView);
   }
 

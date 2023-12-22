@@ -5,7 +5,7 @@ import '../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/api/models/api_home.dart';
 import 'package:bonako_demo/core/utils/error_utility.dart';
-import '../models/account_existence_user.dart';
+import '../models/account_existence.dart';
 import '../repositories/auth_repository.dart';
 import '../services/auth_form_service.dart';
 import '../providers/auth_provider.dart';
@@ -197,9 +197,9 @@ class _SigninFormState extends State<SigninForm> {
 
       if( response.statusCode == 200 ) {
 
-        authForm.user = AccountExistenceUser.fromJson(response.data);
+        authForm.accountExistence = AccountExistence.fromJson(response.data);
         
-        if( authForm.user!.attributes.requiresPassword ) {
+        if( authForm.accountExistence!.existingAccount.requiresPassword ) {
 
           _changeSigninStage(SigninStage.setNewPassword);
 
@@ -413,7 +413,7 @@ class _SigninFormState extends State<SigninForm> {
           /// Set the required arguments
           final Map arguments = {
             'mobileNumber': authForm.mobileNumber,
-            'user': authForm.user,
+            'accountExistence': authForm.accountExistence,
           };
               
           /// Navigate to the ResetPasswordPage

@@ -8,7 +8,7 @@ import '../../../core/shared_widgets/chips/custom_mobile_number_chip.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/utils/mobile_number.dart';
-import '../models/account_existence_user.dart';
+import '../models/account_existence.dart';
 import '../../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../../../core/utils/dialer.dart';
@@ -36,10 +36,10 @@ class AuthFormService {
   /// us to run the setState on that element of the widget tree
   Function? scaffoldSetState;
 
-  /// user - Reference to the user that is set after searching for
-  /// a user account matching the given mobile number. This is the
-  /// instance of that user that was found
-  AccountExistenceUser? user;
+  /// accountExistence - Reference to the account existence information 
+  /// that is set after searching for a user account matching the 
+  /// given mobile number.
+  AccountExistence? accountExistence;
 
   /// isSubmitting - Whether or not the form is being submitted
   /// at any point in time during the SigninStage, SignupStage 
@@ -97,7 +97,7 @@ class AuthFormService {
       'password': password,
 
       'lastRecordedStageIndex': lastRecordedStage.index,
-      'user': user == null ? null : user!.toJson(),
+      'account_existence': accountExistence == null ? null : accountExistence!.toJson(),
     };
   }
 
@@ -171,7 +171,7 @@ class AuthFormService {
   }
 
   Widget getAccountMobileNumberChip() {
-    final mobileNumberWithoutExtension = user == null ? '' : user!.mobileNumber.withoutExtension;
+    final mobileNumberWithoutExtension = accountExistence == null ? '' : accountExistence!.existingAccount.mobileNumber.withoutExtension;
     return CustomMobileNumberChip(name: mobileNumberWithoutExtension);
   }
 
@@ -443,7 +443,7 @@ class AuthFormService {
     if(data.containsKey('last_name')) lastName = data['last_name'];
     if(data.containsKey('password')) password = data['password'];
 
-    if(data.containsKey('user')) user = (data['user'] == null ? null : AccountExistenceUser.fromJson(data['user']));
+    if(data.containsKey('account_existence')) accountExistence = (data['account_existence'] == null ? null : AccountExistence.fromJson(data['account_existence']));
     if(data.containsKey('lastRecordedStageIndex')) lastRecordedStageIndex = data['lastRecordedStageIndex'];
   }
 

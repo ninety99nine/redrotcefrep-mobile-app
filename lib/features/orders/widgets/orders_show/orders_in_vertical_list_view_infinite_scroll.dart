@@ -59,7 +59,7 @@ class OrdersInVerticalListViewInfiniteScrollState extends State<OrdersInVertical
   /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalListViewInfiniteScrollState>();
 
   ShoppableStore? get store => widget.store;
   String? get orderFilter => widget.orderFilter;
@@ -215,7 +215,7 @@ class OrderItem extends StatefulWidget {
   final bool fromSameStoreAsOtherOrders;
   final Function(Order)? onUpdatedOrder;
   final UserOrderAssociation userOrderAssociation;
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState;
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> customVerticalListViewInfiniteScrollState;
 
   const OrderItem({
     super.key,
@@ -260,7 +260,7 @@ class _OrderItemState extends State<OrderItem> {
   String? get otherAssociatedFriends => order.attributes.otherAssociatedFriends;
   bool get canManageOrders => store.attributes.userStoreAssociation!.canManageOrders;
   bool get canCollect => order.attributes.userOrderCollectionAssociation?.canCollect ?? false;
-  GlobalKey<CustomVerticalInfiniteScrollState> get customVerticalListViewInfiniteScrollState => widget.customVerticalListViewInfiniteScrollState;
+  GlobalKey<CustomVerticalListViewInfiniteScrollState> get customVerticalListViewInfiniteScrollState => widget.customVerticalListViewInfiniteScrollState;
 
   Widget get orderHeader {
     return RichText(text: TextSpan(

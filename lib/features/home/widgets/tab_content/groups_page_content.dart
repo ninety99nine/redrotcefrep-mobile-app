@@ -97,9 +97,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
 
     _startLoader();
 
-    friendGroupRepository.showLastSelectedFriendGroup(
-      context: context,
-    ).then((response) {
+    friendGroupRepository.showLastSelectedFriendGroup().then((response) {
 
       if(response.statusCode == 200) {
 

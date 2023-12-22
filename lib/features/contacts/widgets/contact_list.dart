@@ -1,3 +1,11 @@
+import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/shared_widgets/text_form_field/custom_search_text_form_field.dart';
 import '../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../core/shared_widgets/text/custom_title_medium_text.dart';
@@ -12,12 +20,14 @@ import 'package:flutter/material.dart';
 
 class ContactList extends StatefulWidget {
 
+  final bool showAddresses;
   final bool enableBulkSelection;
   final void Function(List<Contact>) onSelection;
   final List<MobileNetworkName> supportedMobileNetworkNames;
 
   const ContactList({
     super.key,
+    this.showAddresses = true,
     required this.onSelection,
     this.enableBulkSelection = false,
     this.supportedMobileNetworkNames = const [
@@ -34,41 +44,43 @@ class ContactList extends StatefulWidget {
 
 class _ContactListState extends State<ContactList> {
 
+  late User authUser;
   bool isLoading = false;
   String searchWord = '';
   bool selectedAll = false;
+  bool hasPermission = false;
   List<Contact> contacts = [];
   List<Contact> selectedContacts = [];
   List<Map<String, dynamic>> selectedPhoneIndexes = [];
 
+  bool get showAddresses => widget.showAddresses;
   int get totalFilteredContacts => filteredContacts.length;
   int get totalSelectedContacts => selectedContacts.length;
   bool get enableBulkSelection => widget.enableBulkSelection;
   void Function(List<Contact>) get onSelection => widget.onSelection;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  List<MobileNetworkName> get supportedMobileNetworkNames => widget.supportedMobileNetworkNames;
   String get totalContactsSelectedText => '$totalSelectedContacts ${totalSelectedContacts == 1 ? 'contact' : 'contacts'} selected';
 
   List<Contact> get filteredContacts {
+
+    if (searchWord.isEmpty) return contacts;
+
+    final searchWordMobileNumber = MobileNumberUtility.simplify(searchWord);
+
     return contacts.where((contact) {
 
-      /// Check if the search term matches the display name
-      final bool matchesDisplayName = contact.displayName.toLowerCase().contains(RegExp(searchWord.toLowerCase()));
-      
-      /// Check if the search term matches one of the mobile numbers
-      final bool matchesMobileNumber = contact.phones.where((phone) {
-        final searchWordMobileNumber  = MobileNumberUtility.simplify(searchWord);
-        if(searchWordMobileNumber.isNotEmpty) {
-          return MobileNumberUtility.simplify(phone.number).contains(RegExp(searchWordMobileNumber));
-        }else{
-          return false;
-        }
-      }).isNotEmpty;
-      
-      /// Check if the search term matches one of the address
-      final bool matchesAddress = contact.addresses.where((address) {
-          return address.address.toLowerCase().contains(searchWord.toLowerCase());
-      }).isNotEmpty;
+      // Check if the search term matches the display name
+      bool matchesDisplayName = contact.displayName.toLowerCase().contains(searchWord.toLowerCase());
 
-      return matchesDisplayName || matchesMobileNumber || matchesAddress;
+      // Check if the search term matches one of the addresses
+      bool matchesAddress = contact.addresses.any((address) => address.address.toLowerCase().contains(searchWord.toLowerCase()));
+
+      // Check if the search term matches one of the mobile numbers
+      bool matchesMobileNumber = searchWordMobileNumber.isEmpty ? false : contact.phones.any((phone) => RegExp(searchWordMobileNumber).hasMatch(phone.number));
+
+      return matchesDisplayName || matchesAddress || matchesMobileNumber;
+
     }).toList();
   }
 
@@ -79,6 +91,7 @@ class _ContactListState extends State<ContactList> {
   void initState() {
     super.initState();
     requestContacts();
+    authUser = authProvider.user!;
   }
 
   void requestContacts () async {
@@ -87,16 +100,24 @@ class _ContactListState extends State<ContactList> {
 
     /// Request contact permission
     if (await FlutterContacts.requestPermission()) {
+
+      /// Indicate that we have permission
+      setState(() => hasPermission = true);
         
       /// Get all contacts (fully fetched)
       contacts = await FlutterContacts.getContacts(
         withProperties: true, 
-        withThumbnail: false,
+        withThumbnail: true,
         withPhoto: false
       );
 
       /// Filter contacts by supported mobile network names
       contacts = filterContactsBySupportedMobileNetworkNames(contacts);
+
+    }else{
+
+      /// Indicate that we don't have permission
+      setState(() => hasPermission = false);
 
     }
 
@@ -107,27 +128,69 @@ class _ContactListState extends State<ContactList> {
   List<Contact> filterContactsBySupportedMobileNetworkNames(List<Contact> contacts) {
     
     /// Return contacts with supported phones
-    return contacts.where((contact) {
+    return contacts.map((contact) {
 
-      /// Remove unsupported phones from each contact
-      contact.phones.removeWhere((phone) {
+      /// Foreach of the contact phones
+      /// 
+      /// NOTE: We are iterating over the items (phones) in reverse order i.e
+      /// 
+      /// Instead of this:   for (var i = 0; i < contact.phones.length; i++) { ... }      - From first item to last item
+      /// We are using this: for (int i = contact.phones.length - 1; i >= 0; i--) { ... } - From last item to first item
+      /// 
+      /// This code choice addresses a common issue when removing items from a list while iterating over it.
+      /// When an item is removed at a specific index, the list is modified, and the indices of the remaining items shift.
+      /// Iterating in reverse order is employed to mitigate this issue, ensuring that removing items doesn't impact the
+      /// indices of elements that haven't been processed yet. This helps prevent out-of-bounds errors and ensures a
+      /// consistent and predictable iteration over the list.
 
-        MobileNetworkName? mobileNetworkName = MobileNumberUtility.getMobileNetworkName(phone.number);
-        
-        /// Remove the phone if does not match any mobile network name
-        if(mobileNetworkName == null) return true;
-        
-        /// Remove the phone if its not supported at the moment 
-        /// Check if this current phone isn't in the list of 
-        /// the supported mobile network names
-        return widget.supportedMobileNetworkNames.map((supportedMobileNetworkName) => supportedMobileNetworkName.name).contains(mobileNetworkName.name) == false;
+      for (int i = contact.phones.length - 1; i >= 0; i--) {
+
+        /// Get the contact phone number
+        final String number = contact.phones[i].number;
+
+        /// Get the phone number mobible network name e.g orange, mascom or btc
+        MobileNetworkName? mobileNetworkName = MobileNumberUtility.getMobileNetworkName(number);
+
+        /// If the mobile network name is not provided
+        if(mobileNetworkName == null) {
+
+          /// Remove this phone index (This mobile network does not exist on our available mobile networks)
+          contact.phones.removeAt(i);
+
+        /// If the mobile network name is provided
+        }else{
+
+          /// Check if this is a supported mobile network name
+          bool isSupportedMobileNetworkName = supportedMobileNetworkNames.map((supportedMobileNetworkName) => supportedMobileNetworkName.name).contains(mobileNetworkName.name);
+
+          /// If this mobile network name is supported
+          if(isSupportedMobileNetworkName) {
+
+            /// Simplify the contact phone number e.g convert "+267 72882239" into "72882239"
+            contact.phones[i].number = MobileNumberUtility.simplify(number);
+
+          /// If this mobile network name is not supported
+          }else{
+
+            /// Remove this phone index (This mobile network is not supported)
+            contact.phones.removeAt(i);
+
+          }
+
+        }
+
+      }
       
-      });
+      /// Return the contact with simplified phones or without phones
+      return contact;
+
+    }).where((contact) {
 
       /// If the contact does not have any phones left, then remove this contact
       return contact.phones.isNotEmpty;
 
     }).toList();
+    
   }
 
   void selectContact(Contact contact, int selectedPhoneIndex) {
@@ -141,7 +204,7 @@ class _ContactListState extends State<ContactList> {
       }
     }
 
-    /// Make sure that this contact has not been selected already
+    /// If this contact has not been selected already
     if( selectedContacts.where((selectedContact) => selectedContact.id == contact.id).isEmpty ) {
 
       /// Add the specific mobile number 
@@ -174,24 +237,24 @@ class _ContactListState extends State<ContactList> {
 
     selectedContacts = selectedContacts.map((selectedContact) {
 
-      /// Get the matching selected contact. We need to get the orignial copy
-      /// because the order of the phones does not change with the original
-      /// contacts, but the order of the phones keeps changing with the
-      /// selectedContacts. So we need to consider whether or not to
-      /// re-arrange phones based on the original contacts otherwise
-      /// if we use the selectedContacts we will keep rotating the
-      /// numbers each time we select another number since the 
-      /// arrangement keeps changing.
+      /// Get the matching selected contact
       final matchingContact = contacts.firstWhere((currentContact) => currentContact.id == selectedContact.id);
       
       /// Get the matching selected phone index
       final matchingSelectedPhoneIndex = selectedPhoneIndexes.firstWhere((selectedPhoneIndex) => selectedPhoneIndex['id'] == selectedContact.id);
-      
-      /// Return a copy of the selected contact with the phones rearranged
-      /// by placing the preffered phone at the top of the stack
-      final Contact modifiedContact = rearrangeContactPhones(matchingContact, matchingSelectedPhoneIndex['phoneIndex']);
 
-      return modifiedContact;
+      /// Copy the contact so that we can modify the phones without
+      /// affecting the original contact phones
+      Contact contactCopy = Contact.fromJson(matchingContact.toJson());
+
+      /// Modify the matching contact phones to only include the selected phone (All other phones must be removed)
+      contactCopy.phones = [
+        
+        contactCopy.phones[matchingSelectedPhoneIndex['phoneIndex']]
+
+      ];
+
+      return contactCopy;
 
     }).toList();
 
@@ -200,40 +263,6 @@ class _ContactListState extends State<ContactList> {
 
     //// Notify parent
     onSelection(selectedContacts);
-
-  }
-
-  Contact rearrangeContactPhones(Contact contact, int selectedPhoneIndex) {
-
-    /// If the selected phone is not at the top of the list 
-    if (selectedPhoneIndex >= 0) {
-      
-      /// Copy the contact so that we can rearrange the phone without
-      /// affecting the original contact phones otherwise this will
-      /// change the phone arrangement on the contact list UI, but
-      /// we want the UI to remain the same while pushing the
-      /// contact to the parent with the preffered mobile
-      /// number at the top of the list.
-      Contact contactCopy = Contact.fromJson(contact.toJson());
-
-      /// Get the selected phone
-      Phone selectedPhone = contactCopy.phones[selectedPhoneIndex];
-
-      /// Remove the selected phone from its current position
-      contactCopy.phones.removeAt(selectedPhoneIndex);
-
-      /// Place the selected phone to the top of the list
-      contactCopy.phones.insert(0, selectedPhone);
-
-      /// Return the modified conpy
-      return contactCopy;
-
-    } else {
-      
-      /// Return the original copy, no changes are required
-      return contact;
-
-    }
 
   }
 
@@ -307,6 +336,48 @@ class _ContactListState extends State<ContactList> {
     );
   }
 
+  Widget get permissionDenied {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        
+        Align(
+          alignment: Alignment.center,
+          child: SizedBox(
+            width: 150,
+            child: Image.asset('assets/images/padlock.png')
+          ),
+        ),
+
+        /// Spacer
+        const SizedBox(height: 50),
+  
+        /// Title
+        const CustomTitleLargeText('Permission Required'),
+      
+        /// Spacer
+        const Divider(height: 50),
+  
+        /// Instruction
+        CustomBodyText(
+          'Hey ${authUser.firstName} 👋, please allow access to your contacts',
+          height: 1.6,
+        ),
+  
+        const Divider(height: 50),
+
+        /// Button
+        CustomElevatedButton(
+          'Allow Access',
+          suffixIcon: Icons.refresh,
+          alignment: Alignment.center,
+          onPressed: requestContacts
+        ),
+  
+      ],
+    );
+  }
+
   Widget get contactListContent {
 
     /**
@@ -322,66 +393,80 @@ class _ContactListState extends State<ContactList> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          /// Permission Denied
+          if(!isLoading && !hasPermission) ...[
             
-          /// Search Input Field
-          searchInputField,
+            permissionDenied
 
-          if(enableBulkSelection) Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 16, left: 32, right: 32),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-      
-                /// Select All Checkbox
-                Expanded(child: selectAllCheckbox),
+          ],
 
-                /// Total Contacts Selected
-                CustomBodyText(totalContactsSelectedText, lightShade: true,),
+          /// Permission Granted
+          if(!isLoading && hasPermission) ...[
 
-              ],
+            /// Search Input Field
+            searchInputField,
+
+            if(enableBulkSelection) Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 16, left: 32, right: 32),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+        
+                  /// Select All Checkbox
+                  Expanded(child: selectAllCheckbox),
+
+                  /// Total Contacts Selected
+                  CustomBodyText(totalContactsSelectedText, lightShade: true,),
+
+                ],
+              ),
             ),
-          ),
 
-          const Divider(),
-    
-          /// Content List View
-          ListView.separated(
-            shrinkWrap: true,
-            itemCount: totalFilteredContacts + 1,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            separatorBuilder: (BuildContext context, int index) => const Divider(),
-            itemBuilder: (context, index) {
-          
-              ///  If this is not the last item
-              if(index < totalFilteredContacts) {
-          
-                /// Get the contact
-                Contact contact = filteredContacts[index];
-    
-                /// Return the contact item
-                return ContactItem(
-                  contact: contact, 
-                  selectContact: selectContact,
-                  unselectContact: unselectContact,
-                  selectedContacts: selectedContacts,
-                  enableBulkSelection: enableBulkSelection,
-                  selectedPhoneIndexes: selectedPhoneIndexes,
-                );
-          
-              ///  If this is the last item on the last page
-              }else {
-          
-                return CustomBodyText(
-                  filteredContacts.isEmpty ? 'No contacts found' : 'No more contacts', 
-                  margin: EdgeInsets.only(top: filteredContacts.isEmpty ? 100 : 20, bottom: 100),
-                  textAlign: TextAlign.center, 
-                );
-          
+            const Divider(),
+      
+            /// Content List View
+            ListView.separated(
+              shrinkWrap: true,
+              itemCount: totalFilteredContacts + 1,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              separatorBuilder: (BuildContext context, int index) => const Divider(),
+              itemBuilder: (context, index) {
+            
+                ///  If this is not the last item
+                if(index < totalFilteredContacts) {
+            
+                  /// Get the contact
+                  Contact contact = filteredContacts[index];
+      
+                  /// Return the contact item
+                  return ContactItem(
+                    contact: contact, 
+                    showAddresses: showAddresses,
+                    selectContact: selectContact,
+                    unselectContact: unselectContact,
+                    selectedContacts: selectedContacts,
+                    enableBulkSelection: enableBulkSelection,
+                    selectedPhoneIndexes: selectedPhoneIndexes,
+                    supportedMobileNetworkNames: supportedMobileNetworkNames
+                  );
+            
+                ///  If this is the last item on the last page
+                }else {
+            
+                  return CustomBodyText(
+                    filteredContacts.isEmpty ? 'No contacts found' : 'No more contacts', 
+                    margin: EdgeInsets.only(top: filteredContacts.isEmpty ? 100 : 20, bottom: 100),
+                    textAlign: TextAlign.center, 
+                  );
+            
+                }
+            
               }
-          
-            }
-          ),
+            ),
+
+          ],
     
         ],
       ),
@@ -402,20 +487,24 @@ class _ContactListState extends State<ContactList> {
 class ContactItem extends StatefulWidget {
 
   final Contact contact;
-  final Function selectContact;
-  final Function unselectContact;
+  final bool showAddresses;
   final bool enableBulkSelection;
   final List<Contact> selectedContacts;
+  final Function(Contact) unselectContact;
+  final Function(Contact, int) selectContact;
   final List<Map<String, dynamic>> selectedPhoneIndexes;
+  final List<MobileNetworkName> supportedMobileNetworkNames;
 
   const ContactItem({
     super.key, 
     required this.contact,
     required this.selectContact,
+    required this.showAddresses,
     required this.unselectContact,
     required this.selectedContacts,
     required this.enableBulkSelection,
-    required this.selectedPhoneIndexes
+    required this.selectedPhoneIndexes,
+    required this.supportedMobileNetworkNames
   });
 
   @override
@@ -425,40 +514,29 @@ class ContactItem extends StatefulWidget {
 class _ContactItemState extends State<ContactItem> {
 
   Contact get contact => widget.contact;
-  bool get hasPhone => contact.phones.isNotEmpty;
-  Function get selectContact => widget.selectContact;
+  int get totalPhones => contact.phones.length;
+  bool get showAddresses => widget.showAddresses;
   bool get hasAddress => contact.addresses.isNotEmpty;
   bool get hasManyPhones => contact.phones.length > 1;
-  Function get unselectContact => widget.unselectContact;
   bool get enableBulkSelection => widget.enableBulkSelection;
   List<Contact> get selectedContacts => widget.selectedContacts;
+  Function(Contact) get unselectContact => widget.unselectContact;
+  Function(Contact, int) get selectContact => widget.selectContact;
   List<Map<String, dynamic>> get selectedPhoneIndexes => widget.selectedPhoneIndexes;
+  List<MobileNetworkName> get supportedMobileNetworkNames => widget.supportedMobileNetworkNames;
   bool get isSelected => selectedContacts.where((selectedContact) => selectedContact.id == contact.id).isNotEmpty;
 
   int get selectedPhoneIndex {
-  
-    List<Map> matchingSelectedPhoneIndexes = selectedPhoneIndexes.where((currSelectedPhoneIndex) => currSelectedPhoneIndex['id'] == contact.id).toList();
+    
+    Map<String, dynamic>? matchingSelectedPhoneIndex = selectedPhoneIndexes.firstWhereOrNull((currSelectedPhoneIndex) => currSelectedPhoneIndex['id'] == contact.id);
 
-    if(matchingSelectedPhoneIndexes.isNotEmpty) {
-      return matchingSelectedPhoneIndexes.first['phoneIndex'];
-    }else{
-
-      /// Try to acquire the index number of the first Orange Mobile Number
-      final int index = contact.phones.indexWhere((phone) => MobileNumberUtility.getMobileNetworkName(phone.number) == MobileNetworkName.orange);
-      
-      /// Check if we have an Orange Number that we can select
-      if(index > 0) {
-        return index;
-      }else{
-        return 0;
-      }
-
-    }
+    // Return the specified phone index number, or 0 if not found
+    return matchingSelectedPhoneIndex?['phoneIndex'] ?? 0;
 
   }
 
   String get prefferedMobileNumber {
-    return MobileNumberUtility.simplify(contact.phones[selectedPhoneIndex].number);
+    return contact.phones[selectedPhoneIndex].number;
   }
 
   @override
@@ -467,8 +545,99 @@ class _ContactItemState extends State<ContactItem> {
   }
 
   String getMobileNetworkName(String mobileNumber) {
-    final MobileNetworkName? mobileNetworkName = MobileNumberUtility.getMobileNetworkName(mobileNumber);
-    return mobileNetworkName == null ? '' : StringUtility.capitalize(mobileNetworkName.name);
+
+    /// If we only support one mobile network name
+    if(supportedMobileNetworkNames.length == 1) {
+
+      /// Return this supported mobile network name
+      return StringUtility.capitalize(supportedMobileNetworkNames.first.name);
+
+    /// If we support more than one mobile network name
+    }else{
+
+      /// Return this supported mobile network name matching this mobileNumber
+      final MobileNetworkName mobileNetworkName = MobileNumberUtility.getMobileNetworkName(mobileNumber)!;
+      return StringUtility.capitalize(mobileNetworkName.name);
+
+    }
+    
+  }
+
+  void toggleSelectionWithoutPhone() async {
+
+    /// If this contact is already selected
+    if(isSelected) {
+
+      /// Unselect this contact
+      unselectContact(contact);
+
+    }else{
+
+      if(hasManyPhones) {
+
+        /// Show dialog to choose a specific mobile number
+        final int? dialogSelectedPhoneIndex = await chooseOneMobileNumberDialog();
+
+        if(dialogSelectedPhoneIndex != null) {
+
+          /// Select this contact
+          selectContact(contact, dialogSelectedPhoneIndex);
+
+        }
+
+      }else{
+
+        /// Select this contact
+        selectContact(contact, selectedPhoneIndex);
+
+      }
+
+    }
+
+  }
+
+  Future chooseOneMobileNumberDialog() {
+
+    return DialogUtility.showContentDialog(
+      title: contact.displayName,
+      context: context,
+      content: ChooseOneMobileNumberDialogContent(
+        runSpacing: 16,
+        contact: contact, 
+        selectedPhoneIndex: selectedPhoneIndex, 
+        getMobileNetworkName: getMobileNetworkName
+      ),
+    );
+
+  }
+
+  void toggleSelectionWithPhone(int index, Phone phone) {
+
+    /// If this contact is already selected
+    if(isSelected) {
+
+      /// If the mobile number has not been changed
+      if(prefferedMobileNumber == phone.number) {
+
+        /// Unselect this contact
+        unselectContact(contact);
+
+      /// If the mobile number has been changed
+      }else{
+
+        /// Re-select this contact to change the selected mobile number
+        selectContact(contact, index);
+
+      }
+
+    /// If this contact is not already selected
+    }else{
+
+      /// Select this contact
+      selectContact(contact, index);
+
+    }
+
   }
 
   @override
@@ -483,63 +652,58 @@ class _ContactItemState extends State<ContactItem> {
       child: ListTile(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-        onTap: () => selectContact(contact, selectedPhoneIndex),
+        onTap: () => toggleSelectionWithoutPhone(),
         leading: ContactAvatar(contact: contact),
         title: Stack(
           children: [
-        
+            
             Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomTitleMediumText(contact.displayName),
-                          if(hasPhone && !(isSelected && hasManyPhones)) const SizedBox(height: 4,),
-                          if(hasPhone && !(isSelected && hasManyPhones)) CustomBodyText('$prefferedMobileNumber ${getMobileNetworkName(prefferedMobileNumber)}', color: Colors.grey,),
-                          if(hasAddress) const SizedBox(height: 4,),
-                          if(hasAddress) CustomBodyText(StringUtility.removeLineBreaks(contact.addresses.first.address)),
-                        ],
-                      ),
-                    ),
-          
-                    const SizedBox(width: 16,),
-          
-                    if(!enableBulkSelection) GestureDetector(
-                      onTap: () => selectContact(contact, selectedPhoneIndex),
-                      child: Icon(Icons.arrow_forward, size: 20, color: Colors.grey.shade400),
-                    )
-                  ],
-                ),
-        
-                if(isSelected && hasManyPhones) Column(
-                  children: [
-                    const SizedBox(height: 4,),
-                    ...contact.phones.mapIndexed((index, phone) {
-                      final bool isSelectedPhone = selectedPhoneIndex == index;
-                      return GestureDetector(
-                        onTap: () => selectContact(contact, index),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(isSelectedPhone ? Icons.radio_button_checked : Icons.radio_button_unchecked_sharp, color: Colors.green,),
-                            const SizedBox(width: 4,),
-                            CustomBodyText('${phone.number} ${getMobileNetworkName(phone.number)}'),
-                          ],
-                        ),
-                      );
-                    }).toList()
-                  ],
-                ),
-              ],
+
+                /// Display Name: Julian Tabona
+                CustomTitleMediumText(contact.displayName),
+
+                /// Single Mobile Number: 72882239
+                if(!hasManyPhones) ...[
+                  const SizedBox(height: 4,),
+                  CustomBodyText('$prefferedMobileNumber ${getMobileNetworkName(prefferedMobileNumber)}', color: Colors.grey,),
+                ],
+
+                /// Multiple Mobile Numbers: 2 mobiles
+                if(!isSelected && hasManyPhones) ...[
+                  const SizedBox(height: 4,),
+                  CustomBodyText('$totalPhones mobiles', color: Colors.grey,),
+                ],
+
+                /// Address
+                if(showAddresses && hasAddress) ...[
+                  const SizedBox(height: 4,),
+                  CustomBodyText(StringUtility.removeLineBreaks(contact.addresses.first.address)),
+                ],
+
+                /// Multiple Phone Number Selectors
+                if(isSelected && hasManyPhones) ...[
+
+                  /// Spacer
+                  const SizedBox(height: 4,),
+
+                  /// Phone Choices
+                  PhoneChoices(
+                    contact: contact,
+                    selectedPhoneIndex: selectedPhoneIndex,
+                    getMobileNetworkName: getMobileNetworkName, 
+                    toggleSelectionWithPhone: toggleSelectionWithPhone
+                  )
+
+                ]
+              
+              ]
             ),
-        
+
             /// Cancel Icon
-            if(enableBulkSelection && isSelected) Positioned(
+            if(isSelected) Positioned(
               top: -5,
               right: 0,
               child: IconButton(
@@ -550,6 +714,190 @@ class _ContactItemState extends State<ContactItem> {
         
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ChooseOneMobileNumberDialogContent extends StatefulWidget {
+  
+  final Contact contact;
+  final double? runSpacing;
+  final int selectedPhoneIndex;
+  final Function getMobileNetworkName;
+
+  const ChooseOneMobileNumberDialogContent({
+    super.key,
+    this.runSpacing,
+    required this.contact,
+    required this.selectedPhoneIndex,
+    required this.getMobileNetworkName
+  });
+
+  @override
+  State<ChooseOneMobileNumberDialogContent> createState() => _ChooseOneMobileNumberDialogContentState();
+}
+
+class _ChooseOneMobileNumberDialogContentState extends State<ChooseOneMobileNumberDialogContent> {
+  
+  late int selectedPhoneIndex;
+  Contact get contact => widget.contact;
+  double? get runSpacing => widget.runSpacing;
+  Function get getMobileNetworkName => widget.getMobileNetworkName;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedPhoneIndex = widget.selectedPhoneIndex;
+  }
+
+  void toggleSelectionWithPhone(int index, Phone phone) {
+
+    /// Capture the selected phone index
+    setState(() => selectedPhoneIndex = index);
+
+  }
+
+  void onDone() {
+
+    /// Close the dialog while returning the selected phone index
+    Get.back(result: selectedPhoneIndex);
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        /// Phone Number
+        const CustomBodyText('Choose a specific mobile number'),
+        
+        /// Divider
+        const Divider(),
+        
+        /// Spacer
+        const SizedBox(height: 16,),
+
+        /// Phone Choices
+        PhoneChoices(
+          contact: contact,
+          runSpacing: runSpacing,
+          selectedPhoneIndex: selectedPhoneIndex,
+          getMobileNetworkName: getMobileNetworkName,
+          toggleSelectionWithPhone: toggleSelectionWithPhone,
+        ),
+        
+        /// Spacer
+        const SizedBox(height: 16,),
+
+        CustomElevatedButton(
+          'Done',
+          onPressed: onDone,
+        )
+
+      ],
+    );
+  }
+}
+
+class PhoneChoices extends StatefulWidget {
+  
+  final Contact contact;
+  final double? runSpacing;
+  final int selectedPhoneIndex;
+  final Function getMobileNetworkName;
+  final Function(int, Phone) toggleSelectionWithPhone;
+
+  const PhoneChoices({
+    super.key,
+    this.runSpacing,
+    required this.contact,
+    required this.selectedPhoneIndex,
+    required this.getMobileNetworkName,
+    required this.toggleSelectionWithPhone
+  });
+
+  @override
+  State<PhoneChoices> createState() => _PhoneChoicesState();
+}
+
+class _PhoneChoicesState extends State<PhoneChoices> {
+
+  double? get runSpacing => widget.runSpacing;
+  int get selectedPhoneIndex => widget.selectedPhoneIndex;
+  Function(int, Phone) get toggleSelectionWithPhone => widget.toggleSelectionWithPhone;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      runSpacing: runSpacing ?? 0,
+      children: [
+        
+        ...widget.contact.phones.mapIndexed((index, phone) {
+
+          final bool isSelectedPhone = selectedPhoneIndex == index;
+          final String mobileNetworkName = widget.getMobileNetworkName(phone.number);
+        
+          return PhoneChoice(
+            phone: phone,
+            isSelectedPhone: isSelectedPhone,
+            mobileNetworkName: mobileNetworkName,
+            toggleSelectionWithPhone: () => toggleSelectionWithPhone(index, phone),
+          );
+
+        }).toList()
+
+      ],
+    );
+  }
+}
+
+class PhoneChoice extends StatefulWidget {
+
+  final Phone phone;
+  final bool isSelectedPhone;
+  final String mobileNetworkName;
+  final Function toggleSelectionWithPhone;
+
+  const PhoneChoice({
+    super.key,
+    required this.phone,
+    required this.isSelectedPhone,
+    required this.mobileNetworkName,
+    required this.toggleSelectionWithPhone
+  });
+
+  @override
+  State<PhoneChoice> createState() => _PhoneChoiceState();
+}
+
+class _PhoneChoiceState extends State<PhoneChoice> {
+
+  Phone get phone => widget.phone;
+  bool get isSelectedPhone => widget.isSelectedPhone;
+  String get mobileNetworkName => widget.mobileNetworkName;
+  Function get toggleSelectionWithPhone => widget.toggleSelectionWithPhone;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => toggleSelectionWithPhone(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+
+          /// Radio Button Icon
+          Icon(isSelectedPhone ? Icons.radio_button_checked : Icons.radio_button_unchecked_sharp, color: Colors.green,),
+          
+          /// Spacer
+          const SizedBox(width: 4,),
+
+          /// Phone Number
+          CustomBodyText('${phone.number} $mobileNetworkName')
+
+        ],
       ),
     );
   }

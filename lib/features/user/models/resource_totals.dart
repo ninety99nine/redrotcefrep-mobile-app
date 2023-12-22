@@ -13,6 +13,8 @@ class ResourceTotals {
   late int totalStoresJoinedAsTeamMember;
   late int totalStoresJoinedAsNonCreator;
   late int totalStoresInvitedToJoinAsTeamMember;
+  late int totalGroupsInvitedToJoinAsGroupMember;
+  
 
   ResourceTotals.fromJson(Map<String, dynamic> json) {
     totalOrders = json['totalOrders'];
@@ -29,5 +31,6 @@ class ResourceTotals {
     totalStoresJoinedAsNonCreator = json['totalStoresJoinedAsNonCreator'];
     totalStoresJoinedAsTeamMember = json['totalStoresJoinedAsTeamMember'];
     totalStoresInvitedToJoinAsTeamMember = json['totalStoresInvitedToJoinAsTeamMember'];
+    totalGroupsInvitedToJoinAsGroupMember = json['totalGroupsInvitedToJoinAsGroupMember'];
   }
 }

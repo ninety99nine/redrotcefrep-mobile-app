@@ -30,7 +30,7 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
   /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalListViewInfiniteScrollState>();
 
   User get authUser => authProvider.user!;
   String get mobileNumberShortcode => authUser.attributes.mobileNumberShortcode;
@@ -57,7 +57,7 @@ class AssociatedStoresInVerticalListViewInfiniteScrollState extends State<Associ
 
   void onReorder(int oldIndex, int newIndex) {
 
-    CustomVerticalInfiniteScrollState? currentState = customVerticalListViewInfiniteScrollState.currentState;
+    CustomVerticalListViewInfiniteScrollState? currentState = customVerticalListViewInfiniteScrollState.currentState;
 
     if(currentState != null) {
 

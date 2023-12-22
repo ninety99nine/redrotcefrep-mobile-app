@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
+
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../../friend_groups/enums/friend_group_enums.dart';
@@ -8,8 +10,8 @@ import '../friend_groups_content.dart';
 class FriendGroupsModalBottomSheet extends StatefulWidget {
 
   final Purpose purpose;
-  final Widget? trigger;
   final bool enableBulkSelection;
+  final Widget Function(Function())? trigger;
   final Function(List<FriendGroup>)? onSelectedFriendGroups;
   final Function(List<FriendGroup>)? onDoneSelectingFriendGroups;
 
@@ -28,9 +30,8 @@ class FriendGroupsModalBottomSheet extends StatefulWidget {
 
 class FriendGroupsModalBottomSheetState extends State<FriendGroupsModalBottomSheet> {
 
-  late Widget trigger;
-
   Purpose get purpose => widget.purpose;
+  Widget Function(Function())? get trigger => widget.trigger;
   bool get enableBulkSelection => widget.enableBulkSelection;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
@@ -38,29 +39,17 @@ class FriendGroupsModalBottomSheetState extends State<FriendGroupsModalBottomShe
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
 
-  @override
-  void initState() {
-    super.initState();
-    
-    /// If we have a custom trigger widget
-    if(widget.trigger != null) {
+  Widget get _trigger {
 
-      /// Set the custom trigger widget
-      trigger = widget.trigger!;
+    final Widget defaultTrigger = CustomElevatedButton(
+      'Groups', 
+      onPressed: openBottomModalSheet,
+    );
 
-    /// If we don't have a custom trigger widget
-    } else {
-      
-      /// Set the default trigger widget
-      trigger = CustomTextButton(
-        'Change',
-        onPressed: openBottomModalSheet,
-      );
-
-    }
+    return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
   }
 
-  /// Open the bottom modal sheet to show the new order placed
+  /// Open the bottom modal sheet
   void openBottomModalSheet() {
     if(_customBottomModalSheetState.currentState != null) {
       _customBottomModalSheetState.currentState!.showBottomSheet(context);
@@ -72,7 +61,7 @@ class FriendGroupsModalBottomSheetState extends State<FriendGroupsModalBottomShe
     return CustomBottomModalSheet(
       key: _customBottomModalSheetState,
       /// Trigger to open the bottom modal sheet
-      trigger: trigger,
+      trigger: _trigger,
       /// Content of the bottom modal sheet
       content: FriendGroupsContent(
         purpose: purpose,

@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:bonako_demo/features/friend_groups/widgets/create_or_update_friend_group/create_or_update_friend_group_form.dart';
 
 import '../friend_group_create_or_update/friend_group_create_or_update.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
@@ -13,6 +13,7 @@ import '../../enums/friend_group_enums.dart';
 import 'package:provider/provider.dart';
 import '../../models/friend_group.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class FriendGroupsContent extends StatefulWidget {
   
@@ -109,19 +110,25 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
     }else if(isViewingGroup) {
 
       /// Show friend groups view
-      return FriendGroupCreateOrUpdate(
-        friendGroup: friendGroup!,
-        onUpdatedFriendGroup: onUpdatedFriendGroup,
-        onSubmitting: onDisableFloatingActionButton,
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+        child: CreateOrUpdateFriendGroupForm(
+          friendGroup: friendGroup!,
+          onUpdating: onDisableFloatingActionButton,
+          onUpdatedFriendGroup: onUpdatedFriendGroup,
+        ),
       );
 
     /// If we want to view the friend group create content
     }else{
 
       /// Show the friend group create content
-      return FriendGroupCreateOrUpdate(
-        onCreatedFriendGroup: onCreatedFriendGroup,
-        onSubmitting: onDisableFloatingActionButton,
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+        child: CreateOrUpdateFriendGroupForm(
+          onCreating: onDisableFloatingActionButton,
+          onCreatedFriendGroup: onCreatedFriendGroup
+        ),
       );
 
     }
@@ -219,13 +226,13 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
   /// Called so that we can show the friend groups
   /// view after creating a friend group
-  void onCreatedFriendGroup() {
+  void onCreatedFriendGroup(FriendGroup createdFriendGroup) {
     changeGroupContentView(FriendGroupContentView.viewingFriendGroups);
   }
 
   /// Called so that we can show the friend groups
   /// view after updating a friend group
-  void onUpdatedFriendGroup() {
+  void onUpdatedFriendGroup(FriendGroup updatedFriendGroup) {
     changeGroupContentView(FriendGroupContentView.viewingFriendGroups);
   }
 

@@ -10,6 +10,7 @@ class FriendsModalBottomSheet extends StatefulWidget {
 
   final Purpose purpose;
   final Function()? onClose;
+  final Widget Function(Function())? trigger;
   final Function(List<User>)? onSelectedFriends;
   final Function(List<User>)? onDoneSelectingFriends;
   final Function(List<FriendGroup>)? onSelectedFriendGroups;
@@ -18,6 +19,7 @@ class FriendsModalBottomSheet extends StatefulWidget {
   const FriendsModalBottomSheet({
     super.key,
     this.onClose,
+    this.trigger,
     required this.purpose,
     this.onSelectedFriends,
     this.onSelectedFriendGroups,
@@ -33,6 +35,7 @@ class FriendsModalBottomSheetState extends State<FriendsModalBottomSheet> {
 
   Purpose get purpose => widget.purpose;
   Function()? get onClose => widget.onClose;
+  Widget Function(Function())? get trigger => widget.trigger;
   Function(List<User>)? get onSelectedFriends => widget.onSelectedFriends;
   Function(List<User>)? get onDoneSelectingFriends => widget.onDoneSelectingFriends;
   Function(List<FriendGroup>)? get onSelectedFriendGroups => widget.onSelectedFriendGroups;
@@ -44,17 +47,19 @@ class FriendsModalBottomSheetState extends State<FriendsModalBottomSheet> {
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
   final GlobalKey<CustomBottomModalSheetState> _customBottomModalSheetState = GlobalKey<CustomBottomModalSheetState>();
 
-  Widget get trigger {
+  Widget get _trigger {
+
+    Widget defaultTrigger;
 
     /// If the purpose is to select friends for an order
     if(purpose == Purpose.addFriendsToOrder) {
       
-      return Container();
+      defaultTrigger = Container();
 
     /// If the purpose is to select friends for a group
     }else{
 
-      return CustomTextButton(
+      defaultTrigger = CustomTextButton(
         'Add Friends',
         prefixIcon: Icons.add,
         alignment: Alignment.center,
@@ -62,9 +67,12 @@ class FriendsModalBottomSheetState extends State<FriendsModalBottomSheet> {
       );
 
     }
+
+    return trigger == null ? defaultTrigger : trigger!(openBottomModalSheet);
+  
   }
 
-  /// Open the bottom modal sheet to show the new order placed
+  /// Open the bottom modal sheet
   void openBottomModalSheet() {
     if(_customBottomModalSheetState.currentState != null) {
       _customBottomModalSheetState.currentState!.showBottomSheet(context);
@@ -76,7 +84,7 @@ class FriendsModalBottomSheetState extends State<FriendsModalBottomSheet> {
     return CustomBottomModalSheet(
       key: _customBottomModalSheetState,
       /// Trigger to open the bottom modal sheet
-      trigger: trigger,
+      trigger: _trigger,
       onClose: onClose,
       /// Content of the bottom modal sheet
       content: FriendsContent(

@@ -1,5 +1,4 @@
 import 'package:bonako_demo/core/shared_models/user_friend_group_association.dart';
-
 import '../../../core/shared_models/user.dart';
 import '../../../core/shared_models/link.dart';
 
@@ -8,19 +7,23 @@ class FriendGroup {
   late Links links;
   late String name;
   late bool shared;
+  late String? emoji;
   late int? usersCount;
   late int? ordersCount;
   late int? storesCount;
   late int? friendsCount;
   late bool canAddFriends;
+  late String? description;
   late Attributes attributes;
   late Relationships relationships;
 
   FriendGroup.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
+    emoji = json['emoji'];
     shared = json['shared'];
     usersCount = json['usersCount'];
+    description = json['description'];
     ordersCount = json['ordersCount'];
     storesCount = json['storesCount'];
     friendsCount = json['friendsCount'];
@@ -52,14 +55,34 @@ class Links {
   late Link updateFriendGroup;
   late Link deleteFriendGroup;
   late Link showFriendGroupOrders;
-  late Link showFriendGroupMembers;
-  late Link removeFriendGroupMembers;
+  late Link inviteMembers;
+  late Link acceptInvitationToJoinFriendGroup;
+  late Link declineInvitationToJoinFriendGroup;
+  late Link removeMembers;
+  late Link showMemberFilters;
+  late Link showMembers;
+  late Link showStoreFilters;
+  late Link showStores;
+  late Link addStores;
+  late Link removeStores;
+  late Link showOrderFilters;
+  late Link showOrders;
 
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     updateFriendGroup = Link.fromJson(json['updateFriendGroup']);
-    showFriendGroupOrders = Link.fromJson(json['showFriendGroupOrders']);
-    showFriendGroupMembers = Link.fromJson(json['showFriendGroupMembers']);
-    removeFriendGroupMembers = Link.fromJson(json['removeFriendGroupMembers']);
+    deleteFriendGroup = Link.fromJson(json['deleteFriendGroup']);
+    inviteMembers = Link.fromJson(json['inviteMembers']);
+    acceptInvitationToJoinFriendGroup = Link.fromJson(json['acceptInvitationToJoinFriendGroup']);
+    declineInvitationToJoinFriendGroup = Link.fromJson(json['declineInvitationToJoinFriendGroup']);
+    removeMembers = Link.fromJson(json['removeMembers']);
+    showMemberFilters = Link.fromJson(json['showMemberFilters']);
+    showMembers = Link.fromJson(json['showMembers']);
+    showStoreFilters = Link.fromJson(json['showStoreFilters']);
+    showStores = Link.fromJson(json['showStores']);
+    addStores = Link.fromJson(json['addStores']);
+    removeStores = Link.fromJson(json['removeStores']);
+    showOrderFilters = Link.fromJson(json['showOrderFilters']);
+    showOrders = Link.fromJson(json['showOrders']);
   }
 }

@@ -45,10 +45,10 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
   bool isSearchingUser = false;
   ResourceTotals? resourceTotals;
   bool? authUserHasFollowedStores;
-  String searchedMobileNumber = '';
   final FocusNode _focusNode = FocusNode();
   List<Color> rainbowColors = constants.rainbowColors;
   ScrollController scrollController = ScrollController();
+  TextEditingController searchedMobileNumberController = TextEditingController();
   final DebouncerUtility debouncerUtility = DebouncerUtility(milliseconds: 1000);
   final ApiConflictResolverUtility apiConflictResolverUtility = ApiConflictResolverUtility();
 
@@ -56,6 +56,8 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
   bool get hasSearchedUser => searchedUser != null;
   bool get hasResourceTotals => resourceTotals != null;
   ApiRepository get apiRepository => apiProvider.apiRepository;
+  bool get hasCompleteMobileNumber => searchedMobileNumber.length == 8;
+  String get searchedMobileNumber => searchedMobileNumberController.text;
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
   ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
@@ -85,6 +87,7 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
   void dispose() {
     super.dispose();
     scrollController.dispose();
+    searchedMobileNumberController.dispose();
   }
 
   void requestSearchUserByMobileNumber() {
@@ -238,19 +241,17 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                 Expanded(
                   child: CustomMobileNumberTextFormField(
                     focusNode: _focusNode,
+                    controller: searchedMobileNumberController,
                     supportedMobileNetworkNames: const [
                       MobileNetworkName.orange
                     ],
                     onChanged: (value) {
                       
-                      searchedMobileNumber = value;
-                      
                       resetScrollController();
-                      
-                      if(searchedMobileNumber.length == 8) {
+
+                      if(hasCompleteMobileNumber) {
                 
                         hideKeypad();
-                        requestSearchUserByMobileNumber();
                 
                         /// Start the loader immediately since the debouncerUtility() of the requestSearchUserByMobileNumber() 
                         /// method applies a delay. The delay causes the "This account does not exist" message to show up 
@@ -258,10 +259,11 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                         /// 
                         /// !isSearchingUser                      //  true
                         /// && searchedUser == null;              //  true
-                        /// && searchedMobileNumber.length == 8   //  true
+                        /// && hasCompleteMobileNumber            //  true
                         /// 
                         /// To avoid this we need to immediately run _startSearchUserLoader();
                         _startSearchUserLoader();
+                        requestSearchUserByMobileNumber();
                 
                       }else{
                         
@@ -276,11 +278,24 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                 /// Contact Selector
                 ContactsModalPopup(
                   subtitle: 'Search for your local seller',
+                  showAddresses: false,
                   trigger: (openBottomModalSheet) {
                     return IconButton(onPressed: () => openBottomModalSheet(), icon: const Icon(Icons.person_pin_circle_rounded, color: Colors.green,));
                   },
                   onSelection: (contacts) {
-                    setState(() => searchedMobileNumber = contacts.first.phones.first.number);
+                    setState(() {
+                      
+                      searchedMobileNumberController.text = contacts.first.phones.first.number;
+                      resetScrollController();
+
+                      if(hasCompleteMobileNumber) {
+
+                        _startSearchUserLoader();
+                        requestSearchUserByMobileNumber();
+
+                      }
+
+                    });
                   }, 
                   supportedMobileNetworkNames: const [
                     MobileNetworkName.orange

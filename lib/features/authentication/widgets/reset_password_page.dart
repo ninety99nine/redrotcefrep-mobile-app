@@ -1,13 +1,12 @@
-import 'package:bonako_demo/core/utils/error_utility.dart';
-
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/button/previous_text_button.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/features/api/models/api_home.dart';
+import 'package:bonako_demo/core/utils/error_utility.dart';
 import '../../introduction/widgets/landing_page.dart';
-import '../models/account_existence_user.dart';
 import '../repositories/auth_repository.dart';
 import '../services/auth_form_service.dart';
+import '../models/account_existence.dart';
 import '../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -110,12 +109,12 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
             setState(() {
 
               /**
-               *  Set the mobile number and the user that
+               *  Set the mobile number and the accountExistence that
                *  is shared by the Signinscreen
                */
               final Map arguments = ModalRoute.of(context)!.settings.arguments! as Map;
               authForm.mobileNumber = arguments['mobileNumber'] as String;
-              authForm.user = arguments['user'] as AccountExistenceUser;
+              authForm.accountExistence = arguments['accountExistence'] as AccountExistence;
 
             });
         

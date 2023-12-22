@@ -158,8 +158,8 @@ class _StoreMenuContentState extends State<StoreMenuContent> {
             /// Return the modal bottom sheet to select groups with this list item as the trigger
             return AddStoreToGroupButton(
               store: store,
-              trigger: listItem,
-              canShowLoader: false
+              canShowLoader: false,
+              trigger: (openBottomModalSheet) => listItem,
             );
           
           }else if(name == 'Subscribe') {

@@ -69,18 +69,23 @@ class CustomTextFormField extends StatefulWidget {
 
 class CustomTextFormFieldState extends State<CustomTextFormField> {
 
-  TextEditingController? controller;
+  late TextEditingController controller;
   
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.initialValue);
+
+    if(widget.controller == null) {
+      controller = TextEditingController(text: widget.initialValue);
+    }else{
+      controller = widget.controller!;
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    controller!.dispose();
+    if(widget.controller == null) controller.dispose();
   }
 
   String? originalValidator(String? value) {
@@ -114,7 +119,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         color: widget.enabled ? (widget.color ?? Colors.black) : Colors.grey.shade400,
         fontWeight: FontWeight.normal,
       ),
-      maxLength: controller!.text.isNotEmpty ? widget.maxLength : null,
+      maxLength: controller.text.isNotEmpty ? widget.maxLength : null,
       obscureText: widget.obscureText,
       decoration: InputDecoration(
         filled: true,
@@ -134,7 +139,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
           fontWeight: FontWeight.normal
         ),
         contentPadding: widget.contentPadding,
-        fillColor: primaryColor.withOpacity(0.05),
+        //  fillColor: primaryColor.withOpacity(0.05),
         
         //  Border disabled (i.e enabled = false)
         disabledBorder: OutlineInputBorder(

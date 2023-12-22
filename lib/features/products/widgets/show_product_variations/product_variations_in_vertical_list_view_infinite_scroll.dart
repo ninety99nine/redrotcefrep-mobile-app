@@ -41,7 +41,7 @@ class ProductVariationsInVerticalListViewInfiniteScrollState extends State<Produ
   /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalListViewInfiniteScrollState>();
 
   bool? hasProductVariations;
 
@@ -181,7 +181,7 @@ class ProductVariationItem extends StatelessWidget {
   final Product product;
   final ShoppableStore store;
   final Function(Product)? onEditProduct;
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState;
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> customVerticalListViewInfiniteScrollState;
 
   const ProductVariationItem({
     super.key,

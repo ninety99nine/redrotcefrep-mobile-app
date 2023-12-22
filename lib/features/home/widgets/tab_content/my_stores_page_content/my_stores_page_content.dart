@@ -1,6 +1,3 @@
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_cards.dart';
 import 'package:bonako_demo/features/team_members/widgets/team_member_invitations_show/team_member_invitations_modal_bottom_sheet/team_member_invitations_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/widgets/subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/widgets/create_store/create_store_modal_bottom_sheet/create_store_modal_bottom_sheet.dart';
@@ -11,16 +8,18 @@ import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bot
 import 'package:bonako_demo/features/reviews/widgets/reviews_show/reviews_modal_bottom_sheet/reviews_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/chat/widgets/ai_chat_modal_bottom_sheet/ai_chat_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/store_card.dart';
 import 'package:bonako_demo/core/shared_widgets/cards/custom_title_and_number_card.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_cards.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/core/constants/constants.dart' as constants;
 import 'package:bonako_demo/features/user/models/resource_totals.dart';
 import 'package:bonako_demo/features/reviews/enums/review_enums.dart';
 import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:bonako_demo/features/products/models/product.dart';
 import '../../../../authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
@@ -54,14 +53,14 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
   late User authUser;
   bool isLoadingStore = false;
   ResourceTotals? resourceTotals;
+  ShoppableStore? firstCreatedStore;
   bool isLoadingResourceTotals = false;
-  ShoppableStore? myRecentlyCreatedStore;
   bool sentFirstRequestToLoadStore = false;
 
   int? get totalOrders => resourceTotals?.totalOrders;
   bool get hasResourceTotals => resourceTotals != null;
   int? get totalReviews => resourceTotals?.totalReviews;
-  bool get hasCreatedAStore => myRecentlyCreatedStore != null;
+  bool get hasCreatedAStore => firstCreatedStore != null;
   bool get doesNotHaveResourceTotals => resourceTotals == null;
   bool get doesNotHaveProfilePhoto => authUser.profilePhoto == null;
   int? get totalSmsAlertCredits => resourceTotals?.totalSmsAlertCredits;
@@ -70,21 +69,21 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   bool get hasPlacedAnOrder => hasResourceTotals ? resourceTotals!.totalOrders > 0 : false;
   bool get hasSharedAReview => hasResourceTotals ? resourceTotals!.totalReviews > 0 : false;
-  int get totalReceivedOrders => hasCreatedAStore ? myRecentlyCreatedStore!.ordersCount ?? 0 : 0;
-  int get totalCreatedProducts => hasCreatedAStore ? myRecentlyCreatedStore!.productsCount ?? 0 : 0;
+  int get totalReceivedOrders => hasCreatedAStore ? firstCreatedStore!.ordersCount ?? 0 : 0;
+  int get totalCreatedProducts => hasCreatedAStore ? firstCreatedStore!.productsCount ?? 0 : 0;
+  bool get hasReceivedAnOrder => hasCreatedAStore ? (firstCreatedStore!.ordersCount ?? 0) > 0 : false;
+  bool get hasCreatedAProduct => hasCreatedAStore ? (firstCreatedStore!.productsCount ?? 0) > 0 : false;
   int? get totalStoresInvitedToJoinAsTeamMember => resourceTotals?.totalStoresInvitedToJoinAsTeamMember;
   bool get hasStoresAsACustomer => hasResourceTotals ? resourceTotals!.totalStoresAsCustomer > 0 : false;
   Future<dio.Response?> Function() get onRequestShowResourceTotals => widget.onRequestShowResourceTotals;
-  bool get hasReceivedAnOrder => hasCreatedAStore ? (myRecentlyCreatedStore!.ordersCount ?? 0) > 0 : false;
-  bool get hasCreatedAProduct => hasCreatedAStore ? (myRecentlyCreatedStore!.productsCount ?? 0) > 0 : false;
   bool get hasStoresAsRecentVisitor => hasResourceTotals ? resourceTotals!.totalStoresAsRecentVisitor > 0 : false;
   bool get hasStoresJoinedAsNonCreator => hasResourceTotals ? resourceTotals!.totalStoresJoinedAsNonCreator > 0 : false;
   bool get hasStoreInvitationsToJoinAsTeamMember => hasResourceTotals ? resourceTotals!.totalStoresInvitedToJoinAsTeamMember > 0 : false;
-  bool get hasDialedStoreOnUssd => hasCreatedAStore ? myRecentlyCreatedStore!.attributes.userStoreAssociation!.lastSeenOnUssdAt != null : false;
-  DateTime? get lastSubscriptionEndAt => hasCreatedAStore ? myRecentlyCreatedStore!.attributes.userStoreAssociation!.lastSubscriptionEndAt : null;
-  bool get hasSubscribedAtleastOnce => hasCreatedAStore ? myRecentlyCreatedStore!.attributes.userStoreAssociation!.lastSubscriptionEndAt != null : false;
+  bool get hasDialedStoreOnUssd => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.lastSeenOnUssdAt != null : false;
+  DateTime? get lastSubscriptionEndAt => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.lastSubscriptionEndAt : null;
+  bool get hasSubscribedAtleastOnce => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.lastSubscriptionEndAt != null : false;
   bool get hasCompletedEverything => hasCreatedAStore ? (hasCreatedAProduct && hasDialedStoreOnUssd && hasSubscribedAtleastOnce && hasReceivedAnOrder) : false;
-  bool get hasJoinedRecentlyCreatedStoreLessThan24HoursAgo => hasCreatedAStore ? myRecentlyCreatedStore!.attributes.userStoreAssociation!.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 1))) : false;
+  bool get hasJoinedRecentlyCreatedStoreLessThan24HoursAgo => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 1))) : false;
 
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
@@ -173,7 +172,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
 
         if(storeExists) {
 
-          setState(() => myRecentlyCreatedStore = ShoppableStore.fromJson(response.data['store']));
+          setState(() => firstCreatedStore = ShoppableStore.fromJson(response.data['store']));
 
         }
 
@@ -442,7 +441,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
             OrdersModalBottomSheet(
               userOrderAssociation: UserOrderAssociation.teamMember,
               trigger: (openBottomModalSheet) => CustomTitleAndNumberCard(
-                title: totalReviews == 1 ? 'Order' : 'Orders', 
+                title: totalOrders == 1 ? 'Order' : 'Orders', 
                 onTap: openBottomModalSheet,
                 number: totalOrders,
               )
@@ -630,14 +629,14 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
 
       return UpdateStoreModalBottomSheet(
         onUpdatedStore: _onUpdatedStore,
-        store: myRecentlyCreatedStore!,
+        store: firstCreatedStore!,
         trigger: RichText(
           text: TextSpan(
             text: 'Created ', 
             style: Theme.of(context).textTheme.bodyMedium,
             children: [
               TextSpan(
-                text: myRecentlyCreatedStore!.name, 
+                text: firstCreatedStore!.name, 
                 style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
               ),
             ]
@@ -689,13 +688,13 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
     Get.back();
     _showFirstCreatedStore();
     _onRequestShowResourceTotals();
-    setState(() => myRecentlyCreatedStore = createdStore);
+    setState(() => firstCreatedStore = createdStore);
   }
 
   void _onUpdatedStore(ShoppableStore updatedStore) {
     Get.back();
     _showFirstCreatedStore();
-    setState(() => myRecentlyCreatedStore = updatedStore);
+    setState(() => firstCreatedStore = updatedStore);
   }
   
   Widget get createProductsInstruction {
@@ -716,7 +715,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
       );
 
       return ProductsModalBottomSheet(
-        store: myRecentlyCreatedStore!,
+        store: firstCreatedStore!,
         onCreatedProduct: _onCreatedProduct,
         trigger: (openBottomModalSheet) => instruction
       );
@@ -732,7 +731,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
         )
       );
 
-      if(myRecentlyCreatedStore == null) {
+      if(firstCreatedStore == null) {
 
         return GestureDetector(
           onTap: () {
@@ -744,7 +743,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
       }else{
 
         return ProductsModalBottomSheet(
-          store: myRecentlyCreatedStore!,
+          store: firstCreatedStore!,
           onCreatedProduct: _onCreatedProduct,
           trigger: (openBottomModalSheet) => instruction
         );
@@ -757,7 +756,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
 
   void _onCreatedProduct(Product createdProduct) {
     _showFirstCreatedStore();
-    setState(() => myRecentlyCreatedStore!.relationships.products.add(createdProduct));
+    setState(() => firstCreatedStore!.relationships.products.add(createdProduct));
   }
 
   Widget get dialStoreInstruction {
@@ -847,7 +846,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
       }else{
 
         return SubscribeToStoreModalBottomSheet(
-          store: myRecentlyCreatedStore!,
+          store: firstCreatedStore!,
           trigger: instruction
         );
 
@@ -876,7 +875,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
       );
 
       return OrdersModalBottomSheet(
-        store: myRecentlyCreatedStore!,
+        store: firstCreatedStore!,
         onUpdatedOrder: _onUpdatedOrder,
         trigger: (openBottomModalSheet) => instruction,
         userOrderAssociation: UserOrderAssociation.teamMember,
@@ -925,7 +924,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
       }else{
 
         return OrdersModalBottomSheet(
-          store: myRecentlyCreatedStore!,
+          store: firstCreatedStore!,
           onUpdatedOrder: _onUpdatedOrder,
           trigger: (openBottomModalSheet) => instruction,
           userOrderAssociation: UserOrderAssociation.teamMember,

@@ -51,7 +51,7 @@ class StoreCardsState extends State<StoreCards> {
   ScrollController? get scrollController => widget.scrollController;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalListViewInfiniteScrollState>();
 
   @override
   void initState() {
@@ -151,6 +151,8 @@ class StoreCardsState extends State<StoreCards> {
 
     if(storesUrl == null) {
 
+      print('stage #1');
+
       return storeProvider.storeRepository.showUserStores(
         userAssociation: userAssociation,
         withCountTeamMembers: true,
@@ -177,7 +179,10 @@ class StoreCardsState extends State<StoreCards> {
 
     }else{
 
+      print('stage #2');
+
       return storeProvider.storeRepository.showStores(
+        userAssociation: userAssociation,
         withCountTeamMembers: true,
         withVisibleProducts: true,
         withVisitShortcode: true,

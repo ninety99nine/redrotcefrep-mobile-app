@@ -104,7 +104,7 @@ class DialogUtility {
   }
 
   /// Show a dialog that supports static or dynamic content
-  static Future<bool?> showContentDialog({ String title = '', required content, List<Widget>? actions, EdgeInsets? insetPadding, required BuildContext context }) {
+  static Future<dynamic> showContentDialog({ String title = '', required content, List<Widget>? actions, EdgeInsets? insetPadding, required BuildContext context }) {
 
     Widget dialogContent() {
       return Stack(
@@ -157,7 +157,7 @@ class DialogUtility {
       );
     }
 
-    return showDialog<bool>(
+    return showDialog<dynamic>(
       context: context, 
       builder: (context) {
         return AlertDialog(

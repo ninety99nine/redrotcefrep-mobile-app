@@ -25,6 +25,7 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
   final EdgeInsets? margin;
   final EdgeInsets listPadding;
   final EdgeInsets headerPadding;
+  final EdgeInsets multiSelectActionsPadding;
   final Widget? separator;
 
   /// Indication that we should list the items in reverse order e.g 
@@ -149,13 +150,14 @@ class CustomVerticalListViewInfiniteScroll extends StatefulWidget {
     this.loaderMargin = const EdgeInsets.symmetric(vertical: 16),
     this.listPadding = const EdgeInsets.only(top: 0, bottom: 0, left: 16, right: 16),
     this.headerPadding = const EdgeInsets.only(top: 20, bottom: 0, left: 16, right: 16),
+    this.multiSelectActionsPadding = const EdgeInsets.only(top: 16, bottom: 16, left: 0, right: 16),
   }) : super(key: key);
 
   @override
-  State<CustomVerticalListViewInfiniteScroll> createState() => CustomVerticalInfiniteScrollState();
+  State<CustomVerticalListViewInfiniteScroll> createState() => CustomVerticalListViewInfiniteScrollState();
 }
 
-class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfiniteScroll> {
+class CustomVerticalListViewInfiniteScrollState extends State<CustomVerticalListViewInfiniteScroll> {
 
   final ApiConflictResolverUtility apiConflictResolverUtility = ApiConflictResolverUtility();
   final DebouncerUtility debouncerUtility = DebouncerUtility(milliseconds: 1000);
@@ -201,6 +203,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   bool get isUsingParentScrollController => widget.scrollController != null;
   bool get isContinuingRequest => requestType == RequestType.continueRequest;
   Future<dio.Response> Function(int, String) get onRequest => widget.onRequest;
+  EdgeInsets get multiSelectActionsPadding => widget.multiSelectActionsPadding;
   bool get isSearching => isStartingRequest && isLoading && searchWord.isNotEmpty;
   Function(bool)? get onLoadingAfterFirstRequest => widget.onLoadingAfterFirstRequest;
   Widget Function(bool, int)? get contentBeforeSearchBar => widget.contentBeforeSearchBar;
@@ -564,7 +567,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
   /// Check if the selected item is already selected based on the given condition
   bool hasAlreadySelectedItem(selectedItem) {
     if(toggleSelectionCondition == null) return false; 
-    return selectedItems.where((alreadySelectedItem) => toggleSelectionCondition!(alreadySelectedItem, selectedItem)).isNotEmpty;
+    return selectedItems.any((alreadySelectedItem) => toggleSelectionCondition!(alreadySelectedItem, selectedItem));
   }
 
   /// Add the selected item to the list of selected items
@@ -618,7 +621,7 @@ class CustomVerticalInfiniteScrollState extends State<CustomVerticalListViewInfi
           switchOutCurve: Curves.easeOut,
           duration: const Duration(milliseconds: 500),
           child: hasSelectedItems ? Container(
-            margin: const EdgeInsets.only(bottom: 16, left: 0, right: 16),
+            margin: multiSelectActionsPadding,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

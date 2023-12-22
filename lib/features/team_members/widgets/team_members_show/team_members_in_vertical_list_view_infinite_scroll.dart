@@ -54,7 +54,7 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
   /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalListViewInfiniteScrollState>();
 
   void _startRemoveLoader() => setState(() => isRemoving = true);
   void _stopRemoveLoader() => setState(() => isRemoving = false);
@@ -141,7 +141,7 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
 
     if(isRemoving) return; 
 
-    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
+    final CustomVerticalListViewInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final List<User> teamMembers = List<User>.from(customInfiniteScrollCurrentState.selectedItems);
 
     final bool? confirmation = await confirmRemove();
@@ -195,7 +195,7 @@ class TeamMembersInVerticalListViewInfiniteScrollState extends State<TeamMembers
   /// Confirm remove the selected team members
   Future<bool?> confirmRemove() {
 
-    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
+    final CustomVerticalListViewInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final int totalSelectedItems = customInfiniteScrollCurrentState.totalSelectedItems;
 
     return DialogUtility.showConfirmDialog(
@@ -230,7 +230,7 @@ class TeamMemberItem extends StatelessWidget {
   final bool canManageTeamMembers;
   final bool hasSelectedTeamMembers;
   final Function(User) onViewTeamMember;
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState;
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> customVerticalListViewInfiniteScrollState;
 
   const TeamMemberItem({
     super.key, 
@@ -252,7 +252,7 @@ class TeamMemberItem extends StatelessWidget {
   bool get invited => userStoreAssociation.teamMemberStatus!.toLowerCase() == 'invited';
   UserStoreAssociation get userStoreAssociation => user.attributes.userStoreAssociation!;
   String get title => mobileNumber == null ? user.attributes.name : mobileNumber!.withoutExtension;
-  CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
+  CustomVerticalListViewInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
 
   bool get canPerformActions {
 

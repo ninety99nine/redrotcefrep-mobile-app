@@ -51,7 +51,7 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
   /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
   /// Reference: https://www.youtube.com/watch?v=uvpaZGNHVdI
-  final GlobalKey<CustomVerticalInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalInfiniteScrollState>();
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> _customVerticalListViewInfiniteScrollState = GlobalKey<CustomVerticalListViewInfiniteScrollState>();
 
   /// Render each request item as an GroupItem
   Widget onRenderItem(item, int index, List items, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => GroupItem(
@@ -108,7 +108,7 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
 
     if(isDeleting) return;
 
-    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
+    final CustomVerticalListViewInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final List<FriendGroup> selectedFriendGroups = List<FriendGroup>.from(customInfiniteScrollCurrentState.selectedItems);
 
     final bool? confirmation = await confirmDelete();
@@ -158,7 +158,7 @@ class _FriendGroupsInVerticalListViewInfiniteScrollState extends State<FriendGro
   /// Confirm delete the selected friend groups
   Future<bool?> confirmDelete() {
 
-    final CustomVerticalInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
+    final CustomVerticalListViewInfiniteScrollState customInfiniteScrollCurrentState = _customVerticalListViewInfiniteScrollState.currentState!;
     final int totalSelectedItems = customInfiniteScrollCurrentState.totalSelectedItems;
 
     return DialogUtility.showConfirmDialog(
@@ -194,7 +194,7 @@ class GroupItem extends StatelessWidget {
   final FriendGroup friendGroup;
   final bool hasSelectedFriendGroups;
   final Function(FriendGroup) onViewFriendGroup;
-  final GlobalKey<CustomVerticalInfiniteScrollState> customVerticalListViewInfiniteScrollState;
+  final GlobalKey<CustomVerticalListViewInfiniteScrollState> customVerticalListViewInfiniteScrollState;
 
   const GroupItem({
     super.key, 
@@ -207,14 +207,17 @@ class GroupItem extends StatelessWidget {
   });
 
   int get id => friendGroup.id;
+  bool get hasEmoji => emoji != null;
   String get name => friendGroup.name;
-  int get totalFriends => friendGroup.friendsCount!;
-  String get totalFriendsText => '$totalFriends ${totalFriends == 1 ? 'Friend' : 'Friends'}';
+  String? get emoji => friendGroup.emoji;
   int get totalStores => friendGroup.storesCount!;
-  String get totalStoresText => '$totalStores ${totalStores == 1 ? 'Store' : 'Stores'}';
   int get totalOrders => friendGroup.ordersCount!;
+  int get totalFriends => friendGroup.friendsCount!;
+  bool get hasDescription => friendGroup.description != null;
+  String get totalStoresText => '$totalStores ${totalStores == 1 ? 'Store' : 'Stores'}';
   String get totalOrdersText => '$totalOrders ${totalOrders == 1 ? 'Order' : 'Orders'}';
-  CustomVerticalInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
+  String get totalFriendsText => '$totalFriends ${totalFriends == 1 ? 'Friend' : 'Friends'}';
+  CustomVerticalListViewInfiniteScrollState get customInfiniteScrollCurrentState => customVerticalListViewInfiniteScrollState.currentState!;
 
   bool get canPerformActions {
 
@@ -276,12 +279,40 @@ class GroupItem extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-        
-                          /// Name
-                          CustomTitleSmallText(name),
+
+                          Row(
+                            children: [
+
+                              if(hasEmoji) ...[
+
+                                /// Emoji
+                                CustomBodyText(emoji!, fontSize: 24,),
+                  
+                                /// Spacer
+                                const SizedBox(width: 8),
+
+                              ],
+
+                              /// Name
+                              CustomTitleSmallText(name),
+
+                            ],
+                          ),
                   
                           /// Spacer
                           const SizedBox(height: 4),
+                            
+                          if(hasDescription) Column(
+                              children: [
+                              
+                                /// Group Description
+                                CustomBodyText(friendGroup.description, lightShade: true,),
+                                  
+                                /// Spacer
+                                const SizedBox(height: 4),
+                                  
+                              ],
+                          ),
 
                           Row(
                             children: [
@@ -343,7 +374,7 @@ class GroupItem extends StatelessWidget {
           child: IconButton(
             isSelected: true,
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.arrow_forward, size: 16, color: Colors.grey.shade400,),
+            icon: Icon(Icons.mode_edit_outline_outlined, size: 16, color: Colors.grey.shade400,),
             onPressed: () {
               
               if(canPerformActions == false) return;

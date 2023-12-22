@@ -299,13 +299,27 @@ class UserRepository {
   }
 
   /// Show first created group
-  Future<dio.Response> showFirstCreatedFriendGroup() {
+  Future<dio.Response> showFirstCreatedFriendGroup({ String? filter, bool withCountFriends = false, bool withCountUsers = false, bool withCountStores = false, bool withCountOrders = false, String searchWord = '', int page = 1 }){
 
     if(user == null) throw Exception('The user must be set to show their first created friend group');
 
     String url = user!.links.showFirstCreatedFriendGroup.href;
 
     Map<String, String> queryParams = {};
+
+    if(withCountUsers) queryParams.addAll({'withCountUsers': '1'});
+    if(withCountStores) queryParams.addAll({'withCountStores': '1'});
+    if(withCountOrders) queryParams.addAll({'withCountOrders': '1'});
+    if(withCountFriends) queryParams.addAll({'withCountFriends': '1'});
+      
+    /// Page
+    queryParams.addAll({'page': page.toString()});
+
+    /// Filter friend groups by the specified status
+    if(filter != null) queryParams.addAll({'filter': filter});
+
+    /// Filter by search
+    if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
     return apiRepository.get(url: url, queryParams: queryParams);
     

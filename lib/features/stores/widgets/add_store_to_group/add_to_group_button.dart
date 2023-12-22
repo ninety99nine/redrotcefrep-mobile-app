@@ -13,10 +13,10 @@ import 'dart:convert';
 
 class AddStoreToGroupButton extends StatefulWidget {
 
-  final Widget? trigger;
   final bool canShowLoader;
   final ShoppableStore store;
   final Function? onAddedStoreToFriendGroups;
+  final Widget Function(Function())? trigger;
 
   const AddStoreToGroupButton({
     super.key,
@@ -37,38 +37,27 @@ class _AddStoreToGroupButtonState extends State<AddStoreToGroupButton> {
   void _startLoader() => setState(() => isLoading = true);
   void _stopLoader() => setState(() => isLoading = false);
 
-  Widget? get _trigger => widget.trigger;
   ShoppableStore get store => widget.store;
   bool get canShowLoader => widget.canShowLoader;
+  Widget Function(Function())? get trigger => widget.trigger;
   Function? get onAddedStoreToFriendGroups => widget.onAddedStoreToFriendGroups;
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
 
   /// Content to show based on the specified view
   Widget get content {
 
-    Widget trigger;
-
-    if(_trigger == null) {
-
-      trigger = CustomTextButton( 
-        '',
-        onPressed: null,
-        color: Colors.grey.shade400,
-        prefixIcon: Icons.group_add_outlined
-      );
-    
-    }else {
-
-      /// Set the provided trigger
-      trigger = _trigger!;
-
-    }
+    final Widget defaultTrigger = CustomTextButton( 
+      '',
+      onPressed: null,
+      color: Colors.grey.shade400,
+      prefixIcon: Icons.group_add_outlined
+    );
 
     return FriendGroupsModalBottomSheet(
-      trigger: trigger,
       enableBulkSelection: true,
       purpose: Purpose.addStoreToFriendGroups,
       onDoneSelectingFriendGroups: requestAddStoreToFriendGroups,
+      trigger: (openBottomModalSheet) => trigger == null ? defaultTrigger : trigger!(openBottomModalSheet),
     );
     
   }

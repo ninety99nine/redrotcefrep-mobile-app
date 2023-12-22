@@ -55,7 +55,7 @@ class StoreRepository {
 
   /// Get the stores of the specified url
   /// e.g brand stores, influencer stores, e.t.c
-  Future<dio.Response> showStores({ String? url, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showStores({ String? url, UserAssociation? userAssociation, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, String searchWord = '', int page = 1 }) {
 
     url ??= homeApiLinks.showStores;
 
@@ -69,12 +69,13 @@ class StoreRepository {
     if(withVisitShortcode) queryParams.addAll({'withVisitShortcode': '1'});
     if(withVisibleProducts) queryParams.addAll({'withVisibleProducts': '1'});
     if(withCountTeamMembers) queryParams.addAll({'withCountTeamMembers': '1'});
+    if(userAssociation != null) queryParams.addAll({'filter': userAssociation.name});
 
     /// Filter by search
     if(searchWord.isNotEmpty) queryParams.addAll({'search': searchWord}); 
 
     /// Page
-    if(page != null) queryParams.addAll({'page': page.toString()});
+    queryParams.addAll({'page': page.toString()});
 
     return apiRepository.get(url: url, queryParams: queryParams);
     
@@ -84,7 +85,7 @@ class StoreRepository {
   /// e.g where the user is a follower, customer, or team member.
   /// If the association is not provided, the default behaviour is
   /// to return stores where the authenticated user is a team member
-  Future<dio.Response> showUserStores({ required User user, UserAssociation? userAssociation, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int page = 1 }) {
+  Future<dio.Response> showUserStores({ required User user, UserAssociation? userAssociation, bool withFriendGroupStoreAssociation = false, bool withVisibleProducts = false, bool withCountProducts = false, bool withCountFollowers = false, bool withVisitShortcode = false, bool withCountTeamMembers = false, bool withCountReviews = false, bool withCountOrders = false, withCountCoupons = false, bool withRating = false, FriendGroup? friendGroup, String searchWord = '', int page = 1 }) {
 
     String url = user.links.showStores.href;
 
@@ -98,6 +99,7 @@ class StoreRepository {
     if(withVisitShortcode) queryParams.addAll({'withVisitShortcode': '1'});
     if(withVisibleProducts) queryParams.addAll({'withVisibleProducts': '1'});
     if(withCountTeamMembers) queryParams.addAll({'withCountTeamMembers': '1'});
+    if(withFriendGroupStoreAssociation) queryParams.addAll({'withFriendGroupStoreAssociation': '1'});
     if(userAssociation != null) queryParams.addAll({'filter': userAssociation.name});
     if(friendGroup != null) queryParams.addAll({'friend_group_id': friendGroup.id.toString()});
 

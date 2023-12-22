@@ -29,7 +29,7 @@ class _AiChatModalBottomSheetState extends State<AiChatModalBottomSheet> {
     return trigger == null ? CustomElevatedButton('Need Advice?', width: 140, prefixIcon: Icons.bubble_chart_outlined, alignment: Alignment.center, onPressed: openBottomModalSheet) : trigger!(openBottomModalSheet);
   }
 
-  /// Open the bottom modal sheet to show the new order placed
+  /// Open the bottom modal sheet
   void openBottomModalSheet() {
     if(_customBottomModalSheetState.currentState != null) {
       _customBottomModalSheetState.currentState!.showBottomSheet(context);
