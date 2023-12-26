@@ -8,6 +8,7 @@ class CustomTitleAndNumberCard extends StatelessWidget {
   final int? number;
   final String title;
   final double? width;
+  final bool isLoading;
   final double elevation;
   final Function()? onTap;
   final EdgeInsets margin;
@@ -22,6 +23,7 @@ class CustomTitleAndNumberCard extends StatelessWidget {
     required this.title,
     required this.number,
     this.elevation = 4.0,
+    this.isLoading = false,
     this.margin = const EdgeInsets.all(0),
     this.padding = const EdgeInsets.all(16),
   }) : super(key: key);
@@ -59,9 +61,9 @@ class CustomTitleAndNumberCard extends StatelessWidget {
                     switchInCurve: Curves.easeIn,
                     switchOutCurve: Curves.easeOut,
                     duration: const Duration(milliseconds: 500),
-                    child: number == null 
+                    child: number == null || isLoading 
                       ? const CustomCircularProgressIndicator(size: 8, strokeWidth: 1, margin: EdgeInsets.only(bottom: 4),)
-                      : CustomTitleSmallText(number.toString(), color: Colors.black),
+                      : CustomTitleSmallText('$number', color: Colors.black),
                   )
                 ),
                 const SizedBox(height: 5),

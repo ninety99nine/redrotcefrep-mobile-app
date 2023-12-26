@@ -82,7 +82,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
   bool get hasDialedStoreOnUssd => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.lastSeenOnUssdAt != null : false;
   DateTime? get lastSubscriptionEndAt => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.lastSubscriptionEndAt : null;
   bool get hasSubscribedAtleastOnce => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.lastSubscriptionEndAt != null : false;
-  bool get hasCompletedEverything => hasCreatedAStore ? (hasCreatedAProduct && hasDialedStoreOnUssd && hasSubscribedAtleastOnce && hasReceivedAnOrder) : false;
+  bool get hasCompletedMilestones => hasCreatedAStore ? (hasCreatedAProduct && hasDialedStoreOnUssd && hasSubscribedAtleastOnce && hasReceivedAnOrder) : false;
   bool get hasJoinedRecentlyCreatedStoreLessThan24HoursAgo => hasCreatedAStore ? firstCreatedStore!.attributes.userStoreAssociation!.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 1))) : false;
 
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
@@ -192,7 +192,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
 
   }
 
-  Widget get _completedEverythingContent {
+  Widget get _hasCompletedMilestones {
     return Column(
       children: [
 
@@ -397,7 +397,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
     );
   }
 
-  Widget get _hasNotCompletedEverythingContent {
+  Widget get _hasNotCompletedMilestones {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
       child: Column(
@@ -976,11 +976,11 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
               : Column(
                   children: [
                         
-                    /// Completed Everything Content
-                    if(hasCompletedEverything || hasStoresJoinedAsNonCreator) _completedEverythingContent,
+                    /// Store Creation Milestones
+                    if(hasCompletedMilestones || hasStoresJoinedAsNonCreator) _hasCompletedMilestones,
 
                     /// Has Not Completed Everything Content
-                    if(!hasCompletedEverything && !hasStoresJoinedAsNonCreator) _hasNotCompletedEverythingContent
+                    if(!hasCompletedMilestones && !hasStoresJoinedAsNonCreator) _hasNotCompletedMilestones
 
                   ]
                 )

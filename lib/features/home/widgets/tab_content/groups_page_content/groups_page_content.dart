@@ -2,18 +2,23 @@ import 'package:bonako_demo/features/friend_groups/widgets/create_or_update_frie
 import 'package:bonako_demo/features/friend_groups/widgets/friend_group_friends/friend_group_friends_modal_bottom_sheet/friend_group_friends_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/friend_groups/widgets/friend_group_stores/friend_group_stores_modal_bottom_sheet/friend_group_stores_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/orders/widgets/orders_show/friend_group_orders_in_horizontal_list_view_infinite_scroll.dart';
 import 'package:bonako_demo/features/chat/widgets/ai_chat_modal_bottom_sheet/ai_chat_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/cards/custom_title_and_number_card.dart';
 import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:bonako_demo/features/stores/widgets/store_cards/store_cards.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
 import 'package:bonako_demo/features/friend_groups/enums/friend_group_enums.dart';
 import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
 import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
 import 'package:bonako_demo/features/user/models/resource_totals.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:bonako_demo/features/stores/enums/store_enums.dart';
+import 'package:bonako_demo/features/orders/models/order.dart';
 import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:flutter/gestures.dart';
@@ -42,55 +47,50 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   late User authUser;
   ResourceTotals? resourceTotals;
   bool isLoadingResourceTotals = false;
-  FriendGroup? firstCreatedFriendGroup;
   FriendGroup? lastSelectedFriendGroup;
-  bool isLoadingFirstCreatedFriendGroup = false;
   bool isLoadingLastSelectedFriendGroup = false;
   bool? isLoadingLastSelectedFriendGroupForTheFirstTime;
-  bool? isLoadingFirstCreatedFriendGroupForTheFirstTime;
 
   bool get hasResourceTotals => resourceTotals != null;
   bool get doesNotHaveResourceTotals => resourceTotals == null;
-  bool get hasCreatedAFriendGroup => firstCreatedFriendGroup != null;
   bool get hasSelectedAFriendGroup => lastSelectedFriendGroup != null;
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
   
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   int get totalGroupsJoined => hasResourceTotals ? resourceTotals!.totalGroupsJoined : 0;
-  bool get hasCompletedEverything => hasCreatedAFriendGroup && hasAddedFriendsOnFirstCreatedFriendGroup && hasAddedStoresOnFirstCreatedFriendGroup;
-
-  bool get hasAddedStoresOnFirstCreatedFriendGroup => totalAddedStoresOnFirstCreatedFriendGroup > 0;
-  bool get hasAddedFriendsOnFirstCreatedFriendGroup => totalAddedFriendsOnFirstCreatedFriendGroup > 0;
-  bool get hasPlacedAnOrderOnFirstCreatedFriendGroup => totalPlacedOrdersOnFirstCreatedFriendGroup > 0;
-  int get totalAddedStoresOnFirstCreatedFriendGroup => hasCreatedAFriendGroup ? firstCreatedFriendGroup!.storesCount ?? 0 : 0;
-  int get totalPlacedOrdersOnFirstCreatedFriendGroup => hasCreatedAFriendGroup ? firstCreatedFriendGroup!.ordersCount ?? 0 : 0;
-  int get totalAddedFriendsOnFirstCreatedFriendGroup => hasCreatedAFriendGroup ? firstCreatedFriendGroup!.friendsCount ?? 0 : 0;
+    bool get hasGroupsJoined => hasResourceTotals ? resourceTotals!.totalGroupsJoined > 0 : false;
+  bool get hasNoGroupsJoined => hasResourceTotals ? resourceTotals!.totalGroupsJoined == 0 : false;
+  bool get hasOneGroupJoined => hasResourceTotals ? resourceTotals!.totalGroupsJoined == 1 : false;
+  bool get hasManyGroupsJoined => hasResourceTotals ? resourceTotals!.totalGroupsJoined > 1 : false;
+  bool get hasGroupsJoinedAsCreator => hasResourceTotals ? resourceTotals!.totalGroupsJoinedAsCreator > 0 : false;
+  bool get hasGroupsJoinedAsNonCreator => hasResourceTotals ? resourceTotals!.totalGroupsJoinedAsNonCreator > 0 : false;
+  bool get hasGroupsInvitedToJoinAsGroupMember => hasResourceTotals ? resourceTotals!.totalGroupsInvitedToJoinAsGroupMember > 0 : false;
 
   bool get hasAddedStoresOnLastSelectedFriendGroup => totalAddedStoresOnLastSelectedFriendGroup > 0;
   bool get hasAddedFriendsOnLastSelectedFriendGroup => totalAddedFriendsOnLastSelectedFriendGroup > 0;
   bool get hasPlacedAnOrderOnLastSelectedFriendGroup => totalPlacedOrdersOnLastSelectedFriendGroup > 0;
+  bool get lastSelectedFriendGroupHasDescription => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.emoji != null : false;
   int get totalAddedStoresOnLastSelectedFriendGroup => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.storesCount ?? 0 : 0;
   int get totalPlacedOrdersOnLastSelectedFriendGroup => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.ordersCount ?? 0 : 0;
   int get totalAddedFriendsOnLastSelectedFriendGroup => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.friendsCount ?? 0 : 0;
+  bool get isCreatorOfLastSelectedFriendGroup => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.attributes.userFriendGroupAssociation!.isCreator : false;
+  bool get hasCompletedMilestones => isCreatorOfLastSelectedFriendGroup && hasAddedFriendsOnLastSelectedFriendGroup && hasAddedStoresOnLastSelectedFriendGroup;
+  bool get isCreatorOrAdminOfLastSelectedFriendGroup => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.attributes.userFriendGroupAssociation!.isCreatorOrAdmin : false;
+  bool get hasJoinedLastSelectedFriendGroupLessThan24HoursAgo => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.attributes.userFriendGroupAssociation!.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 1))) : false;
 
   Future<dio.Response?> Function() get onRequestShowResourceTotals => widget.onRequestShowResourceTotals;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
-  
-  bool get hasGroupsJoined => hasResourceTotals ? resourceTotals!.totalGroupsJoined > 0 : false;
-  bool get hasGroupsJoinedManyGroups => hasResourceTotals ? resourceTotals!.totalGroupsJoined > 1 : false;
-  bool get hasGroupsJoinedAsCreator => hasResourceTotals ? resourceTotals!.totalGroupsJoinedAsCreator > 0 : false;
-  bool get hasGroupsJoinedAsNonCreator => hasResourceTotals ? resourceTotals!.totalGroupsJoinedAsNonCreator > 0 : false;
-  bool get hasGroupsInvitedToJoinAsGroupMember => hasResourceTotals ? resourceTotals!.totalGroupsInvitedToJoinAsGroupMember > 0 : false;
-  bool get hasJoinedFirstCreatedFriendGroupLessThan24HoursAgo => hasCreatedAFriendGroup ? firstCreatedFriendGroup!.attributes.userFriendGroupAssociation!.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 1))) : false;
 
+  final GlobalKey<StoreCardsState> storeCardsState = GlobalKey<StoreCardsState>();
   final GlobalKey<CreateOrUpdateFriendGroupModalBottomSheetState> _createOrUpdateFriendGroupModalBottomSheetState = GlobalKey<CreateOrUpdateFriendGroupModalBottomSheetState>();
+  final GlobalKey<FriendGroupFriendsModalBottomSheetState> _friendGroupFriendsModalBottomSheetState = GlobalKey<FriendGroupFriendsModalBottomSheetState>();
+  final GlobalKey<FriendGroupStoresModalBottomSheetState> _friendGroupStoresModalBottomSheetState = GlobalKey<FriendGroupStoresModalBottomSheetState>();
+  final GlobalKey<FriendGroupsModalBottomSheetState> _friendGroupsModalBottomSheetState = GlobalKey<FriendGroupsModalBottomSheetState>();
 
-  void _startRequestResourceTotalsLoader() => setState(() => isLoadingResourceTotals = true);
-  void _stopRequestResourceTotalsLoader() => setState(() => isLoadingResourceTotals = false);
-  void _startFirstCreatedFriendGroupLoader() => setState(() => isLoadingFirstCreatedFriendGroup = true);
-  void _stopFirstCreatedFriendGroupLoader() => setState(() => isLoadingFirstCreatedFriendGroup = false);
-  void _startLastSelectedFriendGroupLoader() => setState(() => isLoadingLastSelectedFriendGroup = true);
-  void _stopLastSelectedFriendGroupLoader() => setState(() => isLoadingLastSelectedFriendGroup = false);
+  void _startRequestResourceTotalsLoader() { if(mounted) setState(() => isLoadingResourceTotals = true); }
+  void _stopRequestResourceTotalsLoader() { if(mounted) setState(() => isLoadingResourceTotals = false); }
+  void _startLastSelectedFriendGroupLoader() { if(mounted) setState(() => isLoadingLastSelectedFriendGroup = true); }
+  void _stopLastSelectedFriendGroupLoader() { if(mounted) setState(() => isLoadingLastSelectedFriendGroup = false); }
 
   @override
   void initState() {
@@ -106,6 +106,15 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   void dispose() {
     super.dispose();
 
+    /**
+     *  We need to unset the friend group so that when we navigate to a different home tab
+     *  e.g "Following", we do not have a reference of this friend group on the menus of 
+     *  each store card on the "Following" home tab. Since the friend group was set here,
+     *  it makes sense to clean up by unsetting before leaving the groups page content
+     *  so that the friendGroupRepository is restored to the way it was before.
+     */
+    friendGroupProvider.unsetFriendGroup();
+
     // Remove the observer to detect app lifecycle changes
     WidgetsBinding.instance.removeObserver(this);
   }
@@ -115,11 +124,11 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
     /**
      *  Once the user returns we want to refresh the state of the friend group incase
-     *  anything has changed e.g The group has members
+     *  anything has changed e.g The group has members or stores
      */
     if (state == AppLifecycleState.resumed) {
 
-      _showFirstCreatedFriendGroup();
+      _onRequestShowResourceTotals();
       _showLastSelectedFriendGroup();
 
     }
@@ -140,14 +149,8 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
         /// Update the local resourceTotals
         resourceTotals = updateResourceTotals;
 
-        /// If we have joined a group as a creator and that is the only group we have
-        if(hasGroupsJoinedAsCreator && totalGroupsJoined == 1) {
-
-          /// Get the first created friend group
-          _showFirstCreatedFriendGroup();
-
-        /// If we have joined more than one group
-        }else if(totalGroupsJoined > 1) {
+        /// If we have one or more groups joined
+        if(hasOneGroupJoined || hasManyGroupsJoined) {
 
           /// Get the last selected friend group
           _showLastSelectedFriendGroup();
@@ -156,10 +159,10 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
           setState(() {
             
-            /// Set these to true so that we don't cause the ready loaded UI to
-            /// disapper when loading the first created or last selected group.
+            /// Set the "isLoadingLastSelectedFriendGroupForTheFirstTime = false",
+            /// so that we don't cause the ready loaded UI to disapper when
+            /// loading the last selected group for the first time.
             isLoadingLastSelectedFriendGroupForTheFirstTime = false;
-            isLoadingFirstCreatedFriendGroupForTheFirstTime = false;
 
           });
 
@@ -171,63 +174,14 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
     
   }
 
-  void _showFirstCreatedFriendGroup() {
-
-    _startFirstCreatedFriendGroupLoader();
-
-    if(isLoadingFirstCreatedFriendGroupForTheFirstTime == null) {
-      setState(() => isLoadingFirstCreatedFriendGroupForTheFirstTime = true);
-    }
-
-    authProvider.userRepository.showFirstCreatedFriendGroup(
-      withCountFriends: true,
-      withCountStores: true,
-      withCountOrders: true,
-      withCountUsers: false
-    ).then((response) {
-
-      setState(() {
-
-        isLoadingFirstCreatedFriendGroupForTheFirstTime = false;
-
-        if(response.statusCode == 200) {
-
-          final bool friendGroupExists = response.data['exists'];
-
-          if(friendGroupExists) {
-              
-            /// Set the this response data as the first created friend group
-            firstCreatedFriendGroup = FriendGroup.fromJson(response.data['friendGroup']);
-
-            /// Set this first created friend group to also be the last selected friend group
-            lastSelectedFriendGroup = firstCreatedFriendGroup;
-
-          }
-
-        }
-
-      });
-
-    }).catchError((error) {
-
-      printError(info: error.toString());
-
-      SnackbarUtility.showErrorMessage(message: 'Failed to show your first group');
-
-    }).whenComplete(() {
-
-      _stopFirstCreatedFriendGroupLoader();
-
-    });
-
-  }
-
   void _showLastSelectedFriendGroup() {
 
     _startLastSelectedFriendGroupLoader();
 
     if(isLoadingLastSelectedFriendGroupForTheFirstTime == null) {
-      setState(() => isLoadingLastSelectedFriendGroupForTheFirstTime = true);
+
+      if(mounted) setState(() => isLoadingLastSelectedFriendGroupForTheFirstTime = true);
+
     }
 
     friendGroupProvider.friendGroupRepository.showLastSelectedFriendGroup(
@@ -237,29 +191,39 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
       withCountUsers: false
     ).then((response) {
 
-      setState(() {
+      if(mounted) {
+        
+        setState(() {
 
-        isLoadingLastSelectedFriendGroupForTheFirstTime = false;
+          if(isLoadingLastSelectedFriendGroupForTheFirstTime != false) {
 
-        if(response.statusCode == 200) {
-
-          final bool friendGroupExists = response.data['exists'];
-
-          if(friendGroupExists) {
-              
-            lastSelectedFriendGroup = FriendGroup.fromJson(response.data['friendGroup']);
+            isLoadingLastSelectedFriendGroupForTheFirstTime = false;
 
           }
 
-        }
+          if(response.statusCode == 200) {
 
-      });
+            final bool friendGroupExists = response.data['exists'];
+
+            if(friendGroupExists) {
+                
+              final FriendGroup lastSelectedFriendGroup = FriendGroup.fromJson(response.data['friendGroup']);
+
+              _onSelectedFriendGroup(lastSelectedFriendGroup);
+
+            }
+
+          }
+
+        });
+
+      }
 
     }).catchError((error) {
 
       printError(info: error.toString());
 
-      SnackbarUtility.showErrorMessage(message: 'Failed to show your first group');
+      SnackbarUtility.showErrorMessage(message: 'Failed to show group');
 
     }).whenComplete(() {
 
@@ -269,12 +233,12 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
   }
 
-  Widget get _completedEverythingContent {
+  Widget get _hasCompletedMilestones {
     return Column(
       children: [
 
-        /// If Created A Friend Group Less Than 24 Hours Ago
-        if(/*hasCreatedAFriendGroup && hasJoinedFirstCreatedFriendGroupLessThan24HoursAgo*/ true) ...[
+        /// If Created This Last Selected Friend Group Less Than 24 Hours Ago
+        if(/* isCreatorOfLastSelectedFriendGroup && hasJoinedLastSelectedFriendGroupLessThan24HoursAgo */ true) ...[
 
           /// Instruction Note
           Container(
@@ -300,7 +264,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
                       TextSpan(
                         text: 'stores',
                         recognizer: TapGestureRecognizer()..onTap = () {
-                          /// DialerUtility.dial(number: mobileNumberShortcode);
+                          openStoresModalBottomSheet();
                         },
                         style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
                       ),
@@ -308,7 +272,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
                       TextSpan(
                         text: 'friends',
                         recognizer: TapGestureRecognizer()..onTap = () {
-                          /// DialerUtility.dial(number: mobileNumberShortcode);
+                          openFriendsModalBottomSheet();
                         },
                         style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
                       ),
@@ -325,21 +289,21 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
         ],
 
-        /// If Created A Friend Group More Than 24 Hours Ago
-        if(/*hasCreatedAFriendGroup && !hasJoinedFirstCreatedFriendGroupLessThan24HoursAgo*/true) ...[
+        /// If Created This Last Selected Friend Group More Than 24 Hours Ago
+        if(/* isCreatorOfLastSelectedFriendGroup && !hasJoinedLastSelectedFriendGroupLessThan24HoursAgo */true) ...[
 
           /// Instruction Note
-          Container(
-            margin: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: GestureDetector(
-              onTap: () {
-                /// DialerUtility.dial(number: mobileNumberShortcode);
-              },
+          GestureDetector(
+            onTap: () {
+              openFriendGroupsModalBottomSheet();
+            },
+            child: Container(
+              margin: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(16.0),
+              ),
               child: RichText(
                 textAlign: TextAlign.left,
                 text: TextSpan(
@@ -362,14 +326,12 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
         ],
 
         /// If Has Not Created A Friend Group
-        if(/*!hasCreatedAFriendGroup*/true) ...[
+        if(/* !hasGroupsJoinedAsCreator */true) ...[
 
           /// Instruction Note
-          GestureDetector(
-            onTap: () {
-              /// DialerUtility.dial(number: mobileNumberShortcode);
-            },
-            child: Container(
+          CreateOrUpdateFriendGroupModalBottomSheet(
+            onCreatedFriendGroup: _onCreatedFriendGroup,
+            trigger: (openBottomModalSheet) => Container(
               margin: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
@@ -381,15 +343,12 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
                 text: TextSpan(
                   text: 'Hey ${authUser.firstName}, create your ',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
-                  children: [
+                  children: const [
                     TextSpan(
                       text: 'first group',
-                      recognizer: TapGestureRecognizer()..onTap = () {
-                        /// openCreateStoreModalBottomSheet();
-                      },
-                      style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
+                      style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
                     ),
-                    const TextSpan(text: ' and start supporting your favourite sellers with your friends 😎 It\'s so easy'),
+                    TextSpan(text: ' and start supporting your favourite sellers with your friends 😎 It\'s so easy'),
                   ]
                 )
               ),
@@ -403,36 +362,63 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
         /// Selected Friend Group Card
         selectedFriendGroupCard,
+                          
+        /// Spacer
+        const SizedBox(height: 4),
+            
+        if(lastSelectedFriendGroupHasDescription) ...[
+            
+          /// Friend Group Description
+          CustomBodyText(
+            lightShade: true,
+            textAlign: TextAlign.center,
+            lastSelectedFriendGroup!.description,
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          ),
+            
+        ],
 
         /// Order And Review Statistics
         orderAndReviewStatistics,
 
-        /// Spacer
-        const SizedBox(height: 16),
+        if(hasPlacedAnOrderOnLastSelectedFriendGroup) ...[
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          /// Spacer
+          const SizedBox(height: 16),
 
-            /// AI Chat Button (Need Advice?) 
-            const AiChatModalBottomSheet(),
+          /// Friend Group Orders In Horizontal List View Infinite Scroll
+          friendGroupOrdersInHorizontalListViewInfiniteScroll,
 
-            /// Spacer
-            const SizedBox(width: 8),
+        ],
 
-            /// Create Or Update Friend Group Modal Bottom Sheet
-            CreateOrUpdateFriendGroupModalBottomSheet(
-              key: _createOrUpdateFriendGroupModalBottomSheetState,
-              onCreatedFriendGroup: _onCreatedFriendGroup,
-              trigger: (openBottomModalSheet) =>  IconButton(
-                icon: const Icon(Icons.add_circle_rounded), 
-                onPressed: openBottomModalSheet,
-                iconSize: 40
-              )
-            )
+        if(hasAddedStoresOnLastSelectedFriendGroup) ...[
 
-          ],
-        ),
+          /// Spacer
+          const SizedBox(height: 16),
+
+          /// Friend Group Stores In Vertical List View Infinite Scroll
+          friendGroupStoreCards,
+
+
+        ],
+
+        if(!hasAddedFriendsOnLastSelectedFriendGroup) ...[
+
+          /// Spacer
+          const SizedBox(height: 16),
+
+          _noFriendGroupFriendsFound,
+
+        ],
+
+        if(!hasAddedStoresOnLastSelectedFriendGroup) ...[
+
+          /// Spacer
+          const SizedBox(height: 16),
+
+          _noFriendGroupStoresFound,
+
+        ],
 
         /// Spacer
         const SizedBox(height: 16),
@@ -441,7 +427,43 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
     );
   }
 
-  Widget get _hasNotCompletedEverythingContent {
+  Widget get _noFriendGroupFriendsFound {
+    return GestureDetector(
+      onTap: openFriendsModalBottomSheet,
+      child: RichText(
+        text: TextSpan(
+          text: 'No friends invited - ',
+          style: Theme.of(context).textTheme.bodyMedium,
+          children: const [
+            TextSpan(
+              text: 'add friends',
+              style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
+            ),
+          ]
+        )
+      ),
+    );
+  }
+
+  Widget get _noFriendGroupStoresFound {
+    return GestureDetector(
+      onTap: openStoresModalBottomSheet,
+      child: RichText(
+        text: TextSpan(
+          text: 'No stores added - ',
+          style: Theme.of(context).textTheme.bodyMedium,
+          children: const [
+            TextSpan(
+              text: 'add stores',
+              style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
+            ),
+          ]
+        )
+      ),
+    );
+  }
+
+  Widget get _hasNotCompletedMilestones {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
       child: Column(
@@ -482,7 +504,8 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
           /// Friend Group Emoji
           CreateOrUpdateFriendGroupModalBottomSheet(
             friendGroup: lastSelectedFriendGroup,
-            onUpdatedFriendGroup: _onUpdateFriendGroup,
+            onUpdatedFriendGroup: _onUpdatedFriendGroup,
+            onDeletedFriendGroup: _onDeletedFriendGroup,
             trigger: (openBottomModalSheet) => GestureDetector(
               onTap: openBottomModalSheet,
               child: CustomBodyText(lastSelectedFriendGroup!.emoji, fontSize: 32),
@@ -496,7 +519,11 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
             child: FriendGroupsModalBottomSheet(
               enableBulkSelection: false,
               purpose: Purpose.chooseFriendGroups,
-              onSelectedFriendGroups: onSelectedFriendGroups,
+              key: _friendGroupsModalBottomSheetState,
+              onCreatedFriendGroup: (friendGroup) => _onCreatedFriendGroup(friendGroup, canClose: false),
+              onUpdatedFriendGroup: (friendGroup) => _onUpdatedFriendGroup(friendGroup, canClose: false),
+              onDeletedFriendGroup: (friendGroup) => _onDeletedFriendGroup(friendGroup, canClose: false),
+              onSelectedFriendGroups: _onSelectedFriendGroups,
               trigger: (openBottomModalSheet) => Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0)
@@ -508,34 +535,33 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       
-                        Row(
-                          children: [
-                      
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                
-                                /// Friend Group Name
-                                AnimatedSize(
-                                  duration: const Duration(milliseconds: 500),
-                                  child: AnimatedSwitcher(
-                                    switchInCurve: Curves.easeIn,
-                                    switchOutCurve: Curves.easeOut,
-                                    duration: const Duration(milliseconds: 500),
-                                    child: CustomTitleSmallText(
-                                      key: ValueKey(lastSelectedFriendGroup!.name),
-                                      lastSelectedFriendGroup!.name, margin: const EdgeInsets.only(bottom: 5)
-                                    )
-                                  ),
-                                ),
-                      
-                              ],
-                            ),
-                          ],
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 500),
+                          child: AnimatedSwitcher(
+                            switchInCurve: Curves.easeIn,
+                            switchOutCurve: Curves.easeOut,
+                            duration: const Duration(milliseconds: 500),
+                            child: CustomTitleSmallText(
+                              key: ValueKey(lastSelectedFriendGroup!.name),
+                              lastSelectedFriendGroup!.name
+                            )
+                          ),
                         ),
                       
-                        /// Friend Groups Modal Bottom Sheet (Used to change the Friend Group)
-                        const Icon(Icons.arrow_drop_down_rounded, color: Colors.black),
+                      
+                        if(isLoadingLastSelectedFriendGroup) ...[
+
+                          /// Loader
+                          const CustomCircularProgressIndicator(size: 8, strokeWidth: 1),
+
+                        ],
+                      
+                        if(!isLoadingLastSelectedFriendGroup) ...[
+
+                          /// Arrow Icon
+                          const Icon(Icons.arrow_drop_down_rounded, color: Colors.black),
+
+                        ]
                       
                       ]
                   ),
@@ -545,36 +571,46 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
           ),
     
           /// Spacer
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
 
-          /// Edit Button
-          CreateOrUpdateFriendGroupModalBottomSheet(
-            friendGroup: lastSelectedFriendGroup,
-            onUpdatedFriendGroup: _onUpdateFriendGroup,
-            trigger: (openBottomModalSheet) => GestureDetector(
-              onTap: openBottomModalSheet,
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: Theme.of(context).primaryColor,
-                child: const  Icon(Icons.mode_edit_outlined, color: Colors.white, size: 16),
+          Row(
+            children: [
+
+              /// Edit Button - Create Or Update Friend Group Modal Bottom Sheet
+              CreateOrUpdateFriendGroupModalBottomSheet(
+                friendGroup: lastSelectedFriendGroup,
+                onUpdatedFriendGroup: _onUpdatedFriendGroup,
+                onDeletedFriendGroup: _onDeletedFriendGroup,
+                trigger: (openBottomModalSheet) => GestureDetector(
+                  onTap: openBottomModalSheet,
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Theme.of(context).primaryColor,
+                    child: const  Icon(Icons.mode_edit_outlined, color: Colors.white, size: 16),
+                  ),
+                )
               ),
-            )
+    
+              /// Spacer
+              const SizedBox(width: 4),
+
+              /// Add Button - Create Or Update Friend Group Modal Bottom Sheet
+              CreateOrUpdateFriendGroupModalBottomSheet(
+                key: _createOrUpdateFriendGroupModalBottomSheetState,
+                onCreatedFriendGroup: _onCreatedFriendGroup,
+                trigger: (openBottomModalSheet) => CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: const  Icon(Icons.add, color: Colors.white, size: 16),
+                ),
+              )
+
+            ],
           )
 
         ],
       ),
     );
-  }
-
-  /// Called when the friend group is selected 
-  void onSelectedFriendGroups(List<FriendGroup> friendGroups) {
-    if(friendGroups.isNotEmpty) {
-      setState(() {
-        final FriendGroup friendGroup = friendGroups.first;
-        friendGroupProvider.setFriendGroup(friendGroup);
-        lastSelectedFriendGroup = friendGroup;
-      });
-    }
   }
 
   Widget get orderAndReviewStatistics {
@@ -587,19 +623,27 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
           children: [
 
             FriendGroupFriendsModalBottomSheet(
+              onInvitedMembers: _onInvitedMembers,
+              onRemovedMembers: _onRemovedMembers,
               friendGroup: lastSelectedFriendGroup!,
+              key: _friendGroupFriendsModalBottomSheetState,
               trigger: (openBottomModalSheet) => CustomTitleAndNumberCard(
                 title: totalAddedFriendsOnLastSelectedFriendGroup == 1 ? 'Friend' : 'Friends',
                 number: totalAddedFriendsOnLastSelectedFriendGroup,
+                isLoading: isLoadingLastSelectedFriendGroup,
                 onTap: openBottomModalSheet,
               )
             ),
 
             FriendGroupStoresModalBottomSheet(
+              onAddedStore: _onAddedStore,
+              onRemovedStores: _onRemovedStores,
               friendGroup: lastSelectedFriendGroup!,
+              key: _friendGroupStoresModalBottomSheetState,
               trigger: (openBottomModalSheet) => CustomTitleAndNumberCard(
                 title: totalAddedStoresOnLastSelectedFriendGroup == 1 ? 'Store' : 'Stores',
                 number: totalAddedStoresOnLastSelectedFriendGroup,
+                isLoading: isLoadingLastSelectedFriendGroup,
                 onTap: openBottomModalSheet,
               )
             ),
@@ -647,6 +691,43 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
     );
   }
 
+  Widget get friendGroupOrdersInHorizontalListViewInfiniteScroll {
+
+    return SizedBox(
+      width: double.infinity,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 500),
+        child: FriendGroupOrdersInHorizontalListViewInfiniteScroll(
+          userOrderAssociation: UserOrderAssociation.customerOrFriend,
+          friendGroup: lastSelectedFriendGroup!,
+        ),
+      ),
+    );
+  }
+
+  Widget get friendGroupStoreCards {
+
+    return StoreCards(
+      key: storeCardsState,
+      showFirstRequestLoader: false,
+      onCreatedOrder: _onCreatedOrder,
+      friendGroup: lastSelectedFriendGroup,
+      contentBeforeSearchBar: contentBeforeSearchBar,
+      userAssociation: UserAssociation.friendGroupMember
+    );
+  }
+
+  Widget contentBeforeSearchBar(bool isLoading, int totalStores) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        children: const [
+    
+        ]
+      ),
+    );
+  }
+
   Widget get _milestones {
     return  Container(
       padding: const EdgeInsets.only(top: 16),
@@ -659,7 +740,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
               /// Create Group Milestone
               _addMilestone(
                 number: 1,
-                checked: hasCreatedAFriendGroup,
+                checked: hasSelectedAFriendGroup,
                 content: createFriendGroupInstruction,
               ),
     
@@ -667,20 +748,20 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
               _addMilestone(
                 number: 2,
                 content: addFriendsInstruction,
-                checked: hasAddedFriendsOnFirstCreatedFriendGroup,
+                checked: hasAddedFriendsOnLastSelectedFriendGroup,
               ),
     
               /// Add Stores Milestone
               _addMilestone(
                 number: 3,
                 content: addStoresInstruction,
-                checked: hasAddedStoresOnFirstCreatedFriendGroup,
+                checked: hasAddedStoresOnLastSelectedFriendGroup,
               ),
               
             ],
           ),
 
-          if(isLoadingFirstCreatedFriendGroup || isLoadingResourceTotals) Positioned(
+          if(isLoadingLastSelectedFriendGroup || isLoadingResourceTotals) Positioned(
             top: 0,
             left: 0,
             right: 0,
@@ -746,11 +827,12 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
   Widget get createFriendGroupInstruction {
 
-    if(hasCreatedAFriendGroup) {
+    if(hasSelectedAFriendGroup) {
 
       return CreateOrUpdateFriendGroupModalBottomSheet(
-        friendGroup: firstCreatedFriendGroup,
-        onUpdatedFriendGroup: _onUpdateFriendGroup,
+        friendGroup: lastSelectedFriendGroup,
+        onUpdatedFriendGroup: _onUpdatedFriendGroup,
+        onDeletedFriendGroup: _onDeletedFriendGroup,
         trigger: (openBottomModalSheet) => GestureDetector(
           onTap: openBottomModalSheet,
           child: RichText(
@@ -760,7 +842,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
               children: [
                 TextSpan(
                   /// Show the group name with or without the group emoji
-                  text: '${firstCreatedFriendGroup!.emoji == null ? '' : '${firstCreatedFriendGroup!.emoji}'}${firstCreatedFriendGroup!.name}',
+                  text: '${lastSelectedFriendGroup!.emoji == null ? '' : '${lastSelectedFriendGroup!.emoji}'}${lastSelectedFriendGroup!.name}',
                   style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
                 ),
               ]
@@ -773,6 +855,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
       return CreateOrUpdateFriendGroupModalBottomSheet(
         onCreatedFriendGroup: _onCreatedFriendGroup,
+        onDeletedFriendGroup: _onDeletedFriendGroup,
         trigger: (openBottomModalSheet) => GestureDetector(
           onTap: openBottomModalSheet,
           child: RichText(
@@ -794,34 +877,14 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
   }
 
-  void _onCreatedFriendGroup(FriendGroup createdFriendGroup) {
-    Get.back();
-    _showFirstCreatedFriendGroup();
-    _onRequestShowResourceTotals();
-    setState(() => firstCreatedFriendGroup = createdFriendGroup);
-  }
-
-  void _onUpdateFriendGroup(FriendGroup updatedFriendGroup) {
-    Get.back();
-    _showFirstCreatedFriendGroup();
-    _onRequestShowResourceTotals();
-    setState(() => firstCreatedFriendGroup = updatedFriendGroup);
-  }
-
-  void _onRequestShowResourceTotals() async {
-    _startRequestResourceTotalsLoader();
-    await onRequestShowResourceTotals();
-    _stopRequestResourceTotalsLoader();
-  }
-
   Widget get addFriendsInstruction {
 
-    if(hasAddedFriendsOnFirstCreatedFriendGroup) {
+    if(hasAddedFriendsOnLastSelectedFriendGroup) {
 
       return FriendGroupFriendsModalBottomSheet(
         onInvitedMembers: _onInvitedMembers,
         onRemovedMembers: _onRemovedMembers,
-        friendGroup: firstCreatedFriendGroup!,
+        friendGroup: lastSelectedFriendGroup!,
         trigger: (openBottomModalSheet) => GestureDetector(
           onTap: openBottomModalSheet,
           child: RichText(
@@ -830,7 +893,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
               style: Theme.of(context).textTheme.bodyMedium,
               children: [
                 TextSpan(
-                  text: '$totalAddedFriendsOnFirstCreatedFriendGroup ${totalAddedFriendsOnFirstCreatedFriendGroup == 1 ? 'friend' : 'friends'}',
+                  text: '$totalAddedFriendsOnLastSelectedFriendGroup ${totalAddedFriendsOnLastSelectedFriendGroup == 1 ? 'friend' : 'friends'}',
                   style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
                 ),
               ]
@@ -854,13 +917,12 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
         )
       );
 
-      if(hasCreatedAFriendGroup) {
+      if(hasSelectedAFriendGroup) {
 
-        /// FriendGroupFriendsModalBottomSheet
         return FriendGroupFriendsModalBottomSheet(
           onInvitedMembers: _onInvitedMembers,
           onRemovedMembers: _onRemovedMembers,
-          friendGroup: firstCreatedFriendGroup!,
+          friendGroup: lastSelectedFriendGroup!,
           trigger: (openBottomModalSheet) => GestureDetector(
             onTap: openBottomModalSheet,
             child: instruction,
@@ -882,22 +944,14 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
   }
 
-  void _onInvitedMembers() {
-    _showFirstCreatedFriendGroup();
-  }
-
-  void _onRemovedMembers() {
-    _showFirstCreatedFriendGroup();
-  }
-
   Widget get addStoresInstruction {
 
-    if(hasAddedStoresOnFirstCreatedFriendGroup) {
+    if(hasAddedStoresOnLastSelectedFriendGroup) {
 
       return FriendGroupStoresModalBottomSheet(
         onAddedStore: _onAddedStore,
         onRemovedStores: _onRemovedStores,
-        friendGroup: firstCreatedFriendGroup!,
+        friendGroup: lastSelectedFriendGroup!,
         trigger: (openBottomModalSheet) => GestureDetector(
           onTap: openBottomModalSheet,
           child: RichText(
@@ -906,7 +960,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
               style: Theme.of(context).textTheme.bodyMedium,
               children: [
                 TextSpan(
-                  text: '$totalAddedStoresOnFirstCreatedFriendGroup ${totalAddedStoresOnFirstCreatedFriendGroup == 1 ? 'store' : 'stores'}',
+                  text: '$totalAddedStoresOnLastSelectedFriendGroup ${totalAddedStoresOnLastSelectedFriendGroup == 1 ? 'store' : 'stores'}',
                   style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
                 ),
               ]
@@ -930,13 +984,12 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
         )
       );
 
-      if(hasCreatedAFriendGroup) {
+      if(hasSelectedAFriendGroup) {
 
-        /// FriendGroupStoresModalBottomSheet
         return FriendGroupStoresModalBottomSheet(
           onAddedStore: _onAddedStore,
           onRemovedStores: _onRemovedStores,
-          friendGroup: firstCreatedFriendGroup!,
+          friendGroup: lastSelectedFriendGroup!,
           trigger: (openBottomModalSheet) => GestureDetector(
             onTap: openBottomModalSheet,
             child: instruction,
@@ -958,12 +1011,124 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
 
   }
 
+
+  void openFriendGroupsModalBottomSheet() {
+    _friendGroupsModalBottomSheetState.currentState?.openBottomModalSheet();
+  }
+
+  void openFriendsModalBottomSheet() {
+    _friendGroupFriendsModalBottomSheetState.currentState?.openBottomModalSheet();
+  }
+
+  void openStoresModalBottomSheet() {
+    _friendGroupStoresModalBottomSheetState.currentState?.openBottomModalSheet();
+  }
+
+  /// Called when the friend group is selected 
+  void _onSelectedFriendGroups(List<FriendGroup> friendGroups) {
+    if(friendGroups.isNotEmpty) {
+      _onSelectedFriendGroup(friendGroups.first);
+    }
+  }
+
+  /// Called when the friend group is selected 
+  void _onSelectedFriendGroup(FriendGroup? friendGroup) {
+
+    if(!mounted) return;
+
+    setState(() {
+
+      lastSelectedFriendGroup = friendGroup;
+      friendGroup == null ? friendGroupProvider.unsetFriendGroup() : friendGroupProvider.setFriendGroup(friendGroup);
+
+    });
+
+  }
+
+  void _onCreatedFriendGroup(FriendGroup createdFriendGroup, { canClose = true }) {
+
+    if(canClose) Get.back();
+
+    if(!mounted) return;
+
+    _onSelectedFriendGroup(createdFriendGroup);
+    _onRequestShowResourceTotals();
+    _showLastSelectedFriendGroup();
+  }
+
+  void _onUpdatedFriendGroup(FriendGroup updatedFriendGroup, { canClose = true }) {
+
+    if(canClose) Get.back();
+
+    if(!mounted) return;
+
+    setState(() {
+
+      /// Update the original count of the friend group relationships
+      /// since they are not provided on this updatedFriendGroup.
+      updatedFriendGroup
+        ..friendsCount = lastSelectedFriendGroup!.friendsCount
+        ..storesCount = lastSelectedFriendGroup!.storesCount
+        ..ordersCount = lastSelectedFriendGroup!.ordersCount;
+
+      // Update last selected friend group
+      _onSelectedFriendGroup(updatedFriendGroup);
+
+      _onRequestShowResourceTotals();
+      _showLastSelectedFriendGroup();
+
+    });
+
+  }
+
+  void _onDeletedFriendGroup(FriendGroup deletedFriendGroup, { canClose = true }) {
+
+    if(canClose) Get.back();
+
+    if(!mounted) return;
+
+    setState(() {
+
+      _onRequestShowResourceTotals();
+      _showLastSelectedFriendGroup();
+
+    });
+
+  }
+
+  void _onInvitedMembers() {
+    _showLastSelectedFriendGroup();
+  }
+
+  void _onRemovedMembers() {
+    _showLastSelectedFriendGroup();
+  }
+
   void _onAddedStore(ShoppableStore store) {
-    _showFirstCreatedFriendGroup();
+    _showLastSelectedFriendGroup();
+    _refreshStores();
   }
 
   void _onRemovedStores(List<ShoppableStore> stores) {
-    _showFirstCreatedFriendGroup();
+    _showLastSelectedFriendGroup();
+    _refreshStores();
+  }
+
+  void _onCreatedOrder(Order createdOrder) {
+    _onRequestShowResourceTotals();
+    _showLastSelectedFriendGroup();
+  }
+
+  void _refreshStores() {
+    if(storeCardsState.currentState != null) {
+      storeCardsState.currentState!.refreshStores();
+    }
+  }
+
+  void _onRequestShowResourceTotals() async {
+    _startRequestResourceTotalsLoader();
+    await onRequestShowResourceTotals();
+    _stopRequestResourceTotalsLoader();
   }
 
   void _listenForAuthProviderChanges(BuildContext context) {
@@ -993,7 +1158,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
             switchInCurve: Curves.easeIn,
             switchOutCurve: Curves.easeOut,
             duration: const Duration(milliseconds: 500),
-            child: doesNotHaveResourceTotals || isLoadingFirstCreatedFriendGroupForTheFirstTime == true || isLoadingLastSelectedFriendGroupForTheFirstTime == true
+            child: doesNotHaveResourceTotals || isLoadingLastSelectedFriendGroupForTheFirstTime == true
               ? const CustomCircularProgressIndicator(
                   margin: EdgeInsets.symmetric(vertical: 100),
                   strokeWidth: 2,
@@ -1002,11 +1167,11 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
               : Column(
                   children: [
 
-                    /// Completed Everything Content
-                    if(hasCompletedEverything || hasGroupsJoinedAsNonCreator || hasGroupsJoinedManyGroups) _completedEverythingContent,
+                    /// Group Creation Milestones
+                    if((hasOneGroupJoined && isCreatorOfLastSelectedFriendGroup && hasCompletedMilestones) || hasManyGroupsJoined) _hasCompletedMilestones,
 
-                    /// Has Not Completed Everything Content
-                    if(!hasCompletedEverything && !hasGroupsJoinedAsNonCreator && !hasGroupsJoinedManyGroups) _hasNotCompletedEverythingContent
+                    /// Has Not Completed Everything Content 
+                    if(hasNoGroupsJoined || (hasOneGroupJoined && isCreatorOfLastSelectedFriendGroup && !hasCompletedMilestones)) _hasNotCompletedMilestones
 
                   ]
                 )

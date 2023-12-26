@@ -1,7 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import '../../../../../core/shared_widgets/button/custom_text_button.dart';
+import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../friend_groups/enums/friend_group_enums.dart';
 import '../../../../friend_groups/models/friend_group.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +10,9 @@ class FriendGroupsModalBottomSheet extends StatefulWidget {
   final Purpose purpose;
   final bool enableBulkSelection;
   final Widget Function(Function())? trigger;
+  final void Function(FriendGroup)? onCreatedFriendGroup;
+  final void Function(FriendGroup)? onUpdatedFriendGroup;
+  final void Function(FriendGroup)? onDeletedFriendGroup;
   final Function(List<FriendGroup>)? onSelectedFriendGroups;
   final Function(List<FriendGroup>)? onDoneSelectingFriendGroups;
 
@@ -19,6 +20,9 @@ class FriendGroupsModalBottomSheet extends StatefulWidget {
     super.key,
     this.trigger,
     required this.purpose,
+    this.onCreatedFriendGroup,
+    this.onUpdatedFriendGroup,
+    this.onDeletedFriendGroup,
     this.onSelectedFriendGroups,
     this.onDoneSelectingFriendGroups,
     required this.enableBulkSelection,
@@ -33,6 +37,9 @@ class FriendGroupsModalBottomSheetState extends State<FriendGroupsModalBottomShe
   Purpose get purpose => widget.purpose;
   Widget Function(Function())? get trigger => widget.trigger;
   bool get enableBulkSelection => widget.enableBulkSelection;
+  void Function(FriendGroup)? get onCreatedFriendGroup => widget.onCreatedFriendGroup;
+  void Function(FriendGroup)? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
+  void Function(FriendGroup)? get onDeletedFriendGroup => widget.onDeletedFriendGroup;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -66,6 +73,9 @@ class FriendGroupsModalBottomSheetState extends State<FriendGroupsModalBottomShe
       content: FriendGroupsContent(
         purpose: purpose,
         enableBulkSelection: enableBulkSelection,
+        onCreatedFriendGroup: onCreatedFriendGroup,
+        onUpdatedFriendGroup: onUpdatedFriendGroup,
+        onDeletedFriendGroup: onDeletedFriendGroup,
         onSelectedFriendGroups: widget.onSelectedFriendGroups,
         onDoneSelectingFriendGroups: widget.onDoneSelectingFriendGroups
       ),

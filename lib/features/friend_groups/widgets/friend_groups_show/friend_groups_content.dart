@@ -20,6 +20,9 @@ class FriendGroupsContent extends StatefulWidget {
   final Purpose purpose;
   final bool showingFullPage;
   final bool enableBulkSelection;
+  final void Function(FriendGroup)? onCreatedFriendGroup;
+  final void Function(FriendGroup)? onUpdatedFriendGroup;
+  final void Function(FriendGroup)? onDeletedFriendGroup;
   final Function(List<FriendGroup>)? onSelectedFriendGroups;
   final Function(List<FriendGroup>)? onDoneSelectingFriendGroups;
   
@@ -27,6 +30,9 @@ class FriendGroupsContent extends StatefulWidget {
   const FriendGroupsContent({
     super.key,
     required this.purpose,
+    this.onCreatedFriendGroup,
+    this.onUpdatedFriendGroup,
+    this.onDeletedFriendGroup,
     this.onSelectedFriendGroups,
     this.showingFullPage = false,
     this.onDoneSelectingFriendGroups,
@@ -55,6 +61,9 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
   bool get wantsToChooseFriendGroups => purpose == Purpose.chooseFriendGroups;
   bool get hasSelectedGroupsFilter => selectedFilter == FriendGroupFilter.groups;
   bool get wantsToAddStoreToFriendGroups => purpose == Purpose.addStoreToFriendGroups;
+  void Function(FriendGroup)? get onCreatedFriendGroup => widget.onCreatedFriendGroup;
+  void Function(FriendGroup)? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
+  void Function(FriendGroup)? get onDeletedFriendGroup => widget.onDeletedFriendGroup;
   bool get hasSelectedSharedGroupsFilter => selectedFilter == FriendGroupFilter.sharedGroups;
   FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
@@ -110,12 +119,15 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
     }else if(isViewingGroup) {
 
       /// Show friend groups view
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-        child: CreateOrUpdateFriendGroupForm(
-          friendGroup: friendGroup!,
-          onUpdating: onDisableFloatingActionButton,
-          onUpdatedFriendGroup: onUpdatedFriendGroup,
+      return SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+          child: CreateOrUpdateFriendGroupForm(
+            friendGroup: friendGroup!,
+            onUpdating: onDisableFloatingActionButton,
+            onUpdatedFriendGroup: _onUpdatedFriendGroup,
+            onDeletedFriendGroup: _onDeletedFriendGroup,
+          ),
         ),
       );
 
@@ -123,11 +135,13 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
     }else{
 
       /// Show the friend group create content
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-        child: CreateOrUpdateFriendGroupForm(
-          onCreating: onDisableFloatingActionButton,
-          onCreatedFriendGroup: onCreatedFriendGroup
+      return SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+          child: CreateOrUpdateFriendGroupForm(
+            onCreating: onDisableFloatingActionButton,
+            onCreatedFriendGroup: _onCreatedFriendGroup
+          ),
         ),
       );
 
@@ -226,13 +240,22 @@ class _FriendGroupsContentState extends State<FriendGroupsContent> {
 
   /// Called so that we can show the friend groups
   /// view after creating a friend group
-  void onCreatedFriendGroup(FriendGroup createdFriendGroup) {
+  void _onCreatedFriendGroup(FriendGroup createdFriendGroup) {
+    if(onCreatedFriendGroup != null) onCreatedFriendGroup!(createdFriendGroup);
     changeGroupContentView(FriendGroupContentView.viewingFriendGroups);
   }
 
   /// Called so that we can show the friend groups
   /// view after updating a friend group
-  void onUpdatedFriendGroup(FriendGroup updatedFriendGroup) {
+  void _onUpdatedFriendGroup(FriendGroup updatedFriendGroup) {
+    if(onUpdatedFriendGroup != null) onUpdatedFriendGroup!(updatedFriendGroup);
+    changeGroupContentView(FriendGroupContentView.viewingFriendGroups);
+  }
+
+  /// Called so that we can show the friend groups
+  /// view after deleting a friend group
+  void _onDeletedFriendGroup(FriendGroup deletedFriendGroup) {
+    if(onDeletedFriendGroup != null) onDeletedFriendGroup!(deletedFriendGroup);
     changeGroupContentView(FriendGroupContentView.viewingFriendGroups);
   }
 

@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
+import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/features/friend_groups/repositories/friend_group_repository.dart';
 import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
@@ -21,16 +23,20 @@ class CreateOrUpdateFriendGroupForm extends StatefulWidget {
   final FriendGroup? friendGroup;
   final void Function(bool)? onCreating;
   final void Function(bool)? onUpdating;
+  final void Function(bool)? onDeleting;
   final void Function(FriendGroup)? onCreatedFriendGroup;
   final void Function(FriendGroup)? onUpdatedFriendGroup;
+  final void Function(FriendGroup)? onDeletedFriendGroup;
 
   const CreateOrUpdateFriendGroupForm({
     super.key,
     this.onCreating,
     this.onUpdating,
+    this.onDeleting,
     this.friendGroup,
     this.onUpdatedFriendGroup,
     this.onCreatedFriendGroup,
+    this.onDeletedFriendGroup,
   });
 
   @override
@@ -44,6 +50,7 @@ class _CreateOrUpdateFriendGroupFormState extends State<CreateOrUpdateFriendGrou
   String? description;
   Emoji? selectedEmoji;
   Map serverErrors = {};
+  bool isDeleting = false;
   bool canAddFriends = true;
   bool isSubmitting = false;
   ShakeUtility shakeName = ShakeUtility();
@@ -57,15 +64,19 @@ class _CreateOrUpdateFriendGroupFormState extends State<CreateOrUpdateFriendGrou
   FriendGroup? get friendGroup => widget.friendGroup;
   void Function(bool)? get onCreating => widget.onCreating;
   void Function(bool)? get onUpdating => widget.onUpdating;
+  void Function(bool)? get onDeleting => widget.onDeleting;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   void Function(FriendGroup)? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
   void Function(FriendGroup)? get onCreatedFriendGroup => widget.onCreatedFriendGroup;
+  void Function(FriendGroup)? get onDeletedFriendGroup => widget.onDeletedFriendGroup;
   String? get nameErrorText => serverErrors.containsKey('name') ? serverErrors['name'] : null;
   FriendGroupRepository get friendGroupRepository => friendGroupProvider.friendGroupRepository;
   FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
   String? get descriptionErrorText => serverErrors.containsKey('description') ? serverErrors['description'] : null;
   bool get doesNotHaveChanges => isEditing ? (selectedEmoji?.emoji == friendGroup!.emoji) && (name == friendGroup!.name) && (description == friendGroup!.description) && (shared == friendGroup!.shared) && (canAddFriends == friendGroup!.canAddFriends) : false;
 
+  void _startDeleteLoader() => setState(() => isDeleting = true);
+  void _stopDeleteLoader() => setState(() => isDeleting = false);
   void _startSubmittionLoader() => setState(() => isSubmitting = true);
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
 
@@ -125,7 +136,7 @@ class _CreateOrUpdateFriendGroupFormState extends State<CreateOrUpdateFriendGrou
 
           printError(info: error.toString());
 
-          SnackbarUtility.showErrorMessage(message: 'Can\'t create store');
+          SnackbarUtility.showErrorMessage(message: 'Can\'t create group');
 
         }).whenComplete(() {
 
@@ -169,9 +180,9 @@ class _CreateOrUpdateFriendGroupFormState extends State<CreateOrUpdateFriendGrou
 
             _resetForm();
 
-            String message = response.data['message'];
+            final String message = response.data['message'];
 
-            FriendGroup updatedFriendGroup = FriendGroup.fromJson(response.data['friendGroup']);
+            final FriendGroup updatedFriendGroup = FriendGroup.fromJson(response.data['friendGroup']);
 
             if(onUpdatedFriendGroup != null) onUpdatedFriendGroup!(updatedFriendGroup);
 
@@ -187,7 +198,7 @@ class _CreateOrUpdateFriendGroupFormState extends State<CreateOrUpdateFriendGrou
 
           printError(info: error.toString());
 
-          SnackbarUtility.showErrorMessage(message: 'Can\'t create store');
+          SnackbarUtility.showErrorMessage(message: 'Can\'t update group');
 
         }).whenComplete(() {
 
@@ -221,6 +232,64 @@ class _CreateOrUpdateFriendGroupFormState extends State<CreateOrUpdateFriendGrou
       
       });
     });
+  }
+
+  void _requestDeleteFriendGroup() async {
+
+    if(isDeleting) return;
+
+    final bool? confirmation = await confirmDelete();
+
+    /// If we can delete
+    if(confirmation == true) {
+
+      _startDeleteLoader();
+
+      /// Notify parent that we are starting the deleting process
+      if(onDeleting != null) onDeleting!(true);
+
+      friendGroupProvider.setFriendGroup(friendGroup!).friendGroupRepository.deleteFriendGroup().then((response) async {
+
+        if(response.statusCode == 200) {
+
+          /// Notify parent that the friend group has been deleted
+          if(onDeletedFriendGroup != null) onDeletedFriendGroup!(friendGroup!);
+
+          SnackbarUtility.showSuccessMessage(message: response.data['message']);
+
+        }
+
+      }).onError((dio.DioException exception, stackTrace) {
+
+        ErrorUtility.setServerValidationErrors(setState, serverErrors, exception);
+
+      }).catchError((error) {
+
+        printError(info: error.toString());
+
+        SnackbarUtility.showErrorMessage(message: 'Failed to delete group');
+
+      }).whenComplete(() {
+
+        _stopDeleteLoader();
+
+        /// Notify parent that we are ending the deleting process
+        if(onDeleting != null) onDeleting!(false);
+
+      });
+
+    }
+
+  }
+
+  /// Confirm delete transaction
+  Future<bool?> confirmDelete() {
+
+    return DialogUtility.showConfirmDialog(
+      content: 'Are you sure you want to delete ${friendGroup!.name}?',
+      context: context
+    );
+
   }
 
   bool canProceedWithRequest() {
@@ -354,8 +423,69 @@ class _CreateOrUpdateFriendGroupFormState extends State<CreateOrUpdateFriendGrou
               alignment: Alignment.center,
               isEditing ? 'Save Changes' : 'Create Group',
               onPressed: isEditing ? _requestUpdateFriendGroup : _requestCreateFriendGroup,
-              disabled: doesNotHaveName || doesNotHaveEmoji || (isEditing && doesNotHaveChanges),
+              disabled: doesNotHaveName || doesNotHaveEmoji || isDeleting || (isEditing && doesNotHaveChanges),
             ),
+
+            if(isEditing) ...[
+
+              /// Spacer
+              const SizedBox(height: 32),
+
+              /// Delete
+              Container(
+                padding: const EdgeInsets.all(16),
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.red.shade50
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    
+                    /// Title
+                    const CustomTitleMediumText('Delete', margin: EdgeInsets.only(bottom: 4),),
+
+                    /// Divider
+                    const Divider(),
+              
+                    /// Delete Instructions
+                    RichText(
+                      textAlign: TextAlign.justify,
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.normal,
+                          height: 1.4
+                        ),
+                        text: 'Permanently delete ',
+                        children: [
+                          TextSpan(text: friendGroup!.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const TextSpan(text: '. Once this group is deleted you will not be able to recover it.'),
+                        ]
+                      ),
+                    ),
+
+                    /// Spacer
+                    const SizedBox(height: 8,),
+
+                    /// Remove Button
+                    CustomElevatedButton(
+                      'Delete',
+                      width: 180,
+                      isError: true,
+                      isLoading: isDeleting,
+                      alignment: Alignment.center,
+                      onPressed: _requestDeleteFriendGroup,
+                    ),
+
+                  ],
+                ),
+              ),
+
+              /// Spacer
+              const SizedBox(height: 100),
+
+            ]
 
           ]
         )

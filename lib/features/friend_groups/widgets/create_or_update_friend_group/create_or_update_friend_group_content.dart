@@ -12,6 +12,7 @@ class CreateOrUpdateFriendGroupContent extends StatefulWidget {
   final FriendGroup? friendGroup;
   final void Function(FriendGroup)? onUpdatedFriendGroup;
   final void Function(FriendGroup)? onCreatedFriendGroup;
+  final void Function(FriendGroup)? onDeletedFriendGroup;
 
   const CreateOrUpdateFriendGroupContent({
     super.key,
@@ -20,6 +21,7 @@ class CreateOrUpdateFriendGroupContent extends StatefulWidget {
     this.friendGroup,
     this.onUpdatedFriendGroup,
     this.onCreatedFriendGroup,
+    this.onDeletedFriendGroup,
   });
 
   @override
@@ -32,6 +34,7 @@ class _CreateOrUpdateFriendGroupContentState extends State<CreateOrUpdateFriendG
   FriendGroup? get friendGroup => widget.friendGroup;
   void Function(FriendGroup)? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
   void Function(FriendGroup)? get onCreatedFriendGroup => widget.onCreatedFriendGroup;
+  void Function(FriendGroup)? get onDeletedFriendGroup => widget.onDeletedFriendGroup;
 
   String get title {
 
@@ -78,8 +81,9 @@ class _CreateOrUpdateFriendGroupContentState extends State<CreateOrUpdateFriendG
   Widget get content {
     return CreateOrUpdateFriendGroupForm(
       friendGroup: friendGroup,
+      onCreatedFriendGroup: onCreatedFriendGroup,
       onUpdatedFriendGroup: onUpdatedFriendGroup,
-      onCreatedFriendGroup: onCreatedFriendGroup
+      onDeletedFriendGroup: onDeletedFriendGroup
     );
   }
 

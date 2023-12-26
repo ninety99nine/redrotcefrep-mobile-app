@@ -10,8 +10,9 @@ class CreateOrUpdateFriendGroupModalBottomSheet extends StatefulWidget {
   final String? subtitle;
   final FriendGroup? friendGroup;
   final Widget Function(Function())? trigger;
-  final void Function(FriendGroup)? onUpdatedFriendGroup;
   final void Function(FriendGroup)? onCreatedFriendGroup;
+  final void Function(FriendGroup)? onUpdatedFriendGroup;
+  final void Function(FriendGroup)? onDeletedFriendGroup;
 
   const CreateOrUpdateFriendGroupModalBottomSheet({
     super.key,
@@ -19,8 +20,9 @@ class CreateOrUpdateFriendGroupModalBottomSheet extends StatefulWidget {
     this.trigger,
     this.subtitle,
     this.friendGroup,
-    this.onUpdatedFriendGroup,
     this.onCreatedFriendGroup,
+    this.onUpdatedFriendGroup,
+    this.onDeletedFriendGroup,
   });
 
   @override
@@ -33,8 +35,9 @@ class CreateOrUpdateFriendGroupModalBottomSheetState extends State<CreateOrUpdat
   String? get subtitle => widget.subtitle;
   FriendGroup? get friendGroup => widget.friendGroup;
   Widget Function(Function())? get trigger => widget.trigger;
-  Function(FriendGroup)? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
   Function(FriendGroup)? get onCreatedFriendGroup => widget.onCreatedFriendGroup;
+  Function(FriendGroup)? get onUpdatedFriendGroup => widget.onUpdatedFriendGroup;
+  Function(FriendGroup)? get onDeletedFriendGroup => widget.onDeletedFriendGroup;
 
   /// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -67,8 +70,9 @@ class CreateOrUpdateFriendGroupModalBottomSheetState extends State<CreateOrUpdat
         title: title,
         subtitle: subtitle,
         friendGroup: friendGroup,
+        onCreatedFriendGroup: onCreatedFriendGroup,
         onUpdatedFriendGroup: onUpdatedFriendGroup,
-        onCreatedFriendGroup: onCreatedFriendGroup
+        onDeletedFriendGroup: onDeletedFriendGroup
       ),
     );
   }
