@@ -3,7 +3,6 @@ import 'package:bonako_demo/features/friend_groups/widgets/friend_group_friends/
 import 'package:bonako_demo/features/friend_groups/widgets/friend_group_stores/friend_group_stores_modal_bottom_sheet/friend_group_stores_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/friend_groups/widgets/friend_groups_show/friend_groups_modal_bottom_sheet/friend_groups_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/friend_group_orders_in_horizontal_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/chat/widgets/ai_chat_modal_bottom_sheet/ai_chat_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/core/shared_widgets/cards/custom_title_and_number_card.dart';
 import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
@@ -48,6 +47,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   ResourceTotals? resourceTotals;
   bool isLoadingResourceTotals = false;
   FriendGroup? lastSelectedFriendGroup;
+  late FriendGroupProvider friendGroupProvider;
   bool isLoadingLastSelectedFriendGroup = false;
   bool? isLoadingLastSelectedFriendGroupForTheFirstTime;
 
@@ -79,13 +79,14 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   bool get hasJoinedLastSelectedFriendGroupLessThan24HoursAgo => hasSelectedAFriendGroup ? lastSelectedFriendGroup!.attributes.userFriendGroupAssociation!.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 1))) : false;
 
   Future<dio.Response?> Function() get onRequestShowResourceTotals => widget.onRequestShowResourceTotals;
-  FriendGroupProvider get friendGroupProvider => Provider.of<FriendGroupProvider>(context, listen: false);
 
-  final GlobalKey<StoreCardsState> storeCardsState = GlobalKey<StoreCardsState>();
-  final GlobalKey<CreateOrUpdateFriendGroupModalBottomSheetState> _createOrUpdateFriendGroupModalBottomSheetState = GlobalKey<CreateOrUpdateFriendGroupModalBottomSheetState>();
-  final GlobalKey<FriendGroupFriendsModalBottomSheetState> _friendGroupFriendsModalBottomSheetState = GlobalKey<FriendGroupFriendsModalBottomSheetState>();
-  final GlobalKey<FriendGroupStoresModalBottomSheetState> _friendGroupStoresModalBottomSheetState = GlobalKey<FriendGroupStoresModalBottomSheetState>();
+  final GlobalKey<StoreCardsState> _storeCardsState = GlobalKey<StoreCardsState>();
   final GlobalKey<FriendGroupsModalBottomSheetState> _friendGroupsModalBottomSheetState = GlobalKey<FriendGroupsModalBottomSheetState>();
+  final GlobalKey<FriendGroupStoresModalBottomSheetState> _friendGroupStoresModalBottomSheetState = GlobalKey<FriendGroupStoresModalBottomSheetState>();
+  final GlobalKey<FriendGroupFriendsModalBottomSheetState> _friendGroupFriendsModalBottomSheetState = GlobalKey<FriendGroupFriendsModalBottomSheetState>();
+  final GlobalKey<CreateOrUpdateFriendGroupModalBottomSheetState> _createOrUpdateFriendGroupModalBottomSheetState = GlobalKey<CreateOrUpdateFriendGroupModalBottomSheetState>();
+  final GlobalKey<FriendGroupOrdersInHorizontalListViewInfiniteScrollState> _friendGroupOrdersInHorizontalListViewInfiniteScrollState = GlobalKey<FriendGroupOrdersInHorizontalListViewInfiniteScrollState>();
+
 
   void _startRequestResourceTotalsLoader() { if(mounted) setState(() => isLoadingResourceTotals = true); }
   void _stopRequestResourceTotalsLoader() { if(mounted) setState(() => isLoadingResourceTotals = false); }
@@ -96,6 +97,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   void initState() {
     super.initState();
     authUser = authProvider.user!;
+    friendGroupProvider = Provider.of<FriendGroupProvider>(context, listen: false);
 
     // Register the observer to detect app lifecycle changes
     WidgetsBinding.instance.addObserver(this);
@@ -138,11 +140,13 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    print('stage 1');
     
     /// Get the authenticated user's resource totals
     final ResourceTotals? updateResourceTotals = Provider.of<AuthProvider>(context, listen: false).resourceTotals;
 
-    if(updateResourceTotals != null) {
+    if(mounted && resourceTotals == null && updateResourceTotals != null) {
 
       setState(() {
 
@@ -156,15 +160,11 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
           _showLastSelectedFriendGroup();
 
         }else{
-
-          setState(() {
             
-            /// Set the "isLoadingLastSelectedFriendGroupForTheFirstTime = false",
-            /// so that we don't cause the ready loaded UI to disapper when
-            /// loading the last selected group for the first time.
-            isLoadingLastSelectedFriendGroupForTheFirstTime = false;
-
-          });
+          /// Set the "isLoadingLastSelectedFriendGroupForTheFirstTime = false",
+          /// so that we don't cause the ready loaded UI to disapper when
+          /// loading the last selected group for the first time.
+          isLoadingLastSelectedFriendGroupForTheFirstTime = false;
 
         }
 
@@ -378,8 +378,8 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
             
         ],
 
-        /// Order And Review Statistics
-        orderAndReviewStatistics,
+        /// Friend Group Statistics
+        friendGroupStatistics,
 
         if(hasPlacedAnOrderOnLastSelectedFriendGroup) ...[
 
@@ -613,7 +613,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
     );
   }
 
-  Widget get orderAndReviewStatistics {
+  Widget get friendGroupStatistics {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -698,8 +698,10 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
       child: AnimatedSize(
         duration: const Duration(milliseconds: 500),
         child: FriendGroupOrdersInHorizontalListViewInfiniteScroll(
-          userOrderAssociation: UserOrderAssociation.customerOrFriend,
           friendGroup: lastSelectedFriendGroup!,
+          orderContentType: OrderContentType.orderFullContent,
+          userOrderAssociation: UserOrderAssociation.customerOrFriend,
+          key: _friendGroupOrdersInHorizontalListViewInfiniteScrollState,
         ),
       ),
     );
@@ -708,7 +710,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   Widget get friendGroupStoreCards {
 
     return StoreCards(
-      key: storeCardsState,
+      key: _storeCardsState,
       showFirstRequestLoader: false,
       onCreatedOrder: _onCreatedOrder,
       friendGroup: lastSelectedFriendGroup,
@@ -722,7 +724,13 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
       width: double.infinity,
       child: Column(
         children: const [
-    
+          
+          CustomBodyText(
+            lightShade: true,
+            'Local sellers we are following 💕',
+            margin: EdgeInsets.only(bottom: 16.0),
+          ),
+
         ]
       ),
     );
@@ -1115,13 +1123,20 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   }
 
   void _onCreatedOrder(Order createdOrder) {
+    _refreshOrders();
     _onRequestShowResourceTotals();
     _showLastSelectedFriendGroup();
   }
 
   void _refreshStores() {
-    if(storeCardsState.currentState != null) {
-      storeCardsState.currentState!.refreshStores();
+    if(_storeCardsState.currentState != null) {
+      _storeCardsState.currentState!.refreshStores();
+    }
+  }
+
+  void _refreshOrders() {
+    if(_friendGroupOrdersInHorizontalListViewInfiniteScrollState.currentState != null) {
+      _friendGroupOrdersInHorizontalListViewInfiniteScrollState.currentState!.startRequest();
     }
   }
 

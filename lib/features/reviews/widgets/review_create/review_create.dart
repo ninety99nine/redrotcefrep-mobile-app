@@ -210,7 +210,7 @@ class _ReviewCreateState extends State<ReviewCreate> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: const [
           
-          CustomBodyText('Place your first order to reveiew'),
+          CustomBodyText('Place your first order to review'),
 
         ],
       );

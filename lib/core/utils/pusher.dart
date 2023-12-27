@@ -5,7 +5,6 @@ import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../../../../core/constants/constants.dart' as constants;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:convert';
 
 class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
@@ -176,11 +175,35 @@ class PusherProvider with ChangeNotifier, WidgetsBindingObserver {
 
       var data = response.data;
 
-      if (data.containsKey('auth')) {
+      /**
+       *  When Pusher is enabled on the API server as the broadcasting driver,
+       *  then the request will return a status 200 and the response body will
+       *  be a Flutter runtimeType of _Map<String, dynamic> with content
+       *  returned e.g:
+       * 
+       *  data = {
+       *    "auth": "52e318a79b75dd4dc78c:348dc716a553b148c6c917285f2662f1de7351f67479d3a08907f34d7f6bc48e"
+       *  };
+       * 
+       *  When Pusher is disabled on the API server as the broadcasting driver, 
+       *  then the request will return a status 200 and the response body will
+       *  be a Flutter runtimeType of String with no content returned e.g:
+       * 
+       *  data = '';
+       * 
+       *  When the data.runtimeType = String, then the data.containsKey('auth')
+       *  method will throw an error since it only works on Map values. We
+       *  need to make sure that the data runtimeType is checked and
+       *  handled accordingly to avoid this error.
+       */
+      
+      if (data.runtimeType != String && data.containsKey('auth')) {
       
         return data;
       
       } else {
+
+        printError(info: "Pusher private channel authourization failed. It's possible that Pusher has not been enabled on the ${constants.appName} API server or the ${constants.appName} broadcasting auth endpoint has been changed. This is the endpoint currently being used: POST ${constants.pusherAuthHostName}");
         
         return {"auth": ""};
 

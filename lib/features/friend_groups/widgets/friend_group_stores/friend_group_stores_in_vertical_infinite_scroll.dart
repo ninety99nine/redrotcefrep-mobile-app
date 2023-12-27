@@ -703,7 +703,7 @@ class _FriendGroupStoresInVerticalListViewInfiniteScrollState extends State<Frie
               const SizedBox(height: 16),
             
               /// Instruction
-              const CustomBodyText('This account does not exist', lightShade: true, margin: EdgeInsets.symmetric(horizontal: 16),),
+              const CustomBodyText('This account does not exist 😊', color: Colors.orange, fontWeight: FontWeight.bold, textAlign: TextAlign.center, margin: EdgeInsets.symmetric(horizontal: 16),),
         
             ],
         

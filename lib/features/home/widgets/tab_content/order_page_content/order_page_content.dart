@@ -323,7 +323,7 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                         const SizedBox(height: 16.0,),
                                 
                         /// Account does not exist desclaimer 
-                        const CustomBodyText('This account does not exist', textAlign: TextAlign.center,),
+                        const CustomBodyText('This account does not exist 😊', color: Colors.orange, fontWeight: FontWeight.bold, textAlign: TextAlign.center,),
                             
                         /// Spacer
                         const SizedBox(height: 16.0,),

@@ -293,6 +293,7 @@ class _GroupsPageContentState extends State<GroupsPageContent> with SingleTicker
         child: FriendGroupOrdersInHorizontalListViewInfiniteScroll(
           key: friendGroupOrdersInHorizontalListViewInfiniteScrollState,
           userOrderAssociation: UserOrderAssociation.customerOrFriend,
+          orderContentType: OrderContentType.orderFullContent,
           noContentWidget: noContentWidget,
           friendGroup: friendGroup!,
         ),

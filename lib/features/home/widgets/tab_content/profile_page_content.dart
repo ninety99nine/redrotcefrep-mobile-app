@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/user/widgets/user_profile/update_user_profile/update_user_profile_modal_bottom_sheet/update_user_profile_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
@@ -308,23 +309,38 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
 
     }else{
 
-      return ReviewsModalBottomSheet(
-        onCreatedReview: onCreatedReview,
-        reviewContentView: ReviewContentView.addingReview,
-        userReviewAssociation: UserReviewAssociation.reviewer,
-        trigger: (openBottomModalSheet) => RichText(
-          text: TextSpan(
-            text: 'Share your ',
-            style: Theme.of(context).textTheme.bodyMedium,
-            children: const [
-              TextSpan(
-                text: 'first review',
-                style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
-              ),
-            ]
-          )
-        ),
+      final Widget instruction = RichText(
+        text: TextSpan(
+          text: 'Share your ',
+          style: Theme.of(context).textTheme.bodyMedium,
+          children: const [
+            TextSpan(
+              text: 'first review',
+              style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
+            ),
+          ]
+        )
       );
+
+      if(hasPlacedAnOrder) {
+
+        return ReviewsModalBottomSheet(
+          onCreatedReview: onCreatedReview,
+          reviewContentView: ReviewContentView.addingReview,
+          userReviewAssociation: UserReviewAssociation.reviewer,
+          trigger: (openBottomModalSheet) => instruction
+        );
+
+      }else{
+
+        return GestureDetector(
+          onTap: () {
+            SnackbarUtility.showInfoMessage(message: 'Place your order first');
+          },
+          child: instruction
+        );
+
+      }
 
     }
 

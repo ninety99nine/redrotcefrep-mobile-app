@@ -33,6 +33,7 @@ class UserOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
   
   final User user;
   final ShoppableStore? store;
+  final Widget? noContentWidget;
   final OrderContentType orderContentType;
   final void Function(Order)? onUpdatedOrder;
   final UserOrderAssociation userOrderAssociation;
@@ -42,6 +43,7 @@ class UserOrdersInHorizontalListViewInfiniteScroll extends StatefulWidget {
     this.store,
     required this.user,
     this.onUpdatedOrder,
+    this.noContentWidget,
     required this.orderContentType,
     required this.userOrderAssociation,
   }) : super(key: key);
@@ -55,6 +57,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
   int totalOrders = 0;
   User get user => widget.user;
   ShoppableStore? get store => widget.store;
+  Widget? get noContentWidget => widget.noContentWidget;
   OrderContentType get orderContentType => widget.orderContentType;
   void Function(Order)? get onUpdatedOrder => widget.onUpdatedOrder;
   UserOrderAssociation get userOrderAssociation => widget.userOrderAssociation;
@@ -122,7 +125,7 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
     });
   }
 
-  Widget contentBeforeSearchBar(isLoading, totalItems) {
+  Widget _contentBeforeSearchBar(isLoading, totalItems) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -160,8 +163,8 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
     );
   }
 
-  Widget get noContentWidget {
-    return Container(
+  Widget get _noContentWidget {
+    return noContentWidget ?? Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -189,10 +192,10 @@ class UserOrdersInHorizontalListViewInfiniteScrollState extends State<UserOrders
       onParseItem: onParseItem, 
       onRenderItem: onRenderItem,
       showFirstRequestLoader: false,
-      noContentWidget: noContentWidget,
+      noContentWidget: _noContentWidget,
       catchErrorMessage: 'Can\'t show orders',
       key: _customHorizontalInfiniteScrollState,
-      contentBeforeSearchBar: contentBeforeSearchBar,
+      contentBeforeSearchBar: _contentBeforeSearchBar,
       margin: const EdgeInsets.symmetric(vertical: 16),
       loaderMargin: const EdgeInsets.symmetric(vertical: 16),
       listPadding: const EdgeInsets.symmetric(horizontal: 16),

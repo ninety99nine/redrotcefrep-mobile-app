@@ -165,7 +165,8 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
                       CustomBodyText(
                         color: Colors.white,
                         error.errorDetails!.message,
-                        margin: const EdgeInsets.only(bottom: 8),
+                        textAlign: TextAlign.center,
+                        margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16)
                       ),
                   
                     ]
