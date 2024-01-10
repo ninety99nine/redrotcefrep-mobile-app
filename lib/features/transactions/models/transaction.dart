@@ -79,13 +79,13 @@ class Attributes {
 }
 
 class Relationships {
-  late User? payedByUser;
+  late User? paidByUser;
   late User? verifiedByUser;
   late User? requestedByUser;
   late PaymentMethod? paymentMethod;
 
   Relationships.fromJson(Map<String, dynamic> json) {
-    payedByUser = json['payedByUser'] == null ? null : User.fromJson(json['payedByUser']);
+    paidByUser = json['paidByUser'] == null ? null : User.fromJson(json['paidByUser']);
     verifiedByUser = json['verifiedByUser'] == null ? null : User.fromJson(json['verifiedByUser']);
     requestedByUser = json['requestedByUser'] == null ? null : User.fromJson(json['requestedByUser']);
     paymentMethod = json['paymentMethod'] == null ? null : PaymentMethod.fromJson(json['paymentMethod']);

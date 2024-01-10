@@ -1,5 +1,6 @@
 import 'package:bonako_demo/core/utils/pusher.dart';
 import 'package:bonako_demo/features/coupons/providers/coupon_provider.dart';
+import 'package:bonako_demo/features/notifications/providers/notification_provider.dart';
 import 'package:bonako_demo/features/occasions/providers/occasion_provider.dart';
 import 'package:bonako_demo/features/transactions/providers/transaction_provider.dart';
 
@@ -11,12 +12,14 @@ import 'features/orders/widgets/orders_show/orders_page/orders_page.dart';
 import 'features/friend_groups/providers/friend_group_provider.dart';
 import 'features/introduction/widgets/introduction_slides_page.dart';
 import 'features/authentication/widgets/reset_password_page.dart';
+import '../../../../core/constants/constants.dart' as constants;
 import 'features/authentication/providers/auth_provider.dart';
 import 'features/stores/widgets/store_page/store_page.dart';
 import 'features/addresses/providers/address_provider.dart';
 import 'features/products/providers/product_provider.dart';
 import 'features/authentication/widgets/signup_page.dart';
 import 'features/authentication/widgets/signin_page.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'features/introduction/widgets/landing_page.dart';
 import 'features/search/providers/search_provider.dart';
 import 'features/orders/providers/order_provider.dart';
@@ -29,6 +32,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
 import 'package:get/get.dart';
+import 'dart:io';
 
 //  This is the first method that flutter runs on this file
 void main() {
@@ -53,6 +57,31 @@ void main() {
    *  the screen.
    */
   runApp(const MyApp());
+
+  /// Check if we are running on an Android device
+  if(Platform.isAndroid) {
+
+    /**
+     *  Setup OneSignal for notifications
+     *  
+     *  Reference 1: https://www.youtube.com/watch?v=k0dHYObtshU
+     *  Reference 2: https://documentation.onesignal.com/docs/flutter-sdk-setup
+     *  
+     *  Android Emulator SUBSCRIPTION ISSUE?
+     *  ------------------------------------
+     *  Incase the Android Emulator is failing to create the user push channel subscription,
+     *  you might be facing the following issue (check your DEBUG CONSOLE to confirm this):
+     * 
+     *  Flutter OneSignal caused by: java.security.cert.CertPathValidatorException: Response is unreliable: its validity interval is out-of-date
+     *  
+     *  Check out the article below to resolve this issue by clearing the emulator cache
+     *  as suggested by "Md Imran Choudhury":
+     * 
+     *  Reference: https://stackoverflow.com/questions/53265234/sslhandshakeexception-chain-chain-validation-failed-how-to-solve
+     */
+    OneSignal.initialize(constants.oneSignalApiKey);
+
+  }
 
 }
 
@@ -173,6 +202,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<ApiProvider, OccasionProvider>(
           create: (_) => OccasionProvider(apiProvider: ApiProvider()),
           update: (ctx, apiProvider, previousOccasionProvider) => OccasionProvider(apiProvider: apiProvider)
+        ),
+        /**
+         *  Note: We have to use the ChangeNotifierProxyProvider instead of 
+         *  ChangeNotifierProvider because the NotificationProvider requires 
+         *  the AuthProvider as a dependency. When the AuthProvider changes,
+         *  then the NotificationProvider will also rebuild.
+         */
+        ChangeNotifierProxyProvider<AuthProvider, NotificationProvider>(
+          create: (_) => NotificationProvider(authProvider: AuthProvider(apiProvider: ApiProvider())),
+          update: (ctx, authProvider, previousNotificationProvider) => NotificationProvider(authProvider: authProvider)
         ),
         /**
          *  Note: We have to use the ChangeNotifierProxyProvider instead of 

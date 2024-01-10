@@ -57,18 +57,16 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
   bool isLoadingResourceTotals = false;
   bool sentFirstRequestToLoadStore = false;
 
-  int? get totalOrders => resourceTotals?.totalOrders;
   bool get hasResourceTotals => resourceTotals != null;
-  int? get totalReviews => resourceTotals?.totalReviews;
   bool get hasCreatedAStore => firstCreatedStore != null;
   bool get doesNotHaveResourceTotals => resourceTotals == null;
   bool get doesNotHaveProfilePhoto => authUser.profilePhoto == null;
   int? get totalSmsAlertCredits => resourceTotals?.totalSmsAlertCredits;
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
+  int? get totalOrdersAsTeamMember => resourceTotals?.totalOrdersAsTeamMember;
   String get mobileNumberShortcode => authUser.attributes.mobileNumberShortcode;
+  int? get totalReviewsAsTeamMember => resourceTotals?.totalReviewsAsTeamMember;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
-  bool get hasPlacedAnOrder => hasResourceTotals ? resourceTotals!.totalOrders > 0 : false;
-  bool get hasSharedAReview => hasResourceTotals ? resourceTotals!.totalReviews > 0 : false;
   int get totalReceivedOrders => hasCreatedAStore ? firstCreatedStore!.ordersCount ?? 0 : 0;
   int get totalCreatedProducts => hasCreatedAStore ? firstCreatedStore!.productsCount ?? 0 : 0;
   bool get hasReceivedAnOrder => hasCreatedAStore ? (firstCreatedStore!.ordersCount ?? 0) > 0 : false;
@@ -441,18 +439,18 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
             OrdersModalBottomSheet(
               userOrderAssociation: UserOrderAssociation.teamMember,
               trigger: (openBottomModalSheet) => CustomTitleAndNumberCard(
-                title: totalOrders == 1 ? 'Order' : 'Orders', 
+                title: totalOrdersAsTeamMember == 1 ? 'Order' : 'Orders', 
                 onTap: openBottomModalSheet,
-                number: totalOrders,
+                number: totalOrdersAsTeamMember,
               )
             ),
 
             ReviewsModalBottomSheet(
               userReviewAssociation: UserReviewAssociation.teamMember,
               trigger: (openBottomModalSheet) => CustomTitleAndNumberCard(
-                title: totalReviews == 1 ? 'Review' : 'Reviews', 
+                title: totalReviewsAsTeamMember == 1 ? 'Review' : 'Reviews',
                 onTap: openBottomModalSheet,
-                number: totalReviews,
+                number: totalReviewsAsTeamMember,
               )
             ), 
 
@@ -887,17 +885,11 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
         text: TextSpan(
           text: 'Receive your ', 
           style: Theme.of(context).textTheme.bodyMedium,
-          children: [
+          children: const [
 
             TextSpan(
               text: 'first order' ,
-              recognizer: TapGestureRecognizer()..onTap = () {
-                
-                /// Navigate to "Order" tab
-                onChangeNavigationTab(1);
-
-              },
-              style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
+              style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)
             ),
 
           ]
@@ -915,7 +907,8 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
             }else if(!hasSubscribedAtleastOnce) {
               SnackbarUtility.showInfoMessage(message: 'Subscribe first');
             }else{
-              DialerUtility.dial(number: mobileNumberShortcode);
+              /// Navigate to "Order" tab
+              onChangeNavigationTab(1);
             }
           },
           child: instruction,

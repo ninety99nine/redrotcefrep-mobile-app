@@ -1,3 +1,4 @@
+import 'package:bonako_demo/core/shared_models/user.dart';
 import 'package:bonako_demo/features/introduction/widgets/introduction_role_selection_page.dart';
 import 'package:bonako_demo/core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
 import 'package:bonako_demo/features/authentication/widgets/terms_and_conditions_page.dart';
@@ -10,6 +11,7 @@ import 'package:bonako_demo/core/exceptions/request_failed_page.dart';
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import 'package:bonako_demo/core/exceptions/no_internet_page.dart';
 import 'package:bonako_demo/features/home/widgets/home_page.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/pusher.dart';
 import 'package:provider/provider.dart';
@@ -156,6 +158,18 @@ class _LandingPageState extends State<LandingPage> {
           duration: 6
         );
 
+        /**
+         *  OneSignal Logout
+         *  ----------------
+         *  It is only recommended to call this method if you do not want to send transactional push notifications 
+         *  to this device upon logout. For example, if your app sends targeted or personalized messages to users 
+         *  based on their aliases and its expected that upon logout, that device should not get those types of 
+         *  messages anymore, then it is a good idea to call OneSignal.logout()
+         * 
+         *  https://documentation.onesignal.com/docs/aliases-external-id#when-should-i-call-onesignallogout
+         */
+        await OneSignal.logout();
+
         /// Reload to verify unauthentication and show the signin page
         await setApiHome();
 
@@ -225,8 +239,11 @@ class _LandingPageState extends State<LandingPage> {
           //  Get the Api Home
           final apiHome = apiProvider.apiHome!;
 
+          //  Get the Authenticated User
+          final User authUser = apiHome.user!;
+
           //  Set the authenticated user
-          authProvider.setUser(apiHome.user!);
+          authProvider.setUser(authUser);
 
           //  Check if the user accepted their terms and conditions
           hasAcceptedTermsAndConditions = apiHome.acceptedTermsAndConditions;
@@ -239,8 +256,25 @@ class _LandingPageState extends State<LandingPage> {
           /// channels that require the authenticated user id and bearer token
           PusherProvider.setAuthProvider(pusherProvider!, authProvider);
 
-          //  Subcribe to login alerts by other devices
+          ///  Subcribe to login alerts by other devices
           _listenForExternalLoginAlerts();
+
+          /**
+           * OneSignal creates subscription-level records under a unique ID called the subscription_id. 
+           * A single user can have multiple subscription_id records based on how many devices, email 
+           * addresses, and phone numbers they use to interact with your app. If your app has its own
+           * login system to track users, call login at any time to link all channels to a single
+           * user. For more details, see Aliases & External ID.
+           * 
+           * If your app has its own login system to track users, call login at any time to link all 
+           * channels to a single user. For more details, see Aliases & External ID.
+           * 
+           *  Learn more: https://documentation.onesignal.com/docs/flutter-sdk-setup#identify-users
+           */
+          await OneSignal.login(authUser.id.toString()).then((value) => null);
+
+          /// Set the mobile number alias
+          OneSignal.User.addAlias('mobileNumber', authUser.mobileNumber?.withoutExtension);
 
         }
 

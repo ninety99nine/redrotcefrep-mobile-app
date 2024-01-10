@@ -1,36 +1,47 @@
 class ResourceTotals {
-  late int totalOrders;
   late int totalReviews;
-  late int totalGroupsJoined;
   late int totalNotifications;
   late int totalSmsAlertCredits;
+  late int totalOrdersAsCustomer;
   late int totalStoresAsFollower;
   late int totalStoresAsCustomer;
+  late int totalOrdersAsTeamMember;
+  late int totalUnreadNotifications;
+  late int totalReviewsAsTeamMember;
+  late int totalOrdersAsCustomerOrFriend;
+
+  late int totalGroupsJoined;
   late int totalGroupsJoinedAsCreator;
+  late int totalGroupsJoinedAsNonCreator;
+  late int totalGroupsInvitedToJoinAsGroupMember;
+
   late int totalStoresJoinedAsCreator;
   late int totalStoresAsRecentVisitor;
-  late int totalGroupsJoinedAsNonCreator;
   late int totalStoresJoinedAsTeamMember;
   late int totalStoresJoinedAsNonCreator;
   late int totalStoresInvitedToJoinAsTeamMember;
-  late int totalGroupsInvitedToJoinAsGroupMember;
-  
 
   ResourceTotals.fromJson(Map<String, dynamic> json) {
-    totalOrders = json['totalOrders'];
     totalReviews = json['totalReviews'];
-    totalGroupsJoined = json['totalGroupsJoined'];
     totalNotifications = json['totalNotifications'];
     totalSmsAlertCredits = json['totalSmsAlertCredits'];
+    totalOrdersAsCustomer = json['totalOrdersAsCustomer'];
     totalStoresAsFollower = json['totalStoresAsFollower'];
     totalStoresAsCustomer = json['totalStoresAsCustomer'];
+    totalOrdersAsTeamMember = json['totalOrdersAsTeamMember'];
+    totalUnreadNotifications = json['totalUnreadNotifications'];
+    totalReviewsAsTeamMember = json['totalReviewsAsTeamMember'];
+    totalOrdersAsCustomerOrFriend = json['totalOrdersAsCustomerOrFriend'];
+
+    totalGroupsJoined = json['totalGroupsJoined'];
     totalGroupsJoinedAsCreator = json['totalGroupsJoinedAsCreator'];
+    totalGroupsJoinedAsNonCreator = json['totalGroupsJoinedAsNonCreator'];
+    totalGroupsInvitedToJoinAsGroupMember = json['totalGroupsInvitedToJoinAsGroupMember'];
+
     totalStoresJoinedAsCreator = json['totalStoresJoinedAsCreator'];
     totalStoresAsRecentVisitor = json['totalStoresAsRecentVisitor'];
-    totalGroupsJoinedAsNonCreator = json['totalGroupsJoinedAsNonCreator'];
-    totalStoresJoinedAsNonCreator = json['totalStoresJoinedAsNonCreator'];
     totalStoresJoinedAsTeamMember = json['totalStoresJoinedAsTeamMember'];
+    totalStoresJoinedAsNonCreator = json['totalStoresJoinedAsNonCreator'];
     totalStoresInvitedToJoinAsTeamMember = json['totalStoresInvitedToJoinAsTeamMember'];
-    totalGroupsInvitedToJoinAsGroupMember = json['totalGroupsInvitedToJoinAsGroupMember'];
   }
 }

@@ -20,6 +20,7 @@ import 'package:bonako_demo/features/home/services/home_service.dart';
 import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:bonako_demo/core/utils/pusher.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
@@ -202,6 +203,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           final ResourceTotals resourceTotals = ResourceTotals.fromJson(response.data);
           authProvider.setResourceTotals(resourceTotals);
 
+          /*
+          /// The OneSignal Free plan only allows a maximum of three tags per user
+          /// We can unlock more tags by using a higher plan: https://onesignal.com/pricing
+            'totalOrders': resourceTotals.totalOrders,
+            'totalReviews': resourceTotals.totalReviews,
+            'totalGroupsJoined': resourceTotals.totalGroupsJoined,
+            'totalNotifications': resourceTotals.totalNotifications,
+            'totalSmsAlertCredits': resourceTotals.totalSmsAlertCredits,
+            'totalStoresAsFollower': resourceTotals.totalStoresAsFollower,
+            'totalStoresAsCustomer': resourceTotals.totalStoresAsCustomer,
+            'totalGroupsJoinedAsCreator': resourceTotals.totalGroupsJoinedAsCreator,
+            'totalStoresJoinedAsCreator': resourceTotals.totalStoresJoinedAsCreator,
+            'totalStoresAsRecentVisitor': resourceTotals.totalStoresAsRecentVisitor,
+            'totalGroupsJoinedAsNonCreator': resourceTotals.totalGroupsJoinedAsNonCreator,
+            'totalStoresJoinedAsTeamMember': resourceTotals.totalStoresJoinedAsTeamMember,
+            'totalStoresJoinedAsNonCreator': resourceTotals.totalStoresJoinedAsNonCreator,
+            'totalStoresInvitedToJoinAsTeamMember': resourceTotals.totalStoresInvitedToJoinAsTeamMember,
+            'totalGroupsInvitedToJoinAsGroupMember': resourceTotals.totalGroupsInvitedToJoinAsGroupMember,
+          });
+          */
+
         }else{
 
           SnackbarUtility.showErrorMessage(message: 'Failed to get resource totals');
@@ -315,6 +337,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     DialogUtility.showLoader(message: 'Signing out');
 
     authRepository.logout().then((response) async {
+
+      /**
+       *  OneSignal Logout
+       *  ----------------
+       *  It is only recommended to call this method if you do not want to send transactional push notifications 
+       *  to this device upon logout. For example, if your app sends targeted or personalized messages to users 
+       *  based on their aliases and its expected that upon logout, that device should not get those types of 
+       *  messages anymore, then it is a good idea to call OneSignal.logout()
+       * 
+       *  https://documentation.onesignal.com/docs/aliases-external-id#when-should-i-call-onesignallogout
+       */
+      await OneSignal.logout();
 
       /// Hide logging out loader
       DialogUtility.hideLoader();

@@ -168,7 +168,7 @@ class _TransactionItemState extends State<TransactionItem> {
   String get number => transaction.attributes.number;
   ShoppableStore get store => order.relationships.store!;
   NameAndDescription get status => transaction.paymentStatus;
-  User get payedByUser => transaction.relationships.payedByUser!;
+  User get paidByUser => transaction.relationships.paidByUser!;
   PaymentMethod get paymentMethod => transaction.relationships.paymentMethod!;
   Function(Transaction, String)? get onSubmittedFile => widget.onSubmittedFile;
 
@@ -187,7 +187,7 @@ class _TransactionItemState extends State<TransactionItem> {
 
   void onUpdatedTransaction(Transaction updatedTransaction) {
     /// The updatedTransaction is simply the same transaction but with relationships loaded e.g
-    /// payedByUser, verifiedByUser, requestedByUser, e.t.c. We are just updating this local state
+    /// paidByUser, verifiedByUser, requestedByUser, e.t.c. We are just updating this local state
     /// of the transaction incase we might want to do anything with those relationships once
     /// they have been loaded.
     setState(() => transaction = updatedTransaction);
@@ -229,7 +229,7 @@ class _TransactionItemState extends State<TransactionItem> {
           
                     //  Payer Name
                     CustomBodyText(
-                      payedByUser.attributes.name, 
+                      paidByUser.attributes.name, 
                       fontWeight: FontWeight.bold,
                     ),
 

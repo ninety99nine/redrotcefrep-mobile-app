@@ -1,12 +1,14 @@
-import 'package:bonako_demo/core/shared_models/money.dart';
-
 class OrderStatusUpdatedNotification {
   late StoreProperties storeProperties;
   late OrderProperties orderProperties;
+  late CustomerProperties customerProperties;
+  late UpdatedByUserProperties updatedByUserProperties;
 
   OrderStatusUpdatedNotification.fromJson(Map<String, dynamic> json) {
     storeProperties = StoreProperties.fromJson(json['store']);
     orderProperties = OrderProperties.fromJson(json['order']);
+    customerProperties = CustomerProperties.fromJson(json['customer']);
+    updatedByUserProperties = UpdatedByUserProperties.fromJson(json['updatedByUser']);
   }
 }
 
@@ -22,31 +24,19 @@ class StoreProperties {
 
 class OrderProperties {
   late int id;
-  late Money amount;
   late String status;
   late String number;
   late String summary;
-  late String orderFor;
-  late int orderForTotalUsers;
-  late int orderForTotalFriends;
   late bool isAssociatedAsFriend;
   late bool isAssociatedAsCustomer;
-  late CustomerProperties customerProperties;
-  late ChangedByUserProperties changedByUserProperties;
   
   OrderProperties.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     status =json['status'];
     number = json['number'];
     summary = json['summary'];
-    orderFor = json['orderFor'];
-    amount = Money.fromJson(json['amount']);
-    orderForTotalUsers = json['orderForTotalUsers'];
-    orderForTotalFriends = json['orderForTotalFriends'];
     isAssociatedAsFriend = json['isAssociatedAsFriend'];
     isAssociatedAsCustomer = json['isAssociatedAsCustomer'];
-    customerProperties = CustomerProperties.fromJson(json['customer']);
-    changedByUserProperties = ChangedByUserProperties.fromJson(json['changedByUser']);
   }
 }
 
@@ -59,17 +49,16 @@ class CustomerProperties {
   CustomerProperties.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    lastName = json['lastName'];
     firstName = json['firstName'];
   }
 }
 
-class ChangedByUserProperties {
+class UpdatedByUserProperties {
   late int id;
   late String name;
   late String firstName;
 
-  ChangedByUserProperties.fromJson(Map<String, dynamic> json) {
+  UpdatedByUserProperties.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     firstName = json['firstName'];

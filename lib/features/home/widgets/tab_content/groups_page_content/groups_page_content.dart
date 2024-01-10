@@ -140,8 +140,6 @@ class _GroupsPageContentState extends State<GroupsPageContent> with WidgetsBindi
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    print('stage 1');
     
     /// Get the authenticated user's resource totals
     final ResourceTotals? updateResourceTotals = Provider.of<AuthProvider>(context, listen: false).resourceTotals;

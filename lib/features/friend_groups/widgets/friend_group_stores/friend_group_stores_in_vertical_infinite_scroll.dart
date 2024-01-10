@@ -11,6 +11,7 @@ import 'package:bonako_demo/features/api/repositories/api_repository.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:bonako_demo/features/stores/providers/store_provider.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/core/constants/constants.dart' as constants;
 import 'package:bonako_demo/features/api/providers/api_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:bonako_demo/features/stores/enums/store_enums.dart';
@@ -55,6 +56,7 @@ class _FriendGroupStoresInVerticalListViewInfiniteScrollState extends State<Frie
   int? addingStoreId;
   int? lastAddedStoreId;
   bool isAddingStore = false;
+  String? selectedContactName;
   bool isLoadingStores = false;
   bool isSearchingUser = false;
   bool isRemovingStores = false;
@@ -610,6 +612,10 @@ class _FriendGroupStoresInVerticalListViewInfiniteScrollState extends State<Frie
         MobileNetworkName.orange
       ],
       onChanged: (value) {
+
+        if(selectedContactName != null) {
+          setState(() => selectedContactName = null);
+        }
     
         if(hasCompleteMobileNumber) {
                         
@@ -646,8 +652,16 @@ class _FriendGroupStoresInVerticalListViewInfiniteScrollState extends State<Frie
       },
       onSelection: (contacts) {
         setState(() {
+
+          /**
+           *  Just incase we opened the contacts modal bottom sheet 
+           *  while the keypad was opened, we should therefore make 
+           *  sure that the keypad is closed
+           */
+          hideKeypad();
           
           searchedMobileNumberController.text = contacts.first.phones.first.number;
+          selectedContactName = contacts.first.displayName;
 
           if(hasCompleteMobileNumber) {
 
@@ -702,8 +716,8 @@ class _FriendGroupStoresInVerticalListViewInfiniteScrollState extends State<Frie
               /// Spacer
               const SizedBox(height: 16),
             
-              /// Instruction
-              const CustomBodyText('This account does not exist 😊', color: Colors.orange, fontWeight: FontWeight.bold, textAlign: TextAlign.center, margin: EdgeInsets.symmetric(horizontal: 16),),
+              /// Account does not exist desclaimer 
+              CustomBodyText('${selectedContactName ?? 'This account'} is not on ${constants.appName} 😊', color: Colors.green, fontWeight: FontWeight.bold, textAlign: TextAlign.center, margin: EdgeInsets.symmetric(horizontal: 16),),
         
             ],
         

@@ -15,22 +15,20 @@ class NotificationsInVerticalListViewInfiniteScroll extends StatefulWidget {
   
   final ShoppableStore? store;
   final String notificationFilter;
-  final Function(model.Notification) onSelectedNotification;
   final GlobalKey<NotificationFiltersState> notificationFiltersState;
 
   const NotificationsInVerticalListViewInfiniteScroll({
     super.key,
     required this.store,
     required this.notificationFilter,
-    required this.onSelectedNotification,
     required this.notificationFiltersState,
   });
 
   @override
-  State<NotificationsInVerticalListViewInfiniteScroll> createState() => _NotificationsInVerticalListViewInfiniteScrollState();
+  State<NotificationsInVerticalListViewInfiniteScroll> createState() => NotificationsInVerticalListViewInfiniteScrollState();
 }
 
-class _NotificationsInVerticalListViewInfiniteScrollState extends State<NotificationsInVerticalListViewInfiniteScroll> {
+class NotificationsInVerticalListViewInfiniteScrollState extends State<NotificationsInVerticalListViewInfiniteScroll> {
 
   /// This allows us to access the state of CustomVerticalListViewInfiniteScroll widget using a Global key. 
   /// We can then fire methods of the child widget from this current Widget state. 
@@ -43,7 +41,6 @@ class _NotificationsInVerticalListViewInfiniteScrollState extends State<Notifica
   String get notificationFilter => widget.notificationFilter;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
   StoreProvider get storeProvider => Provider.of<StoreProvider>(context, listen: false);
-  Function(model.Notification) get onSelectedNotification => widget.onSelectedNotification;
   GlobalKey<NotificationFiltersState> get notificationFiltersState => widget.notificationFiltersState;
   NotificationProvider get notificationProvider => Provider.of<NotificationProvider>(context, listen: false);
   
@@ -88,7 +85,7 @@ class _NotificationsInVerticalListViewInfiniteScrollState extends State<Notifica
   /// Render each request item as an NotificationItem
   Widget onRenderItem(notification, int index, List notifications, bool isSelected, List selectedItems, bool hasSelectedItems, int totalSelectedItems) => NotificationItem(
     notification: (notification as model.Notification),
-    onSelectedNotification: onSelectedNotification,
+    notificationFiltersState: notificationFiltersState,
     index: index
   );
   
@@ -109,10 +106,21 @@ class _NotificationsInVerticalListViewInfiniteScrollState extends State<Notifica
     /// If the notification filter changed
     if(notificationFilter != oldWidget.notificationFilter) {
 
-      /// Start a new request
-      _customVerticalListViewInfiniteScrollState.currentState!.startRequest();
+      refreshNotifications();
 
     }
+  }
+
+  void refreshNotifications() {
+    _customVerticalListViewInfiniteScrollState.currentState!.startRequest();
+  }
+
+  void setAllNotificationsAsRead() {
+    setState(() {
+      for (model.Notification notification in _customVerticalListViewInfiniteScrollState.currentState!.data) {
+        notification.readAt ??= DateTime.now();
+      }
+    });
   }
   
   @override

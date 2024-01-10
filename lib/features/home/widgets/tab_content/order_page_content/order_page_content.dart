@@ -42,6 +42,7 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
 
   User? searchedUser;
   Color? rainbowColor;
+  String? selectedContactName;
   bool isSearchingUser = false;
   ResourceTotals? resourceTotals;
   bool? authUserHasFollowedStores;
@@ -249,13 +250,17 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                       
                       resetScrollController();
 
+                      if(selectedContactName != null) {
+                        setState(() => selectedContactName = null);
+                      }
+
                       if(hasCompleteMobileNumber) {
                 
                         hideKeypad();
                 
                         /// Start the loader immediately since the debouncerUtility() of the requestSearchUserByMobileNumber() 
-                        /// method applies a delay. The delay causes the "This account does not exist" message to show up 
-                        /// prematurely since we satisfy the requirements of searchedMobileNumberUserAccountDoesNotExit:
+                        /// method applies a delay. The delay causes the "This account does not on Perfect Order" message to 
+                        /// show up prematurely since we satisfy the requirements of searchedMobileNumberUserAccountDoesNotExit:
                         /// 
                         /// !isSearchingUser                      //  true
                         /// && searchedUser == null;              //  true
@@ -284,8 +289,17 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                   },
                   onSelection: (contacts) {
                     setState(() {
+
+                      /**
+                       *  Just incase we opened the contacts modal bottom sheet 
+                       *  while the keypad was opened, we should therefore make 
+                       *  sure that the keypad is closed
+                       */
+                      hideKeypad();
                       
                       searchedMobileNumberController.text = contacts.first.phones.first.number;
+                      selectedContactName = contacts.first.displayName;
+                
                       resetScrollController();
 
                       if(hasCompleteMobileNumber) {
@@ -323,7 +337,7 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                         const SizedBox(height: 16.0,),
                                 
                         /// Account does not exist desclaimer 
-                        const CustomBodyText('This account does not exist 😊', color: Colors.orange, fontWeight: FontWeight.bold, textAlign: TextAlign.center,),
+                        CustomBodyText('${selectedContactName ?? 'This account'} is not on ${constants.appName} 😊', color: Colors.green, fontWeight: FontWeight.bold, textAlign: TextAlign.center,),
                             
                         /// Spacer
                         const SizedBox(height: 16.0,),
@@ -356,9 +370,9 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   OrdersModalBottomSheet(
-                    userOrderAssociation: UserOrderAssociation.customer,
+                    userOrderAssociation: UserOrderAssociation.customerOrFriend,
                     trigger: (openBottomModalSheet) => CustomTitleAndNumberCard(
-                      number: resourceTotals?.totalOrders,
+                      number: resourceTotals?.totalOrdersAsCustomerOrFriend,
                       onTap: openBottomModalSheet,
                       title: 'My Orders', 
                     )

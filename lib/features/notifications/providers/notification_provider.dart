@@ -1,5 +1,5 @@
+import '../../authentication/providers/auth_provider.dart';
 import '../repositories/notification_repository.dart';
-import '../../api/providers/api_provider.dart';
 import '../models/notification.dart' as model;
 import 'package:flutter/material.dart';
 
@@ -8,20 +8,20 @@ import 'package:flutter/material.dart';
 /// application. Notification related requests are managed by the 
 /// NotificationRepository which is responsible for communicating 
 /// with data sources via a REST API connection provided
-/// by the ApiProvider
+/// by the AuthProvider
 class NotificationProvider with ChangeNotifier {
   
   model.Notification? _notification;
-  final ApiProvider apiProvider;
+  final AuthProvider authProvider;
 
   /// Constructor: Set the provided Api Provider
-  NotificationProvider({ required this.apiProvider });
+  NotificationProvider({ required this.authProvider });
 
   /// Return the notification
   model.Notification? get notification => _notification;
 
   /// Return the Notification Repository
-  NotificationRepository get notificationRepository => NotificationRepository(notification: notification, apiProvider: apiProvider);
+  NotificationRepository get notificationRepository => NotificationRepository(notification: notification, authProvider: authProvider);
 
   /// Set the specified notification
   NotificationProvider setNotification(model.Notification notification) {

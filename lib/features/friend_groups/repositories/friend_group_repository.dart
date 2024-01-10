@@ -1,13 +1,10 @@
-import 'package:bonako_demo/core/utils/mobile_number.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:bonako_demo/core/utils/mobile_number.dart';
 import '../../authentication/providers/auth_provider.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import '../models/friend_group.dart';
 
@@ -20,7 +17,7 @@ class FriendGroupRepository {
   /// Bearer Token that has or has not been set
   final AuthProvider authProvider;
 
-  /// Constructor: Set the provided FriendGroup and Api Provider
+  /// Constructor: Set the provided FriendGroup and Auth Provider
   FriendGroupRepository({ this.friendGroup, required this.authProvider });
 
   /// Get the Auth User

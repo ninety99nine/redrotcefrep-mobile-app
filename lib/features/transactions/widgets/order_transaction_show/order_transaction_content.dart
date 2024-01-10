@@ -59,8 +59,8 @@ class OrderTransactionContentState extends State<OrderTransactionContent> {
   bool get hasVerifyingUser => verifiedByUser != null;
   bool get hasRequestingUser => requestedByUser != null;
   ShoppableStore get store => order.relationships.store!;
-  User? get payedByUser => transaction?.relationships.payedByUser;
-  bool get isPayingUser => payedByUser?.id == requestedByUser?.id;
+  User? get paidByUser => transaction?.relationships.paidByUser;
+  bool get isPayingUser => paidByUser?.id == requestedByUser?.id;
   Function(String)? get onSubmittedFile => widget.onSubmittedFile;
   User? get verifiedByUser => transaction?.relationships.verifiedByUser;
   bool get hasDpoPaymentUrlExpiresAt => dpoPaymentUrlExpiresAt != null;
@@ -91,7 +91,7 @@ class OrderTransactionContentState extends State<OrderTransactionContent> {
 
     _startLoader();
 
-    transactionProvider.setTransaction(widget.transaction).transactionRepository.showOrder(
+    transactionProvider.setTransaction(widget.transaction).transactionRepository.showTransaction(
       withPayingUser: true,
       withVerifyingUser: true,
       withPaymentMethod: true,
@@ -194,7 +194,7 @@ class OrderTransactionContentState extends State<OrderTransactionContent> {
                   Row(
                     children: [
                       const CustomBodyText('Paid By:', margin: EdgeInsets.only(right: 4),),
-                      CustomBodyText(payedByUser!.attributes.name, fontWeight: FontWeight.bold,)
+                      CustomBodyText(paidByUser!.attributes.name, fontWeight: FontWeight.bold,)
                     ],
                   ),
                     

@@ -22,6 +22,7 @@ class AuthProvider with ChangeNotifier {
   bool get hasResourceTotals => _resourceTotals != null;
   bool? get hasNotifications => hasResourceTotals ? _resourceTotals!.totalNotifications > 0 : null;
   bool? get hasStoresAsFollower => hasResourceTotals ? _resourceTotals!.totalStoresAsFollower > 0 : null;
+  bool? get hasUnreadNotifications => hasResourceTotals ? _resourceTotals!.totalUnreadNotifications > 0 : null;
   bool? get hasStoresJoinedAsCreator => hasResourceTotals ? _resourceTotals!.totalStoresJoinedAsCreator > 0 : null;
   bool? get hasStoresJoinedAsTeamMember => hasResourceTotals ? _resourceTotals!.totalStoresJoinedAsTeamMember > 0 : null;
 

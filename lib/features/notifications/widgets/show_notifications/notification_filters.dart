@@ -100,33 +100,30 @@ class NotificationFiltersState extends State<NotificationFilters> {
           alignment: Alignment.centerLeft,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: notificationFilters == null ? [] : [
-                         
-                  /// List notification filters as selectable choice chips       
-                  ...notificationFilters!.filters.map((filter) {
-                  
-                    final String name = filter.name;
-                    final bool isSelected = name == notificationFilter;
-                    final bool showTotal = name != 'All' && !isSelected;
-                    final String totalSummarized = filter.totalSummarized;
+            child: Row(
+              children: notificationFilters == null ? [] : [
+                        
+                /// List notification filters as selectable choice chips       
+                ...notificationFilters!.filters.map((filter) {
+                
+                  final String name = filter.name;
+                  final bool isSelected = name == notificationFilter;
+                  final bool showTotal = name != 'All' && !isSelected;
+                  final String totalSummarized = filter.totalSummarized;
 
-                    return CustomFilterChoiceChip(
-                      name: name,
-                      showTotal: showTotal,
-                      isSelected: isSelected,
-                      totalSummarized: totalSummarized,
-                      onSelected: (value) {
-                        changeNotificationFilter(filter.name);
-                      },
-                    );
-          
-                  }).toList(),
-          
-                ],
-              ),
+                  return CustomFilterChoiceChip(
+                    name: name,
+                    showTotal: showTotal,
+                    isSelected: isSelected,
+                    totalSummarized: totalSummarized,
+                    onSelected: (value) {
+                      changeNotificationFilter(filter.name);
+                    },
+                  );
+        
+                }).toList(),
+        
+              ],
             ),
           ),
         ),

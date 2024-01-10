@@ -1,11 +1,23 @@
-import 'package:bonako_demo/features/notifications/widgets/show_notifications/notification_types/orders/order_paid_notification.dart';
+import 'package:bonako_demo/core/utils/string.dart';
+import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:bonako_demo/features/notifications/models/notification_filters.dart';
+import 'package:bonako_demo/features/notifications/providers/notification_provider.dart';
+import 'package:bonako_demo/features/notifications/widgets/show_notifications/notification_filters.dart';
+import 'package:bonako_demo/features/notifications/widgets/show_notifications/notification_types/orders/order_paid_using_dpo_notification.dart';
+import 'package:bonako_demo/features/notifications/widgets/show_notifications/notification_types/orders/order_payment_request_notification.dart';
 import 'package:bonako_demo/features/notifications/widgets/show_notifications/notification_types/subscriptions/subscription_created_notification.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:bonako_demo/features/orders/providers/order_provider.dart';
+import 'package:bonako_demo/features/orders/services/order_services.dart';
+import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 import 'notification_types/friend_groups/friend_group_store_removed_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification.dart' as model;
 import 'notification_types/friend_groups/friend_group_user_added_notification.dart';
 import 'notification_types/friend_groups/friend_group_store_added_notification.dart';
 import 'notification_types/orders/order_status_updated_notification.dart';
+import 'notification_types/orders/order_marked_as_paid_notification.dart';
 import 'notification_types/stores/store_created_notification.dart';
 import 'notification_types/stores/store_deleted_notification.dart';
 import 'notification_types/orders/order_created_notification.dart';
@@ -22,45 +34,70 @@ import 'notification_types/users/remove_store_team_member_notification.dart';
 import 'notification_types/users/unfollowed_store_notification.dart';
 import 'package:flutter/material.dart';
 
-class NotificationItem extends StatelessWidget {
+class NotificationItem extends StatefulWidget {
   
   final int index;
   final model.Notification notification;
-  final Function(model.Notification) onSelectedNotification;
+  final GlobalKey<NotificationFiltersState> notificationFiltersState;
 
   const NotificationItem({
     super.key,
     required this.index,
     required this.notification,
-    required this.onSelectedNotification,
+    required this.notificationFiltersState
   });
+
+  @override
+  State<NotificationItem> createState() => _NotificationItemState();
+}
+
+class _NotificationItemState extends State<NotificationItem> {
+  
+  bool isLoadingOrder = false;
+  bool isMarkingAsRead = false;
+  
+  model.Notification get notification => widget.notification;
+  AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
+  GlobalKey<NotificationFiltersState> get notificationFiltersState => widget.notificationFiltersState;
+  NotificationProvider get notificationProvider => Provider.of<NotificationProvider>(context, listen: false);
 
   Widget get notificationContent {
 
     /// Order created
     if (notification.type == "App\\Notifications\\Orders\\OrderCreated") {
       
-      return OrderCreatedNotificationContent(notification: notification);
+      return OrderCreatedNotificationContent(notification: notification, isLoading: isLoadingOrder);
 
     /// Order updated
     }else if (notification.type == "App\\Notifications\\Orders\\OrderUpdated") {
       
-      return OrderUpdatedNotificationContent(notification: notification);
+      return OrderUpdatedNotificationContent(notification: notification, isLoading: isLoadingOrder);
 
     /// Order seen
     }else if (notification.type == "App\\Notifications\\Orders\\OrderSeen") {
       
-      return OrderSeenNotificationContent(notification: notification);
+      return OrderSeenNotificationContent(notification: notification, isLoading: isLoadingOrder);
 
     /// Order status changed
     }else if (notification.type == "App\\Notifications\\Orders\\OrderStatusUpdated") {
       
-      return OrderStatusUpdatedNotificationContent(notification: notification);
+      return OrderStatusUpdatedNotificationContent(notification: notification, isLoading: isLoadingOrder);
+
+    /// Order mark as paid
+    }else if (notification.type == "App\\Notifications\\Orders\\OrderMarkedAsPaid") {
+      
+      return OrderMarkedAsPaidNotificationContent(notification: notification, isLoading: isLoadingOrder);
+
+    /// Order payment request
+    }else if (notification.type == "App\\Notifications\\Orders\\OrderPaymentRequest") {
+      
+      return OrderPaymentRequestNotificationContent(notification: notification, isLoading: isLoadingOrder);
 
     /// Order paid
-    }else if (notification.type == "App\\Notifications\\Orders\\OrderPaid") {
+    }else if (notification.type == "App\\Notifications\\Orders\\OrderPaidUsingDpo") {
       
-      return OrderPaidNotificationContent(notification: notification);
+      return OrderPaidUsingDpoNotificationContent(notification: notification, isLoading: isLoadingOrder);
 
     /// Friend group user added
     }else if (notification.type == "App\\Notifications\\FriendGroups\\FriendGroupUserAdded") {
@@ -150,11 +187,144 @@ class NotificationItem extends StatelessWidget {
 
   }
 
+  Function? get notificationAction {
+
+    final canShowOrder = [
+      "App\\Notifications\\Orders\\OrderSeen",
+      "App\\Notifications\\Orders\\OrderCreated",
+      "App\\Notifications\\Orders\\OrderUpdated",
+      "App\\Notifications\\Orders\\OrderPaidUsingDpo",
+      "App\\Notifications\\Orders\\OrderMarkedAsPaid",
+      "App\\Notifications\\Orders\\OrderStatusUpdated",
+      "App\\Notifications\\Orders\\OrderPaymentRequest",
+    ].contains(notification.type);
+
+    if(canShowOrder) {
+    
+      return showOrderDialog;
+    
+    }else{
+      
+      return null;
+
+    }
+
+  }
+
+  void showOrderDialog() {
+
+    if(isLoadingOrder) return;
+
+    OrderServices().showOrderDialogViaUrl(
+      orderContentType: OrderContentType.orderFullContent,
+      orderUrl: widget.notification.links.showOrder!.href,
+      onStartLoader: _startShowOrderLoader,
+      onStopLoader: _stopShowOrderLoader,
+      orderProvider: orderProvider,
+      context: context
+    );
+
+  }
+  
+  void _startShowOrderLoader() => setState(() => isLoadingOrder = true);
+  void _stopShowOrderLoader() => setState(() => isLoadingOrder = false);
+  void _startMarkingAsReadLoader() => setState(() => isMarkingAsRead = true);
+  void _stopMarkingAsReadLoader() => setState(() => isMarkingAsRead = false);
+
+  void onTap() {
+    if(notificationAction != null) notificationAction!();
+    if(notification.readAt == null) requestMarkNotificationAsRead();
+  }
+
+  void requestMarkNotificationAsRead() {
+
+    if(isMarkingAsRead) return;
+
+    _startMarkingAsReadLoader();
+
+    /// Set that the notification has been read
+    notification.readAt = DateTime.now();
+
+    notificationProvider.setNotification(notification).notificationRepository
+      .markNotificationAsRead()
+      .then((response) async {
+
+        if(response.statusCode == 200) {
+
+          /// Decrement the total unread notifications by 1
+          authProvider.resourceTotals!.totalUnreadNotifications -= 1;
+          authProvider.setResourceTotals(authProvider.resourceTotals!);
+
+          /**
+           *  Refresh the notification filters
+           *  ----
+           * 
+           *  Note that we prefer to set the "filter.total" and "filter.totalSummarized"
+           *  manually than to make an API request to fetch the latest notification
+           *  filters e.g:
+           * 
+           *  notificationFiltersState.currentState?.requestNotificationFilters()
+           * 
+           *  This is because we don't want to abuse this endpoint by having to make 
+           *  a request evertime the user taps on each notification. Instead we will
+           *  set the "filter.total" and manually work out the format of the
+           *  "filter.totalSummarized" e.g 
+           * 
+           *  1,000       into  1k
+           *  1,000,000   into  1m
+           * 
+           *  This way we can improve the performance of the application
+           */
+          for(Filter filter in notificationFiltersState.currentState?.notificationFilters?.filters ?? []) {
+
+            final String filterName = filter.name.toLowerCase();
+
+            if(filterName == 'read') {
+
+              final int totalReadNotifications = filter.total + 1;
+              
+              notificationFiltersState.currentState?.setState(() {
+                filter.total = totalReadNotifications;
+                filter.totalSummarized = StringUtility.convertNumberToShortenedPrefix(totalReadNotifications);
+              });
+
+            }else if(filterName == 'unread') {
+
+              final int totalUnreadNotifications = filter.total - 1;
+          
+              notificationFiltersState.currentState?.setState(() {
+                filter.total = totalUnreadNotifications;
+                filter.totalSummarized = StringUtility.convertNumberToShortenedPrefix(totalUnreadNotifications);
+              });
+
+            }
+
+          }
+
+        }else{
+
+          /// Set that the notification has not been read
+          notification.readAt = null;
+
+        }
+
+      }).catchError((error) {
+
+        printError(info: error.toString());
+
+      }).whenComplete(() {
+
+        _stopMarkingAsReadLoader();
+
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
       color: notification.readAt == null ? Colors.amber.shade50 : null,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(color: Colors.grey.shade400, width: 1.0),  // Add a bottom border to separate the tiles
@@ -162,8 +332,8 @@ class NotificationItem extends StatelessWidget {
         ),
         child: ListTile(
           dense: false,
+          onTap: onTap,
           title: notificationContent,
-          onTap: () => onSelectedNotification(notification),
         ),
       ),
     );

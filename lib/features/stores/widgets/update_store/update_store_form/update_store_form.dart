@@ -1287,127 +1287,117 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                 /// Spacer
                 const SizedBox(height: 16),
 
+                /// Spacer
+                const Divider(),
+              
+                /// Spacer
+                const SizedBox(height: 16),
+
+                /// Allow Deposit Checkbox
+                CustomCheckbox(
+                  value: storeForm['allowDepositPayments'],
+                  disabled: isSubmitting,
+                  text: 'Allow Deposit',
+                  checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
+                  onChanged: (value) {
+                    setState(() => storeForm['allowDepositPayments'] = value ?? false); 
+                  }
+                ),
+
                 AnimatedSize(
                   duration: const Duration(milliseconds: 500),
-                  child: !(storeForm['perfectPayEnabled'] || storeForm['orangeMoneyPaymentEnabled'] || storeForm['dpoPaymentEnabled'])
+                  child: !storeForm['allowDepositPayments']
                   ? Container()
                   : Column(
                       children: [
-                    
+        
                         /// Spacer
-                        const Divider(),
-                      
-                        /// Spacer
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
 
-                        /// Allow Deposit Checkbox
-                        CustomCheckbox(
-                          value: storeForm['allowDepositPayments'],
-                          disabled: isSubmitting,
-                          text: 'Allow Deposit',
-                          checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
-                          onChanged: (value) {
-                            setState(() => storeForm['allowDepositPayments'] = value ?? false); 
-                          }
-                        ),
-
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 500),
-                          child: !storeForm['allowDepositPayments']
-                          ? Container()
-                          : Column(
-                              children: [
+                        /// Available Deposit Percentages
+                        CustomMultiSelectFormField(
+                          title: 'Deposit Percentages',
+                          hintText: 'Add one or more supported deposits',
+                          key: ValueKey(storeForm['depositPercentages'].length),
+                          initialValue: (storeForm['depositPercentages'] as List<String>),
+                          dataSource: List<dynamic>.from(availableDepositPercentages.map((availableDepositPercentage) => {
+                            'display': '$availableDepositPercentage%',
+                            'value': availableDepositPercentage,
+                          })),
+                          onSaved: (value) {
+                            if (value != null) {
+                              setState(() {
               
-                                /// Spacer
-                                const SizedBox(height: 8),
+                                List<String> selectedPercentages = availableDepositPercentages.where((availableDepositPercentage) {
+                                  return value.contains(availableDepositPercentage);
+                                }).toList();
 
-                                /// Available Deposit Percentages
-                                CustomMultiSelectFormField(
-                                  title: 'Deposit Percentages',
-                                  hintText: 'Add one or more supported deposits',
-                                  key: ValueKey(storeForm['depositPercentages'].length),
-                                  initialValue: (storeForm['depositPercentages'] as List<String>),
-                                  dataSource: List<dynamic>.from(availableDepositPercentages.map((availableDepositPercentage) => {
-                                    'display': '$availableDepositPercentage%',
-                                    'value': availableDepositPercentage,
-                                  })),
-                                  onSaved: (value) {
-                                    if (value != null) {
-                                      setState(() {
-                      
-                                        List<String> selectedPercentages = availableDepositPercentages.where((availableDepositPercentage) {
-                                          return value.contains(availableDepositPercentage);
-                                        }).toList();
-
-                                        selectedPercentages.sort();
-                                        storeForm['depositPercentages'] = selectedPercentages;
-                                        
-                                      });
-                                    }
-                                  },
-                                ),
-
-                              ]
-                            )
-                        ),
-                      
-                        /// Spacer
-                        const SizedBox(height: 16),
-
-                        /// Allow Deposit Checkbox
-                        CustomCheckbox(
-                          value: storeForm['allowInstallmentPayments'],
-                          disabled: isSubmitting,
-                          text: 'Allow Installments',
-                          checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
-                          onChanged: (value) {
-                            setState(() => storeForm['allowInstallmentPayments'] = value ?? false); 
-                          }
+                                selectedPercentages.sort();
+                                storeForm['depositPercentages'] = selectedPercentages;
+                                
+                              });
+                            }
+                          },
                         ),
 
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 500),
-                          child: !storeForm['allowInstallmentPayments']
-                          ? Container()
-                          : Column(
-                              children: [
-              
-                                /// Spacer
-                                const SizedBox(height: 8),
-
-                                /// Available Installment Percentages
-                                CustomMultiSelectFormField(
-                                  title: 'Installment Percentages',
-                                  hintText: 'Add one or more supported installments',
-                                  key: ValueKey(storeForm['installmentPercentages'].length),
-                                  initialValue: (storeForm['installmentPercentages'] as List<String>),
-                                  dataSource: List<dynamic>.from(availableInstallmentPercentages.map((availableInstallmentPercentage) => {
-                                    'display': '$availableInstallmentPercentage%',
-                                    'value': availableInstallmentPercentage,
-                                  })),
-                                  onSaved: (value) {
-                                    if (value != null) {
-                                      setState(() {
-
-                                        List<String> selectedPercentages = availableInstallmentPercentages.where((availableInstallmentPercentage) {
-                                          return value.contains(availableInstallmentPercentage);
-                                        }).toList();
-
-                                        selectedPercentages.sort();
-                                        storeForm['installmentPercentages'] = selectedPercentages;
-                                      
-                                      });
-                                    }
-                                  },
-                                ),
-
-                              ]
-                            )
-                        ),
-
-                      ],
-                  )
+                      ]
+                    )
                 ),
+              
+                /// Spacer
+                const SizedBox(height: 16),
+
+                /// Allow Deposit Checkbox
+                CustomCheckbox(
+                  value: storeForm['allowInstallmentPayments'],
+                  disabled: isSubmitting,
+                  text: 'Allow Installments',
+                  checkBoxMargin: const EdgeInsets.only(left: 8, right: 8),
+                  onChanged: (value) {
+                    setState(() => storeForm['allowInstallmentPayments'] = value ?? false); 
+                  }
+                ),
+
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 500),
+                  child: !storeForm['allowInstallmentPayments']
+                  ? Container()
+                  : Column(
+                      children: [
+        
+                        /// Spacer
+                        const SizedBox(height: 8),
+
+                        /// Available Installment Percentages
+                        CustomMultiSelectFormField(
+                          title: 'Installment Percentages',
+                          hintText: 'Add one or more supported installments',
+                          key: ValueKey(storeForm['installmentPercentages'].length),
+                          initialValue: (storeForm['installmentPercentages'] as List<String>),
+                          dataSource: List<dynamic>.from(availableInstallmentPercentages.map((availableInstallmentPercentage) => {
+                            'display': '$availableInstallmentPercentage%',
+                            'value': availableInstallmentPercentage,
+                          })),
+                          onSaved: (value) {
+                            if (value != null) {
+                              setState(() {
+
+                                List<String> selectedPercentages = availableInstallmentPercentages.where((availableInstallmentPercentage) {
+                                  return value.contains(availableInstallmentPercentage);
+                                }).toList();
+
+                                selectedPercentages.sort();
+                                storeForm['installmentPercentages'] = selectedPercentages;
+                              
+                              });
+                            }
+                          },
+                        ),
+
+                      ]
+                    )
+                ),
+
 
               ],
 

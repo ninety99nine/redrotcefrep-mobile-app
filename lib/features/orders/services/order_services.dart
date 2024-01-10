@@ -1,11 +1,16 @@
+import 'package:bonako_demo/features/orders/widgets/order_show/order_content_by_type/order_content_by_type_dialog.dart';
 import 'package:bonako_demo/features/transactions/widgets/order_transaction_show/order_transaction_content_dialog.dart';
+import 'package:bonako_demo/features/orders/providers/order_provider.dart';
 import 'package:bonako_demo/features/transactions/models/transaction.dart';
 import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:bonako_demo/core/utils/snackbar.dart';
 import 'package:bonako_demo/core/utils/browser.dart';
 import 'package:bonako_demo/core/utils/dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OrderServices {
 
@@ -21,6 +26,53 @@ class OrderServices {
 
   void launchPaymentLink(Transaction transaction, BuildContext context) {
     BrowserUtility.launch(url: transaction.dpoPaymentUrl!);
+  }
+
+  void showOrderDialogViaUrl({ required String orderUrl, required OrderContentType orderContentType, required OrderProvider orderProvider, required BuildContext context, required void Function() onStartLoader, required void Function() onStopLoader, void Function(Order)? onUpdatedOrder, void Function(Transaction)? onRequestPayment }) async {
+
+    onStartLoader();
+
+    orderProvider.orderRepository.showOrder(
+      url: orderUrl,
+      withCart: true,
+      withStore: true,
+      withCustomer: true,
+      withOccasion: true,
+      withDeliveryAddress: true,
+      withCountTransactions: true,
+    ).then((response) async {
+
+      if(response.statusCode == 200) {
+
+      final order = Order.fromJson(response.data);
+
+        DialogUtility.showInfiniteScrollContentDialog(
+          context: context,
+          heightRatio: 0.9,
+          showCloseIcon: false,
+          backgroundColor: Colors.transparent,
+          content: OrderContentByTypeDialog(
+            order: order,
+            onUpdatedOrder: onUpdatedOrder,
+            onRequestPayment: onRequestPayment,
+            orderContentType: orderContentType
+          )
+        );
+
+      }
+
+    }).catchError((error) {
+
+      printError(info: error.toString());
+
+      SnackbarUtility.showErrorMessage(message: 'Failed to show order');
+
+    }).whenComplete(() {
+
+      onStopLoader();
+
+    });
+
   }
 
   showOrderTransactionDialog({ required Transaction transaction, required Order order, Function(Transaction)? onUpdatedTransaction, Function(Transaction)? onDeletedTransaction, Function(String)? onSubmittedFile, required BuildContext context }) {

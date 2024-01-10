@@ -1,9 +1,12 @@
-import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_paid_notification.dart';
+import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_mark_as_paid_notification.dart';
+import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_paid_using_dpo_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_created_notification.dart';
+import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_payment_request_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_seen_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_status_updated_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/users/invitation_to_follow_store_created_notification.dart';
 import 'package:bonako_demo/features/notifications/models/notification_types/users/invitation_to_join_store_team_created_notification.dart';
+import 'package:bonako_demo/features/user/models/resource_totals.dart';
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import 'package:bonako_demo/features/notifications/enums/notification_enums.dart';
 import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
@@ -15,7 +18,6 @@ import 'package:bonako_demo/core/utils/pusher.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../notifications_content.dart';
-import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
 
 class NotificationsModalBottomSheet extends StatefulWidget {
@@ -38,11 +40,13 @@ class NotificationsModalBottomSheet extends StatefulWidget {
 class _NotificationsModalBottomSheetState extends State<NotificationsModalBottomSheet> {
 
   PusherChannelsFlutter? pusher;
-  int totalUnreadNotifications = 0;
+  ResourceTotals? resourceTotals;
   late PusherProvider pusherProvider;
   ShoppableStore? get store => widget.store;
   NotificationContentView? notificationContentView;
   Widget Function(void Function())? get trigger => widget.trigger;
+  int? get totalUnreadNotifications => resourceTotals?.totalUnreadNotifications;
+  bool get hasUnreadNotifications => resourceTotals?.totalUnreadNotifications != 0;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
   //// This allows us to access the state of CustomBottomModalSheet widget using a Global key. 
@@ -53,11 +57,7 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
   @override
   void initState() {
     super.initState();
-    
-    /// Set the Pusher Provider
     pusherProvider = Provider.of<PusherProvider>(context, listen: false);
-
-    requestCountNotifications();
     listenForNewNotificationAlerts();
   }
 
@@ -68,34 +68,25 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
     pusherProvider.unsubscribeToAuthNotifications(identifier: 'NotificationsModalBottomSheet');
   }
 
-  //// Request the total authenticated user notifications
-  //// This will allow us to show filters that can be used
-  //// to filter the results of notifications returned on each request
-  void requestCountNotifications() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     
-    authProvider.authRepository.countNotifications()
-    .then((dio.Response response) {
-
-      if(!mounted) return;
-
-      if( response.statusCode == 200 ) {
-        
-        //// Set the total notifications
-        setState(() => totalUnreadNotifications = response.data['totalUnreadNotifications']);
-
-      }
-
-    });
-
+    /// Get the authenticated user's resource totals
+    final ResourceTotals? updateResourceTotals = Provider.of<AuthProvider>(context, listen: false).resourceTotals;
+  
+    /// Update the local resourceTotals
+    resourceTotals = updateResourceTotals;
+    
   }
 
   void listenForNewNotificationAlerts() async {
 
-      /// Subscribe to notification alerts
-      pusherProvider.subscribeToAuthNotifications(
-        identifier: 'NotificationsModalBottomSheet', 
-        onEvent: onNotificationAlerts
-      );
+    /// Subscribe to notification alerts
+    pusherProvider.subscribeToAuthNotifications(
+      identifier: 'NotificationsModalBottomSheet', 
+      onEvent: onNotificationAlerts
+    );
 
   }
 
@@ -103,8 +94,9 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
 
     if (event.eventName == "Illuminate\\Notifications\\Events\\BroadcastNotificationCreated") {
 
-      //// Increment the total notifications
-      setState(() => ++totalUnreadNotifications);
+      /// Increment the total unread notifications by 1
+      authProvider.resourceTotals!.totalUnreadNotifications += 1;
+      authProvider.setResourceTotals(authProvider.resourceTotals!);
 
       /// Parse event.data into a Map
       Map<String, dynamic> eventData = jsonDecode(event.data);
@@ -116,10 +108,10 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
       if(type == 'App\\Notifications\\Orders\\OrderCreated') {
         
         final OrderCreatedNotification notification = OrderCreatedNotification.fromJson(eventData);
-        final String customerFirstName = notification.orderProperties.customerProperties.firstName;
         final bool isAssociatedAsFriend = notification.orderProperties.isAssociatedAsFriend;
         final int orderForTotalFriends = notification.orderProperties.orderForTotalFriends;
         final String amount = notification.orderProperties.amount.amountWithCurrency;
+        final String customerFirstName = notification.customerProperties.firstName;
         final String storeName = notification.storeProperties.name;
         final int otherTotalFriends = orderForTotalFriends - 1;
 
@@ -147,19 +139,19 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
       }else if(type == 'App\\Notifications\\Orders\\OrderSeen') {
 
         final OrderSeenNotification notification = OrderSeenNotification.fromJson(eventData);
-        final String seenByUserName = notification.orderProperties.seenByUserProperties.firstName;
         final bool isAssociatedAsFriend = notification.orderProperties.isAssociatedAsFriend;
+        final String seenByUserFirstName = notification.seenByUserProperties.firstName;
         final String storeName = notification.storeProperties.name;
 
         if(isAssociatedAsFriend) {
 
           /// Show the message that informs the friend that their order has been seen
-          SnackbarUtility.showSuccessMessage(message: 'Tagged order has been seen by $seenByUserName @$storeName', duration: 4);
+          SnackbarUtility.showSuccessMessage(message: 'Tagged order has been seen by $seenByUserFirstName @$storeName', duration: 4);
 
         }else{
 
           /// Show the message that informs the customer that their order has been seen
-          SnackbarUtility.showSuccessMessage(message: 'Your order has been seen by $seenByUserName @$storeName', duration: 4);
+          SnackbarUtility.showSuccessMessage(message: 'Your order has been seen by $seenByUserFirstName @$storeName', duration: 4);
           
         }
         
@@ -182,11 +174,24 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
           
         }
         
-      }else if(type == 'App\\Notifications\\Orders\\OrderPaid') {
+      /// Order payment request
+      }else if(type == 'App\\Notifications\\Orders\\OrderPaymentRequest') {
 
-        final OrderPaidNotification notification = OrderPaidNotification.fromJson(eventData);
+        final OrderPaymentRequestNotification notification = OrderPaymentRequestNotification.fromJson(eventData);
+        final String requestedByUserFirstName = notification.requestedByUserProperties.firstName;
+        final Money amount = notification.transactionProperties.amount;
+        final String storeName = notification.storeProperties.name;
+        final String number = notification.orderProperties.number;
+
+        /// Show the message that informs the payer of the payment request
+        SnackbarUtility.showSuccessMessage(message: 'Payment requested by $requestedByUserFirstName @$storeName - ${amount.amountWithCurrency} for order #$number', duration: 4);
+          
+      }else if(type == 'App\\Notifications\\Orders\\OrderPaidUsingDpo') {
+
+        final OrderPaidUsingDpoNotification notification = OrderPaidUsingDpoNotification.fromJson(eventData);
         final bool isAssociatedAsFriend = notification.orderProperties.isAssociatedAsFriend;
-        final String payerName = notification.transactionProperties.payerName;
+        final String dpoCustomerName = notification.transactionProperties.dpoCustomerName;
+        final bool fullPayment = notification.transactionProperties.percentage == 100;
         final Money amount = notification.transactionProperties.amount;
         final String storeName = notification.storeProperties.name;
         final String number = notification.orderProperties.number;
@@ -194,12 +199,35 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
         if(isAssociatedAsFriend) {
 
           /// Show the message that informs the friend that this order has been paid
-          SnackbarUtility.showSuccessMessage(message: 'Tagged order has been paid @$storeName - ${amount.amountWithCurrency} by $payerName', duration: 4);
+          SnackbarUtility.showSuccessMessage(message: 'Tagged order has been ${fullPayment ? 'Fully' : 'Partially'} paid @$storeName - ${amount.amountWithCurrency} by $dpoCustomerName', duration: 4);
 
         }else{
 
-          /// Show the message that informs the everyone else that this order has been paid
-          SnackbarUtility.showSuccessMessage(message: 'Order #$number paid @$storeName - ${amount.amountWithCurrency} by $payerName', duration: 4);
+          /// Show the message that informs everyone else that this order has been paid
+          SnackbarUtility.showSuccessMessage(message: 'Order #$number ${fullPayment ? 'Fully' : 'Partially'} paid @$storeName - ${amount.amountWithCurrency} by $dpoCustomerName', duration: 4);
+          
+        }
+        
+      }else if(type == 'App\\Notifications\\Orders\\OrderMarkedAsPaid') {
+
+        final OrderMarkedAsPaidNotification notification = OrderMarkedAsPaidNotification.fromJson(eventData);
+        final bool isAssociatedAsFriend = notification.orderProperties.isAssociatedAsFriend;
+        final bool fullPayment = notification.transactionProperties.percentage == 100;
+        final String verifiedByUserName = notification.verifiedByUserProperties.name;
+        final String paidByUserName = notification.paidByUserProperties.name;
+        final Money amount = notification.transactionProperties.amount;
+        final String storeName = notification.storeProperties.name;
+        final String number = notification.orderProperties.number;
+
+        if(isAssociatedAsFriend) {
+
+          /// Show the message that informs the friend that this order has been marked as paid
+          SnackbarUtility.showSuccessMessage(message: 'Tagged order has been marked as ${fullPayment ? 'Fully' : 'Partially'} paid @$storeName - ${amount.amountWithCurrency} by $paidByUserName and verified by $verifiedByUserName', duration: 4);
+
+        }else{
+
+          /// Show the message that informs everyone else that this order has been marked as paid
+          SnackbarUtility.showSuccessMessage(message: 'Order #$number marked as ${fullPayment ? 'Fully' : 'Partially'} paid @$storeName - ${amount.amountWithCurrency} by $paidByUserName and verified by $verifiedByUserName', duration: 4);
           
         }
         
@@ -265,7 +293,7 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
           floatingActionButton(openBottomModalSheet),
 
           //// Counter Badge
-          if(totalUnreadNotifications > 0) counterBadge,
+          if(hasUnreadNotifications) counterBadge,
 
         ],
       ),
@@ -280,8 +308,20 @@ class _NotificationsModalBottomSheetState extends State<NotificationsModalBottom
     } 
   }
 
+  void _listenForAuthProviderChanges(BuildContext context) {
+
+    /// Listen for changes on the AuthProvider so that we can know when the authProvider.resourceTotals 
+    /// have been updated. Once these changes occur, we can use the didChangeDependencies() to capture 
+    /// and set these changes.
+    Provider.of<AuthProvider>(context, listen: true);
+
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    _listenForAuthProviderChanges(context);
+
     return CustomBottomModalSheet(
       key: _customBottomModalSheetState,
       //// Trigger to open the bottom modal sheet

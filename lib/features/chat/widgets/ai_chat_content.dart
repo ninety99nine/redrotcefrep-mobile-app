@@ -253,7 +253,7 @@ class AiChatContentState extends State<AiChatContent> {
       _startWrittingLoader();
 
       /// Clear the text field controller
-      _customTextFormFieldState.currentState!.controller!.clear();
+      _customTextFormFieldState.currentState!.controller.clear();
 
       /// Temporarily capture the user content
       final String currUserContent = userContent;

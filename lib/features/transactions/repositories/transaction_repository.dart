@@ -19,7 +19,7 @@ class TransactionRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Show the specified transaction
-  Future<dio.Response> showOrder({ bool withPayingUser = false, bool withPaymentMethod = false, bool withVerifyingUser = false, bool withRequestingUser = false }) {
+  Future<dio.Response> showTransaction({ bool withPayingUser = false, bool withPaymentMethod = false, bool withVerifyingUser = false, bool withRequestingUser = false }) {
     
     if(transaction == null) throw Exception('The transaction must be set to show this transaction');
 

@@ -1,3 +1,5 @@
+import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+
 import '../text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +9,7 @@ class CustomTextButton extends StatelessWidget {
   final Color? color;
   final bool isError;
   final bool disabled;
+  final bool isLoading;
   final String? normalText;
   final EdgeInsets padding;
   final IconData? suffixIcon;
@@ -29,6 +32,7 @@ class CustomTextButton extends StatelessWidget {
       this.suffixIconSize,
       this.isError = false,
       this.disabled = false,
+      this.isLoading = false,
       this.padding = const EdgeInsets.all(8),
       this.alignment = Alignment.centerLeft,
     }
@@ -64,30 +68,38 @@ class CustomTextButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
 
-            /// Prefix Icon
-            if(prefixIcon != null) Icon(prefixIcon, size: prefixIconSize, color: preferredColor),
-            if(text.isNotEmpty && prefixIcon != null) const SizedBox(width: 5),
-            
-            /// Bolded text
-            CustomBodyText(
-              text, 
-              fontWeight: FontWeight.bold,
-              color: preferredColor,
-            ),
-            
-            /// Spacer
-            if(normalText != null) const SizedBox(width: 4,),
-
-            /// Non Bolded text
-            if(normalText != null) CustomBodyText(
-              normalText!,
-              color: preferredColor,
+            if(isLoading) const CustomCircularProgressIndicator(
+              size: 16, 
+              strokeWidth: 2,
             ),
 
-            /// Suffix Icon
-            if(text.isNotEmpty && suffixIcon != null) const SizedBox(width: 5),
-            if(suffixIcon != null) Icon(suffixIcon, size: suffixIconSize, color: preferredColor)
+            if(!isLoading) ...[
+
+              /// Prefix Icon
+              if(prefixIcon != null) Icon(prefixIcon, size: prefixIconSize, color: preferredColor),
+              if(text.isNotEmpty && prefixIcon != null) const SizedBox(width: 5),
+              
+              /// Bolded text
+              CustomBodyText(
+                text, 
+                fontWeight: FontWeight.bold,
+                color: preferredColor,
+              ),
+              
+              /// Spacer
+              if(normalText != null) const SizedBox(width: 4,),
+
+              /// Non Bolded text
+              if(normalText != null) CustomBodyText(
+                normalText!,
+                color: preferredColor,
+              ),
+
+              /// Suffix Icon
+              if(text.isNotEmpty && suffixIcon != null) const SizedBox(width: 5),
+              if(suffixIcon != null) Icon(suffixIcon, size: suffixIconSize, color: preferredColor)
           
+            ]
           ],
         ),
       ),

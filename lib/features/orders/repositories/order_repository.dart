@@ -23,14 +23,15 @@ class OrderRepository {
   ApiRepository get apiRepository => apiProvider.apiRepository;
 
   /// Show the specified order
-  Future<dio.Response> showOrder({ bool withCart = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withOccasion = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
+  Future<dio.Response> showOrder({ String? url, withCart = false, bool withStore = false, bool withCustomer = false, bool withDeliveryAddress = false, bool withOccasion = false, bool withPaymentMethod = false, bool withCountTransactions = false, bool withTransactions = false }) {
     
-    if(order == null) throw Exception('The order must be set to show this order');
+    if(url == null && order == null) throw Exception('The order or order url must be set to show this order');
 
-    String url = order!.links.self.href;
+    url ??= order!.links.self.href;
 
     Map<String, String> queryParams = {};
     if(withCart) queryParams.addAll({'withCart': '1'});
+    if(withStore) queryParams.addAll({'withStore': '1'});
     if(withCustomer) queryParams.addAll({'withCustomer': '1'});
     if(withOccasion) queryParams.addAll({'withOccasion': '1'});
     if(withTransactions) queryParams.addAll({'withTransactions': '1'});

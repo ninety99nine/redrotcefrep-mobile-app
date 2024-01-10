@@ -15,14 +15,14 @@ class OrderPayingUsers extends StatefulWidget {
 
   final Order order;
   final ShoppableStore store;
-  final String? payedByUserFilter;
+  final String? paidByUserFilter;
   final Function(Transaction)? onDeletedTransaction;
 
   const OrderPayingUsers({
     Key? key,
     required this.order,
     required this.store,
-    this.payedByUserFilter,
+    this.paidByUserFilter,
     this.onDeletedTransaction
   }) : super(key: key);
 
@@ -34,11 +34,11 @@ class OrderPayingUsers extends StatefulWidget {
 class OrderPayingUsersState extends State<OrderPayingUsers> {
 
   int totalPayingUsers = 0;
-  List<User> payedByUsers = [];
+  List<User> paidByUsers = [];
 
   Order get order => widget.order;
   ShoppableStore get store => widget.store;
-  String? get payedByUserFilter => widget.payedByUserFilter;
+  String? get paidByUserFilter => widget.paidByUserFilter;
   Function(Transaction)? get onDeletedTransaction => widget.onDeletedTransaction;
   OrderProvider get orderProvider => Provider.of<OrderProvider>(context, listen: false);
 
@@ -55,7 +55,7 @@ class OrderPayingUsersState extends State<OrderPayingUsers> {
       withPaidTransactionsCount: true,
       withLatestTransaction: true,
       withTransactionsCount: true,
-      filter: payedByUserFilter,
+      filter: paidByUserFilter,
     ).then((response) {
 
       if(response.statusCode == 200) {
@@ -64,7 +64,7 @@ class OrderPayingUsersState extends State<OrderPayingUsers> {
           
           totalPayingUsers = response.data['total'];
 
-          payedByUsers = (response.data['data'] as List).map((payedByUser) => User.fromJson(payedByUser)).toList();
+          paidByUsers = (response.data['data'] as List).map((paidByUser) => User.fromJson(paidByUser)).toList();
 
         });
 
@@ -81,9 +81,9 @@ class OrderPayingUsersState extends State<OrderPayingUsers> {
     return Column(
       children: [
 
-        ...payedByUsers.map((payedByUser) {
+        ...paidByUsers.map((paidByUser) {
 
-          return PayingUserCard(store: store, order: order, payedByUser: payedByUser, onDeletedTransaction: onDeletedTransaction);
+          return PayingUserCard(store: store, order: order, paidByUser: paidByUser, onDeletedTransaction: onDeletedTransaction);
 
         })
 
@@ -95,7 +95,7 @@ class OrderPayingUsersState extends State<OrderPayingUsers> {
 class PayingUserCard extends StatefulWidget {
 
   final Order order;
-  final User payedByUser;
+  final User paidByUser;
   final ShoppableStore store;
   final Function(Transaction)? onDeletedTransaction;
 
@@ -104,7 +104,7 @@ class PayingUserCard extends StatefulWidget {
     required this.store,
     required this.order,
     this.onDeletedTransaction,
-    required this.payedByUser,
+    required this.paidByUser,
   });
 
   @override
@@ -117,13 +117,13 @@ class _PayingUserCardState extends State<PayingUserCard> {
 
   Order get order => widget.order;
   ShoppableStore get store => widget.store;
-  User get payedByUser => widget.payedByUser;
+  User get paidByUser => widget.paidByUser;
   Function(Transaction)? get onDeletedTransaction => widget.onDeletedTransaction;
 
   @override
   void initState() {
     super.initState();
-    latestTransactionAsPayer = payedByUser.relationships.latestTransactionAsPayer!;
+    latestTransactionAsPayer = paidByUser.relationships.latestTransactionAsPayer!;
   }
 
   void onSubmittedFile(Transaction transaction, String photoUrl) {
@@ -144,7 +144,7 @@ class _PayingUserCardState extends State<PayingUserCard> {
 
   void onUpdatedTransaction(Transaction updatedTransaction) {
     /// The updatedTransaction is simply the same transaction but with relationships loaded e.g
-    /// payedByUser, verifiedByUser, requestedByUser, e.t.c. We are just updating this local state
+    /// paidByUser, verifiedByUser, requestedByUser, e.t.c. We are just updating this local state
     /// of the transaction incase we might want to do anything with those relationships once
     /// they have been loaded.
     setState(() => latestTransactionAsPayer = updatedTransaction);
@@ -154,14 +154,14 @@ class _PayingUserCardState extends State<PayingUserCard> {
   Widget build(BuildContext context) {
     return OrderTransactionsModalBottomSheet(
       order: order,
-      paidByUser: payedByUser,
+      paidByUser: paidByUser,
       onSubmittedFile: onSubmittedFile,
       transaction: latestTransactionAsPayer,
       trigger: (openBottomModalSheet) => GestureDetector(
         onTap: () {
           
           /// If we have one transaction
-          if(payedByUser.transactionsAsPayerCount == 1) {
+          if(paidByUser.transactionsAsPayerCount == 1) {
             
             OrderServices().showOrderTransactionDialog(
               order: order,
@@ -173,7 +173,7 @@ class _PayingUserCardState extends State<PayingUserCard> {
             );
     
           /// If we have more than one transaction
-          }else if(payedByUser.transactionsAsPayerCount! > 1) {
+          }else if(paidByUser.transactionsAsPayerCount! > 1) {
 
             openBottomModalSheet();
     
@@ -201,7 +201,7 @@ class _PayingUserCardState extends State<PayingUserCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
       
-                    CustomBodyText(payedByUser.attributes.name),
+                    CustomBodyText(paidByUser.attributes.name),
       
                     const SizedBox(height: 4,),
       
@@ -224,7 +224,7 @@ class _PayingUserCardState extends State<PayingUserCard> {
       
                         const SizedBox(height: 4,),
       
-                        CustomBodyText('${payedByUser.paidTransactionsAsPayerCount} ${payedByUser.paidTransactionsAsPayerCount == 1 ? 'payment' : 'payments'}', lightShade: true,),
+                        CustomBodyText('${paidByUser.paidTransactionsAsPayerCount} ${paidByUser.paidTransactionsAsPayerCount == 1 ? 'payment' : 'payments'}', lightShade: true,),
                         
                       ],
                     ),

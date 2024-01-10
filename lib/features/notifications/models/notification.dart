@@ -28,9 +28,17 @@ class Links {
   late Link self;
   late Link markAsRead;
 
+  late Link? showStore;
+  late Link? showOrder;
+  late Link? showTransaction;
+
   Links.fromJson(Map<String, dynamic> json) {
     self = Link.fromJson(json['self']);
     markAsRead = Link.fromJson(json['markAsRead']);
+
+    showStore = json['showStore'] == null ? null : Link.fromJson(json['showStore']);
+    showOrder = json['showOrder'] == null ? null : Link.fromJson(json['showOrder']);
+    showTransaction = json['showTransaction'] == null ? null : Link.fromJson(json['showTransaction']);
   }
 
 }

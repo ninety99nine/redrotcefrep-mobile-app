@@ -1,16 +1,16 @@
 import 'package:bonako_demo/core/shared_models/money.dart';
 
-class OrderCreatedNotification {
+class OrderPaidUsingDpoNotification {
   late StoreProperties storeProperties;
   late OrderProperties orderProperties;
-  late CustomerProperties customerProperties;
-  late OcassionProperties? ocassionProperties;
+  late TransactionProperties transactionProperties;
+  late PaymentMethodProperties paymentMethodProperties;
 
-  OrderCreatedNotification.fromJson(Map<String, dynamic> json) {
+  OrderPaidUsingDpoNotification.fromJson(Map<String, dynamic> json) {
     storeProperties = StoreProperties.fromJson(json['store']);
     orderProperties = OrderProperties.fromJson(json['order']);
-    customerProperties = CustomerProperties.fromJson(json['customer']);
-    ocassionProperties = json['occasion'] == null ? null : OcassionProperties.fromJson(json['occasion']);
+    transactionProperties = TransactionProperties.fromJson(json['transaction']);
+    paymentMethodProperties = PaymentMethodProperties.fromJson(json['paymentMethod']);
   }
 }
 
@@ -26,40 +26,40 @@ class StoreProperties {
 
 class OrderProperties {
   late int id;
-  late Money amount;
   late String number;
-  late String summary;
-  late int orderForTotalFriends;
   late bool isAssociatedAsFriend;
   late bool isAssociatedAsCustomer;
-
+  
   OrderProperties.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     number = json['number'];
-    summary = json['summary'];
-    amount = Money.fromJson(json['amount']);
-    orderForTotalFriends = json['orderForTotalFriends'];
     isAssociatedAsFriend = json['isAssociatedAsFriend'];
     isAssociatedAsCustomer = json['isAssociatedAsCustomer'];
   }
 }
 
-class CustomerProperties {
+class PaymentMethodProperties {
   late int id;
   late String name;
-  late String firstName;
 
-  CustomerProperties.fromJson(Map<String, dynamic> json) {
+  PaymentMethodProperties.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    firstName = json['firstName'];
   }
 }
 
-class OcassionProperties {
-  late String name;
+class TransactionProperties {
+  late int id;
+  late Money amount;
+  late bool paidByYou;
+  late int percentage;
+  late String dpoCustomerName;
 
-  OcassionProperties.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
+  TransactionProperties.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    paidByYou = json['paidByYou'];
+    percentage = json['percentage'];
+    amount = Money.fromJson(json['amount']);
+    dpoCustomerName = json['dpoCustomerName'];
   }
 }

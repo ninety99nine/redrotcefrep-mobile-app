@@ -40,16 +40,16 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
 
   late User authUser;
   ResourceTotals? resourceTotals;
-  int? get totalOrders => resourceTotals?.totalOrders;
   bool get hasResourceTotals => resourceTotals != null;
   int? get totalReviews => resourceTotals?.totalReviews;
   bool get doesNotHaveResourceTotals => resourceTotals == null;
   bool get doesNotHaveProfilePhoto => authUser.profilePhoto == null;
+  int? get totalOrdersAsCustomer => resourceTotals?.totalOrdersAsCustomer;
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
   int? get totalGroupsJoinedAsCreator => resourceTotals?.totalGroupsJoinedAsCreator;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
-  bool get hasPlacedAnOrder => hasResourceTotals ? resourceTotals!.totalOrders > 0 : false;
   bool get hasSharedAReview => hasResourceTotals ? resourceTotals!.totalReviews > 0 : false;
+  bool get hasPlacedAnOrder => hasResourceTotals ? resourceTotals!.totalOrdersAsCustomer > 0 : false;
   bool get hasCompletedEverything => hasPlacedAnOrder && hasSharedAReview && hasGroupsJoinedAsCreator;
   bool get hasStoresAsACustomer => hasResourceTotals ? resourceTotals!.totalStoresAsCustomer > 0 : false;
   bool get hasCreatedAStore => hasResourceTotals ? resourceTotals!.totalStoresJoinedAsCreator > 0 : false;
@@ -249,7 +249,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
             style: Theme.of(context).textTheme.bodyMedium,
             children: [
               TextSpan(
-                text: '${totalOrders!} ${totalOrders == 1 ? 'Order' : 'Orders'}', 
+                text: '${totalOrdersAsCustomer!} ${totalOrdersAsCustomer == 1 ? 'Order' : 'Orders'}', 
                 style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.green)
               ),
             ]
