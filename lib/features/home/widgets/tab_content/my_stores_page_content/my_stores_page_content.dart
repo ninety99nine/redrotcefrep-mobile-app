@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:bonako_demo/features/team_members/widgets/team_member_invitations_show/team_member_invitations_modal_bottom_sheet/team_member_invitations_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/widgets/subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/widgets/create_store/create_store_modal_bottom_sheet/create_store_modal_bottom_sheet.dart';
@@ -67,6 +68,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
   String get mobileNumberShortcode => authUser.attributes.mobileNumberShortcode;
   int? get totalReviewsAsTeamMember => resourceTotals?.totalReviewsAsTeamMember;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   int get totalReceivedOrders => hasCreatedAStore ? firstCreatedStore!.ordersCount ?? 0 : 0;
   int get totalCreatedProducts => hasCreatedAStore ? firstCreatedStore!.productsCount ?? 0 : 0;
   bool get hasReceivedAnOrder => hasCreatedAStore ? (firstCreatedStore!.ordersCount ?? 0) > 0 : false;
@@ -95,6 +97,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
 
   @override
   void initState() {
+    print('part');
     super.initState();
     authUser = authProvider.user!;
 
@@ -161,14 +164,18 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
       withCountOrders: true,
       withRating: true
     ).then((response) {
+    print('part 1 ----------');
 
       setState(() => sentFirstRequestToLoadStore = true);
+    print('part 2 ----------');
 
       if(response.statusCode == 200) {
 
+    print('part 3 ----------');
         final bool storeExists = response.data['exists'];
 
         if(storeExists) {
+    print('part 4 ----------');
 
           setState(() => firstCreatedStore = ShoppableStore.fromJson(response.data['store']));
 
@@ -908,7 +915,7 @@ class _MyStoresPageContentState extends State<MyStoresPageContent> with WidgetsB
               SnackbarUtility.showInfoMessage(message: 'Subscribe first');
             }else{
               /// Navigate to "Order" tab
-              onChangeNavigationTab(1);
+              onChangeNavigationTab(homeProvider.orderTabIndex);
             }
           },
           child: instruction,

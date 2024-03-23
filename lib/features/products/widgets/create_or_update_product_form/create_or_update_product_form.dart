@@ -519,39 +519,6 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
               ),
                   
               if(productForm['allowVariations'] == false) ...[
-              
-                /// Spacer
-                const SizedBox(height: 16),
-                  
-                /// Show Description Checkbox
-                CustomCheckbox(
-                  value: productForm['showDescription'],
-                  disabled: isSubmitting,
-                  text: 'Show description',
-                  onChanged: (value) {
-                    setState(() => productForm['showDescription'] = value ?? false); 
-                  }
-                ),
-                
-                /// Spacer
-                const SizedBox(height: 16),
-                  
-                /// Description
-                CustomTextFormField(
-                  errorText: serverErrors.containsKey('description') ? serverErrors['description'] : null,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                  hintText: '1 day show with popular artists',
-                  initialValue: productForm['description'],
-                  enabled: !isLoading && !isSubmitting && !isDeleting,
-                  labelText: 'Description',
-                  borderRadiusAmount: 16,
-                  isRequired: false,
-                  maxLength: 200,
-                  minLines: 1,
-                  onChanged: (value) {
-                    setState(() => productForm['description'] = value); 
-                  },
-                ),
                 
                 /// Spacer
                 const SizedBox(height: 16),
@@ -598,6 +565,8 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                 
                 /// Spacer
                 const SizedBox(height: 16),
+
+                /*
                   
                 /// Unit Cost Price
                 CustomMoneyTextFormField(
@@ -609,6 +578,41 @@ class CreateOrUpdateProductFormState extends State<CreateOrUpdateProductForm> {
                   onChanged: (value) {
                     setState(() => productForm['unitCostPrice'] = value); 
                   }
+                ),
+              
+                /// Spacer
+                const SizedBox(height: 16),
+
+                */
+                  
+                /// Show Description Checkbox
+                CustomCheckbox(
+                  value: productForm['showDescription'],
+                  disabled: isSubmitting,
+                  text: 'Show description',
+                  onChanged: (value) {
+                    setState(() => productForm['showDescription'] = value ?? false); 
+                  }
+                ),
+                
+                /// Spacer
+                const SizedBox(height: 16),
+                  
+                /// Description
+                CustomTextFormField(
+                  errorText: serverErrors.containsKey('description') ? serverErrors['description'] : null,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  hintText: '1 day show with popular artists',
+                  initialValue: productForm['description'],
+                  enabled: !isLoading && !isSubmitting && !isDeleting,
+                  labelText: 'Description',
+                  borderRadiusAmount: 16,
+                  isRequired: false,
+                  maxLength: 200,
+                  minLines: 1,
+                  onChanged: (value) {
+                    setState(() => productForm['description'] = value); 
+                  },
                 ),
                 
                 /// Spacer

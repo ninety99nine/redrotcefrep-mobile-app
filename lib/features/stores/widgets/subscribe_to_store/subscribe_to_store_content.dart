@@ -131,48 +131,6 @@ class _SubscribeToStoreContentState extends State<SubscribeToStoreContent> with 
 
   }
 
-  void requestCreateFakeSubscription() {
-
-    _startFakeLoader();
-
-    storeProvider.setStore(store).storeRepository.createFakeSubscription()
-    .then((response) {
-
-      if(response.statusCode == 200) {
-
-        /**
-         *  Close the modal bottom sheet
-         * 
-         *  This must be placed before the SnackbarUtility.showSuccessMessage()
-         *  since placing it after will hide the Snackbar message instead of
-         *  the modal bottom sheet
-         */
-        Get.back();
-
-        /// Notify parent that we are dialing
-        if(onDial != null) onDial!();
-
-        if(storeProvider.refreshStores != null) storeProvider.refreshStores!();
-        
-        SnackbarUtility.showSuccessMessage(message: 'You subscribed successfully');
-        
-      }
-
-    }).catchError((error) {
-
-      printError(info: error.toString());
-
-      /// Show the error message
-      SnackbarUtility.showErrorMessage(message: 'Failed to subscribe');
-
-    }).whenComplete((){
-
-      _stopFakeLoader();
-
-    });
-
-  }
-
   Widget get content {
 
     return AnimatedSwitcher(

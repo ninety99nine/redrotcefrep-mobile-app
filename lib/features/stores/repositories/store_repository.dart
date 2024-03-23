@@ -478,27 +478,6 @@ class StoreRepository {
   }
 
   ///////////////////////////////////
-  ///   SUBSCRIPTIONS            ///
-  //////////////////////////////////
-
-  /// Create a subscription on the specified store
-  Future<dio.Response> createFakeSubscription() {
-
-    if(store == null) throw Exception('The store must be set to create a subscription');
-
-    String url = store!.links.createFakeSubscriptions.href;
-
-    Map<String, dynamic> body = {
-      'test_subscription': 1,
-      'payment_method_id': 1,
-      'subscription_plan_id': 1,
-    };
-
-    return apiRepository.post(url: url, body: body);
-
-  }
-
-  ///////////////////////////////////
   ///   ORDERS                   ///
   //////////////////////////////////
 

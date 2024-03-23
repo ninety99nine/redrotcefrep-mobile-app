@@ -1,32 +1,36 @@
-import 'package:get/get.dart';
-
 import '../../../core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../core/constants/constants.dart' as constants;
-import '../../introduction/widgets/landing_page.dart';
 import '../repositories/auth_repository.dart';
 import '../models/terms_and_conditions.dart';
 import '../../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
+import 'package:get/get.dart';
 
 class TermsAndConditionsPage extends StatelessWidget {
-  const TermsAndConditionsPage({super.key});
+
+  final Function onUpdatedTermsAndConditions;
+
+  const TermsAndConditionsPage({
+    super.key,
+    required this.onUpdatedTermsAndConditions
+  });
 
   @override
   Widget build(BuildContext context) {
 
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32),
-          child: Content()
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Content(
+            onUpdatedTermsAndConditions: onUpdatedTermsAndConditions
+          )
         )
       ),
     );
@@ -35,8 +39,13 @@ class TermsAndConditionsPage extends StatelessWidget {
 }
 
 class Content extends StatefulWidget {
-  
-  const Content({ Key? key }) : super(key: key);
+
+  final Function onUpdatedTermsAndConditions;
+
+  const Content({
+    super.key,
+    required this.onUpdatedTermsAndConditions
+  });
 
   @override
   State<Content> createState() => _ContentState();
@@ -56,6 +65,7 @@ class _ContentState extends State<Content> {
   void _stopSubmittionLoader() => setState(() => isSubmitting = false);
 
   AuthRepository get authRepository => authProvider.authRepository;
+  Function get onUpdatedTermsAndConditions => widget.onUpdatedTermsAndConditions;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
 
   bool get acceptedTermsAndConditions {
@@ -113,8 +123,8 @@ class _ContentState extends State<Content> {
 
       if( response.statusCode == 200 ) {
         
-        Get.offAndToNamed(LandingPage.routeName);
         SnackbarUtility.showSuccessMessage(message: response.data['message']);
+        onUpdatedTermsAndConditions();
 
       }
 

@@ -44,7 +44,7 @@ const String errorDebugMessage = 'Try closing and reopening this mobile app. If 
 /// ip address which is http://127.0.0.1:8000.
 /// ------------------------------------------------------------------------------
 
-const String apiHomeUrl = 'http://192.168.5.3:8000/api/v1'; //  'http://127.0.0.1:8000/api/v1'; //  'https://bonako.telcoflo.dev/api/v1'; 
+const String apiHomeUrl = 'https://app.perfectorderbotswana.com/api/v1'; //  'http://bonako.telcoflo.dev/api/v1';  //  'http://105.235.242.226/api/v1';  //  'http://192.168.5.3:8000/api/v1'; //  'http://127.0.0.1:8000/api/v1'; //  
 
 /// Seven colors
 List<Color> rainbowColors = const [

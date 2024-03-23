@@ -15,12 +15,12 @@ class HomeService {
   }
 
   /// Get the selected home tab index that is saved on the device storage
-  static Future<int> getSelectedHomeTabIndexFromDeviceStorage() async {
+  static Future<int?> getSelectedHomeTabIndexFromDeviceStorage() async {
     
     return await SharedPreferences.getInstance().then((prefs) {
 
       //  Return the selected home tab index stored on the device (long-term storage)
-      return prefs.getInt('selectedHomeTabIndex') ?? 0;
+      return prefs.getInt('selectedHomeTabIndex');
 
     });
 

@@ -43,7 +43,7 @@ class _AuthScaffoldState extends State<AuthScaffold> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: authForm.floatingButtonAction == null ? null : authForm.floatingActionButton(),
         body: SafeArea(
           child: SingleChildScrollView(

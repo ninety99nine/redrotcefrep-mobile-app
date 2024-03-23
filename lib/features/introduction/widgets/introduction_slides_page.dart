@@ -14,12 +14,10 @@ class IntroductionSlidesPage extends StatelessWidget {
 
   void onDone(BuildContext context, Role role) {
 
-    final IntroductionService introductionServices = IntroductionService();
-
     if(role == Role.seller) {
-      introductionServices.saveHasSeenSellerIntroOnDeviceStorage(true);
+      IntroductionService.saveHasSeenSellerIntroOnDeviceStorage(true);
     }else if(role == Role.buyer) {
-      introductionServices.saveHasSeenBuyerIntroOnDeviceStorage(true);
+      IntroductionService.saveHasSeenBuyerIntroOnDeviceStorage(true);
     }
 
     Get.offAndToNamed(LandingPage.routeName);

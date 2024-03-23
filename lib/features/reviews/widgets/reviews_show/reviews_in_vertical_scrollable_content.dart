@@ -207,66 +207,69 @@ class ReviewItem extends StatelessWidget {
 
             ],
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                
-                /// If the reviewer is specified but the store is not specified
-                if(_reviewer != null && store == null) ...[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   
-                  /// Reviewer's name
-                  CustomTitleMediumText(_reviewer!.attributes.name),
-
-                ],
+                  /// If the reviewer is specified but the store is not specified
+                  if(_reviewer != null && store == null) ...[
                     
-                /// If the store is specified
-                if(store != null) ...[
-                  
-                  /// Reviewer's name
-                  CustomTitleSmallText(
-                    store!.name, 
-                    overflow: TextOverflow.ellipsis
-                  ),
+                    /// Reviewer's name
+                    CustomTitleMediumText(_reviewer!.attributes.name),
             
-                  /// Spacer
-                  const SizedBox(height: 4),
-
-                  /// If both the reviewer and store is specified
-                  if(_reviewer != null) ...[
-                  
-                    /// Title
-                    CustomBodyText(_reviewer!.attributes.name, lightShade: true,),
+                  ],
+                      
+                  /// If the store is specified
+                  if(store != null) ...[
+                    
+                    /// Reviewer's name
+                    CustomTitleSmallText(
+                      store!.name, 
+                      overflow: TextOverflow.ellipsis
+                    ),
               
                     /// Spacer
                     const SizedBox(height: 4),
-
+            
+                    /// If both the reviewer and store is specified
+                    if(_reviewer != null) ...[
+                    
+                      /// Title
+                      CustomBodyText(_reviewer!.attributes.name, lightShade: true,),
+                
+                      /// Spacer
+                      const SizedBox(height: 4),
+            
+                    ],
+              
                   ],
             
-                ],
-
-                Row(
-                  children: [
-        
-                    /// Review Subject
-                    CustomBodyText('@${review.subject}', color: Colors.grey,),
+                  Row(
+                    children: [
                     
-                    /// Spacer
-                    const SizedBox(width: 4,),
-        
-                    /// Rating Stars
-                    RatingShowUsingStars(
-                      rating: review.rating.toString(), 
-                      showMultipleStars: true
-                    ),
-        
-                  ],
-                ),
-        
-                /// Review Comment
-                if(review.comment != null) CustomBodyText(review.comment!, margin: const EdgeInsets.only(top: 8)),
-        
-              ],
+                      /// Review Subject
+                      CustomBodyText('@${review.subject}', color: Colors.grey,),
+                      
+                      /// Spacer
+                      const SizedBox(width: 4,),
+                    
+                      /// Rating Stars
+                      RatingShowUsingStars(
+                        rating: review.rating.toString(), 
+                        showMultipleStars: true
+                      ),
+                    
+                    ],
+                  ),
+                    
+                  /// Review Comment
+                  if(review.comment != null) CustomBodyText(review.comment!, margin: const EdgeInsets.only(top: 8)),
+                    
+                ],
+              ),
             ),
+            
           ],
         ),
         

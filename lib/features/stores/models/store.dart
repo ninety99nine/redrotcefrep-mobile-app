@@ -222,8 +222,8 @@ class Links {
   late Link showSupportedPaymentMethods;
   late Link showAvailablePaymentMethods;
   late Link showMySubscriptions;
-  late Link createSubscriptions;
-  late Link createFakeSubscriptions;
+  late Link createStoreAccessSubscriptions;
+  late Link calculateStoreAccessSubscriptionAmount;
   late Link addToFriendGroups;
   late Link removeFromFriendGroups;
   late Link addToBrandStores;
@@ -293,8 +293,8 @@ class Links {
     showSupportedPaymentMethods = Link.fromJson(json['showSupportedPaymentMethods']);
     showAvailablePaymentMethods = Link.fromJson(json['showAvailablePaymentMethods']);
     showMySubscriptions = Link.fromJson(json['showMySubscriptions']);
-    createSubscriptions = Link.fromJson(json['createSubscriptions']);
-    createFakeSubscriptions = Link.fromJson(json['createFakeSubscriptions']);
+    createStoreAccessSubscriptions = Link.fromJson(json['createStoreAccessSubscriptions']);
+    calculateStoreAccessSubscriptionAmount = Link.fromJson(json['calculateStoreAccessSubscriptionAmount']);
     addToFriendGroups = Link.fromJson(json['addToFriendGroups']);
     removeFromFriendGroups = Link.fromJson(json['removeFromFriendGroups']);
     addToBrandStores = Link.fromJson(json['addToBrandStores']);

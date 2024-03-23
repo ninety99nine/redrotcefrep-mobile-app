@@ -188,7 +188,7 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
 
   double get height {
     if(storesInHorizontalListViewDesignType == StoresInHorizontalListViewDesignType.followable) {
-      return 180;
+      return 184;
     }else{
       return 140;
     }
@@ -214,6 +214,7 @@ class StoresInHorizontalListViewInfiniteScrollState extends State<StoresInHorizo
       loaderMargin: const EdgeInsets.symmetric(vertical: 16),
       onRequest: (page, searchWord) => requestStores(page, searchWord),
     );
+    
   }
 }
 

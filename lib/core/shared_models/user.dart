@@ -83,6 +83,7 @@ class Links {
   late Link showAiAssistant;
   late Link generateAiAssistantPaymentShortcode;
   late Link createAiMessages; 
+  late Link createAiMessagesWhileStreaming; 
   late Link showFriends; 
   late Link createFriends; 
   late Link removeFriends; 
@@ -142,6 +143,7 @@ class Links {
     showAiAssistant = Link.fromJson(json['showAiAssistant']);
     generateAiAssistantPaymentShortcode = Link.fromJson(json['generateAiAssistantPaymentShortcode']);
     createAiMessages = Link.fromJson(json['createAiMessages']);
+    createAiMessagesWhileStreaming = Link.fromJson(json['createAiMessagesWhileStreaming']);
     showFriends = Link.fromJson(json['showFriends']);
     createFriends = Link.fromJson(json['createFriends']);
     removeFriends = Link.fromJson(json['removeFriends']);

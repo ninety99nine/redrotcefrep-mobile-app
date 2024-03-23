@@ -279,7 +279,7 @@ class AiChatContentState extends State<AiChatContent> {
 
       });
 
-      userRepository.createAiMessage(
+      userRepository.createAiMessageWhileStreaming(
         categoryId: selectedAiMessageCategory!.id,
         streamUtility: streamUtility,
         userContent: currUserContent

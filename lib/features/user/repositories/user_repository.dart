@@ -183,11 +183,11 @@ class UserRepository {
   }
 
   /// Create user AI Message
-  Future<dio.Response> createAiMessage({ required int categoryId, required String userContent, required StreamUtility streamUtility }){
+  Future<dio.Response> createAiMessageWhileStreaming({ required int categoryId, required String userContent, required StreamUtility streamUtility }){
 
     if(user == null) throw Exception('The user must be set to create AI message');
 
-    String url = user!.links.createAiMessages.href;
+    String url = user!.links.createAiMessagesWhileStreaming.href;
 
     Map<String, dynamic> body = {
       'userContent': userContent,

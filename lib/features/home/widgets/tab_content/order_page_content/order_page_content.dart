@@ -1,3 +1,4 @@
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/orders/widgets/orders_show/orders_modal_bottom_sheet/orders_modal_bottom_sheet.dart';
 import 'package:bonako_demo/core/shared_widgets/multi_circle_avatar_image_fader/multi_circle_avatar_image_fader.dart';
@@ -62,6 +63,7 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
   ApiProvider get apiProvider => Provider.of<ApiProvider>(context, listen: false);
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   bool get hasCreatedAStore => hasResourceTotals ? resourceTotals!.totalStoresJoinedAsCreator > 0 : false;
   bool get searchedMobileNumberUserAccountDoesNotExit => !isSearchingUser && searchedMobileNumber.length == 8 && searchedUser == null;
 
@@ -580,7 +582,7 @@ class _OrderPageContentState extends State<OrderPageContent> with SingleTickerPr
               onTap: () {
                 
                 /// Navigate to "My Stores" tab
-                onChangeNavigationTab(2);
+                onChangeNavigationTab(homeProvider.orderTabIndex);
 
               },
               child: RichText(

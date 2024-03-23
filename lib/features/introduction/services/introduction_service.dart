@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class IntroductionService {
 
   /// Checks if the user has seen the seller introduction slides page
-  Future<bool> checkIfHasSeenSellerIntroFromDeviceStorage() async {
+  static Future<bool> checkIfHasSeenSellerIntroFromDeviceStorage() async {
     
     return await SharedPreferences.getInstance().then((prefs) {
 
@@ -14,7 +14,7 @@ class IntroductionService {
   }
 
   /// Checks if the user has seen the buyer introduction slides page
-  Future<bool> checkIfHasSeenBuyerIntroFromDeviceStorage() async {
+  static Future<bool> checkIfHasSeenBuyerIntroFromDeviceStorage() async {
     
     return await SharedPreferences.getInstance().then((prefs) {
 
@@ -26,7 +26,7 @@ class IntroductionService {
 
   /// Checks if the user has seen either the seller introduction
   /// slides page or the buyer introduction slides page
-  Future<bool> checkIfHasSeenAnyIntroFromDeviceStorage() async {
+  static Future<bool> checkIfHasSeenAnyIntroFromDeviceStorage() async {
     
     return await checkIfHasSeenSellerIntroFromDeviceStorage().then((hasSeenSellerIntro) async {
 
@@ -44,7 +44,7 @@ class IntroductionService {
 
   /// Checks if the user has seen both the seller introduction
   /// slides page or the buyer introduction slides page
-  Future<bool> checkIfHasSeenEveryIntroFromDeviceStorage() async {
+  static Future<bool> checkIfHasSeenEveryIntroFromDeviceStorage() async {
     
     return await checkIfHasSeenSellerIntroFromDeviceStorage().then((hasSeenSellerIntro) async {
 
@@ -59,7 +59,7 @@ class IntroductionService {
   }
 
   /// Save an indication of whether the user has seen the seller introduction slides page
-  saveHasSeenSellerIntroOnDeviceStorage(bool status) {
+  static void saveHasSeenSellerIntroOnDeviceStorage(bool status) {
     
     //  Save changes on local storage
     SharedPreferences.getInstance().then((prefs) {
@@ -71,7 +71,7 @@ class IntroductionService {
   }
 
   /// Save an indication of whether the user has seen the buyer introduction slides page
-  saveHasSeenBuyerIntroOnDeviceStorage(bool status) {
+  static void saveHasSeenBuyerIntroOnDeviceStorage(bool status) {
     
     //  Save changes on local storage
     SharedPreferences.getInstance().then((prefs) {

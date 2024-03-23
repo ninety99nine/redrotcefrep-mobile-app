@@ -261,8 +261,8 @@ class _SmsAlertActivityAssociationItemState extends State<SmsAlertActivityAssoci
               Expanded(
                 child: CustomMultiSelectFormField(
                   title: smsAlertActivity.name,
-                  hintText: 'Select stores to receive sms alerts',
                   key: ValueKey(selectedStores.length),
+                  hintText: 'Select stores to receive sms alerts',
                   initialValue: (selectedStores).map((selectedStore) => selectedStore.id).toList(),
                   dataSource: List<dynamic>.from(availableStores.map((availableStore) => {
                     'display': availableStore.name,

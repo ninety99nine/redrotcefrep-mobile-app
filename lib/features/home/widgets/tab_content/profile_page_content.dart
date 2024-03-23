@@ -1,4 +1,5 @@
 import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:bonako_demo/features/home/providers/home_provider.dart';
 import 'package:bonako_demo/features/orders/enums/order_enums.dart';
 import 'package:bonako_demo/features/user/widgets/user_profile/update_user_profile/update_user_profile_modal_bottom_sheet/update_user_profile_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
@@ -48,6 +49,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
   Function(int) get onChangeNavigationTab => widget.onChangeNavigationTab;
   int? get totalGroupsJoinedAsCreator => resourceTotals?.totalGroupsJoinedAsCreator;
   AuthProvider get authProvider => Provider.of<AuthProvider>(context, listen: false);
+  HomeProvider get homeProvider => Provider.of<HomeProvider>(context, listen: false);
   bool get hasSharedAReview => hasResourceTotals ? resourceTotals!.totalReviews > 0 : false;
   bool get hasPlacedAnOrder => hasResourceTotals ? resourceTotals!.totalOrdersAsCustomer > 0 : false;
   bool get hasCompletedEverything => hasPlacedAnOrder && hasSharedAReview && hasGroupsJoinedAsCreator;
@@ -173,7 +175,12 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
   Widget get _placeOrderButton {
     return CustomElevatedButton(
       'Place Order', 
-      onPressed: () {},
+      onPressed: () {
+          
+        /// Navigate to "Order" tab
+        onChangeNavigationTab(homeProvider.orderTabIndex);
+
+      },
       alignment: Alignment.center,
     );
   }
@@ -263,7 +270,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
         onTap: () {
           
           /// Navigate to "Order" tab
-          onChangeNavigationTab(1);
+          onChangeNavigationTab(homeProvider.orderTabIndex);
 
         },
         child: RichText(
@@ -391,7 +398,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
       onTap: () {
         
         /// Navigate to "Groups" tab
-        onChangeNavigationTab(3);
+        onChangeNavigationTab(homeProvider.groupsTabIndex);
 
       },
       child: instruction
@@ -415,7 +422,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> {
               onTap: () {
                 
                 /// Navigate to "My Stores" tab
-                onChangeNavigationTab(2);
+                onChangeNavigationTab(homeProvider.myStoresTabIndex);
 
               },
               child: RichText(

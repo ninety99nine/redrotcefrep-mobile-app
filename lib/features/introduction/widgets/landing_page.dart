@@ -40,7 +40,6 @@ class _LandingPageState extends State<LandingPage> {
   bool isLoadingApiRequest = false;
   bool isCheckingHasSeenIntro = false;
   bool hasAcceptedTermsAndConditions = false;
-  final IntroductionService introductionService = IntroductionService();
   InternetConnectivityUtility internetConnectivityUtility = InternetConnectivityUtility();
 
   bool get hasNotSeenIntro => hasSeenIntro == false;
@@ -113,7 +112,7 @@ class _LandingPageState extends State<LandingPage> {
     _startHasSeenIntroLoader();
 
     //  Check if the user has seen the app introduction page
-    hasSeenIntro = await introductionService.checkIfHasSeenAnyIntroFromDeviceStorage();
+    hasSeenIntro = await IntroductionService.checkIfHasSeenAnyIntroFromDeviceStorage();
 
     /// Stop the loader to indicate that we are no longer checking the has seen introduction status
     _stopHasSeenIntroLoader();
@@ -274,7 +273,7 @@ class _LandingPageState extends State<LandingPage> {
           await OneSignal.login(authUser.id.toString()).then((value) => null);
 
           /// Set the mobile number alias
-          OneSignal.User.addAlias('mobileNumber', authUser.mobileNumber?.withoutExtension);
+          /// OneSignal.User.addAlias('mobileNumber', authUser.mobileNumber?.withoutExtension);
 
         }
 
@@ -391,7 +390,9 @@ class _LandingPageState extends State<LandingPage> {
       }else if(hasNotAcceptedTermsAndConditions) {
 
         //  Show the terms and conditions page
-        page = const TermsAndConditionsPage();
+        page = TermsAndConditionsPage(
+          onUpdatedTermsAndConditions: setApiHome
+        );
 
       }else{
 

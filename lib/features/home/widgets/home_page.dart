@@ -1,4 +1,5 @@
 import 'package:bonako_demo/features/chat/widgets/ai_chat_modal_bottom_sheet/ai_chat_modal_bottom_sheet.dart';
+import 'package:bonako_demo/features/introduction/services/introduction_service.dart';
 import 'package:bonako_demo/features/notifications/widgets/show_notifications/notifications_modal_bottom_sheet/notifications_modal_bottom_sheet.dart';
 import 'package:bonako_demo/features/qr_code_scanner/widgets/qr_code_scanner_modal_bottom_sheet/qr_code_scanner_modal_popup.dart';
 import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
@@ -62,56 +63,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void _startResourceTotalsLoader() => setState(() => isLoadingResourceTotals = true);
   void _stopResourceTotalsLoader() => setState(() => isLoadingResourceTotals = false);
   
-  final List<Map> primaryNavigationTabs = [
-    {
-      'name': 'Profile',
-      'icon': Icons.person,
-      'index': 0
-    },
-    {
-      'name': 'Order',
-      'icon': Icons.sentiment_very_satisfied_rounded,
-      'index': 1
-    },
-    {
-      'name': 'My Stores',
-      'icon': Icons.storefront_outlined,
-      'index': 2
-    },
-    {
-      'name': 'Groups',
-      'icon': Icons.group_rounded,
-      'index': 3
-    }
-  ];
-  
-  final List<Map> secondaryNavigationTabs = [
-    {
-      'name': 'Ask AI',
-      'icon': Icons.bubble_chart,
-      'index': 4
-    },
-    {
-      'name': 'Advertiser',
-      'icon': Icons.local_convenience_store_rounded,
-      'index': null
-    },
-    {
-      'name': 'Sms Alerts',
-      'icon': Icons.sms,
-      'index': null
-    },
-    {
-      'name': 'Shortcodes',
-      'icon': Icons.abc,
-      'index': null
-    },
-    {
-      'name': 'Sign Out',
-      'icon': Icons.exit_to_app_rounded,
-      'index': null
-    }
-  ];
+  List<Map> primaryNavigationTabs = [];
+  List<Map> secondaryNavigationTabs = [];
 
   @override
   void initState() {
@@ -119,6 +72,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     _initializeTabController();
     _setupTabControllerListener();
+    _setPrimaryNavigationTabs();
+    _setSecondaryNavigationTabs();
     _navigateToLastSelectedNavigationTab();
 
     /// Check and update the internet connectivity status
@@ -174,19 +129,100 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   }
 
+  void _setPrimaryNavigationTabs () {
+    primaryNavigationTabs = [
+      {
+        'name': 'Profile',
+        'icon': Icons.person,
+        'index': homeProvider.profileTabIndex
+      },
+      {
+        'name': 'Order',
+        'icon': Icons.sentiment_very_satisfied_rounded,
+        'index': homeProvider.orderTabIndex
+      },
+      {
+        'name': 'My Stores',
+        'icon': Icons.storefront_outlined,
+        'index': homeProvider.myStoresTabIndex
+      },
+      {
+        'name': 'Groups',
+        'icon': Icons.group_rounded,
+        'index': homeProvider.groupsTabIndex
+      }
+    ];
+  }
+
+  void _setSecondaryNavigationTabs () {
+    secondaryNavigationTabs = [
+      {
+        'name': 'Ask AI',
+        'icon': Icons.bubble_chart,
+        'index': 4
+      },
+      {
+        'name': 'Advertiser',
+        'icon': Icons.local_convenience_store_rounded,
+        'index': null
+      },
+      {
+        'name': 'Sms Alerts',
+        'icon': Icons.sms,
+        'index': null
+      },
+      {
+        'name': 'Shortcodes',
+        'icon': Icons.abc,
+        'index': null
+      },
+      {
+        'name': 'Sign Out',
+        'icon': Icons.exit_to_app_rounded,
+        'index': null
+      }
+    ];
+  }
+
   /// Navigate to the last selected navigation tab (Check device storage)
   void _navigateToLastSelectedNavigationTab() {
 
-    Future.delayed(Duration.zero).then((value) async {
+    Future.delayed(Duration.zero).then((value) {
 
       HomeService.getSelectedHomeTabIndexFromDeviceStorage().then((lastSelectedHomeTabIndex) {
 
         isGettingSelectedHomeTabIndexFromDeviceStorage = false;
-        _changeNavigationTab(lastSelectedHomeTabIndex);
+
+        //  If the last selected home tab index does not exist
+        if(lastSelectedHomeTabIndex == null) {
+
+          IntroductionService.checkIfHasSeenSellerIntroFromDeviceStorage().then((hasSeenSellerIntro) {
+
+            if(hasSeenSellerIntro) {
+
+              /// Show "My Stores" tab
+              _changeNavigationTab(homeProvider.myStoresTabIndex);
+
+            }else{
+
+              /// Show "Order" tab
+              _changeNavigationTab(homeProvider.orderTabIndex);
+
+            }
+            
+          });
+
+
+        }else{
+
+          _changeNavigationTab(lastSelectedHomeTabIndex);
+
+        }
 
       });
 
     });
+
   }
 
   /// Request the authenticated user resource totals

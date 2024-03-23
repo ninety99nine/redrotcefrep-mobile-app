@@ -10,8 +10,13 @@ class HomeProvider with ChangeNotifier {
   /// HOME TAB SETTINGS ///
   /////////////////////////
   
+  final int profileTabIndex = 0;
+  final int orderTabIndex = 1;
+  final int myStoresTabIndex = 2;
+  final int groupsTabIndex = 3;
+  
   /// The selected tab index of the home tabs e.g
-  /// Index 0 = Profile, Index 1 = Following, Index 2 = Groups, e.t.c
+  /// Index 0 = Profile, Index 1 = Order, Index 2 = My Stores, e.t.c
   int _selectedHomeTabIndex = 0;
 
   /// Get the selected tab index
@@ -24,43 +29,15 @@ class HomeProvider with ChangeNotifier {
   }
 
   /// Check if we have selected the profile tab
-  bool get hasSelectedProfile => _selectedHomeTabIndex == 0;
+  bool get hasSelectedProfile => _selectedHomeTabIndex == profileTabIndex;
 
-  /// Check if we have selected the following tab
-  bool get hasSelectedFollowing => _selectedHomeTabIndex == 1;
+  /// Check if we have selected the order tab
+  bool get hasSelectedOrder => _selectedHomeTabIndex == orderTabIndex;
 
   /// Check if we have selected the my stores tab
-  bool get hasSelectedMyStores => _selectedHomeTabIndex == 2;
+  bool get hasSelectedMyStores => _selectedHomeTabIndex == myStoresTabIndex;
 
   /// Check if we have selected the groups tab
-  bool get hasSelectedGroups => _selectedHomeTabIndex == 3;
-
-  /// Check if we have selected the communities tab
-  bool get hasSelectedCommunities => _selectedHomeTabIndex == 4;
-
-  //////////////////////////////
-  /// FOLLOWING TAB SETTINGS ///
-  //////////////////////////////
+  bool get hasSelectedGroups => _selectedHomeTabIndex == groupsTabIndex;
   
-  /// The selected tab index of the following tabs e.g
-  /// Index 0 = My Plugs, Index 1 = Brands, Index 2 = Influencers
-  int _selectedFollowingTabIndex = 0;
-
-  /// Get the selected tab index
-  int get selectedFollowingTabIndex => _selectedFollowingTabIndex;
-
-  /// Set the selected tab index
-  void setSelectedFollowingTabIndex(int selectedFollowingTabIndex, { saveOnLocalStorage = true }) {
-    _selectedFollowingTabIndex = selectedFollowingTabIndex;
-    if(saveOnLocalStorage) HomeService.saveSelectedFollowingTabIndexOnDeviceStorage(selectedFollowingTabIndex);
-  }
-
-  /// Check if we have selected the my plug stores tab
-  bool get hasSelectedMyPlugStores => selectedFollowingTabIndex == 0;
-
-  /// Check if we have selected the brand stores tab
-  bool get hasSelectedBrandStores => selectedFollowingTabIndex == 1;
-
-  /// Check if we have selected the influencer stores tab
-  bool get hasSelectedInfluencerStores => selectedFollowingTabIndex == 2;
 }

@@ -10,7 +10,7 @@ class PaymentMethod {
   late String description;
   late bool availableOnUssd;
   late Attributes attributes;
-  late bool availableOnStores;
+  late bool AvailableInStores;
   late bool availableOnPerfectPay;
 
   PaymentMethod.fromJson(Map<String, dynamic> json) {
@@ -21,7 +21,7 @@ class PaymentMethod {
     category = json['category'];
     description = json['description'];
     availableOnUssd = json['availableOnUssd'];
-    availableOnStores = json['availableOnStores'];
+    AvailableInStores = json['AvailableInStores'];
     availableOnPerfectPay = json['availableOnPerfectPay'];
     attributes = Attributes.fromJson(json['attributes'].runtimeType == List ? {} : json['attributes']);
   }
