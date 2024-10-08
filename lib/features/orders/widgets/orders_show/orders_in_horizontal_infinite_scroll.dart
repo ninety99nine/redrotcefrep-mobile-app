@@ -1,9 +1,9 @@
-import 'package:bonako_demo/features/orders/widgets/order_show/order_content_by_type/order_content_by_type_dialog.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/order_content_by_type/order_content_by_type_dialog.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_horizontal_page_view_infinite_scroll.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/close_modal_icon_button.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/user/providers/user_provider.dart';
+import 'package:perfect_order/core/shared_widgets/icon_button/close_modal_icon_button.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/user/providers/user_provider.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';

@@ -1,11 +1,11 @@
-import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:perfect_order/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
 import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import '../../../../../stores/widgets/store_cards/store_cards.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
 import '../../../../../stores/enums/store_enums.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

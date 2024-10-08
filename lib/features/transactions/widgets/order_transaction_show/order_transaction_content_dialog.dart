@@ -1,8 +1,8 @@
-import 'package:bonako_demo/features/transactions/widgets/order_transaction_show/order_transaction_content.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/close_modal_icon_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/transactions/widgets/order_transaction_show/order_transaction_content.dart';
+import 'package:perfect_order/core/shared_widgets/icon_button/close_modal_icon_button.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_large_text.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,10 +1,10 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/notifications/providers/notification_provider.dart';
-import 'package:bonako_demo/features/notifications/models/notification.dart' as model;
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/notifications/providers/notification_provider.dart';
+import 'package:perfect_order/features/notifications/models/notification.dart' as model;
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
-import 'package:bonako_demo/core/utils/pusher.dart';
+import 'package:perfect_order/core/utils/pusher.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;

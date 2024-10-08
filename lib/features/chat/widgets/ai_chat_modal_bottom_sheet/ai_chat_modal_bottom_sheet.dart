@@ -1,6 +1,6 @@
 import '../../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/chat/widgets/ai_chat_content.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/features/chat/widgets/ai_chat_content.dart';
 import 'package:flutter/material.dart';
 
 class AiChatModalBottomSheet extends StatefulWidget {

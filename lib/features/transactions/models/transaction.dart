@@ -1,9 +1,9 @@
-import 'package:bonako_demo/core/shared_models/name_and_description.dart';
-import 'package:bonako_demo/core/shared_models/percentage.dart';
-import 'package:bonako_demo/core/shared_models/currency.dart';
-import 'package:bonako_demo/core/shared_models/link.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
+import 'package:perfect_order/core/shared_models/name_and_description.dart';
+import 'package:perfect_order/core/shared_models/percentage.dart';
+import 'package:perfect_order/core/shared_models/currency.dart';
+import 'package:perfect_order/core/shared_models/link.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/features/payment_methods/models/payment_method.dart';
 import '../../../../core/shared_models/money.dart';
 
 class Transaction {

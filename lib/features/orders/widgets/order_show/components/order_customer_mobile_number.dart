@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_models/mobile_number.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_models/mobile_number.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
 import 'package:flutter/material.dart';
 
 class OrderCustomerMobileNumber extends StatelessWidget {

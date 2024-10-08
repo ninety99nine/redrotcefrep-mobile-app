@@ -1,6 +1,6 @@
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../providers/store_provider.dart';
 import '../../models/shoppable_store.dart';

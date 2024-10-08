@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_models/cart.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_models/cart.dart';
+import 'package:perfect_order/core/shared_widgets/message_alert/custom_message_alert.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
 
 import '../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../cart/widgets/cart/cart_details.dart' as cart;

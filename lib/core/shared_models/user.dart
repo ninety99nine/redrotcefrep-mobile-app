@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
 import 'user_friend_group_association.dart';
 import 'user_order_view_association.dart';
 import 'user_store_association.dart';

@@ -1,7 +1,7 @@
-import 'package:bonako_demo/features/stores/widgets/create_store/create_store_modal_bottom_sheet/create_store_content.dart';
+import 'package:perfect_order/features/stores/widgets/create_store/create_store_modal_bottom_sheet/create_store_content.dart';
 import '../../../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 
 class CreateStoreModalBottomSheet extends StatefulWidget {

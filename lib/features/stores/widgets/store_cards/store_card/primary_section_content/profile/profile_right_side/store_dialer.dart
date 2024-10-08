@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/icon_button/phone_icon_button.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/core/shared_widgets/icon_button/phone_icon_button.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 
 class StoreDialer extends StatelessWidget {

@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
-import 'package:bonako_demo/features/orders/widgets/orders_show/user_orders_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_right_side/adverts/show_adverts/advert_carousel.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
+import 'package:perfect_order/features/orders/widgets/orders_show/user_orders_in_horizontal_list_view_infinite_scroll.dart';
 import 'package:get/get.dart';
 
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';

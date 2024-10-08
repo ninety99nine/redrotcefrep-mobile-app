@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:flutter/material.dart';
 

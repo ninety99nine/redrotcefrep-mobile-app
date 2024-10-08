@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/money.dart';
+import 'package:perfect_order/core/shared_models/money.dart';
 
 class OrderCreatedNotification {
   late StoreProperties storeProperties;

@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
+import 'package:perfect_order/features/friend_groups/models/friend_group.dart';
 import '../friend_group_friends_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

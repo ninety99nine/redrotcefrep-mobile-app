@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/reviews/enums/review_enums.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/reviews/enums/review_enums.dart';
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';

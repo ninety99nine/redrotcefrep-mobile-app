@@ -10,7 +10,7 @@ import '../../../friend_groups/repositories/friend_group_repository.dart';
 import '../../../../core/shared_widgets/checkbox/custom_checkbox.dart';
 import '../../../friend_groups/providers/friend_group_provider.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
-import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../../../core/utils/shake_utility.dart';
 import '../../../friends/enums/friend_enums.dart';

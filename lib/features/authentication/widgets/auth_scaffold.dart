@@ -1,5 +1,5 @@
 
-import 'package:bonako_demo/core/shared_widgets/animated_widgets/custom_rotating_widget.dart';
+import 'package:perfect_order/core/shared_widgets/animated_widgets/custom_rotating_widget.dart';
 
 import '../../../core/shared_widgets/text/custom_title_large_text.dart';
 import '../services/auth_form_service.dart';

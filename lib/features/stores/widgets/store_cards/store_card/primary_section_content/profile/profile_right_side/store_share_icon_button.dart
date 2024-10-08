@@ -1,9 +1,9 @@
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/share_icon_button.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/icon_button/share_icon_button.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
 import 'package:get/get.dart';
 import '../../../../../../models/shoppable_store.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

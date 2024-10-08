@@ -1,10 +1,10 @@
-import 'package:bonako_demo/core/shared_widgets/progress_bar/progress_bar.dart';
+import 'package:perfect_order/core/shared_widgets/progress_bar/progress_bar.dart';
 import '../create_or_update_product_form/create_or_update_product_form.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:perfect_order/features/products/models/product.dart';
 import 'products_in_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';

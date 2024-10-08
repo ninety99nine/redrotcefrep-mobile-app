@@ -1,12 +1,12 @@
-import 'package:bonako_demo/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
+import 'package:perfect_order/features/stores/widgets/stores_in_horizontal_list_view_infinite_scroll/stores_in_horizontal_list_view_infinite_scroll.dart';
 import '../../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
+import 'package:perfect_order/features/stores/enums/store_enums.dart';
 import '../../../rating/widgets/rating_selector_using_stars.dart';
-import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../../../core/utils/shake_utility.dart';
 import '../../../stores/models/shoppable_store.dart';

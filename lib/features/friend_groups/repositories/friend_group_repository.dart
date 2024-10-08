@@ -1,6 +1,6 @@
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/core/utils/mobile_number.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/core/utils/mobile_number.dart';
 import '../../authentication/providers/auth_provider.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../api/repositories/api_repository.dart';

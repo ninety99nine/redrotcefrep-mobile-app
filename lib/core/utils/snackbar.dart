@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

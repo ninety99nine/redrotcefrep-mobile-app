@@ -1,10 +1,10 @@
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
-import 'package:bonako_demo/features/addresses/widgets/address_cards_in_vertical_view.dart';
-import 'package:bonako_demo/features/authentication/repositories/auth_repository.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/core/utils/error_utility.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:perfect_order/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:perfect_order/features/addresses/widgets/address_cards_in_vertical_view.dart';
+import 'package:perfect_order/features/authentication/repositories/auth_repository.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;

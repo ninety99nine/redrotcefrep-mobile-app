@@ -1,7 +1,7 @@
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_medium_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

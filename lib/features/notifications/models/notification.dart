@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/link.dart';
+import 'package:perfect_order/core/shared_models/link.dart';
 
 class Notification {
   late String id;

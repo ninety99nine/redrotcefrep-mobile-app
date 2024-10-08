@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/percentage.dart';
+import 'package:perfect_order/core/shared_models/percentage.dart';
 
 class AiAssistant {
   late int id;

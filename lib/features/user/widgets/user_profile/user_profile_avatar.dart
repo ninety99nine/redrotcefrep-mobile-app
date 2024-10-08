@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/user/widgets/user_profile/update_user_profile/update_user_profile_modal_bottom_sheet/update_user_profile_modal_bottom_sheet.dart';
+import 'package:perfect_order/features/user/widgets/user_profile/update_user_profile/update_user_profile_modal_bottom_sheet/update_user_profile_modal_bottom_sheet.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../../../core/shared_models/user.dart';

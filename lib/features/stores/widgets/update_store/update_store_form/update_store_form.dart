@@ -1,26 +1,26 @@
-import 'package:bonako_demo/core/shared_widgets/emoji_picker/custom_emoji_picker_dialog.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_cover_photo.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
-import 'package:bonako_demo/core/shared_widgets/multi_select_form_field/custom_multi_select_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/text_field_tags/custom_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
-import 'package:bonako_demo/features/stores/repositories/store_repository.dart';
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/core/shared_widgets/switch/custom_switch.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
-import 'package:bonako_demo/core/utils/error_utility.dart';
-import 'package:bonako_demo/core/utils/mobile_number.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:bonako_demo/features/stores/widgets/store_emoji_picker/store_emoji_picker.dart';
+import 'package:perfect_order/core/shared_widgets/emoji_picker/custom_emoji_picker_dialog.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/primary_section_content/store_cover_photo.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:perfect_order/core/shared_widgets/multi_select_form_field/custom_multi_select_form_field.dart';
+import 'package:perfect_order/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
+import 'package:perfect_order/core/shared_widgets/text_form_field/custom_money_text_form_field.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/text_form_field/custom_text_form_field.dart';
+import 'package:perfect_order/core/shared_widgets/text_field_tags/custom_text_form_field.dart';
+import 'package:perfect_order/core/shared_widgets/message_alert/custom_message_alert.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/features/payment_methods/models/payment_method.dart';
+import 'package:perfect_order/features/stores/repositories/store_repository.dart';
+import 'package:perfect_order/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/core/shared_widgets/switch/custom_switch.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/api/providers/api_provider.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/mobile_number.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
+import 'package:perfect_order/features/stores/widgets/store_emoji_picker/store_emoji_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 import 'package:provider/provider.dart';
@@ -1091,7 +1091,7 @@ class UpdateStoreFormState extends State<UpdateStoreForm> {
                         const SizedBox(height: 8),
               
                         /// Payment Methods Table Instructions
-                        const CustomMessageAlert('Add instructions for your payment methods so that customers understand how to pay (Optional)'),
+                        const CustomMessageAlert('Add instructions to help customers understand how they can pay for their orders using the payment methods you offer'),
                       
                         /// Spacer
                         const SizedBox(height: 8),

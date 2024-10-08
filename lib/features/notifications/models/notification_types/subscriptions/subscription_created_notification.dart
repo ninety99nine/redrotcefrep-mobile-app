@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/mobile_number.dart';
+import 'package:perfect_order/core/shared_models/mobile_number.dart';
 
 class SubscriptionCreatedNotification {
   late TransactionProperties transactionProperties;

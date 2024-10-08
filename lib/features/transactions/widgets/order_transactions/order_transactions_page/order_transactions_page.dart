@@ -1,8 +1,8 @@
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_content.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/reviews/enums/review_enums.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:perfect_order/features/transactions/widgets/order_transactions/order_transactions_content.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/reviews/enums/review_enums.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
 import '../../../../stores/providers/store_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

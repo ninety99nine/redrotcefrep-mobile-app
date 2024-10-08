@@ -1,9 +1,9 @@
-import 'package:bonako_demo/features/friend_groups/widgets/friend_group_stores/friend_group_stores_page/friend_group_stores_page.dart';
-import 'package:bonako_demo/features/friend_groups/widgets/friend_group_stores/friend_group_stores_in_vertical_infinite_scroll.dart';
-import 'package:bonako_demo/features/friend_groups/widgets/friend_group_stores/friend_group_store_filters.dart';
+import 'package:perfect_order/features/friend_groups/widgets/friend_group_stores/friend_group_stores_page/friend_group_stores_page.dart';
+import 'package:perfect_order/features/friend_groups/widgets/friend_group_stores/friend_group_stores_in_vertical_infinite_scroll.dart';
+import 'package:perfect_order/features/friend_groups/widgets/friend_group_stores/friend_group_store_filters.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../models/friend_group.dart';
 import 'package:flutter/material.dart';

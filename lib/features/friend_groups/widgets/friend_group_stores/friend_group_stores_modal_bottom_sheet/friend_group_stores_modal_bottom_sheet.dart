@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/friend_groups/widgets/friend_group_stores/friend_group_stores_content.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/friend_groups/widgets/friend_group_stores/friend_group_stores_content.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../core/shared_widgets/button/custom_text_button.dart';
 import '../../../models/friend_group.dart';

@@ -1,5 +1,5 @@
 
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 

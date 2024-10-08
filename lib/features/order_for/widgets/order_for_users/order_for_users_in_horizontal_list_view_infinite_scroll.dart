@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/core/shared_widgets/chips/custom_choice_chip.dart';
+import 'package:perfect_order/core/shared_widgets/infinite_scroll/custom_horizontal_list_view_infinite_scroll.dart';
+import 'package:perfect_order/core/shared_widgets/chips/custom_choice_chip.dart';
 import '../../../friend_groups/models/friend_group.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';

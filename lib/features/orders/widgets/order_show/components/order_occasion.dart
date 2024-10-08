@@ -1,8 +1,8 @@
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
-import 'package:bonako_demo/features/occasions/models/occasion.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/orders/providers/order_provider.dart';
+import 'package:perfect_order/features/occasions/models/occasion.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';

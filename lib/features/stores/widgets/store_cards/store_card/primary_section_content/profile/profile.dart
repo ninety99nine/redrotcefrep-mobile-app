@@ -1,8 +1,8 @@
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/features/home/providers/home_provider.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/stores/widgets/subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:perfect_order/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:perfect_order/features/home/providers/home_provider.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/features/stores/widgets/subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
 import 'package:provider/provider.dart';
 import 'profile_right_side/profile_right_side.dart';
 import '../../../../../models/shoppable_store.dart';

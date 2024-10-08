@@ -1,9 +1,9 @@
-import 'package:bonako_demo/core/shared_widgets/emoji_picker/custom_emoji_picker.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_search_text_form_field.dart';
+import 'package:perfect_order/core/shared_widgets/emoji_picker/custom_emoji_picker.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/text_form_field/custom_search_text_form_field.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

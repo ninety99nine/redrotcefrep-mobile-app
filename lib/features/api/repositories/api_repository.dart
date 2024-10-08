@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/utils/stream_utility.dart';
+import 'package:perfect_order/core/utils/stream_utility.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import 'package:dio/dio.dart' as dio;

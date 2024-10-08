@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';

@@ -1,6 +1,6 @@
-import 'package:bonako_demo/features/friend_groups/providers/friend_group_provider.dart';
+import 'package:perfect_order/features/friend_groups/providers/friend_group_provider.dart';
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
+import 'package:perfect_order/features/friend_groups/models/friend_group.dart';
 import '../../models/friend_group_store_filters.dart' as model;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

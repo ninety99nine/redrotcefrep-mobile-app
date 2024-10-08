@@ -1,9 +1,9 @@
-import 'package:bonako_demo/features/notifications/models/notification_types/orders/order_created_notification.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/features/notifications/models/notification.dart' as model;
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
+import 'package:perfect_order/features/notifications/models/notification_types/orders/order_created_notification.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/features/notifications/models/notification.dart' as model;
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/orders/providers/order_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

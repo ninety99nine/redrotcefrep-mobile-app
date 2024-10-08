@@ -1,7 +1,7 @@
-import 'package:bonako_demo/features/introduction/widgets/landing_page.dart';
-import 'package:bonako_demo/core/utils/stream_utility.dart';
+import 'package:perfect_order/features/introduction/widgets/landing_page.dart';
+import 'package:perfect_order/core/utils/stream_utility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
 import '../../../core/utils/snackbar.dart';
 import '../providers/api_provider.dart';
 import 'package:dio/dio.dart' as dio;

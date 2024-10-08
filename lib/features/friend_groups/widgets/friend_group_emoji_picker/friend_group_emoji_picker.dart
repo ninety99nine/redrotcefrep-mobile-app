@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_widgets/emoji_picker/custom_emoji_picker_dialog.dart';
+import 'package:perfect_order/core/shared_widgets/emoji_picker/custom_emoji_picker_dialog.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 

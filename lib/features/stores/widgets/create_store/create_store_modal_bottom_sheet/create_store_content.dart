@@ -1,6 +1,6 @@
-import 'package:bonako_demo/features/stores/widgets/create_store/create_store_form.dart';
+import 'package:perfect_order/features/stores/widgets/create_store/create_store_form.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

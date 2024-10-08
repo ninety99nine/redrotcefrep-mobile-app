@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/notifications/providers/notification_provider.dart';
-import 'package:bonako_demo/features/user/models/resource_totals.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_text_button.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/notifications/providers/notification_provider.dart';
+import 'package:perfect_order/features/user/models/resource_totals.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';

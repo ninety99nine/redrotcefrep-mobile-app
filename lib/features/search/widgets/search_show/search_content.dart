@@ -1,9 +1,9 @@
-import 'package:bonako_demo/features/search/widgets/search_show/searched_friend_groups_in_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/search/widgets/search_show/searched_friends_in_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/search/widgets/search_show/searched_stores_in_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_search_text_form_field.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/search/widgets/search_show/searched_friend_groups_in_vertical_list_view_infinite_scroll.dart';
+import 'package:perfect_order/features/search/widgets/search_show/searched_friends_in_vertical_list_view_infinite_scroll.dart';
+import 'package:perfect_order/features/search/widgets/search_show/searched_stores_in_vertical_list_view_infinite_scroll.dart';
+import 'package:perfect_order/core/shared_widgets/text_form_field/custom_search_text_form_field.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import '../../enums/search_enums.dart';
 import 'search_page/search_page.dart';

@@ -1,6 +1,6 @@
 {
-    "name": "bonako_demo",
-    "short_name": "bonako_demo",
+    "name": "perfect_order",
+    "short_name": "perfect_order",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 

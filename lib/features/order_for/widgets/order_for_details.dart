@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/button/add_button.dart';
-import 'package:bonako_demo/features/order_for/services/order_for_service.dart';
+import 'package:perfect_order/core/shared_widgets/button/add_button.dart';
+import 'package:perfect_order/features/order_for/services/order_for_service.dart';
 
 import '../../friends/widgets/friends_show/friends_modal_bottom_sheet/friends_modal_bottom_sheet.dart';
 import 'order_for_users/order_for_users_modal_bottom_sheet/order_for_users_modal_bottom_sheet.dart';

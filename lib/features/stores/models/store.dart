@@ -1,11 +1,11 @@
-import 'package:bonako_demo/core/shared_models/store_payment_method_association.dart';
-import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
-import 'package:bonako_demo/features/stores/models/team_member_access.dart';
+import 'package:perfect_order/core/shared_models/store_payment_method_association.dart';
+import 'package:perfect_order/features/payment_methods/models/payment_method.dart';
+import 'package:perfect_order/features/stores/models/team_member_access.dart';
 import '../../../core/shared_models/friend_group_store_association.dart';
-import 'package:bonako_demo/features/stores/models/shopper_access.dart';
-import 'package:bonako_demo/core/shared_models/mobile_number.dart';
+import 'package:perfect_order/features/stores/models/shopper_access.dart';
+import 'package:perfect_order/core/shared_models/mobile_number.dart';
 import '../../../core/shared_models/user_store_association.dart';
-import 'package:bonako_demo/core/shared_models/money.dart';
+import 'package:perfect_order/core/shared_models/money.dart';
 import '../../../../core/shared_models/shortcode.dart';
 import '../../../../core/shared_models/link.dart';
 import '../../products/models/product.dart';

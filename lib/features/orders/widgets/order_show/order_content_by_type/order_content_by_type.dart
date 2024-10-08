@@ -1,10 +1,10 @@
-import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog_content.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/order_collection_content/order_collection_content.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/order_full_content/order_full_content.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog_content.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/order_collection_content/order_collection_content.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/order_full_content/order_full_content.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:flutter/material.dart';
 
 class OrderContentByType extends StatefulWidget {

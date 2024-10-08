@@ -1,8 +1,8 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/reviews/enums/review_enums.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_left_side/store_name.dart';
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/reviews/enums/review_enums.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/primary_section_content/profile/profile_left_side/store_name.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 
 import '../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';

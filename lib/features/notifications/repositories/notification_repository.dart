@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
 import '../../notifications/models/notification.dart';
 import '../../../../../core/shared_models/user.dart';
 import '../../api/repositories/api_repository.dart';

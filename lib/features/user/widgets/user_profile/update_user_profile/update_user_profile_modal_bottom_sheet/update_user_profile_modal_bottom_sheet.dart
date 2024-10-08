@@ -1,6 +1,6 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/features/user/widgets/user_profile/update_user_profile/update_user_profile_content.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
+import 'package:perfect_order/features/user/widgets/user_profile/update_user_profile/update_user_profile_content.dart';
 import 'package:flutter/material.dart';
 
 class UpdateUserProfileModalBottomSheet extends StatefulWidget {

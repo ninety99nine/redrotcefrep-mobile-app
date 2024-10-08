@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
 
 import '../../../../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../../../../core/shared_widgets/icons/verified_icon.dart';

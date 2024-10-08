@@ -1,7 +1,7 @@
-import 'package:bonako_demo/features/notifications/models/notification_types/users/invitation_to_follow_store_accepted_notification.dart';
-import 'package:bonako_demo/features/notifications/models/notification.dart' as model;
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/notifications/models/notification_types/users/invitation_to_follow_store_accepted_notification.dart';
+import 'package:perfect_order/features/notifications/models/notification.dart' as model;
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:flutter/material.dart';
 

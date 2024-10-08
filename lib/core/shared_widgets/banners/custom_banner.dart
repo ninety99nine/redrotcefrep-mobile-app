@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 
 class CustomBanner extends StatefulWidget {

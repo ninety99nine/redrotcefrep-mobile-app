@@ -1,9 +1,9 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/features/addresses/models/address.dart';
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
-import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/features/addresses/models/address.dart';
+import 'package:perfect_order/features/friend_groups/models/friend_group.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
+import 'package:perfect_order/features/stores/enums/store_enums.dart';
+import 'package:perfect_order/features/payment_methods/models/payment_method.dart';
 
 import '../../../../core/shared_models/product_line.dart';
 import '../../occasions/models/occasion.dart';

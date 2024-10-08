@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user_friend_group_association.dart';
+import 'package:perfect_order/core/shared_models/user_friend_group_association.dart';
 import '../../../core/shared_models/user.dart';
 import '../../../core/shared_models/link.dart';
 

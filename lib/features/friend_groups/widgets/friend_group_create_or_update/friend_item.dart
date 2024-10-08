@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_models/mobile_number.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_models/mobile_number.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
 import 'package:flutter/material.dart';
 
 class FriendItem extends StatelessWidget {

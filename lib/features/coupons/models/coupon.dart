@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_models/percentage.dart';
-import 'package:bonako_demo/core/shared_models/status.dart';
-import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
-import 'package:bonako_demo/core/shared_models/link.dart';
+import 'package:perfect_order/core/shared_models/percentage.dart';
+import 'package:perfect_order/core/shared_models/status.dart';
+import 'package:perfect_order/features/coupons/enums/coupon_enums.dart';
+import 'package:perfect_order/core/shared_models/link.dart';
 import '../../../../core/shared_models/money.dart';
 
 class Coupon {

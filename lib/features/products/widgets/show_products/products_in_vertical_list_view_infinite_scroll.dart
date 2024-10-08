@@ -1,11 +1,11 @@
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/message_alert/custom_message_alert.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/products/providers/product_provider.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:perfect_order/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:perfect_order/core/shared_widgets/message_alert/custom_message_alert.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/products/providers/product_provider.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
 import '../../../../core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:perfect_order/features/products/models/product.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';

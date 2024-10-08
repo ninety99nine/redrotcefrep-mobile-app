@@ -1,6 +1,6 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/products/models/product.dart';
 import 'price_and_product_quantity_adjuster.dart';
 import 'package:flutter/material.dart';
 

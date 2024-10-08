@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/store_payment_method_association.dart';
+import 'package:perfect_order/core/shared_models/store_payment_method_association.dart';
 import './../../../core/shared_models/link.dart';
 
 class PaymentMethod {

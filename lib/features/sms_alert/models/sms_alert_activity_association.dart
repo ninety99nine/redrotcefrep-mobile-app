@@ -1,6 +1,6 @@
-import 'package:bonako_demo/core/shared_models/link.dart';
-import 'package:bonako_demo/features/sms_alert/models/sms_alert_activity.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/core/shared_models/link.dart';
+import 'package:perfect_order/features/sms_alert/models/sms_alert_activity.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 
 class SmsAlertActivityAssociation {
   late int id;

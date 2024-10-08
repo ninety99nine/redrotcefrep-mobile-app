@@ -1,6 +1,6 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';

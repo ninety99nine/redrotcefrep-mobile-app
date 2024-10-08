@@ -1,8 +1,8 @@
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/features/user/repositories/user_repository.dart';
-import 'package:bonako_demo/features/sms_alert/models/sms_alert.dart';
+import 'package:perfect_order/features/user/repositories/user_repository.dart';
+import 'package:perfect_order/features/sms_alert/models/sms_alert.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'sms_alert_page/sms_alert_page.dart';
 import '../../enums/sms_alert_enums.dart';

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "bonako_demo" "\0"
+            VALUE "FileDescription", "perfect_order" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "bonako_demo" "\0"
+            VALUE "InternalName", "perfect_order" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "bonako_demo.exe" "\0"
-            VALUE "ProductName", "bonako_demo" "\0"
+            VALUE "OriginalFilename", "perfect_order.exe" "\0"
+            VALUE "ProductName", "perfect_order" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

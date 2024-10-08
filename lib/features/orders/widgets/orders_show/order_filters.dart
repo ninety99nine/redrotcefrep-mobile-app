@@ -1,8 +1,8 @@
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
-import 'package:bonako_demo/features/home/providers/home_provider.dart';
-import 'package:bonako_demo/features/user/providers/user_provider.dart';
+import 'package:perfect_order/features/home/providers/home_provider.dart';
+import 'package:perfect_order/features/user/providers/user_provider.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';
 import '../../models/order_filters.dart' as model;

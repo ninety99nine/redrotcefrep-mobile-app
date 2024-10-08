@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
+import 'package:perfect_order/core/shared_models/user_order_collection_association.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import '../../../stores/models/shoppable_store.dart';

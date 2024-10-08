@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/coupons/models/coupon.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:perfect_order/features/coupons/models/coupon.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../create_or_update_coupon_form/create_or_update_coupon_form.dart';

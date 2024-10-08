@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
 
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
-import 'package:bonako_demo/core/shared_widgets/progress_bar/progress_bar.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_medium_text.dart';
+import 'package:perfect_order/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:perfect_order/core/shared_widgets/progress_bar/progress_bar.dart';
+import 'package:perfect_order/features/api/providers/api_provider.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

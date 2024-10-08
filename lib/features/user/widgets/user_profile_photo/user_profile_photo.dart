@@ -1,10 +1,10 @@
-import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/rainbow_widgets/circle_rainbow.dart';
-import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:perfect_order/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/rainbow_widgets/circle_rainbow.dart';
+import 'package:perfect_order/features/Image_picker/enums/image_picker_enums.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/utils/dialer.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/utils/dialer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;

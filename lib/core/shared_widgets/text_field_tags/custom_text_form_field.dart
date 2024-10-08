@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_widgets/tags/custom_tag.dart';
+import 'package:perfect_order/core/shared_widgets/tags/custom_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 

@@ -1,7 +1,7 @@
-import 'package:bonako_demo/features/shopping_cart/widgets/delivery_or_pickup/delivery_details.dart';
-import 'package:bonako_demo/features/shopping_cart/widgets/delivery_or_pickup/pickup_details.dart';
-import 'package:bonako_demo/core/shared_widgets/chips/custom_choice_chip.dart';
-import 'package:bonako_demo/features/stores/enums/store_enums.dart';
+import 'package:perfect_order/features/shopping_cart/widgets/delivery_or_pickup/delivery_details.dart';
+import 'package:perfect_order/features/shopping_cart/widgets/delivery_or_pickup/pickup_details.dart';
+import 'package:perfect_order/core/shared_widgets/chips/custom_choice_chip.dart';
+import 'package:perfect_order/features/stores/enums/store_enums.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

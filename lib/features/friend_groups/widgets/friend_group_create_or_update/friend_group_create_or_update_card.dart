@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/core/shared_widgets/button/add_or_close_button.dart';
-import 'package:bonako_demo/features/friend_groups/widgets/friend_group_create_or_update/friend_group_create_or_update.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_medium_text.dart';
+import 'package:perfect_order/core/shared_widgets/button/add_or_close_button.dart';
+import 'package:perfect_order/features/friend_groups/widgets/friend_group_create_or_update/friend_group_create_or_update.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dotted_border/dotted_border.dart';

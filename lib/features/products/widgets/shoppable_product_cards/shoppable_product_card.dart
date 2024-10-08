@@ -1,9 +1,9 @@
-import 'package:bonako_demo/features/products/widgets/shoppable_product_cards/select_product_variation_dialog.dart';
+import 'package:perfect_order/features/products/widgets/shoppable_product_cards/select_product_variation_dialog.dart';
 import 'shoppable_product_variation_cards/shoppable_product_variation_cards.dart';
 import 'components/name_price_and_product_quantity_adjuster.dart';
 import 'components/name_and_total_variation_options.dart';
 import '../../../stores/models/shoppable_store.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'components/product_description.dart';
 import 'package:provider/provider.dart';

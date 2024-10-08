@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/search/widgets/search_show/search_modal_bottom_sheet/search_modal_bottom_sheet.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
 import 'package:get/get.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';

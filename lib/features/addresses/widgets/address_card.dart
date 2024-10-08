@@ -3,12 +3,12 @@ import 'package:get/get.dart';
 import './../models/address.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/cards/custom_card.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/cards/custom_card.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_text_button.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
 
 class AddressCard extends StatefulWidget {
 

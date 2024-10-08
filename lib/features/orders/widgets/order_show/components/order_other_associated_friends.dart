@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_text_button.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:flutter/material.dart';
 
 class OrderOtherAssociatedFriends extends StatelessWidget {

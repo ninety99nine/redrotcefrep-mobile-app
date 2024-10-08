@@ -1,8 +1,8 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
-import 'package:bonako_demo/features/coupons/models/coupon.dart';
+import 'package:perfect_order/features/coupons/enums/coupon_enums.dart';
+import 'package:perfect_order/features/coupons/models/coupon.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:provider/provider.dart';

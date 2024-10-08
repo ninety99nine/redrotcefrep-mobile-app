@@ -1,6 +1,6 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/mobile_phone_icon_button.dart';
-import 'package:bonako_demo/features/products/enums/product_enums.dart';
+import 'package:perfect_order/core/shared_widgets/icon_button/mobile_phone_icon_button.dart';
+import 'package:perfect_order/features/products/enums/product_enums.dart';
 import '../associated_stores_content.dart';
 import 'package:flutter/material.dart';
 

@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../create_or_update_address_content.dart';
 import '../../../models/address.dart';
 import 'package:flutter/material.dart';

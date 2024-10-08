@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'sms_alert_activity_association.dart';
 
 class SmsAlert {

@@ -1,6 +1,6 @@
-import 'package:bonako_demo/features/api/repositories/api_repository.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
+import 'package:perfect_order/features/api/repositories/api_repository.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/api/providers/api_provider.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../../../../core/constants/constants.dart' as constants;
 import 'package:flutter/material.dart';

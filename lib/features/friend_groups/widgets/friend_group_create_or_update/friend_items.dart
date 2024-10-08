@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
 import 'package:flutter/material.dart';
 import 'friend_item.dart';
 

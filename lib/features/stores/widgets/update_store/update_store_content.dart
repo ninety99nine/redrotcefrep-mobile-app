@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/stores/widgets/update_store/update_store_form/update_store_form.dart';
+import 'package:perfect_order/features/stores/widgets/update_store/update_store_form/update_store_form.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';

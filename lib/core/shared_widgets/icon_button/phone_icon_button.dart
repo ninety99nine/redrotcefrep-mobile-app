@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/utils/dialer.dart';
+import 'package:perfect_order/core/utils/dialer.dart';
 import 'package:flutter/material.dart';
 
 class PhoneIconButton extends StatelessWidget {

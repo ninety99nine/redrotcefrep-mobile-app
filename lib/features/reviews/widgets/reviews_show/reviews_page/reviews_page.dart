@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/reviews/enums/review_enums.dart';
+import 'package:perfect_order/features/reviews/enums/review_enums.dart';
 import '../../../../stores/providers/store_provider.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';

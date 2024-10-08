@@ -1,10 +1,10 @@
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/primary_section_content/store_logo.dart';
 import '../../../../core/shared_widgets/infinite_scroll/custom_vertical_list_view_infinite_scroll.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/components/order_call_customer.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/components/order_occasion.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/components/order_call_customer.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/components/order_occasion.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/occasions/models/occasion.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/occasions/models/occasion.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../authentication/providers/auth_provider.dart';
 import '../order_show/components/order_payment_status.dart';

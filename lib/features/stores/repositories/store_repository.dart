@@ -1,8 +1,8 @@
-import 'package:bonako_demo/features/addresses/models/address.dart';
-import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
-import 'package:bonako_demo/features/occasions/models/occasion.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/stores/models/store.dart';
+import 'package:perfect_order/features/addresses/models/address.dart';
+import 'package:perfect_order/features/coupons/enums/coupon_enums.dart';
+import 'package:perfect_order/features/occasions/models/occasion.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/stores/models/store.dart';
 import '../../../../../core/shared_models/permission.dart';
 import '../../friend_groups/models/friend_group.dart';
 import '../../../../../core/utils/mobile_number.dart';

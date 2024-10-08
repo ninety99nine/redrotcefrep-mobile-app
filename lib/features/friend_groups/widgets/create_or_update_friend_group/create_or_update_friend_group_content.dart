@@ -1,6 +1,6 @@
-import 'package:bonako_demo/features/friend_groups/widgets/create_or_update_friend_group/create_or_update_friend_group_form.dart';
+import 'package:perfect_order/features/friend_groups/widgets/create_or_update_friend_group/create_or_update_friend_group_form.dart';
 import '../../../../core/shared_widgets/text/custom_title_medium_text.dart';
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
+import 'package:perfect_order/features/friend_groups/models/friend_group.dart';
 import '../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

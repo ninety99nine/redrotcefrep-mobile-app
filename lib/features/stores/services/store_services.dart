@@ -1,6 +1,6 @@
-import 'package:bonako_demo/core/shared_models/user_store_association.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:perfect_order/core/shared_models/user_store_association.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/features/products/models/product.dart';
 import '../widgets/store_page/store_page.dart';
 import '../models/shoppable_store.dart';
 import 'package:get/get.dart';

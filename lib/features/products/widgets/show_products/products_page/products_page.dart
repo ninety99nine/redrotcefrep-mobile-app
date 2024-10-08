@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:perfect_order/features/products/models/product.dart';
 import 'package:get/get.dart';
 
 import '../../../../stores/providers/store_provider.dart';

@@ -1,4 +1,4 @@
-package com.example.bonako_demo
+package shop.perfectorder.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,17 +1,17 @@
 
-import 'package:bonako_demo/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
+import 'package:perfect_order/core/shared_widgets/Loader/custom_circular_progress_indicator.dart';
 import '../../../../core/shared_widgets/text_form_field/custom_text_form_field.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_small_text.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_small_text.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:bonako_demo/core/utils/error_utility.dart';
-import 'package:bonako_demo/core/utils/mobile_number.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/mobile_number.dart';
 import '../store_emoji_picker/store_emoji_picker.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
 import '../../repositories/store_repository.dart';
 import '../../../../core/utils/snackbar.dart';
 import '../../providers/store_provider.dart';

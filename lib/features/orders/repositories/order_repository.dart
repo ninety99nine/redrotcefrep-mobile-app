@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../api/repositories/api_repository.dart';

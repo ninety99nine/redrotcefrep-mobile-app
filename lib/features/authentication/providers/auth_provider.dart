@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/user/repositories/user_repository.dart';
-import 'package:bonako_demo/features/user/models/resource_totals.dart';
+import 'package:perfect_order/features/user/repositories/user_repository.dart';
+import 'package:perfect_order/features/user/models/resource_totals.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';
 import '../repositories/auth_repository.dart';

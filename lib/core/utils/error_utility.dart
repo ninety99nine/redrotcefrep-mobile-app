@@ -1,5 +1,5 @@
-import 'package:bonako_demo/core/utils/stream_utility.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
+import 'package:perfect_order/core/utils/stream_utility.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import 'dart:async';

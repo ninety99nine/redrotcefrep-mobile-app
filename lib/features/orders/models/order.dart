@@ -1,8 +1,8 @@
-import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
-import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
-import 'package:bonako_demo/features/addresses/models/delivery_address.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/occasions/models/occasion.dart';
+import 'package:perfect_order/core/shared_models/user_order_collection_association.dart';
+import 'package:perfect_order/features/payment_methods/models/payment_method.dart';
+import 'package:perfect_order/features/addresses/models/delivery_address.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/occasions/models/occasion.dart';
 import '../../../core/shared_models/name_and_description.dart';
 import '../../../../core/shared_models/percentage.dart';
 import '../../../../core/shared_models/currency.dart';

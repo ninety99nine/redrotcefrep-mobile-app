@@ -1,11 +1,11 @@
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
-import 'package:bonako_demo/core/shared_widgets/checkbox/custom_checkbox.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_models/user_order_collection_association.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_large_text.dart';
+import 'package:perfect_order/core/shared_widgets/checkbox/custom_checkbox.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/orders/providers/order_provider.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

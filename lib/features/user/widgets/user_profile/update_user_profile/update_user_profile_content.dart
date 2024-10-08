@@ -1,11 +1,11 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/products/widgets/create_or_update_product_form/create_or_update_product_form.dart';
-import 'package:bonako_demo/features/user/providers/user_provider.dart';
-import 'package:bonako_demo/features/user/widgets/user_profile/update_user_profile/update_user_profile_form.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/features/products/widgets/create_or_update_product_form/create_or_update_product_form.dart';
+import 'package:perfect_order/features/user/providers/user_provider.dart';
+import 'package:perfect_order/features/user/widgets/user_profile/update_user_profile/update_user_profile_form.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:perfect_order/features/products/models/product.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/chat/widgets/ai_chat_content.dart';
+import 'package:perfect_order/features/chat/widgets/ai_chat_content.dart';
 import '../../../../authentication/providers/auth_provider.dart';
 import '../../../../../core/shared_models/user.dart';
 import 'package:provider/provider.dart';

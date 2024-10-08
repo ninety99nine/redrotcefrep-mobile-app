@@ -1,8 +1,8 @@
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
+import 'package:perfect_order/features/orders/providers/order_provider.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'orders_in_vertical_list_view_infinite_scroll.dart';
 import '../../../stores/providers/store_provider.dart';
 import '../../../stores/models/shoppable_store.dart';

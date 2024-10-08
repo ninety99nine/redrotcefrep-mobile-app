@@ -1,6 +1,6 @@
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/features/products/widgets/shoppable_product_cards/shoppable_product_variation_cards/shoppable_product_variation_card.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_text_button.dart';
+import 'package:perfect_order/features/products/widgets/shoppable_product_cards/shoppable_product_variation_cards/shoppable_product_variation_card.dart';
 
 import '../../../../../core/shared_widgets/message_alert/custom_message_alert.dart';
 import '../../../../../core/shared_widgets/button/show_more_or_less_button.dart';

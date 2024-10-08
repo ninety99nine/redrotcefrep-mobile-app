@@ -6,7 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bonako_demo/main.dart';
+import 'package:perfect_order/main.dart';
 import 'package:flutter/material.dart';
 
 void main() {

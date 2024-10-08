@@ -1,8 +1,8 @@
-import 'package:bonako_demo/core/utils/pusher.dart';
-import 'package:bonako_demo/features/coupons/providers/coupon_provider.dart';
-import 'package:bonako_demo/features/notifications/providers/notification_provider.dart';
-import 'package:bonako_demo/features/occasions/providers/occasion_provider.dart';
-import 'package:bonako_demo/features/transactions/providers/transaction_provider.dart';
+import 'package:perfect_order/core/utils/pusher.dart';
+import 'package:perfect_order/features/coupons/providers/coupon_provider.dart';
+import 'package:perfect_order/features/notifications/providers/notification_provider.dart';
+import 'package:perfect_order/features/occasions/providers/occasion_provider.dart';
+import 'package:perfect_order/features/transactions/providers/transaction_provider.dart';
 
 import 'features/team_members/widgets/team_members_show/team_members_page/team_members_page.dart';
 import 'features/followers/widgets/followers_show/followers_page/followers_page.dart';

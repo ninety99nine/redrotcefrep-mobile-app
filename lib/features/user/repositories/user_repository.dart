@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/utils/stream_utility.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/reviews/enums/review_enums.dart';
-import 'package:bonako_demo/features/sms_alert/models/sms_alert_activity_association.dart';
+import 'package:perfect_order/core/utils/stream_utility.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/reviews/enums/review_enums.dart';
+import 'package:perfect_order/features/sms_alert/models/sms_alert_activity_association.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../../core/shared_models/user.dart';

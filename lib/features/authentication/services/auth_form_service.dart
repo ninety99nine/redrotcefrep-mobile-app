@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
 
 import '../../../core/shared_widgets/text_form_field/custom_mobile_number_text_form_field.dart';
 import '../../../core/shared_widgets/text_form_field/custom_password_text_form_field.dart';

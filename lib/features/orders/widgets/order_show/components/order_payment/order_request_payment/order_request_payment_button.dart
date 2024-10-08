@@ -1,11 +1,11 @@
-import 'package:bonako_demo/core/shared_models/user_order_collection_association.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/credit_card_icon_button.dart';
-import 'package:bonako_demo/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:perfect_order/core/shared_models/user_order_collection_association.dart';
+import 'package:perfect_order/core/shared_widgets/icon_button/credit_card_icon_button.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/components/order_payment/order_request_payment/order_request_payment_dialog.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
 import 'package:flutter/material.dart';
 
 enum OrderRequestPaymentButtonType {

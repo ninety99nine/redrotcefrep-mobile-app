@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/coupons/enums/coupon_enums.dart';
+import 'package:perfect_order/features/coupons/enums/coupon_enums.dart';
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
 import '../../coupons/models/coupon.dart';

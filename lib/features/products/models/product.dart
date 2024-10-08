@@ -1,6 +1,6 @@
 import '../../../../core/shared_models/value_and_description.dart';
 import '../../../core/shared_models/variant_attribute.dart';
-import 'package:bonako_demo/core/shared_models/link.dart';
+import 'package:perfect_order/core/shared_models/link.dart';
 import '../../../../core/shared_models/currency.dart';
 import '../../../../core/shared_models/status.dart';
 import '../../../../core/shared_models/money.dart';

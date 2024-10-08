@@ -1,16 +1,16 @@
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/transactions/widgets/order_paying_users/order_paying_users.dart';
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
-import 'package:bonako_demo/core/shared_widgets/progress_bar/progress_bar.dart';
-import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
+import 'package:perfect_order/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
+import 'package:perfect_order/features/transactions/widgets/order_paying_users/order_paying_users.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/progress_bar/progress_bar.dart';
+import 'package:perfect_order/features/transactions/enums/transaction_enums.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_text_button.dart';
 import 'order_payment/order_request_payment/order_request_payment_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/orders/providers/order_provider.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'order_payment/order_mark_as_paid/order_mark_as_paid_button.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 

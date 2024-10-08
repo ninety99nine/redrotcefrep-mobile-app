@@ -1,10 +1,10 @@
-import 'package:bonako_demo/features/orders/widgets/order_show/order_content_by_type/order_content_by_type.dart';
-import 'package:bonako_demo/core/shared_widgets/icon_button/close_modal_icon_button.dart';
-import 'package:bonako_demo/features/stores/widgets/store_dialog_header.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/order_content_by_type/order_content_by_type.dart';
+import 'package:perfect_order/core/shared_widgets/icon_button/close_modal_icon_button.dart';
+import 'package:perfect_order/features/stores/widgets/store_dialog_header.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:flutter/material.dart';
 
 class OrderContentByTypeDialog extends StatefulWidget {

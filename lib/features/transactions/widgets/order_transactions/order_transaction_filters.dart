@@ -1,7 +1,7 @@
 import '../../../../../core/shared_widgets/chips/custom_filter_choice_chip.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
+import 'package:perfect_order/features/orders/providers/order_provider.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
 import '../../models/transaction_filters.dart' as model;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

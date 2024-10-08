@@ -1,9 +1,9 @@
-import 'package:bonako_demo/core/utils/error_utility.dart';
+import 'package:perfect_order/core/utils/error_utility.dart';
 
 import '../../../core/shared_widgets/button/custom_elevated_button.dart';
 import '../../../core/shared_widgets/button/previous_text_button.dart';
-import 'package:bonako_demo/features/api/providers/api_provider.dart';
-import 'package:bonako_demo/features/api/models/api_home.dart';
+import 'package:perfect_order/features/api/providers/api_provider.dart';
+import 'package:perfect_order/features/api/models/api_home.dart';
 import '../../introduction/widgets/landing_page.dart';
 import '../repositories/auth_repository.dart';
 import '../services/auth_form_service.dart';

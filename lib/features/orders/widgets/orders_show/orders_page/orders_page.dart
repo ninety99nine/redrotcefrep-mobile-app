@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:get/get.dart';
 
 import '../../../../stores/providers/store_provider.dart';

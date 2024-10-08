@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/friend_groups/widgets/friend_group_stores/friend_group_stores_content.dart';
-import 'package:bonako_demo/features/friend_groups/models/friend_group.dart';
+import 'package:perfect_order/features/friend_groups/widgets/friend_group_stores/friend_group_stores_content.dart';
+import 'package:perfect_order/features/friend_groups/models/friend_group.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

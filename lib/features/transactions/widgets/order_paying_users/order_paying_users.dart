@@ -1,13 +1,13 @@
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/providers/order_provider.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/orders/services/order_services.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/transactions/widgets/transaction_proof_of_payment_photo.dart';
-import 'package:bonako_demo/features/transactions/widgets/transaction_status.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/orders/providers/order_provider.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/orders/services/order_services.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/features/transactions/widgets/order_transactions/order_transactions_modal_bottom_sheet/order_transactions_modal_bottom_sheet.dart';
+import 'package:perfect_order/features/transactions/widgets/transaction_proof_of_payment_photo.dart';
+import 'package:perfect_order/features/transactions/widgets/transaction_status.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 

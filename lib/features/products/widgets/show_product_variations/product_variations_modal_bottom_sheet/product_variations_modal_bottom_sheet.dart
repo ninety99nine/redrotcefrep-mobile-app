@@ -1,6 +1,6 @@
 import '../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/features/products/models/product.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_text_button.dart';
+import 'package:perfect_order/features/products/models/product.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import '../product_variations_content.dart';
 import 'package:flutter/material.dart';

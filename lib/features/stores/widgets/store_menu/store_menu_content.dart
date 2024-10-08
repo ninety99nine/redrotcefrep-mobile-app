@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
-import 'package:bonako_demo/features/stores/widgets/update_store/update_store_modal_bottom_sheet/update_store_modal_bottom_sheet.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/features/stores/widgets/update_store/update_store_modal_bottom_sheet/update_store_modal_bottom_sheet.dart';
 
 import '../subscribe_to_store/subscribe_to_store_modal_bottom_sheet/subscribe_to_store_modal_bottom_sheet.dart';
 import '../../../../core/shared_widgets/loader/custom_circular_progress_indicator.dart';

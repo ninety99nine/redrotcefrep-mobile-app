@@ -1,8 +1,8 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_title_large_text.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
-import 'package:bonako_demo/features/authentication/providers/auth_provider.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_title_large_text.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
+import 'package:perfect_order/features/authentication/providers/auth_provider.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 

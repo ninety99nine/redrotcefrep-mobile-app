@@ -1,5 +1,5 @@
-import 'package:bonako_demo/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/stores/widgets/store_cards/store_card/secondary_section_content/secondary_section_content.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import '../../../stores/models/shoppable_store.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

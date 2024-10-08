@@ -1,10 +1,10 @@
-import 'package:bonako_demo/features/orders/widgets/order_show/components/order_viewers.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_text_button.dart';
-import 'package:bonako_demo/features/stores/models/shoppable_store.dart';
+import 'package:perfect_order/features/orders/widgets/order_show/components/order_viewers.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_text_button.dart';
+import 'package:perfect_order/features/stores/models/shoppable_store.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
-import 'package:bonako_demo/core/utils/snackbar.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
+import 'package:perfect_order/core/utils/snackbar.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
 import 'package:flutter/material.dart';
 
 class OrderViews extends StatelessWidget {

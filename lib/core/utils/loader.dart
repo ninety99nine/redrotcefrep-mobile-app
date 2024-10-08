@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
+import 'package:perfect_order/core/shared_widgets/loader/custom_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
 
 class LoaderUtility {

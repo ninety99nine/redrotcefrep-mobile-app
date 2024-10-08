@@ -1,4 +1,4 @@
-import 'package:bonako_demo/features/products/widgets/shoppable_product_cards/select_product_variation_dialog.dart';
+import 'package:perfect_order/features/products/widgets/shoppable_product_cards/select_product_variation_dialog.dart';
 import '../../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../../core/shared_widgets/text/custom_title_small_text.dart';
 import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
@@ -6,7 +6,7 @@ import '../components/name_price_and_product_quantity_adjuster.dart';
 import '../components/product_description.dart';
 import '../components/product_description.dart';
 import '../../../../stores/models/shoppable_store.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

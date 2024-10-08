@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:bonako_demo/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
-import 'package:bonako_demo/features/Image_picker/enums/image_picker_enums.dart';
-import 'package:bonako_demo/features/stores/services/store_services.dart';
+import 'package:perfect_order/features/Image_picker/widgets/image_picker_modal_bottom_sheet/image_picker_modal_bottom_sheet.dart';
+import 'package:perfect_order/features/Image_picker/enums/image_picker_enums.dart';
+import 'package:perfect_order/features/stores/services/store_services.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../../../../../core/shared_widgets/button/custom_elevated_button.dart';

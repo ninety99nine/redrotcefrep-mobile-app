@@ -1,11 +1,11 @@
-import 'package:bonako_demo/features/transactions/widgets/order_transactions/order_transactions_content.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/transactions/enums/transaction_enums.dart';
-import 'package:bonako_demo/features/stores/providers/store_provider.dart';
-import 'package:bonako_demo/features/transactions/models/transaction.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/transactions/widgets/order_transactions/order_transactions_content.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/features/transactions/enums/transaction_enums.dart';
+import 'package:perfect_order/features/stores/providers/store_provider.dart';
+import 'package:perfect_order/features/transactions/models/transaction.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import '../../../../stores/models/shoppable_store.dart';
-import 'package:bonako_demo/core/utils/dialog.dart';
+import 'package:perfect_order/core/utils/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 

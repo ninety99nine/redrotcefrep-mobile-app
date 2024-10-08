@@ -1,6 +1,6 @@
-import 'package:bonako_demo/features/payment_methods/models/payment_method.dart';
-import 'package:bonako_demo/core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/payment_methods/models/payment_method.dart';
+import 'package:perfect_order/core/shared_widgets/text/custom_body_text.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import 'package:flutter/material.dart';
 
 class OrderPaymentMethod extends StatelessWidget {

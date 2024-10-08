@@ -1,7 +1,7 @@
-import 'package:bonako_demo/core/shared_models/user.dart';
-import 'package:bonako_demo/core/shared_widgets/button/custom_elevated_button.dart';
-import 'package:bonako_demo/features/addresses/providers/address_provider.dart';
-import 'package:bonako_demo/features/addresses/widgets/create_or_update_address/create_or_update_address_form.dart';
+import 'package:perfect_order/core/shared_models/user.dart';
+import 'package:perfect_order/core/shared_widgets/button/custom_elevated_button.dart';
+import 'package:perfect_order/features/addresses/providers/address_provider.dart';
+import 'package:perfect_order/features/addresses/widgets/create_or_update_address/create_or_update_address_form.dart';
 import '../../../../../core/shared_widgets/text/custom_title_medium_text.dart';
 import '../../../../../core/shared_widgets/text/custom_body_text.dart';
 import 'package:provider/provider.dart';

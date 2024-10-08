@@ -1,7 +1,7 @@
 import '../../../../../../core/shared_widgets/bottom_modal_sheet/custom_bottom_modal_sheet.dart';
 import '../../../../../../core/shared_widgets/text/custom_body_text.dart';
-import 'package:bonako_demo/features/orders/enums/order_enums.dart';
-import 'package:bonako_demo/features/orders/models/order.dart';
+import 'package:perfect_order/features/orders/enums/order_enums.dart';
+import 'package:perfect_order/features/orders/models/order.dart';
 import '../../../../stores/models/shoppable_store.dart';
 import 'package:flutter/material.dart';
 import '../orders_content.dart';

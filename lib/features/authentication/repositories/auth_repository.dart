@@ -1,4 +1,4 @@
-import 'package:bonako_demo/core/utils/mobile_number.dart';
+import 'package:perfect_order/core/utils/mobile_number.dart';
 import '../../api/models/api_home.dart' as api_home;
 import '../../api/repositories/api_repository.dart';
 import '../../api/providers/api_provider.dart';
